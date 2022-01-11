@@ -1,0 +1,13 @@
+synxtax: glob
+
+*.pyc
+*.egg-info
+
+MANIFEST
+build
+dist
+.coverage
+
+xactions.csv
+bills.ods
+/data
