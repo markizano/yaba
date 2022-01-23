@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+
+import kizfin.cli
+import sys
+
+sys.exit( kizfin.cli.main() )
+
