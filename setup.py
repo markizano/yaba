@@ -9,7 +9,7 @@ from setuptools import setup
 
 setup(
   name='kizfinance',
-  version='2.0',
+  version='3.0',
   description='Kizano Finance App',
   author='Markizano Draconus',
   author_email='markizano@markizano.net',
@@ -18,7 +18,13 @@ setup(
 
   setup_requires=['nose'],
   install_requires=['CherryPy'],
-  package_dir={'kizfin': 'lib/kizfin'},
+  package_dir={
+    'kizfin': 'lib/kizfin',
+    'kizfin.cli': 'lib/kizfin/cli',
+    'kizfin.logger': 'lib/kizfin/logger',
+    'kizfin.models': 'lib/kizfin/models',
+    'kizfin.plugins':'lib/kizfin/plugins',
+  },
   data_files=[
     ('/etc/kizfin', [ 'etc' ]),
     ('/etc/kizfin/jinja', [ 'data/web' ] ),
