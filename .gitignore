@@ -11,3 +11,15 @@ dist
 xactions.csv
 bills.ods
 /data
+
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+*.pdf
+*.tar
+*.gz
+*.bz2
+*.xz
+*.bak

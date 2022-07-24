@@ -79,7 +79,7 @@ class CsvGroupJPMC(kizfin.plugins.CsvGroup):
                   'txns': txns
                 })
 
-class CsvAccountGroupJPMC(kizfin.plugins.CsvAccountGroup):
+class CsvAccountGroupJPMC(kizfin.plugins.CsvGroup):
     '''
     '''
 

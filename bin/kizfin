@@ -3,5 +3,4 @@
 import kizfin.cli
 import sys
 
-sys.exit( kizfin.cli.main() )
-
+sys.exit( kizfin.cli.KizFinCli.main() )

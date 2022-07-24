@@ -80,16 +80,22 @@ class CsvUnit(object):
         '''
         raise NotImplementedError('Must define %s.save()' % self.__class__.__name__ )
 
+#@interface
 class CsvGroup(list):
     '''
-    List extension to enable collecting a group of CSV files and interpreting their
+    @Interface: List extension to enable collecting a group of CSV files and interpreting their
     data from a higher order of operations. A directory is provided via the __init__()
     method and the group of CSV files under that directory are loaded into memory
     as CsvUnit() objects.
+    The directory structure under `path' may have subdirectories.
+    If the object is a directory:
+    - Name of directory becomes account name, no matter how many levels deep.
+      (folder delimiter will be preserved for sorting)
+    - CSV file becomes a CsvUnit() or derivative and part of the transaction array.
     Enables calculations of objects in groups.
     '''
 
-    def __init__(self, path, account=None):
+    def __init__(self, path, account=None, CsvUnitObj=None):
         '''
         Load up the transactions contained in CSV files under the directory provided
         by `path'.
@@ -97,20 +103,21 @@ class CsvGroup(list):
         assert path, 'CsvGroup(): Please provide a path to load.'
         assert os.path.exists(path), 'CsvGroup(%s): No such directory.' % path
         assert os.path.isdir(path), 'CsvGroup(%s): `path` is not a directory.' % path
-        self.path = path
+        # Ensure we always are dealing with full paths for later string translations.
+        self.path = os.path.realpath(path)
         self.account = account or os.path.basename(path)
+        self.csvUnit = CsvUnitObj or CsvUnit
         self.load()
 
     @abstractmethod
     def load(self):
         '''
-        @MustImplement: This method will attempt to read from its source of truth
-        and build the object's containing data from that source.
-        os.walk() the directory provided by `self.path` and attempt to load the
-        CSV objects into this object.
-        Freedom provided on how to interpret a directory for heirarchial designs.
+        Will automatically load up the contents of `self.path' and define each
+        subdirectory as the account name.
         '''
-        raise NotImplementedError('Must define %s.load()' % self.__class__.__name__ )
+        assert self.path, 'self.path required in %s.' % self.__class__.__name__
+        for root, dirs, files in os.walk(self.path):
+            account
 
     @abstractmethod
     def save(self):
