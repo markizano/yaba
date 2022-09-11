@@ -16,8 +16,8 @@ setup(
   license='GNU',
   url='https://blog.markizano.net/',
 
-  setup_requires=['nose'],
-  install_requires=['CherryPy'],
+  setup_requires=['nose', 'mock', 'unittest'],
+  install_requires=['dateparser', 'csv'],
   package_dir={
     'kizfin': 'lib/kizfin',
     'kizfin.cli': 'lib/kizfin/cli',
