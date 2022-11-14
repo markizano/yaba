@@ -23,3 +23,8 @@ bills.ods
 *.bz2
 *.xz
 *.bak
+
+# JS/Node/npm stuff
+node_modules/
+bower_components/
+package-lock.json

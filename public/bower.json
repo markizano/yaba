@@ -1,0 +1,28 @@
+{
+  "name": "yaba",
+  "authors": [
+    "Markizano Draconus <markizano@markizano.net>"
+  ],
+  "description": "Yaba: Yet Another Budgeting App",
+  "main": "index.html",
+  "keywords": [
+    "budgeting",
+    "finance",
+    "money",
+    "accounting"
+  ],
+  "license": "GPLv3",
+  "homepage": "https://blog.markizano.net/",
+  "private": true,
+  "dependencies": [
+    "jquery#3.6.1",
+    "angular#1.8.3"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
