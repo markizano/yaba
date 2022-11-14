@@ -17,10 +17,11 @@ setup(
   url='https://blog.markizano.net/',
 
   setup_requires=['nose', 'mock', 'unittest'],
-  install_requires=['dateparser', 'csv'],
+  install_requires=['dateparser', 'csv', 'pymongo'],
   package_dir={
     'kizfin': 'lib/kizfin',
     'kizfin.cli': 'lib/kizfin/cli',
+    'kizfin.adapters': 'lib/kizfin/adapters',
     'kizfin.logger': 'lib/kizfin/logger',
     'kizfin.models': 'lib/kizfin/models',
     'kizfin.plugins':'lib/kizfin/plugins',
@@ -34,4 +35,3 @@ setup(
 
   scripts=glob.glob('bin/*')
 )
-

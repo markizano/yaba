@@ -1,7 +1,6 @@
 
 import kizfin.adapters.mongo
-
-import kizfin.models.transaction
+from kizfin.models.transaction import Transaction, TransactionCollection
 
 class Account(object):
     '''
@@ -27,6 +26,8 @@ class Account(object):
         for prop in list( self.__dict__.keys() ):
             if prop == 'accountId':
                 continue
+            if prop.startswith('_'):
+                prop = prop[1:]
             value = getattr(self, prop)
             if value is None:
                 continue
@@ -40,10 +41,11 @@ class Account(object):
     def interestRate(self, value):
         if value:
             self._interestRate = float(value)
+
     @property
     def transaction(self):
         return self._transaction
     @transaction.setter
     def transaction(self, value):
-        if not isinstance(value, kizfin.models.transaction.Transaction):
-            value = kizfin.models.transaction.Transaction(*value)
+        if not isinstance(value, Transaction):
+            value = Transaction(*value)
