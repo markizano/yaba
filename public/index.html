@@ -2,9 +2,11 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <base href='/' />
         <link rel="stylesheet" type="text/css" href="assets/css/reset.css" />
         <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
-        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+        <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+        <script type="text/javascript" src="bower_components/angular-route/angular-route.js"></script>
         <script type="text/javascript" src="assets/js/main.js"></script>
     </head>
     <body>
@@ -12,21 +14,20 @@
             <header>
                 <div id="navbar">
                     <ul>
-                        <li><a href="#">Dashboard</a></li>
-                        <li><a href="#/budget">Budgeting</a></li>
-                        <li><a href="#/accounts">Accounts</a></li>
-                        <li><a href="#/institutions">Institutions</a></li>
-                        <li><a href="#/settings">Settings</a></li>
+                        <li><a href="/home">Dashboard</a></li>
+                        <li><a href="/budget">Budgeting</a></li>
+                        <li><a href="/accounts">Accounts</a></li>
+                        <li><a href="/institutions">Institutions</a></li>
+                        <li><a href="/settings">Settings</a></li>
                     </ul>
                 </div>
             </header>
             <div id="content">
-                <!-- Use JS to fill the void here with views from other pages -->
+                <ng-view></ng-view>
             </div>
             <footer>
-                Powered by HTML! A Kizano Foundation Creation. <script type="text/javascript">document.write((new Date()).getFullYear());</script>
+                Powered by AngularJS! A Kizano Foundation Creation. <script type="text/javascript">document.write((new Date()).getFullYear());</script>
             </footer>
         </div>
-        <script type="text/javascript" src=""></script>
     </body>
 </html>
