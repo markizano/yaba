@@ -28,3 +28,7 @@ bills.ods
 node_modules/
 bower_components/
 package-lock.json
+
+.idea/
+.vscode/
+.nb/
