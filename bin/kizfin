@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import kizfin.cli
+import yaba.cli
 import sys
 
-sys.exit( kizfin.cli.KizFinCli.main() )
+sys.exit( yaba.cli.KizFinCli.main() )
