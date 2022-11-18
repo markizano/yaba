@@ -26,4 +26,22 @@
             </tbody>
         </table>
     </div>
+    <div class="errors">{{ error }}</div>
+</div>
+<div id="newAccount" ng-controller="newAccount" ng-show="true">
+    <close class="ng-close">X</close>
+    <h3>New Account:</h3>
+    <form>
+        Name: <input type="text" ng-value="name" id="name" /><br />
+        Institution: <select id="institutionId" ng-model="institutionId" ng-options="institution for institution in institutions"></select><br />
+        Account Type: <select id="accountType" ng-model="accountType" ng-options="acctType for acctType in accountTypes"></select><br />
+        Account Number: <input type="text" ng-model="accountNumber" id="accountNumber" /><br />
+        Routing Number: <input type="text" ng-model="routingNumber" id="routingNumber" /><br />
+        Interest Rate: <input type="number" id="interestRate" ng-value="interestRate" /><br />
+        Interest Strategy <select id="interestStrategy" ng-model="interestStrategy">
+            <option default="true" value="simple">Simple</option>
+            <option value="compound">Compound</option>
+        </select><br />
+        <input type="submit" Value="Create New Account" />
+  </form>
 </div>

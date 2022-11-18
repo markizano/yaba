@@ -7,8 +7,12 @@ from kizano import getLogger
 log = getLogger(__name__)
 
 class ApiServer(object):
+    '''
+    API Server that will act as our main way of handling/passing off data to the front-end/client.
+    '''
 
     @cherrypy.expose()
+    @cherrypy.tools.json_out()
     def accounts(self, *args, **kwargs):
         '''
         Management of accounts.
@@ -18,8 +22,7 @@ class ApiServer(object):
         PUT: Update an account.
         @return (json). Results of the operation (success/fail, message).
         '''
-        cherrypy.response.headers['Content-Type'] = 'application/json'
-        return json.dumps({
+        return {
             'accounts': [
                 {
                     'id': '11111111',
@@ -27,21 +30,98 @@ class ApiServer(object):
                     'institution': 'Hardcode Inst',
                 }
             ]
-        }).encode('UTF-8')
+        }
 
     @cherrypy.expose()
+    @cherrypy.tools.json_out()
     def institutions(self, *args, **kwargs):
         '''
         Management of institutions.
         '''
+        return {
+            'institutions': [
+                {
+                    'name': 'JPMC',
+                    'description': 'JPMC Credit Card',
+                    'mappings': [
+                        {
+                            'mapType': 'static',
+                            'fromField': 'USD',
+                            'toField': 'currency'
+                        },
+                        {
+                            'mapType': 'dynamic',
+                            'fromField': 'Date Posted',
+                            'toField': 'datePosted'
+                        },
+                        {
+                            'mapType': 'dynamic',
+                            'fromField': 'Date Pending',
+                            'toField': 'datePending'
+                        },
+                        {
+                            'mapType': 'dynamic',
+                            'fromField': 'Amount',
+                            'toField': 'amount'
+                        },
+                        {
+                            'mapType': 'dynamic',
+                            'fromField': 'Memo',
+                            'toField': 'description'
+                        },
+                        {
+                            'mapType': 'dynamic',
+                            'fromField': 'Summary',
+                            'toField': 'name'
+                        }
+                    ]
+                },
+                {
+                    'name': 'BoA',
+                    'description': 'BoA Checking',
+                    'mappings': [
+                        {
+                            'mapType': 'static',
+                            'fromField': 'USD',
+                            'toField': 'currency'
+                        },
+                        {
+                            'mapType': 'dynamic',
+                            'fromField': 'Transaction Date',
+                            'toField': 'datePosted'
+                        },
+                        {
+                            'mapType': 'dynamic',
+                            'fromField': 'Pend Date',
+                            'toField': 'datePending'
+                        },
+                        {
+                            'mapType': 'dynamic',
+                            'fromField': 'Amount',
+                            'toField': 'amount'
+                        },
+                        {
+                            'mapType': 'dynamic',
+                            'fromField': 'Notes',
+                            'toField': 'description'
+                        },
+                        {
+                            'mapType': 'dynamic',
+                            'fromField': 'Transaction',
+                            'toField': 'name'
+                        }
+                    ]
+                }
+            ]
+        }
 
     @cherrypy.expose()
+    @cherrypy.tools.json_out()
     def transactions(self, *args, **kwargs):
         '''
         Management of transactions.
         '''
-        cherrypy.response.headers['Content-Type'] = 'application/json'
-        return json.dumps({
+        return {
             'transactions': [
                 {
                     'id': '0x0001',
@@ -84,14 +164,15 @@ class ApiServer(object):
                     ]
                 }
             ]
-        }).encode('UTF-8')
-        
+        }
 
     @cherrypy.expose()
+    @cherrypy.tools.json_out()
     def settings(self, *args, **kwargs):
         '''
         Management of Settings.
         '''
+        return {}
 
 class Server(object):
     '''
@@ -103,7 +184,6 @@ class Server(object):
         cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
         cherrypy.response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
         self.api = ApiServer()
-        cherrypy.expose(self.api)
 
     def getConfig(self):
         '''
@@ -140,13 +220,14 @@ class Server(object):
     budget = index
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def e403(self, **kwargs):
         cherrypy.response.headers['Content-Type'] = 'application/json'
-        return json.dumps({
+        return {
             'error': 403,
             'message': 'method not accepted',
             'explain': 'That is an invalid operation. Please check your request before trying again.'
-        })
+        }
 
     @cherrypy.expose
     def halt(self, **kwargs):

@@ -2,3 +2,42 @@
 <p>
     This is where you configure your Banks and other places where money is held and you want to track here.
 </p>
+
+<div id="institutions" ng-controller="institutions">
+    <input type="button" ng-click="showNew()" value="Add Institution" />
+    <div ng-repeat="institution in institutions">
+        <h4>{{ institution.name }}</h4>
+        <p>{{ institution.description }}</p><br />
+        <ul>
+            <li ng-repeat="mapping in institution.mappings">{{ mapping.fromField }} -> {{ mapping.toField }} ( {{ mapping.mapType }} )</li>
+        </ul>
+    </div>
+    <div class="errors">{{ error }}</div>
+</div>
+
+<div id="newInstitution" ng-controller="newInstitution">
+    <close class="ng-close" ng-click="hideNew()">X</close>
+    <h3>New Institution</h3>
+    <form>
+        Name: <input type="text" ng-model="institution.name" id="name" /><br />
+        Description: <input type="text" ng-model="institution.description" id="name" /><br />
+        Mapping: <plus class="ng-add" ng-click="addMapping()">+</plus><br />
+        <ul>
+            <li ng-repeat="mapping in institution.mappings">
+                <span ng-if="mapping.mapType == 'static'">
+                    From Value: <input type="text" ng-model="mapping.fromField" id="fromField" />
+                </span>
+                <span ng-if="mapping.mapType == 'dynamic'">
+                    From Field: <input type="text" ng-model="mapping.fromField" id="fromField" />
+                </span>
+                <!-- @TODO: Use an API call to derive the fields/keys of the cannoncial model.  -->
+                To Field: <input type="text" ng-model="mapping.toField" id="toField" />
+                Mapping Type: <select ng-model="mapping.mapType" id="mapType">
+                    <option value="static">Static</option>
+                    <option value="dynamic">Dynamic</option>
+                </select>
+            </li>
+        </ul>
+        <input type="submit" Value="Create New Institution" />
+    </form>
+</div>
