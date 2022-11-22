@@ -21,8 +21,11 @@
     function budget($scope, $http) {
         console.log('Budget controller');
         services = { $http: $http, $scope: $scope };
+        var accts = new Yaba.models.Accounts(services);
         var xactions = new Yaba.models.Transactions(services);
         xactions.load();
+        accts.load({ withTransactions: true })
+
         $scope.distinctSum = distinctSum;
         $scope.startDate = new Date( Date.now() - x30_DAYS );
         $scope.endDate = new Date();
@@ -98,8 +101,8 @@
         budget: ['$scope', '$http', budget],
         accounts: ['$scope', '$http', accounts],
         institutions: ['$scope', '$http', institutions],
-        prospect: ['$scope', '$http', prospect],
-        charts: ['$scope', '$http', '$timeout', charts]
+        charts: ['$scope', '$http', '$timeout', charts],
+        prospect: ['$scope', '$http', prospect]
     })
 
     // Register the controllers to the AngularJS interfaces.

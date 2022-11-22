@@ -218,6 +218,7 @@ class Server(object):
     institutions = index
     settings = index
     budget = index
+    prospect = index
     charts = index
 
     @cherrypy.expose
