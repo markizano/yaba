@@ -70,6 +70,23 @@
         banks.load();
     }
 
+    function charts($scope, $http, $timeout) {
+        $scope.$watch('$viewContentLoaded', () => {
+            $timeout(() => {
+                let dtopts = {
+                    changeMonth: true,
+                    changeYear: true,
+                    dateFormat: "yy-mm-dd"
+                };
+                $('fromDate').datepicker(dtopts);
+                $('toDate').datepicker(dtopts);
+                console.log('document.datepicker()');
+            }, 0);
+        });
+        var accts = new Yaba.models.Accounts({$scope: $scope, $http: $http})
+        accts.load({ withTransactions: false });
+    }
+
     /**
      * Angular Prospecting Controller.
      */
@@ -81,13 +98,15 @@
         budget: ['$scope', '$http', budget],
         accounts: ['$scope', '$http', accounts],
         institutions: ['$scope', '$http', institutions],
-        prospect: ['$scope', '$http', prospect]
+        prospect: ['$scope', '$http', prospect],
+        charts: ['$scope', '$http', '$timeout', charts]
     })
 
     // Register the controllers to the AngularJS interfaces.
     Yaba.app.controller('budget', Yaba.controllers.budget);
     Yaba.app.controller('accounts', Yaba.controllers.accounts);
     Yaba.app.controller('institutions', Yaba.controllers.institutions);
+    Yaba.app.controller('charts', Yaba.controllers.charts);
     Yaba.app.controller('prospect', Yaba.controllers.prospect);
 
     return Yaba;

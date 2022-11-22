@@ -218,6 +218,7 @@ class Server(object):
     institutions = index
     settings = index
     budget = index
+    charts = index
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

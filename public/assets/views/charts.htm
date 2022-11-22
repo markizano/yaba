@@ -1,0 +1,10 @@
+<div id="charts" ng-controller="charts" class="controller">
+    <h1>Charts</h1>
+    <p>Charts help us visualize our data to observe trends over time.</p>
+    <controls>
+        From Date: <input type="text" id="fromDate" ng-model="fromDate" />&nbsp;&nbsp;
+        To Date: <input type="text" id="toDate" ng-model="toDate" />&nbsp;
+        Account: <select ng-model="accountName" ng-options="account.name for account in accounts"></select>
+    </controls>
+    <div id="mychart" style="width: 80%; height: 800px"></div>
+</div>
