@@ -2,8 +2,10 @@
 /**
  * App Initialization Models for setting up and configuring AngularJS.
  */
-var Yaba = (function(Yaba, angular) {
-    Yaba || (Yaba = angular.module('yaba', ['ngRoute']));
+var Yaba = (function(Yaba) {
+
+    Yaba || ( Yaba = {} );
+    Yaba.hasOwnProperty('app') || (Yaba.app = angular.module('yaba', ['ngRoute', 'ngAnimate', 'ngMessages', 'ngMaterial']));
 
     // AngularJS Client Interactions
     function pageConfig($locationProvider, $routeProvider) {
@@ -24,7 +26,7 @@ var Yaba = (function(Yaba, angular) {
         $routeProvider.otherwise({ template: '<h1>404</h1><p>Page not found!</p><br />Route: {{ $route }}' });
     }
 
-    Yaba.config(pageConfig);
+    Yaba.app.config(pageConfig);
 
     return Yaba;
-})(Yaba, angular);
+})(Yaba);

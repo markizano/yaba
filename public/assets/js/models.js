@@ -10,20 +10,23 @@
         'loan',
         'crypto'
     ];
+
     const EMPTY_Account = {
         id: '',
         name: '',
         description: '',
         accountType: AccountTypes,
-        number: 1234567890,
-        routing: 0123456,
+        number: 0,
+        routing: 0,
         interestRate: 0.0,
         interestStrategy: ['simple', 'compound']
     }
+
     const EMPTY_Institution = {
+        id: '',
         name: '', // string
         description: '', // string
-        mapping: [
+        mappings: [
             {
                 fromField: '', // string
                 toField: '', // string
@@ -37,73 +40,128 @@
 
     }
 
-    /**
-     * Budget page model.
-     */
-    function budget() {
-
-    }
-
-    /**
-     * Model.gotAccounts. Handles after we've received accounts from the server API.
-     * @param {Object} accounts Accounts received from the API endpoint.
-     * @param {angular.$scope} $scope
-     */
-    function accounts(accounts, transactions, $scope) {
-        $scope.accounts = accounts;
-        $scope.accountTypes = AccountTypes;
-        $scope.newAccount = showNewAccount;
-        $scope.accounts.forEach((account) => {
-            Yaba.http.getTransactions(account.id, $http)
-              .then(function(response) {
-                return Yaba.models.gotTransactions(response.data, $scope)
-              }, (response) => Yaba.utils.ajaxError($scope, response));
-        });
-    }
     class Accounts {
         constructor(services) {
-            services.hasOwnProperty('$http') && ( this.http = services.$http );
-            services.hasOwnProperty('$scope') && ( this.scope = services.$scope );
+            services.hasOwnProperty('$http') && ( this.$http = services.$http );
+            services.hasOwnProperty('$scope') && ( this.$scope = services.$scope );
         }
 
         /**
          * Load accounts to be loaded to the form.
          * @returns Object<Institution>
          */
-         async load(options={}) {
-            var result = {},
-              response = await this.http({
+        load(options={}) {
+            const that = this;
+            return this.$http({
                 method: 'GET',
                 url: '/api/accounts'
+            }).then(function(response) {
+                that.$scope.accounts = [];
+                response.data.accounts.forEach( (account) => {
+                    if ( options.hasOwnProperty('withTransactions') && options.withTransactions ) {
+                        var transactions = new Transactions({ $scope: account, $http: that.$http });
+                        transactions.load({
+                            accountId: account.id,
+                            fromDate: options.fromDate || '-30 days',
+                            toDate: options.toDate || 'today'
+                        });
+                    }
+                    that.$scope.accounts.push(account);
+                });
             });
-            response.data.accounts.forEach((account) => {
-                if ( options.hasOwnProperty('withTransactions') && options.withTransactions ) {
-                    account.transactions = Transactions({ accountId: account.id });
+        }
+
+        /**
+         * Save an account to the server based on what is in the local scope.
+         * @returns null
+         */
+        save() {
+            options = {
+                account: {
+                    name: this.$scope.account.name,
+                    description: this.$scope.account.description,
+                    number: this.$scope.account.number,
+                    routing: this.$scope.account.routing,
+                    institutionId: this.$scope.account.institutionId,
+                    interestRate: this.$scope.account.interestRate,
+                    interestStrategy: this.$scope.account.interestStrategy
                 }
-                result.push(account);
-            });
-            return result;
+            };
+            return this.$http({
+                method: 'POST',
+                url: '/api/accounts',
+                params: options
+            })
         }
     }
 
-    class Institution {
+    class Transactions {
         constructor(services) {
-            services.hasOwnProperty('$http') && ( this.http = services.$http );
-            services.hasOwnProperty('$scope') && ( this.scope = services.$scope );
+            this.$http = services.$http;
+            this.$scope = services.$scope;
+        }
+
+        load(query={}) {
+            var that = this;
+            var options = {
+                accountId: query.accountId,
+                fromDate: query.fromDate || '-30 days',
+                toDate: query.toDate || 'today',
+                tags: query.tags || []
+            };
+            return this.$http({
+                method: 'GET',
+                url: '/api/transactions',
+                params: options
+            }).then(function(response) {
+                return that.$scope.transactions = response.data.transactions;
+            });
+
+        }
+
+        save() {
+            var transaction = {
+                id: this.$scope.id,
+                name: this.$scope.name,
+                description: this.$scope.description,
+                datePending: this.$scope.datePending,
+                datePosted: this.$scope.datePosted,
+                amount: this.$scope.amount,
+                accountId: this.$scope.accountId,
+                tags: ( (tags) => {
+                    var result = [];
+                    tags.forEach(tag => {
+                        result.push(tag);
+                    })
+                    return result;
+                })( this.$scope.tags.split(',') )
+            };
+            return this.$http({
+                method: 'POST',
+                url: '/api/transactions',
+                params: { transaction: transaction }
+            });
+        }
+    }
+
+    class Institutions {
+        constructor(services) {
+            this.$http = services.$http;
+            this.$scope = services.$scope;
         }
 
         /**
          * Query for an institution, many institutions and get more details in list format.
          * @returns Object<Institution>
          */
-        async load() {
-            var result = await this.http({
+        load() {
+            var that = this;
+            return this.$http({
                 method: 'GET',
                 url: '/api/institutions'
+            }).then(function(response) {
+                return that.$scope.institutions = response.data.institutions;
             });
-            console.log(result);
-            this.scope.institutions = result.data.institutions;
-            return this.scope.institutions;
         }
 
         /**
@@ -111,42 +169,47 @@
          * @param {Interface Institution} institution The Institution we are saving to the server.
          * @returns HTTPResponse.
          */
-        async save() {
+        save() {
             options = {
                 institution: {
-                    name: this.scope.institution.name,
-                    description: this.scope.institution.description,
+                    name: this.$scope.institution.name,
+                    description: this.$scope.institution.description,
                     mappings: []
                 }
             };
-            this.scope.institution.mappings.forEach( (mapping) => {
+            this.$scope.institution.mappings.forEach( (mapping) => {
                 options.institution.mappings.push({
                     fromField: mapping.fromField,
                     toField: mapping.toField,
                     mapType: mapping.mapType
                 })
             });
-            return await this.http({
+            return this.$http({
                 method: 'POST',
                 url: '/api/institutions',
                 params: options
             });
         }
+        
     }
 
-    /**
-     * Model.prospect: In order to prospect transactions and spending.
-     */
-    function prospect() {
+    class Prospect {
+        constructor(services) {
+            services.hasOwnProperty('$http') && ( this.$http = services.$http );
+            services.hasOwnProperty('$scope') && ( this.$scope = services.$scope );
+        }
 
     }
 
-    Object(Yaba).hasOwnProperty('models') || (Yaba.models = {
-        gotAccounts: accounts,
+    Yaba.hasOwnProperty('models') || (Yaba.models = {
+        AccountTypes: AccountTypes,
+        EMPTY_Account: EMPTY_Account,
+        EMPTY_Institution: EMPTY_Institution,
+
         Accounts: Accounts,
-        Institution: Institution,
-        gotBudget: budget,
-        gotProspects: prospect
+        Institutions: Institutions,
+        Transactions: Transactions,
+        Prospect: Prospect
     });
 
     return Yaba;

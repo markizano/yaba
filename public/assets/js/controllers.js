@@ -3,23 +3,29 @@
  * Controllers
  */
  (function(Yaba) {
-    const EMPTY_INSTITUTION = {
-        name: null,
-        description: null,
-        mappings: [
-            {
-                fromField: null,
-                toField: null,
-                mapType: null
-            }
-        ]
-    };
+
+    const x30_DAYS = 2592000000;
+
+    function distinctSum(transactions=[]) {
+        var result = [];
+        console.log(transactions);
+        transactions.forEach(xaction => {
+            result.push([ xaction.name, xaction.amount ])
+        })
+        return result;
+    }
 
     /**
      * Angular Budget Controller.
      */
     function budget($scope, $http) {
         console.log('Budget controller');
+        services = { $http: $http, $scope: $scope };
+        var xactions = new Yaba.models.Transactions(services);
+        xactions.load();
+        $scope.distinctSum = distinctSum;
+        $scope.startDate = new Date( Date.now() - x30_DAYS );
+        $scope.endDate = new Date();
     }
 
     /**
@@ -28,22 +34,16 @@
      * @param {angular.service.$http} $http angular controller $http service.
      */
     function accounts($scope, $http) {
-        console.log('Accounts controller.');
+        services = { $http: $http, $scope: $scope };
+        $scope.accountTypes = Yaba.models.AccountTypes;
+        $scope.institutions = [];
+        $scope.accounts = [];
 
-        model = new Yaba.models.Institution({
-            http: $http,
-            scope: $scope
-        });
-        model.get();
-        Yaba.models.getAccounts($http).then(function(response) {
-            return Yaba.models.gotAccounts(response.data, $scope);
-        }, function(response) {
-            return Yaba.utils.ajaxError(response, $scope);
-        });
+        var accts = new Yaba.models.Accounts(services);
+        var banks = new Yaba.models.Institutions(services);
 
-        Yaba.http.getInstitutions($http).then(function(response) {
-            return Yaba.models.gotInstitutions(response.data, $scope);
-        }, (response) => Yaba.utils.ajaxError(response, $scope));
+        accts.load({ withTransactions: true });
+        banks.load();
     }
 
     /**
@@ -52,22 +52,22 @@
      * @param {angular.service.$http} $http Angular $http service.
      */
     function institutions($scope, $http) {
-        var model = new Yaba.models.Institution({
-            $scope: $scope,
-            $http: $http
-        });
-        model.load()
-        if ( !$scope.hasOwnProperty('institution') ) {
-            $scope.institution = EMPTY_INSTITUTION;
-        }
-
+        console.log('Yaba.app.controller(institution).load()');
+        $scope.institutions = [{}];
+        $scope.institution = Yaba.models.EMPTY_Institution;
         $scope.addMapping = function addMapping() {
             $scope.institution.mappings.push({
                 fromField: null,
                 toField: null,
-                mapType: 'dynamic'
+                mapType: null
             })
-        }
+        };
+
+        var banks = new Yaba.models.Institutions({
+            $scope: $scope,
+            $http: $http
+        });
+        banks.load();
     }
 
     /**
@@ -77,10 +77,18 @@
         console.log('Prospect controller');
     }
 
+    Yaba.hasOwnProperty('controllers') || (Yaba.controllers = {
+        budget: ['$scope', '$http', budget],
+        accounts: ['$scope', '$http', accounts],
+        institutions: ['$scope', '$http', institutions],
+        prospect: ['$scope', '$http', prospect]
+    })
+
     // Register the controllers to the AngularJS interfaces.
-    Yaba.controller('budget', ['$scope', '$http', budget]);
-    Yaba.controller('accounts', ['$scope', '$http', accounts]);
-    Yaba.controller('institutions', ['$scope', '$http', institutions]);
-    Yaba.controller('prospect', ['$scope', '$http', prospect]);
+    Yaba.app.controller('budget', Yaba.controllers.budget);
+    Yaba.app.controller('accounts', Yaba.controllers.accounts);
+    Yaba.app.controller('institutions', Yaba.controllers.institutions);
+    Yaba.app.controller('prospect', Yaba.controllers.prospect);
+
     return Yaba;
 })(Yaba);

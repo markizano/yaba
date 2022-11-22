@@ -1,13 +1,16 @@
-<div id="institutions" ng-controller="institutions">
+<div id="institutions" ng-controller="institutions" class="controller">
     <h1>Institutions</h1>
     <p>
-        This is where you configure your Banks and other places where money is held and you want to track here.
+        This is where you configure your Banks and
+        other places where money is held and you want
+        to track here.
     </p>
+
     <input type="button" ng-click="showNew()" value="Add Institution" />
-    <div class="institutionList" ng-repeat="institution in institutions">
-        <h4>{{ institution.name }}</h4>
+    <div class="item-list-wrapper" ng-repeat="institution in institutions">
+        <h2>{{ institution.name }}</h4>
         <p>{{ institution.description }}</p><br />
-        <table id="{{ institution.id }}" class="institution-mappings">
+        <table id="{{ institution.id }}" class="institution-mappings data item-list">
             <thead>
                 <th>From Field</th>
                 <th>To Field</th>
@@ -24,20 +27,18 @@
     </div>
     <div class="errors">{{ error }}</div>
 
-    <div id="newInstitution" class="formController" ng-init="newOrEdit = 'New';">
-        <close class="ng-close" ng-click="hideNew()">X</close>
-        <h3>{{ newOrEdit }} Institution</h3>
+    <div id="newInstitution" class="new-item-wrapper" ng-show="true" ng-init="newOrEdit = 'New';">
+        <close class="ng-close" ng-click="hideBox()">X</close>
+        <h1>{{ newOrEdit }} Institution</h3>
         <form>
             <span class="label">Name: <input type="text" ng-model="institution.name" id="name" /></span>
             <span class="label">Description: <input type="text" ng-model="institution.description" id="name" /></span>
             <span class="label">Mapping: <plus class="ng-add" ng-click="addMapping()">+</plus></span>
             <ul>
                 <li ng-repeat="mapping in institution.mappings">
-                    <span class="label" ng-if="mapping.mapType == 'static'">
-                        From Value: <input type="text" ng-model="mapping.fromField" id="fromField" />
-                    </span>
-                    <span class="label" ng-if="mapping.mapType == 'dynamic'">
-                        From Field: <input type="text" ng-model="mapping.fromField" id="fromField" />
+                    <span class="label">
+                        From {{ mapping.mapType == 'static'? 'Value': 'Field' }}:
+                        <input type="text" ng-model="mapping.fromField" id="fromField" />
                     </span>
                     <!-- @TODO: Use an API call to derive the fields/keys of the cannoncial model.  -->
                     <span class="label">To Field: <input type="text" ng-model="mapping.toField" id="toField" /></span>
@@ -47,7 +48,7 @@
                     </select></span>
                 </li>
             </ul>
-            <input type="submit" Value="Create New Institution" />
+            <input type="submit" Value="Save Institution" />
         </form>
     </div>
 </div>
