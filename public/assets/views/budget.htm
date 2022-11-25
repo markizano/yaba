@@ -3,27 +3,23 @@
     <p>Budgeting helps ensure we stay on track for spending.</p>
     <div class="item-list-wrapper">
         <!-- ng-control: DatePicker -->
-        <!--md-content layout="column" layout-gt-sm="row" layout-padding="" ng-cloak="">
-            <div layout="column" flex-order="1" flex-order-gt-sm="0">
-                <md-subheader>Start Date</md-subheader>
-                <md-calendar ng-model="startDate"></md-calendar>
+        <md-content layout-padding ng-cloak>
+            <div layout-gt-xs="row">
+              <div flex-gt-xs>
+                <md-datepicker ng-model="fromDate"
+                    md-placeholder="From date"
+                    input-aria-describedby="datepicker-description"
+                    input-aria-labelledby="datepicker-header ">
+                </md-datepicker>
+                &nbsp;
+                <md-datepicker ng-model="toDate"
+                    md-placeholder="To date"
+                    input-aria-describedby="datepicker-description"
+                    input-aria-labelledby="datepicker-header ">
+                </md-datepicker>
+              </div>
             </div>
-            <div layout="column" flex-order="1" flex-order-gt-sm="1">
-                <md-subheader>End Date</md-subheader>
-                <md-calendar ng-model="endDate"></md-calendar>
-            </div>
-            <div layout="column" flex-order="0" flex-order-gt-sm="2">
-                <md-subheader>Dates</md-subheader>
-                <div>
-                    <label>Start</label>
-                    <div>{{ startDate | date:shortDate}}</div>
-                </div>
-                <div>
-                    <label>End</label>
-                    <div>{{ endDate | date:shortDate}}</div>
-                </div>
-            </div>
-        </md-content-->
+        </md-content>
         <!-- end: ng-control-->
         
         <!-- ng-control: AccountPicker -->
@@ -44,7 +40,7 @@
                     <td>{{ txn.accountId }}</td>
                     <td>{{ txn.description }}</td>
                     <!-- @TODO: Turn this into a fuzzy edit label maker control/input -->
-                    <td>{{ txn.tags.join(", ") }}</td>
+                    <td><md-chips ng-model="txn.tags" ng-blur="save();"></md-chips></td>
                 </tr>
             </tbody>
         </table>
@@ -52,7 +48,7 @@
     <div>
         <h2>Budgets</h2>
         <ul>
-            <li ng-repeat="xaction in transactions">{{ xaction.name }}: ${{ xaction.amount }}</li>
+            <li ng-repeat="transaction in transactions">{{ transaction.name }}: ${{ transaction.amount }}</li>
         </ul>
     </div>
     <div class="errors">{{ error }}</div>

@@ -28,6 +28,7 @@ class ApiServer(object):
                     'id': '11111111',
                     'name': 'Hardcode Bank',
                     'institution': 'Hardcode Inst',
+                    'balance': 109.84
                 }
             ]
         }

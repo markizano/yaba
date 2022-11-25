@@ -3,6 +3,7 @@
  * Controllers
  */
  (function(Yaba) {
+    'use strict';
 
     const x30_DAYS = 2592000000;
 
@@ -74,18 +75,6 @@
     }
 
     function charts($scope, $http, $timeout) {
-        $scope.$watch('$viewContentLoaded', () => {
-            $timeout(() => {
-                let dtopts = {
-                    changeMonth: true,
-                    changeYear: true,
-                    dateFormat: "yy-mm-dd"
-                };
-                $('fromDate').datepicker(dtopts);
-                $('toDate').datepicker(dtopts);
-                console.log('document.datepicker()');
-            }, 0);
-        });
         var accts = new Yaba.models.Accounts({$scope: $scope, $http: $http})
         accts.load({ withTransactions: false });
     }

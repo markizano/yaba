@@ -2,6 +2,8 @@
  * Models around Yaba controllers. Tie HTTP calls and data together.
  */
 (function(Yaba) {
+    'use strict';
+
     const AccountTypes = [
         'checking',
         'savings',
@@ -33,11 +35,6 @@
                 mapType: '' // {enum(string)}, one of ['dynamic', 'static'].
             }
         ]
-    }
-
-    // Animate the modal open/close operation.
-    function showNewAccount() {
-
     }
 
     class Accounts {
@@ -213,4 +210,28 @@
     });
 
     return Yaba;
+})(Yaba);
+
+(function(Yaba){
+    /* Forms */
+    class InstitutionForm {
+        constructor() {
+            this.$element = $element;
+        }
+    }
+
+    function institutionForm() {
+        return {
+            template: '<div class="new-item-wrapper">',
+            controller: InstitutionForm,
+            controllerAs: 'institutionForm',
+            bindToController: true,
+        };
+    }
+
+    Yaba.hasOwnProperty('components') || (Yaba.components = {
+        InstitutionForm: InstitutionForm
+    });
+
+    angular.directive('yaba.components.institution', institutionForm);
 })(Yaba);

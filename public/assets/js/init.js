@@ -3,6 +3,7 @@
  * App Initialization Models for setting up and configuring AngularJS.
  */
 var Yaba = (function(Yaba) {
+    'use strict';
 
     Yaba || ( Yaba = {} );
     Yaba.hasOwnProperty('app') || (Yaba.app = angular.module('yaba', ['ngRoute', 'ngAnimate', 'ngMessages', 'ngMaterial']));

@@ -5,7 +5,7 @@
     <div class="item-list-wrapper" ng-repeat="account in accounts">
         <h2 class="title">{{ account.name }}&nbsp;<span class="accountBalance">${{ account.balance }}</span></h2>
         <p>{{ account.description }}</p><br />
-        <table id="{{ account.id }}" class="data item-list" ng-init="account.txnSort= 'datePosted';">
+        <table class="data item-list" ng-init="account.txnSort= 'datePosted';">
             <thead>
                 <th ng-click="account.txnSort = 'datePending';">Date Pending</th>
                 <th ng-click="account.txnSort = 'datePosted';">Date Posted</th>
@@ -41,7 +41,7 @@
                 <option default="true" value="simple">Simple</option>
                 <option value="compound">Compound</option>
             </select></span>
-            <input type="submit" Value="Save Account" />
+            <input type="submit" Value="Save Account" ng-click="account.save();" />
         </form>
     </div>
 </div>

@@ -8,7 +8,7 @@
 
     <input type="button" ng-click="showNew()" value="Add Institution" />
     <div class="item-list-wrapper" ng-repeat="institution in institutions">
-        <h2>{{ institution.name }}</h4>
+        <h2>{{ institution.name }}</h2>
         <p>{{ institution.description }}</p><br />
         <table id="{{ institution.id }}" class="institution-mappings data item-list">
             <thead>
@@ -29,7 +29,7 @@
 
     <div id="newInstitution" class="new-item-wrapper" ng-show="true" ng-init="newOrEdit = 'New';">
         <close class="ng-close" ng-click="hideBox()">X</close>
-        <h1>{{ newOrEdit }} Institution</h3>
+        <h1>{{ newOrEdit }} Institution</h1>
         <form>
             <span class="label">Name: <input type="text" ng-model="institution.name" id="name" /></span>
             <span class="label">Description: <input type="text" ng-model="institution.description" id="name" /></span>
