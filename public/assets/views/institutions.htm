@@ -6,10 +6,10 @@
         to track here.
     </p>
 
-    <input type="button" ng-click="showNew()" value="Add Institution" />
+    <button ng-click="showNew()"><plus>+</plus>Add Institution</button>
     <div class="item-list-wrapper" ng-repeat="institution in institutions">
         <h2>{{ institution.name }}</h2>
-        <p>{{ institution.description }}</p><br />
+        <p>{{ institution.description }}</p>
         <table id="{{ institution.id }}" class="institution-mappings data item-list">
             <thead>
                 <th>From Field</th>

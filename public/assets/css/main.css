@@ -61,8 +61,8 @@ body {
     padding: 2px;
 }
 .item-list-wrapper {
-    border: 1px solid grey;
     width: auto;
+    display: inline-block;
 }
 
 .item-list-wrapper h1 {
@@ -94,7 +94,20 @@ body {
     font-size: 180%;
     font-weight: bold;
     text-decoration: underline;
-    margin: 20px 5px 5px 10px;
+    margin: 20px 5px 5px 5px;
+    padding: 5px;
+}
+.controller h2 {
+    font-size: 150%;
+    font-weight: bold;
+    margin: 10px 5px 5px 5px;
+    padding: 5px;
+}
+.controller h3 {
+    font-size: 130%;
+    font-weight: bold;
+    text-decoration: underline;
+    margin: 5px 1px 1px 5px;
     padding: 5px;
 }
 .controller p {
@@ -104,7 +117,7 @@ body {
 table.data {
     border: 1px solid black;
     box-shadow: 8px 8px #1c052c3c;
-    margin: 20px;
+    margin: 5px 10px 5px 10px;
 }
 table.data th {
     font-weight: bold;
@@ -126,33 +139,27 @@ table.data tr:nth-child(odd) {
     background: #EEEEEE;
     margin: 5px;
     padding: 10px;
+    box-shadow: 8px 8px #1c052c3c;
+    border: 2px solid black;
 }
 .new-item-wrapper input {
     height: 18px;
     font-size: 14px;
 }
-
-plus {
-    color: #EEEEEE;
-    background: green;
-    font-size: 20px;
-    padding: 0;
-    margin: 5px 0px 5px 50px;
+.new-item-wrapper input[type=text] {
+    min-width: 300px;
 }
-close, .ng-close {
-    float: right;
-    width: 30px;
-    height: 30px;
-    font-size: 24px;
+.new-item-wrapper input[type=submit] {
+    font-size: 120%;
     margin: 2px;
-    padding: 5px;
-    color: white;
-    text-align: center;
-    vertical-align: center;
-    background-color: red;
+    padding: 3px;
+    height: auto;
+    box-shadow: 2px 2px #00000050;
 }
-plus:hover, close:hover { cursor: grab; }
-
+.new-item-wrapper form {
+    margin: 3px;
+    padding: 3px;
+}
 form span.label, form label {
     text-align: right;
     width: 99%;
@@ -167,6 +174,35 @@ form span.label input[type=text] {
 }
 
 footer { float: left; margin: 5px; }
+
+button {
+    display: block;
+    margin: 0 0 0 auto;
+    height: 40px;
+    width: 175px;
+    font-size: 120%;
+    font-weight: bold;
+}
+plus {
+    color: #EEEEEE;
+    background: green;
+    font-size: 20px;
+    padding: 2px;
+    margin: 3px;
+}
+close, .ng-close {
+    float: right;
+    width: 30px;
+    height: 30px;
+    font-size: 24px;
+    margin: 2px;
+    padding: 5px;
+    color: white;
+    text-align: center;
+    vertical-align: center;
+    background-color: red;
+}
+plus:hover, close:hover { cursor: grab; }
 
 code {
     width: 90%;

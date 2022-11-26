@@ -1,7 +1,7 @@
 <div id="accounts" ng-controller="accounts" class="controller">
     <h1>Accounts</h1>
-    <p>This is where you view and manage accounts associated with each institution.</p><br />
-    <input type="button" ng-click="newAccount()" value="Add Account" />
+    <p>This is where you view and manage accounts associated with each institution.</p>
+    <button ng-click="showNew()"><plus>+</plus>Add Account</button><br clear="all" />
     <div class="item-list-wrapper" ng-repeat="account in accounts">
         <h2 class="title">{{ account.name }}&nbsp;<span class="accountBalance">${{ account.balance }}</span></h2>
         <p>{{ account.description }}</p><br />

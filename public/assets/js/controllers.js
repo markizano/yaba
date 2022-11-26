@@ -11,7 +11,7 @@
         var result = [];
         console.log(transactions);
         this.transactions.forEach(xaction => {
-            result.push([ xaction.name, xaction.amount ])
+            result.push([ xaction.name, xaction.amount ]);
         })
         return result;
     }
@@ -60,7 +60,7 @@
      */
     function institutions($scope, $http) {
         console.log('Yaba.app.controller(institution).load()');
-        $scope.institutions = [{}];
+        $scope.institutions = [];
         $scope.institution = Yaba.models.EMPTY_Institution;
 
         var banks = new Yaba.models.Institutions({
@@ -71,7 +71,7 @@
     }
 
     function charts($scope, $http) {
-        var accts = new Yaba.models.Accounts({$scope: $scope, $http: $http})
+        var accts = new Yaba.models.Accounts({$scope: $scope, $http: $http});
         accts.load({ withTransactions: false });
     }
 
