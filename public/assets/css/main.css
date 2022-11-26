@@ -139,9 +139,6 @@ plus {
     padding: 0;
     margin: 5px 0px 5px 50px;
 }
-plus:hover, close:hover {
-    cursor: grab;
-}
 close, .ng-close {
     float: right;
     width: 30px;
@@ -154,7 +151,9 @@ close, .ng-close {
     vertical-align: center;
     background-color: red;
 }
-form span.label {
+plus:hover, close:hover { cursor: grab; }
+
+form span.label, form label {
     text-align: right;
     width: 99%;
     margin: 5px 5px 5px auto;
@@ -187,9 +186,4 @@ pre {
     font-size: 14px;
     word-wrap: break-word;
     background-color: white;
-}
-
-md-content {
-    width: 99%;
-    max-height: 500px;
 }

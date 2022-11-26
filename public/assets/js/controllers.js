@@ -59,13 +59,6 @@
         console.log('Yaba.app.controller(institution).load()');
         $scope.institutions = [{}];
         $scope.institution = Yaba.models.EMPTY_Institution;
-        $scope.addMapping = function addMapping() {
-            $scope.institution.mappings.push({
-                fromField: null,
-                toField: null,
-                mapType: null
-            })
-        };
 
         var banks = new Yaba.models.Institutions({
             $scope: $scope,

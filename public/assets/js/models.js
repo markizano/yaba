@@ -87,7 +87,7 @@
             return this.$http({
                 method: 'POST',
                 url: '/api/accounts',
-                params: options
+                data: options
             })
         }
     }
@@ -136,7 +136,7 @@
             return this.$http({
                 method: 'POST',
                 url: '/api/transactions',
-                params: { transaction: transaction }
+                data: { transaction: transaction }
             });
         }
     }
@@ -167,13 +167,14 @@
          * @returns HTTPResponse.
          */
         save() {
-            options = {
+            var options = {
                 institution: {
                     name: this.$scope.institution.name,
                     description: this.$scope.institution.description,
                     mappings: []
                 }
             };
+            var that = this;
             this.$scope.institution.mappings.forEach( (mapping) => {
                 options.institution.mappings.push({
                     fromField: mapping.fromField,
@@ -181,13 +182,23 @@
                     mapType: mapping.mapType
                 })
             });
-            return this.$http({
+            this.$http({
                 method: 'POST',
                 url: '/api/institutions',
-                params: options
+                data: options
+            }).then((response) =>{
+                that.saved(response);
             });
+            console.log('call Institution.save()');
+            return this;
         }
-        
+
+        saved(response) {
+            this.lastSave = ( response.status <= 200 && response.status >= 299 );
+            if ( !this.lastSave ) {
+                this.saveMessage = response.data.message;
+            }
+        }
     }
 
     class Prospect {
@@ -214,24 +225,86 @@
 
 (function(Yaba){
     /* Forms */
-    class InstitutionForm {
-        constructor() {
+    class InstitutionFormCtrl {
+        constructor($element, $scope, $attrs, $document, $http) {
+            // ${this} context here is $scope when functions are assigned like this in the constructor.
             this.$element = $element;
+            this.$scope = $scope;
+            this.$attrs = $attrs;
+            this.$document = $document;
+            this.$http = $scope.$http = $http;
+            this.$scope.close = this.close;
+            this.$scope.save = this.save;
+            $scope.addMapping = this.addMapping;
         }
+
+        close() {
+            console.log('InstitutionFormCtl.close-box()');
+        }
+
+        save() {
+            console.log('InstitutionFormCtrl.save()');
+            console.log(this);
+            var services = {
+                $scope: this,
+                $http: this.$http
+            };
+            console.log(services);
+            return (new Yaba.models.Institutions(services)).save();
+        }
+
+        addMapping() {
+            this.institution.mappings.push({
+                fromField: null,
+                toField: null,
+                mapType: null
+            })
+        };
+
     }
 
     function institutionForm() {
-        return {
-            template: '<div class="new-item-wrapper">',
-            controller: InstitutionForm,
+        var template = '<div class="new-item-wrapper" ng-show="true">'
+          + '<close ng-click="close()">X</close>'
+          + '<h1>{{ institution.name || \'New\' }} Institution</h1>'
+          + '<form>'
+            + '<label>Name: <input type="text" ng-model="institution.name" /></label>'
+            + '<label>Description: <input type="text" ng-model="institution.description" /></label>'
+            + '<label>Mapping: <plus ng-click="addMapping()">+</plus></label>'
+            + '<ul>'
+              + '<li ng-repeat="mapping in institution.mappings">'
+                    + '<label>'
+                    +   "From {{ mapping.mapType == 'static'? 'Value': 'Field' }}: "
+                    +   '<input type="text" ng-model="mapping.fromField" />'
+                    + '</label>'
+                    //  @TODO: Use an API call to derive the fields/keys of the cannoncial model.
+                    + '<label>To Field: <input type="text" ng-model="mapping.toField" /></label>'
+                    + '<label>Mapping Type: <select ng-model="mapping.mapType">'
+                        + '<option value="static">Static</option>'
+                        + '<option value="dynamic">Dynamic</option>'
+                    + '</select></label>'
+                + '</li>'
+                + '</ul>'
+                + '<input type="submit" value="Save Institution" ng-click="save()" />'
+            + '</form>'
+          + '</div>';
+        InstitutionFormCtrl.$inject = ['$element', '$scope', '$attrs', '$document', '$http'];
+        result = {
+            template: template,
+            /* scope: {
+                institution: Yaba.models.EMPTY_Institution,
+            }, //*/
+            controller: InstitutionFormCtrl,
             controllerAs: 'institutionForm',
             bindToController: true,
+            restrict: 'AE'
         };
+        return result;
     }
 
     Yaba.hasOwnProperty('components') || (Yaba.components = {
-        InstitutionForm: InstitutionForm
+        InstitutionForm: InstitutionFormCtrl
     });
 
-    angular.directive('yaba.components.institution', institutionForm);
+    Yaba.app.directive('yabaInstitutionForm', institutionForm);
 })(Yaba);
