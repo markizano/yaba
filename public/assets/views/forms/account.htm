@@ -1,0 +1,26 @@
+<div class="new-item-wrapper" ng-show="true">
+    <close ng-click="close()">X</close>
+    <h1>{{ account.name || "New" }} Account:</h1>
+    <form>
+      <label>Name: <input type="text" ng-model="account.name" id="name" /></label>
+      <label>
+        Institution:
+        <select ng-model="account.institutionId" ng-options="institution.name for institution in institutions"></select>
+      </label>
+      <label>
+        Account Type:
+        <select ng-model="account.accountType" ng-options="acctType for acctType in accountTypes"></select>
+      </label>
+      <label>
+        Account Number: <input type="text" ng-model="account.number" />
+      </label>
+      <label>Routing Number: <input type="number" ng-model="account.routing" /></label>
+      <label>Interest Rate: <input type="number" ng-model="account.interestRate" /></label>
+      <label>Interest Strategy <select ng-model="account.interestStrategy">
+                <option default="true" value="simple">Simple</option>
+                <option value="compound">Compound</option>
+            </select>
+      </label>
+      <input type="submit" value="Save Account" ng-click="save()" />
+  </form>
+</div>

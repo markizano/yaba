@@ -10,7 +10,7 @@
     function distinctSum(transactions=[]) {
         var result = [];
         console.log(transactions);
-        transactions.forEach(xaction => {
+        this.transactions.forEach(xaction => {
             result.push([ xaction.name, xaction.amount ])
         })
         return result;
@@ -21,15 +21,18 @@
      */
     function budget($scope, $http) {
         console.log('Budget controller');
-        services = { $http: $http, $scope: $scope };
+        var services = { $http: $http, $scope: $scope };
         var accts = new Yaba.models.Accounts(services);
         var xactions = new Yaba.models.Transactions(services);
         xactions.load();
-        accts.load({ withTransactions: true })
+        accts.load({ withTransactions: true });
 
         $scope.distinctSum = distinctSum;
         $scope.startDate = new Date( Date.now() - x30_DAYS );
         $scope.endDate = new Date();
+        $scope.hasOwnProperty('transactions') || ($scope.transactions = []);
+        $scope.transactions.sort = 'datePosted';
+        $scope.budgets = [];
     }
 
     /**
@@ -38,7 +41,7 @@
      * @param {angular.service.$http} $http angular controller $http service.
      */
     function accounts($scope, $http) {
-        services = { $http: $http, $scope: $scope };
+        var services = { $http: $http, $scope: $scope };
         $scope.accountTypes = Yaba.models.AccountTypes;
         $scope.institutions = [];
         $scope.accounts = [];
@@ -67,7 +70,7 @@
         banks.load();
     }
 
-    function charts($scope, $http, $timeout) {
+    function charts($scope, $http) {
         var accts = new Yaba.models.Accounts({$scope: $scope, $http: $http})
         accts.load({ withTransactions: false });
     }
@@ -83,9 +86,9 @@
         budget: ['$scope', '$http', budget],
         accounts: ['$scope', '$http', accounts],
         institutions: ['$scope', '$http', institutions],
-        charts: ['$scope', '$http', '$timeout', charts],
+        charts: ['$scope', '$http', charts],
         prospect: ['$scope', '$http', prospect]
-    })
+    });
 
     // Register the controllers to the AngularJS interfaces.
     Yaba.app.controller('budget', Yaba.controllers.budget);

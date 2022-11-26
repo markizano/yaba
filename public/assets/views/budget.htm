@@ -33,23 +33,21 @@
                 <th>Tags</th>
             </thead>
             <tbody>
-                <tr ng-repeat="txn in transactions | orderBy:transaction.txnSort">
+                <tr ng-repeat="txn in transactions | orderBy:transaction.sort">
                     <td>{{ txn.datePending }}</td>
                     <td>{{ txn.datePosted }}</td>
                     <td>{{ txn.amount }}</td>
                     <td>{{ txn.accountId }}</td>
                     <td>{{ txn.description }}</td>
                     <!-- @TODO: Turn this into a fuzzy edit label maker control/input -->
-                    <td><md-chips ng-model="txn.tags" ng-blur="save();"></md-chips></td>
+                    <td><md-chips ng-model="txn.tags" ng-blur="transactions.save()"></md-chips></td>
                 </tr>
             </tbody>
         </table>
     </div>
     <div>
         <h2>Budgets</h2>
-        <ul>
-            <li ng-repeat="transaction in transactions">{{ transaction.name }}: ${{ transaction.amount }}</li>
-        </ul>
+        <yaba-budget ng-model="budgets"></yaba-budget>
     </div>
     <div class="errors">{{ error }}</div>
 </div>

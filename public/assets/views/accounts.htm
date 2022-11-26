@@ -12,7 +12,6 @@
                 <th ng-click="account.txnSort = 'amount';">Amount</th>
                 <th ng-click="account.txnSort = 'account';">Account</th>
                 <th ng-click="account.txnSort = 'description';">Description</th>
-                <th>Tags</th>
             </thead>
             <tbody>
                 <tr ng-repeat="txn in account.transactions | orderBy:account.txnSort">
@@ -21,27 +20,10 @@
                     <td>{{ txn.amount }}</td>
                     <td>{{ txn.accountId }}</td>
                     <td>{{ txn.description }}</td>
-                    <td>{{ txn.tags.join(", ") }}</td>
                 </tr>
             </tbody>
         </table>
     </div>
     <div class="errors">{{ error }}</div>
-    <div id="newAccount" class="new-item-wrapper" ng-show="true" ng-init="newOrEdit = 'New';">
-        <close class="ng-close" ng-click="hideBox()">X</close>
-        <h1>{{ newOrEdit }} Account:</h1>
-        <form>
-            <span class="label">Name: <input type="text" ng-model="account.name" id="name" /></span>
-            <span class="label"></span>Institution: <select id="institutionId" ng-model="account.institutionId" ng-options="institution.name for institution in institutions"></select></span>
-            <span class="label"></span>Account Type: <select id="accountType" ng-model="account.accountType" ng-options="acctType for acctType in accountTypes"></select></span>
-            <span class="label"></span>Account Number: <input type="text" ng-model="account.number" id="accountNumber" /></span>
-            <span class="label"></span>Routing Number: <input type="number" ng-model="account.routing" id="routingNumber" /></span>
-            <span class="label"></span>Interest Rate: <input type="number" id="interestRate" ng-model="account.interestRate" /></span>
-            <span class="label"></span>Interest Strategy <select id="interestStrategy" ng-model="account.interestStrategy">
-                <option default="true" value="simple">Simple</option>
-                <option value="compound">Compound</option>
-            </select></span>
-            <input type="submit" Value="Save Account" ng-click="account.save();" />
-        </form>
-    </div>
+    <yaba-account-form ng-model="account"></yaba-account-form>
 </div>

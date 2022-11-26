@@ -109,7 +109,7 @@
             return this.$http({
                 method: 'GET',
                 url: '/api/transactions',
-                params: options
+                data: options
             }).then(function(response) {
                 return that.$scope.transactions = response.data.transactions;
             });
@@ -228,29 +228,22 @@
     class InstitutionFormCtrl {
         constructor($element, $scope, $attrs, $document, $http) {
             // ${this} context here is $scope when functions are assigned like this in the constructor.
+            var that = this;
             this.$element = $element;
             this.$scope = $scope;
             this.$attrs = $attrs;
             this.$document = $document;
             this.$http = $scope.$http = $http;
             this.$scope.close = this.close;
-            this.$scope.save = this.save;
             $scope.addMapping = this.addMapping;
+            this.institution = new Yaba.models.Institutions({ $scope: $scope, $http: $http });
+            this.$scope.save = (e) => {
+                that.institution.save();
+            };
         }
 
         close() {
             console.log('InstitutionFormCtl.close-box()');
-        }
-
-        save() {
-            console.log('InstitutionFormCtrl.save()');
-            console.log(this);
-            var services = {
-                $scope: this,
-                $http: this.$http
-            };
-            console.log(services);
-            return (new Yaba.models.Institutions(services)).save();
         }
 
         addMapping() {
@@ -264,47 +257,118 @@
     }
 
     function institutionForm() {
-        var template = '<div class="new-item-wrapper" ng-show="true">'
-          + '<close ng-click="close()">X</close>'
-          + '<h1>{{ institution.name || \'New\' }} Institution</h1>'
-          + '<form>'
-            + '<label>Name: <input type="text" ng-model="institution.name" /></label>'
-            + '<label>Description: <input type="text" ng-model="institution.description" /></label>'
-            + '<label>Mapping: <plus ng-click="addMapping()">+</plus></label>'
-            + '<ul>'
-              + '<li ng-repeat="mapping in institution.mappings">'
-                    + '<label>'
-                    +   "From {{ mapping.mapType == 'static'? 'Value': 'Field' }}: "
-                    +   '<input type="text" ng-model="mapping.fromField" />'
-                    + '</label>'
-                    //  @TODO: Use an API call to derive the fields/keys of the cannoncial model.
-                    + '<label>To Field: <input type="text" ng-model="mapping.toField" /></label>'
-                    + '<label>Mapping Type: <select ng-model="mapping.mapType">'
-                        + '<option value="static">Static</option>'
-                        + '<option value="dynamic">Dynamic</option>'
-                    + '</select></label>'
-                + '</li>'
-                + '</ul>'
-                + '<input type="submit" value="Save Institution" ng-click="save()" />'
-            + '</form>'
-          + '</div>';
         InstitutionFormCtrl.$inject = ['$element', '$scope', '$attrs', '$document', '$http'];
-        result = {
-            template: template,
-            /* scope: {
-                institution: Yaba.models.EMPTY_Institution,
-            }, //*/
+        return {
+            templateUrl: 'assets/views/forms/institution.htm',
             controller: InstitutionFormCtrl,
             controllerAs: 'institutionForm',
             bindToController: true,
             restrict: 'AE'
         };
-        return result;
+    }
+
+    class AccountFormCtrl {
+        constructor($element, $scope, $attrs, $document, $http) {
+            // ${this} context here is $scope when functions are assigned like this in the constructor.
+            var that = this;
+            this.$element = $element;
+            this.$scope = $scope;
+            this.$attrs = $attrs;
+            this.$document = $document;
+            this.$http = $scope.$http = $http;
+            this.$scope.close = this.close;
+            this.account = new Yaba.models.Accounts({ $scope: $scope, $http: $http });
+            this.$scope.save = (e) => {
+                that.account.save();
+            };
+        }
+
+        close() {
+            console.log('AccountsFormCtl.close-box()');
+        }
+
+    }
+
+    function accountForm() {
+        AccountFormCtrl.$inject = ['$element', '$scope', '$attrs', '$document', '$http'];
+        return {
+            templateUrl: 'assets/views/forms/account.htm',
+            controller: AccountFormCtrl,
+            controllerAs: 'accountForm',
+            bindToController: true,
+            restrict: 'AE'
+        };
+    }
+
+    class BudgetCtrl {
+        constructor($scope, $http) {
+            // ${this} context here is $scope when functions are assigned like this in the constructor.
+            this.$scope = $scope;
+            this.$http = $scope.$http = $http;
+            $scope.uniques = this.uniques;
+            $scope.budgets = this.budgets;
+        }
+
+        uniques() {
+            var seen = [];
+            this.transactions.forEach((transaction) => {
+                transaction.tags.forEach((tag) => {
+                    if ( seen.includes(tag) ) return;
+                    seen.push(tag);
+                });
+            });
+            return seen;
+        }
+
+        budgets() {
+            var results = {};
+            this.transactions.forEach((transaction) => {
+                transaction.tags.forEach((tag) => {
+                    if ( results.hasOwnProperty(tag) ) {
+                        results[tag] += transaction.amount;
+                    } else {
+                        results[tag] = transaction.amount;
+                    }
+                });
+            });
+            return results;
+        }
+
+    }
+    function budgetWidget() {
+        BudgetCtrl.$inject = ['$scope', '$http'];
+        var template = angular.element('<root>'), root = angular.element('<budget>');
+        root.append(
+            angular.element('<table>')
+              .attr('id', 'budget-list')
+              .addClass('item-list-wrapper')
+              .addClass('data')
+              .append(angular.element('<thead>')
+                .append(angular.element('<th>').text('Budget'))
+                .append(angular.element('<th>').text('Spending')))
+              .append(angular.element('<tbody>')
+                .append(angular.element('<tr>')
+                .attr('ng-repeat', '(budget, amount) in budgets()')
+                .append(angular.element('<td>').text('{{ budget }}'))
+                .append(angular.element('<td>').text('{{ amount }}')))
+              )
+        );
+        template.append(root);
+        return {
+            template: template.html(),
+            controller: BudgetCtrl,
+            controllerAs: 'budgetWidget',
+            bindToController: true,
+            restrict: 'AE'
+        }
     }
 
     Yaba.hasOwnProperty('components') || (Yaba.components = {
-        InstitutionForm: InstitutionFormCtrl
+        InstitutionForm: InstitutionFormCtrl,
+        AccountForm: AccountFormCtrl
     });
 
     Yaba.app.directive('yabaInstitutionForm', institutionForm);
+    Yaba.app.directive('yabaAccountForm', accountForm);
+    Yaba.app.directive('yabaBudget', budgetWidget);
 })(Yaba);
