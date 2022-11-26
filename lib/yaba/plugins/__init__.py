@@ -29,7 +29,7 @@ class TxnCollection(list):
         '''
         Returns a copy of this object with transactions sorted.
         '''
-        return super().sort(self, key=key=lambda x: x[self._sortkey])
+        return super().sort(self, key=lambda x: x[self._sortkey])
 
     def append(self, member):
         '''
