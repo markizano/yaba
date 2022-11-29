@@ -175,6 +175,18 @@ class ApiServer(object):
                         'grocery',
                         'essential'
                     ]
+                },
+                {
+                    'id': '0x0004',
+                    'name': 'Payroll',
+                    'accountId': '11111111',
+                    'amount': 1023.84,
+                    'datePending': '2022-01-15',
+                    'datePosted': '2022-01-16',
+                    'description': 'Day Job Payroll',
+                    'tags': [
+                        'income'
+                    ]
                 }
             ]
         }

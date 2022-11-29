@@ -1,0 +1,20 @@
+<table class="data item-list">
+    <thead>
+        <th ng-click="sortBy('datePending');">Date Pending</th>
+        <th ng-click="sortBy('datePosted');">Date Posted</th>
+        <th ng-click="sortBy('amount');">Amount</th>
+        <th ng-click="sortBy('account');">Account</th>
+        <th ng-click="sortBy('description');">Description</th>
+        <th ng-show="includeTags">Tags</th>
+    </thead>
+    <tbody>
+        <tr ng-repeat="txn in transactions | orderBy:sortColumn">
+            <td>{{ txn.datePending }}</td>
+            <td>{{ txn.datePosted }}</td>
+            <td>{{ txn.amount }}</td>
+            <td>{{ txn.accountId }}</td>
+            <td>{{ txn.description }}</td>
+            <td ng-show="includeTags"><md-chips ng-model="txn.tags" ng-blur="save()"></md-chips></td>
+        </tr>
+    </tbody>
+</table>

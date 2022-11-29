@@ -224,15 +224,12 @@
 })(Yaba);
 
 (function(Yaba){
-    /* Forms */
+    /* Forms as angular.directive() */
     class InstitutionFormCtrl {
-        constructor($element, $scope, $attrs, $document, $http) {
+        constructor($scope, $http) {
             // ${this} context here is $scope when functions are assigned like this in the constructor.
             var that = this;
-            this.$element = $element;
             this.$scope = $scope;
-            this.$attrs = $attrs;
-            this.$document = $document;
             this.$http = $scope.$http = $http;
             this.$scope.close = this.close;
             $scope.addMapping = this.addMapping;
@@ -256,25 +253,11 @@
 
     }
 
-    function institutionForm() {
-        InstitutionFormCtrl.$inject = ['$element', '$scope', '$attrs', '$document', '$http'];
-        return {
-            templateUrl: 'assets/views/forms/institution.htm',
-            controller: InstitutionFormCtrl,
-            controllerAs: 'institutionForm',
-            bindToController: true,
-            restrict: 'AE'
-        };
-    }
-
     class AccountFormCtrl {
-        constructor($element, $scope, $attrs, $document, $http) {
+        constructor($scope, $http) {
             // ${this} context here is $scope when functions are assigned like this in the constructor.
             var that = this;
-            this.$element = $element;
             this.$scope = $scope;
-            this.$attrs = $attrs;
-            this.$document = $document;
             this.$http = $scope.$http = $http;
             this.$scope.close = this.close;
             this.account = new Yaba.models.Accounts({ $scope: $scope, $http: $http });
@@ -287,17 +270,6 @@
             console.log('AccountsFormCtl.close-box()');
         }
 
-    }
-
-    function accountForm() {
-        AccountFormCtrl.$inject = ['$element', '$scope', '$attrs', '$document', '$http'];
-        return {
-            templateUrl: 'assets/views/forms/account.htm',
-            controller: AccountFormCtrl,
-            controllerAs: 'accountForm',
-            bindToController: true,
-            restrict: 'AE'
-        };
     }
 
     class BudgetCtrl {
@@ -335,40 +307,123 @@
         }
 
     }
+
+    class TransactionCollection {
+        /**
+         * Renders a collection of transactions. Controller for handling the list of transactions
+         * and however we may want to render them.
+         */
+        constructor($scope) {
+            // By default, don't show tags. We can override this in the HTML include for this widget.
+            $scope.includeTags = false;
+            $scope.sortColumn = 'datePosted';
+            $scope.sortBy = this.sortBy;
+            $scope.save = this.save;
+            this.$scope = $scope;
+        }
+
+        sortBy(field) {
+            this.sortColumn = field;
+        }
+
+        save() {
+            // var txn = {
+            //     datePosted: this.datePosted,
+            //     datePending: this.datePending,
+            //     amount: this.amount,
+            // }
+            console.log('save-transaction()');
+            console.log(this);
+        }
+    }
+
+    function institutionForm() {
+        InstitutionFormCtrl.$inject = ['$scope', '$http'];
+        return {
+            templateUrl: '/assets/views/forms/institution.htm',
+            controller: InstitutionFormCtrl,
+            controllerAs: 'institutionForm',
+            bindToController: true,
+            restrict: 'AE'
+        };
+    }
+
+    function accountForm() {
+        AccountFormCtrl.$inject = ['$scope', '$http'];
+        return {
+            templateUrl: '/assets/views/forms/account.htm',
+            controller: AccountFormCtrl,
+            controllerAs: 'accountForm',
+            bindToController: true,
+            restrict: 'AE'
+        };
+    }
+
     function budgetWidget() {
         BudgetCtrl.$inject = ['$scope', '$http'];
-        var template = angular.element('<root>'), root = angular.element('<budget>');
-        root.append(
-            angular.element('<table>')
-              .attr('id', 'budget-list')
-              .addClass('item-list-wrapper')
-              .addClass('data')
-              .append(angular.element('<thead>')
-                .append(angular.element('<th>').text('Budget'))
-                .append(angular.element('<th>').text('Spending')))
-              .append(angular.element('<tbody>')
-                .append(angular.element('<tr>')
-                .attr('ng-repeat', '(budget, amount) in budgets()')
-                .append(angular.element('<td>').text('{{ budget }}'))
-                .append(angular.element('<td>').text('{{ amount }}')))
-              )
-        );
-        template.append(root);
         return {
-            template: template.html(),
+            templateUrl: '/assets/views/tables/budget.htm',
             controller: BudgetCtrl,
             controllerAs: 'budgetWidget',
             bindToController: true,
             restrict: 'AE'
+        };
+    }
+
+    function daterangeWidget() {
+        return {
+            templateUrl: '/assets/views/daterange.htm',
+            restrict: 'E'
         }
+    }
+
+    function transactionList() {
+        TransactionCollection.$inject = ['$scope'];
+        return {
+            templateUrl: '/assets/views/tables/transactions.htm',
+            controller: TransactionCollection,
+            controllerAs: 'budgetWidget',
+            bindToController: true,
+            restrict: 'AE'
+        };
     }
 
     Yaba.hasOwnProperty('components') || (Yaba.components = {
         InstitutionForm: InstitutionFormCtrl,
-        AccountForm: AccountFormCtrl
+        AccountForm: AccountFormCtrl,
+        BudgetCtrl: BudgetCtrl,
+        TransactionCollection: TransactionCollection
     });
 
     Yaba.app.directive('yabaInstitutionForm', institutionForm);
     Yaba.app.directive('yabaAccountForm', accountForm);
     Yaba.app.directive('yabaBudget', budgetWidget);
+    Yaba.app.directive('yabaDaterange', daterangeWidget);
+    Yaba.app.directive('yabaTransactionList', transactionList);
+})(Yaba);
+
+(function(Yaba) {
+    /* angular.filter() */
+    function budgetBy() {
+        return (transactions, incomeTags) => {
+            if ( !transactions ) return transactions;
+            var result = [];
+            console.warn('Yaba.filters.budgetBy()');
+            console.log(transactions);
+            transactions.forEach((transaction) => {
+                if ( typeof incomeTags == 'string' ) {
+                    incomeTags = incomeTags.split(',');
+                }
+                incomeTags.forEach((incomeTag) => {
+                    if ( transaction.tags.includes(incomeTag.trim()) ) {
+                        result.push(transaction);
+                    }
+                });
+            })
+            return result;
+        };
+    }
+
+    Yaba.app.filter('budgetBy', budgetBy);
+    return Yaba;
 })(Yaba);

@@ -2,48 +2,10 @@
     <h1>Budgeting</h1>
     <p>Budgeting helps ensure we stay on track for spending.</p>
     <div class="item-list-wrapper">
-        <!-- ng-control: DatePicker -->
-        <md-content layout-padding ng-cloak>
-            <div layout-gt-xs="row">
-              <div flex-gt-xs>
-                <md-datepicker ng-model="fromDate"
-                    md-placeholder="From date"
-                    input-aria-describedby="datepicker-description"
-                    input-aria-labelledby="datepicker-header ">
-                </md-datepicker>
-                &nbsp;
-                <md-datepicker ng-model="toDate"
-                    md-placeholder="To date"
-                    input-aria-describedby="datepicker-description"
-                    input-aria-labelledby="datepicker-header ">
-                </md-datepicker>
-              </div>
-            </div>
-        </md-content>
-        <!-- end: ng-control-->
+        <yaba-daterange ng-model="dateRange"></yaba-daterange>
 
         <!-- ng-control: AccountPicker -->
-        <table id="transactions" class="data item-list" ng-init="transaction.sort= 'datePosted';">
-            <thead>
-                <th ng-click="transaction.txnSort = 'datePending';">Date Pending</th>
-                <th ng-click="transaction.txnSort = 'datePosted';">Date Posted</th>
-                <th ng-click="transaction.txnSort = 'amount';">Amount</th>
-                <th ng-click="transaction.txnSort = 'account';">Account</th>
-                <th ng-click="transaction.txnSort = 'description';">Description</th>
-                <th>Tags</th>
-            </thead>
-            <tbody>
-                <tr ng-repeat="txn in transactions | orderBy:transaction.sort">
-                    <td>{{ txn.datePending }}</td>
-                    <td>{{ txn.datePosted }}</td>
-                    <td>{{ txn.amount }}</td>
-                    <td>{{ txn.accountId }}</td>
-                    <td>{{ txn.description }}</td>
-                    <!-- @TODO: Turn this into a fuzzy edit label maker control/input -->
-                    <td><md-chips ng-model="txn.tags" ng-blur="transactions.save()"></md-chips></td>
-                </tr>
-            </tbody>
-        </table>
+        <yaba-transaction-list ng-model="transactions" ng-init="includeTags = true;"></yaba-transaction-list>
     </div>
     <div>
         <h2>Budgets</h2>

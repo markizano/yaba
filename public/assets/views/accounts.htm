@@ -5,24 +5,7 @@
     <div class="item-list-wrapper" ng-repeat="account in accounts">
         <h2 class="title">{{ account.name }}&nbsp;<span class="accountBalance">${{ account.balance }}</span></h2>
         <p>{{ account.description }}</p><br />
-        <table class="data item-list" ng-init="account.txnSort= 'datePosted';">
-            <thead>
-                <th ng-click="account.txnSort = 'datePending';">Date Pending</th>
-                <th ng-click="account.txnSort = 'datePosted';">Date Posted</th>
-                <th ng-click="account.txnSort = 'amount';">Amount</th>
-                <th ng-click="account.txnSort = 'account';">Account</th>
-                <th ng-click="account.txnSort = 'description';">Description</th>
-            </thead>
-            <tbody>
-                <tr ng-repeat="txn in account.transactions | orderBy:account.txnSort">
-                    <td>{{ txn.datePending }}</td>
-                    <td>{{ txn.datePosted }}</td>
-                    <td>{{ txn.amount }}</td>
-                    <td>{{ txn.accountId }}</td>
-                    <td>{{ txn.description }}</td>
-                </tr>
-            </tbody>
-        </table>
+        <yaba-transaction-list ng-model="transactions" ng-init="transactions = account.transactions.slice(0, 10);"></yaba-transaction-list>
     </div>
     <div class="errors">{{ error }}</div>
     <yaba-account-form ng-model="account"></yaba-account-form>

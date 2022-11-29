@@ -1,7 +1,27 @@
 <div id="prospect" class="controller" ng-controller="prospect">
     <h1>Prospecting</h1>
     <p>Here is where you come to prospect on future purchases and when you want to make them.</p>
-    <div id="item-list">
-
+    <div id="item-list-wrapper">
+        <yaba-transaction-list ng-model="transactions"></yaba-transaction-list>
+        <yaba-wishlist ng-model="prospect"></yaba-wishlist>
+        <div id="leftover" class="item-column-wrapper">
+            <label for="income-tags">List income related tags here:
+                <md-chips ng-model="incomeTags">income</md-chips>
+            </label>
+            <md-content>
+                <md-list flex>
+                    <md-subheader>Funds leftover after each paycheque:</md-subheader>
+                    <md-list-item ng-repeat="transaction in transactions | budgetBy:incomeTags">
+                        <div class="md-list-item-text" layout="column">
+                            <dt> Date: {{ transaction.datePosted }} </dt>
+                            <dt> Amount: ${{ transaction.amount }} </dt>
+                            <dt> Txn: {{ transaction.name }} </dt>
+                            <dt> From: {{ transaction.fromAccount }} </dt>
+                            <dt> To: {{ transaction.toAccount }} </dt>
+                        </div>
+                    </md-list-item>
+                </md-list>
+            </md-content>
+        </div>
     </div>
 </div>

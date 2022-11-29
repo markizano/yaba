@@ -51,6 +51,7 @@
 
         accts.load({ withTransactions: true });
         banks.load();
+        console.log('Yaba.controllers.accounts()');
     }
 
     /**
@@ -80,6 +81,13 @@
      */
     function prospect($scope, $http) {
         console.log('Prospect controller');
+        var services = { $http: $http, $scope: $scope };
+
+        $scope.incomeTags = ['income', 'paycheque'];
+        var txns = new Yaba.models.Transactions(services);
+        txns.load();
+
+        // Yaba.app.filter('budgetBy', )
     }
 
     Yaba.hasOwnProperty('controllers') || (Yaba.controllers = {
