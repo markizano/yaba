@@ -64,7 +64,7 @@ class CsvUnit(object):
         self.path = path
         self.load()
 
-    @abstractmethod
+    #@abstractmethod
     def load(self):
         '''
         @MustImplement: This method will attempt to read from its source of truth
@@ -72,7 +72,7 @@ class CsvUnit(object):
         '''
         raise NotImplementedError('Must define %s.load()' % self.__class__.__name__ )
 
-    @abstractmethod
+    #@abstractmethod
     def save(self):
         '''
         @MustImplement: This method will attempt to write its contents to its source of truth
@@ -109,7 +109,7 @@ class CsvGroup(list):
         self.csvUnit = CsvUnitObj or CsvUnit
         self.load()
 
-    @abstractmethod
+    #@abstractmethod
     def load(self):
         '''
         Will automatically load up the contents of `self.path' and define each
@@ -119,7 +119,7 @@ class CsvGroup(list):
         for root, dirs, files in os.walk(self.path):
             account
 
-    @abstractmethod
+    #@abstractmethod
     def save(self):
         '''
         @MustImplement: This method will attempt to write its contents to its source of truth

@@ -2,6 +2,7 @@
 import io, os
 import json
 import cherrypy
+import random
 
 from kizano import getLogger
 log = getLogger(__name__)
@@ -28,18 +29,21 @@ class ApiServer(object):
                     'id': '11111111',
                     'name': 'Hardcode Bank',
                     'institution': 'Hardcode Inst',
+                    'description': 'My Hardcoded bank. This is a static response.',
                     'balance': 109.84
                 },
                 {
                     'id': '22222222',
                     'name': 'Hardcode Bank 2',
                     'institution': 'Hardcode Inst',
+                    'description': 'My Hardcoded bank number 2. This is also a static response.',
                     'balance': 1112.12
                 },
                 {
                     'id': '555_555',
-                    'name': 'Hardcode Bank #5',
+                    'name': 'Hardcode Bank #%d' % (random.random() * 100),
                     'institution': 'Hardcode Inst',
+                    'description': 'My Hardcoded bank with a random number. This is a dynamic response.',
                     'balance': 3.98
                 }
             ]

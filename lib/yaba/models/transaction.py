@@ -2,8 +2,10 @@
 import re
 import json
 import dateparser
+from datetime import datetime
+from yaba.models import DataModelCollection, DataModel
 
-class TransactionCollection(list):
+class TransactionCollectionModel(DataModelCollection):
     '''
     List of transactions we would like to contain, aggregate and summarize for the account.
     '''
@@ -12,36 +14,33 @@ class TransactionCollection(list):
             self.append(item)
         return super().__init__(self)
 
-    def append(self, item):
-        if not isinstance(item, Transaction):
-            item = Transaction(*item)
-        return super().append(item)
-
-class Transaction(object):
+class TransactionModel(DataModel):
     '''
     Transaction Object.
     Represents any transaction object.
     Null values are not carried over to __str__() representations.
     '''
-    def __init__(self, txnId, fromAccountId, **kwargs):
-        self.txnId = txnId
-        self.fromAccountId = fromAccountId
-        self.toAccountId = kwargs.get('toAccountId', None)
-        self.datePending = kwargs.get('datePending', None)
-        self.datePosted = kwargs.get('datePosted', None)
-        self.amount = kwargs.get('amount', None)
-        self.tax = kwargs.get('tax', None)
-        self.summary = kwargs.get('summary', None)
-        self.remarks = kwargs.get('remarks', None)
-        self.tags = kwargs.get('tags', None)
+    DATENULL = dateparser.parse('1970-01-01 00:00:00-00:00')
 
-    def __str__(self):
+    def __init__(self, txid, **kwargs):
+        self._idField = 'transactionId'
+        self.transactionId = txid
+        self.fromAccountId = kwargs.get('fromAccountId', '')
+        self.toAccountId = kwargs.get('toAccountId', '')
+        self.datePending = kwargs.get('datePending', Transaction.DATENULL)
+        self.datePosted = kwargs.get('datePosted', Transaction.DATENULL)
+        self.amount = kwargs.get('amount', 0.0)
+        self.tax = kwargs.get('tax', 0.0)
+        self.summary = kwargs.get('summary', '')
+        self.description = kwargs.get('description', '')
+        self.tags = kwargs.get('tags', [])
+
+    def __str__(self) -> str:
         result = {
-            'txnId': self.txnId,
-            'fromAccountId': self.fromAccountId,
+            'id': self.transactionId,
         }
         for prop in list( self.__dict__.keys() ):
-            if prop in ('txnId', 'fromAccountId'):
+            if prop in ('transactionId'):
                 continue
             if prop.startswith('_'):
                 prop = prop[1:]
@@ -51,14 +50,8 @@ class Transaction(object):
             result[prop] = value
         return json.dumps(result, default=str)
 
-    def __repr__(self):
-        '''
-        For debugging purposes.
-        '''
-        return str(self)
-
     @property
-    def datePending(self):
+    def datePending(self) -> datetime:
         return self._datePending
     @datePending.setter
     def datePending(self, value):
@@ -67,7 +60,7 @@ class Transaction(object):
         self._datePending = value
 
     @property
-    def datePosted(self):
+    def datePosted(self) -> datetime:
         return self._datePosted
     @datePosted.setter
     def datePosted(self, value):
@@ -76,7 +69,7 @@ class Transaction(object):
         self._datePosted = value
 
     @property
-    def amount(self):
+    def amount(self) -> float:
         return self._amount
     @amount.setter
     def amount(self, value):
@@ -84,7 +77,7 @@ class Transaction(object):
             self._amount = float(value)
 
     @property
-    def tax(self):
+    def tax(self) -> float:
         return self._tax
     @tax.setter
     def tax(self, value):
@@ -92,7 +85,7 @@ class Transaction(object):
             self._tax = float(value)
 
     @property
-    def summary(self):
+    def summary(self) -> str:
         return self._summary
     @summary.setter
     def summary(self, value):
@@ -100,7 +93,7 @@ class Transaction(object):
             self._summary = re.sub(r'(?:\s{2,})', ' ', value)
 
     @property
-    def description(self):
+    def description(self) -> str:
         return self._description
     @description.setter
     def description(self, value):
