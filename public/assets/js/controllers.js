@@ -23,16 +23,17 @@
         console.log('Budget controller');
         var services = { $http: $http, $scope: $scope };
         var accts = new Yaba.models.Accounts(services);
-        var xactions = new Yaba.models.Transactions(services);
-        xactions.load();
-        accts.load({ withTransactions: true });
-
+        var txns = new Yaba.models.Transactions(services);
+        
         $scope.distinctSum = distinctSum;
         $scope.startDate = new Date( Date.now() - x30_DAYS );
         $scope.endDate = new Date();
         $scope.hasOwnProperty('transactions') || ($scope.transactions = []);
         $scope.transactions.sort = 'datePosted';
         $scope.budgets = [];
+
+        accts.load();
+        txns.load();
     }
 
     /**
@@ -46,11 +47,25 @@
         $scope.institutions = [];
         $scope.accounts = [];
 
-        var accts = new Yaba.models.Accounts(services);
         var banks = new Yaba.models.Institutions(services);
+        var accts = new Yaba.models.Accounts(services);
 
-        accts.load({ withTransactions: true });
         banks.load();
+        var myAccountsPromise = accts.load();
+        myAccountsPromise.then((response) => {
+            response.data.accounts.forEach((account) => {
+                var transactions = new Yaba.models.Transactions({
+                    $scope: account,
+                    $http: $http
+                });
+                var searchCriteria = {
+                    accountId: account.id,
+                    fromDate: $scope.fromDate || '-30 days',
+                    toDate: $scope.toDate || 'today'
+                }
+                transactions.load(searchCriteria);
+            })
+        })
         console.log('Yaba.controllers.accounts()');
     }
 
@@ -79,23 +94,24 @@
     /**
      * Angular Prospecting Controller.
      */
-    function prospect($scope, $http) {
+    function prospect($scope, $http, $attrs) {
         console.log('Prospect controller');
         var services = { $http: $http, $scope: $scope };
 
+        $scope.transactions = [];
+        $scope.budgetBy = Yaba.filters.budgetBy;
         $scope.incomeTags = ['income', 'paycheque'];
         var txns = new Yaba.models.Transactions(services);
         txns.load();
-
-        // Yaba.app.filter('budgetBy', )
     }
+    prospect.$inject = ['$scope', '$http', '$attrs'];
 
     Yaba.hasOwnProperty('controllers') || (Yaba.controllers = {
         budget: ['$scope', '$http', budget],
         accounts: ['$scope', '$http', accounts],
         institutions: ['$scope', '$http', institutions],
         charts: ['$scope', '$http', charts],
-        prospect: ['$scope', '$http', prospect]
+        prospect: prospect
     });
 
     // Register the controllers to the AngularJS interfaces.

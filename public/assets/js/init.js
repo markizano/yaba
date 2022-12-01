@@ -1,4 +1,14 @@
 /* /assets/js/init.js */
+(function() {
+    function telescope(path='') {
+        function index(parent, searchKey) {
+            // console.log(parent);
+            return parent[searchKey] || parent;
+        }
+        return path.toString().split('.').reduce(index, this);
+    }
+    Object.prototype.telescope = telescope;
+})();
 /**
  * App Initialization Models for setting up and configuring AngularJS.
  */

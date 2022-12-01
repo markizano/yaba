@@ -48,24 +48,21 @@
          * @returns Object<Institution>
          */
         load(options={}) {
-            const that = this;
-            return this.$http({
+            const self = this;
+            var result = this.$http({
                 method: 'GET',
                 url: '/api/accounts'
-            }).then(function(response) {
-                that.$scope.accounts = [];
-                response.data.accounts.forEach( (account) => {
-                    if ( options.hasOwnProperty('withTransactions') && options.withTransactions ) {
-                        var transactions = new Transactions({ $scope: account, $http: that.$http });
-                        transactions.load({
-                            accountId: account.id,
-                            fromDate: options.fromDate || '-30 days',
-                            toDate: options.toDate || 'today'
-                        });
-                    }
-                    that.$scope.accounts.push(account);
-                });
             });
+
+            function gotAccounts(response) {
+                self.$scope.accounts = [];
+                response.data.accounts.forEach( (account) => {
+                    self.$scope.accounts.push(account);
+                });
+            }
+
+            result.then(gotAccounts);
+            return result;
         }
 
         /**
@@ -99,7 +96,7 @@
         }
 
         load(query={}) {
-            var that = this;
+            var self = this;
             var options = {
                 accountId: query.accountId,
                 fromDate: query.fromDate || '-30 days',
@@ -111,7 +108,10 @@
                 url: '/api/transactions',
                 data: options
             }).then(function(response) {
-                return that.$scope.transactions = response.data.transactions;
+                self.$scope.hasOwnProperty('transactions') || (self.$scope.transactions = []);
+                response.data.transactions.forEach(txn => {
+                    self.$scope.transactions.push(txn);
+                })
             });
 
         }
@@ -152,12 +152,12 @@
          * @returns Object<Institution>
          */
         load() {
-            var that = this;
+            var self = this;
             return this.$http({
                 method: 'GET',
                 url: '/api/institutions'
             }).then(function(response) {
-                return that.$scope.institutions = response.data.institutions;
+                return self.$scope.institutions = response.data.institutions;
             });
         }
 
@@ -174,7 +174,7 @@
                     mappings: []
                 }
             };
-            var that = this;
+            var self = this;
             this.$scope.institution.mappings.forEach( (mapping) => {
                 options.institution.mappings.push({
                     fromField: mapping.fromField,
@@ -187,7 +187,7 @@
                 url: '/api/institutions',
                 data: options
             }).then((response) =>{
-                that.saved(response);
+                self.saved(response);
             });
             console.log('call Institution.save()');
             return this;
@@ -228,14 +228,14 @@
     class InstitutionFormCtrl {
         constructor($scope, $http) {
             // ${this} context here is $scope when functions are assigned like this in the constructor.
-            var that = this;
+            var self = this;
             this.$scope = $scope;
             this.$http = $scope.$http = $http;
             this.$scope.close = this.close;
             $scope.addMapping = this.addMapping;
             this.institution = new Yaba.models.Institutions({ $scope: $scope, $http: $http });
             this.$scope.save = (e) => {
-                that.institution.save();
+                self.institution.save();
             };
         }
 
@@ -256,13 +256,13 @@
     class AccountFormCtrl {
         constructor($scope, $http) {
             // ${this} context here is $scope when functions are assigned like this in the constructor.
-            var that = this;
+            var self = this;
             this.$scope = $scope;
             this.$http = $scope.$http = $http;
             this.$scope.close = this.close;
             this.account = new Yaba.models.Accounts({ $scope: $scope, $http: $http });
             this.$scope.save = (e) => {
-                that.account.save();
+                self.account.save();
             };
         }
 
@@ -313,9 +313,12 @@
          * Renders a collection of transactions. Controller for handling the list of transactions
          * and however we may want to render them.
          */
-        constructor($scope) {
+        constructor($scope, $attrs) {
             // By default, don't show tags. We can override this in the HTML include for this widget.
-            $scope.includeTags = false;
+            // console.log($attrs);
+            $scope.includeTags = $attrs.hasOwnProperty('includeTags');
+            $scope.withHeader = !$attrs.hasOwnProperty('withoutHeader');
+            $scope._transactions = $scope.telescope($attrs.ngModel);
             $scope.sortColumn = 'datePosted';
             $scope.sortBy = this.sortBy;
             $scope.save = this.save;
@@ -378,7 +381,7 @@
     }
 
     function transactionList() {
-        TransactionCollection.$inject = ['$scope'];
+        TransactionCollection.$inject = ['$scope', '$attrs'];
         return {
             templateUrl: '/assets/views/tables/transactions.htm',
             controller: TransactionCollection,
@@ -407,9 +410,8 @@
     function budgetBy() {
         return (transactions, incomeTags) => {
             if ( !transactions ) return transactions;
+            if ( !incomeTags ) return transactions;
             var result = [];
-            console.warn('Yaba.filters.budgetBy()');
-            console.log(transactions);
             transactions.forEach((transaction) => {
                 if ( typeof incomeTags == 'string' ) {
                     incomeTags = incomeTags.split(',');
@@ -423,6 +425,10 @@
             return result;
         };
     }
+
+    Yaba.hasOwnProperty('filters') || (Yaba.filters = {
+        budgetBy: budgetBy()
+    });
 
     Yaba.app.filter('budgetBy', budgetBy);
     return Yaba;
