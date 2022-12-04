@@ -51,7 +51,8 @@
             const self = this;
             var result = this.$http({
                 method: 'GET',
-                url: '/api/accounts'
+                url: '/api/accounts',
+                data: {}
             });
 
             function gotAccounts(response) {
@@ -61,7 +62,7 @@
                 });
             }
 
-            result.then(gotAccounts);
+            result.then(gotAccounts, Yaba.utils.reject);
             return result;
         }
 
@@ -83,7 +84,7 @@
             };
             return this.$http({
                 method: 'POST',
-                url: '/api/accounts',
+                url: '/api/account',
                 data: options
             })
         }
@@ -103,17 +104,19 @@
                 toDate: query.toDate || 'today',
                 tags: query.tags || []
             };
-            return this.$http({
-                method: 'GET',
-                url: '/api/transactions',
-                data: options
-            }).then(function(response) {
+            function gotTransactions(response) {
                 self.$scope.hasOwnProperty('transactions') || (self.$scope.transactions = []);
                 response.data.transactions.forEach(txn => {
                     self.$scope.transactions.push(txn);
                 })
+            }
+            var result = this.$http({
+                method: 'GET',
+                url: '/api/transactions',
+                data: options
             });
-
+            result.then(gotTransactions, Yaba.utils.reject);
+            return result;
         }
 
         save() {
@@ -135,7 +138,7 @@
             };
             return this.$http({
                 method: 'POST',
-                url: '/api/transactions',
+                url: '/api/transaction',
                 data: { transaction: transaction }
             });
         }
@@ -153,12 +156,32 @@
          */
         load() {
             var self = this;
-            return this.$http({
+            var result = this.$http({
                 method: 'GET',
-                url: '/api/institutions'
-            }).then(function(response) {
-                return self.$scope.institutions = response.data.institutions;
+                url: '/api/institutions',
+                data: {}
             });
+            function gotInstitution(response) {
+                var result = [];
+                response.data.institutions.forEach((institution) => {
+                    var mappings = [];
+                    institution.mappings.forEach((mapping) => {
+                        mappings.push({
+                            fromField: mapping.fromField,
+                            toField: mapping.toField,
+                            mapType: mapping.mapType
+                        });
+                    });
+                    result.push({
+                        name: institution.name,
+                        description: institution.description,
+                        mappings: mappings
+                    });
+                })
+                return result;
+            }
+            result.then(gotInstitution, Yaba.utils.reject);
+            return result;
         }
 
         /**
@@ -182,13 +205,14 @@
                     mapType: mapping.mapType
                 })
             });
-            this.$http({
+            var result = this.$http({
                 method: 'POST',
-                url: '/api/institutions',
+                url: '/api/institution',
                 data: options
-            }).then((response) =>{
-                self.saved(response);
             });
+            result.then((response) =>{
+                self.saved(response);
+            }, Yaba.utils.reject);
             console.log('call Institution.save()');
             return this;
         }

@@ -41,3 +41,13 @@ var Yaba = (function(Yaba) {
 
     return Yaba;
 })(Yaba);
+
+(function(Yaba) {
+    Yaba.hasOwnProperty('utils') || (Yaba.utils = {
+        reject: function handleError(response) {
+            console.error('Promise rejection error.');
+            console.log(response);
+            return false;
+        }
+    })
+})(Yaba)
