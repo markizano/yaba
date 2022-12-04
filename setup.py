@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import os
-import sys
+import io, os, sys
 import glob
 
 #sys.path.insert(0, os.path.abspath('lib'))
@@ -17,13 +16,7 @@ setupopts = {
   'url': 'https://blog.markizano.net/',
 
   'setup_requires': ['pytest'],
-  'install_requires': [
-    'dateparser',
-    'csv',
-    'pymongo',
-    'easydict',
-    'kizano'
-  ],
+  'install_requires': [ x.strip() for x in io.open('requirements.txt').readlines() ],
 
   'package_dir': { 'yaba': 'lib/yaba' },
   'packages': find_packages(where='lib'),

@@ -2,206 +2,11 @@
 import io, os
 import json
 import cherrypy
-import random
 
 from kizano import getLogger
 log = getLogger(__name__)
 
-class ApiServer(object):
-    '''
-    API Server that will act as our main way of handling/passing off data to the front-end/client.
-    '''
-
-    @cherrypy.expose()
-    @cherrypy.tools.json_out()
-    def accounts(self, *args, **kwargs):
-        '''
-        Management of accounts.
-        GET: List of accounts configured.
-        POST: Create new account.
-        DELETE: Remove an account.
-        PUT: Update an account.
-        @return (json). Results of the operation (success/fail, message).
-        '''
-        return {
-            'accounts': [
-                {
-                    'id': '11111111',
-                    'name': 'Hardcode Bank',
-                    'institution': 'Hardcode Inst',
-                    'description': 'My Hardcoded bank. This is a static response.',
-                    'balance': 109.84
-                },
-                {
-                    'id': '22222222',
-                    'name': 'Hardcode Bank 2',
-                    'institution': 'Hardcode Inst',
-                    'description': 'My Hardcoded bank number 2. This is also a static response.',
-                    'balance': 1112.12
-                },
-                {
-                    'id': '555_555',
-                    'name': 'Hardcode Bank #%d' % (random.random() * 100),
-                    'institution': 'Hardcode Inst',
-                    'description': 'My Hardcoded bank with a random number. This is a dynamic response.',
-                    'balance': 3.98
-                }
-            ]
-        }
-
-    @cherrypy.expose()
-    @cherrypy.tools.json_out()
-    def institutions(self, *args, **kwargs):
-        '''
-        Management of institutions.
-        '''
-        return {
-            'institutions': [
-                {
-                    'name': 'JPMC',
-                    'description': 'JPMC Credit Card',
-                    'mappings': [
-                        {
-                            'mapType': 'static',
-                            'fromField': 'USD',
-                            'toField': 'currency'
-                        },
-                        {
-                            'mapType': 'dynamic',
-                            'fromField': 'Date Posted',
-                            'toField': 'datePosted'
-                        },
-                        {
-                            'mapType': 'dynamic',
-                            'fromField': 'Date Pending',
-                            'toField': 'datePending'
-                        },
-                        {
-                            'mapType': 'dynamic',
-                            'fromField': 'Amount',
-                            'toField': 'amount'
-                        },
-                        {
-                            'mapType': 'dynamic',
-                            'fromField': 'Memo',
-                            'toField': 'description'
-                        },
-                        {
-                            'mapType': 'dynamic',
-                            'fromField': 'Summary',
-                            'toField': 'name'
-                        }
-                    ]
-                },
-                {
-                    'name': 'BoA',
-                    'description': 'BoA Checking',
-                    'mappings': [
-                        {
-                            'mapType': 'static',
-                            'fromField': 'USD',
-                            'toField': 'currency'
-                        },
-                        {
-                            'mapType': 'dynamic',
-                            'fromField': 'Transaction Date',
-                            'toField': 'datePosted'
-                        },
-                        {
-                            'mapType': 'dynamic',
-                            'fromField': 'Pend Date',
-                            'toField': 'datePending'
-                        },
-                        {
-                            'mapType': 'dynamic',
-                            'fromField': 'Amount',
-                            'toField': 'amount'
-                        },
-                        {
-                            'mapType': 'dynamic',
-                            'fromField': 'Notes',
-                            'toField': 'description'
-                        },
-                        {
-                            'mapType': 'dynamic',
-                            'fromField': 'Transaction',
-                            'toField': 'name'
-                        }
-                    ]
-                }
-            ]
-        }
-
-    @cherrypy.expose()
-    @cherrypy.tools.json_out()
-    def transactions(self, *args, **kwargs):
-        '''
-        Management of transactions.
-        '''
-        return {
-            'transactions': [
-                {
-                    'id': '0x0001',
-                    'name': 'Google',
-                    'accountId': '11111111',
-                    'amount': 10.83,
-                    'datePending': '2022-01-01',
-                    'datePosted': '2022-01-03',
-                    'description': 'Google Pay -> Google Inc.',
-                    'tags': [
-                        'business',
-                        'entertainment',
-                        'media'
-                    ]
-                },
-                {
-                    'id': '0x0002',
-                    'name': 'Amazon',
-                    'accountId': '11111111',
-                    'amount': 93.49,
-                    'datePending': '2022-01-04',
-                    'datePosted': '2022-01-08',
-                    'description': 'AWS Servers and Backups',
-                    'tags': [
-                        'business',
-                        'essential'
-                    ]
-                },
-                {
-                    'id': '0x0003',
-                    'name': 'Winco Foods',
-                    'accountId': '11111111',
-                    'amount': 75.89,
-                    'datePending': '2022-01-14',
-                    'datePosted': '2022-01-16',
-                    'description': 'Winco Groceries',
-                    'tags': [
-                        'grocery',
-                        'essential'
-                    ]
-                },
-                {
-                    'id': '0x0004',
-                    'name': 'Payroll',
-                    'accountId': '11111111',
-                    'amount': 1023.84,
-                    'datePending': '2022-01-15',
-                    'datePosted': '2022-01-16',
-                    'description': 'Day Job Payroll',
-                    'tags': [
-                        'income'
-                    ]
-                }
-            ]
-        }
-
-    @cherrypy.expose()
-    @cherrypy.tools.json_out()
-    def settings(self, *args, **kwargs):
-        '''
-        Management of Settings.
-        '''
-        return {}
+from yaba.api.server import CRUD_Server, HardcodeServer
 
 class Server(object):
     '''
@@ -212,7 +17,8 @@ class Server(object):
         log.info('Starting Yaba...')
         cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
         cherrypy.response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-        self.api = ApiServer()
+        self.api = CRUD_Server()
+        #self.api = HardcodeServer()
 
     def getConfig(self):
         '''
@@ -261,9 +67,12 @@ class Server(object):
         }
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def halt(self, **kwargs):
         cherrypy.engine.exit()
-        return 'Shutting down...'
+        return {
+            "message": "Shutting down..."
+        }
 
 def main():
     '''

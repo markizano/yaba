@@ -3,14 +3,19 @@ import re
 import json
 from yaba.models import DataModelCollection, DataModel
 
-class InstitutionCollectionModel(DataModelCollection):
+class InstitutionCollection(DataModelCollection):
     '''
     List of institutions we would like to contain, aggregate and summarize.
     '''
     def __init__(self, items):
         for item in items:
             self.append(item)
-        return super().__init__(self)
+        return super(list, self).__init__()
+
+    def append(self, item):
+        if not isinstance(item, Institution):
+            item = Institution(**item)
+        super().append(item)
 
 class Institution(DataModel):
     '''

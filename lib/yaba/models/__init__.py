@@ -1,4 +1,6 @@
 
+import json
+from datetime import datetime
 from easydict import EasyDict
 
 class DataModelCollection(list):
@@ -15,21 +17,14 @@ class DataModelCollection(list):
                 break
         return result
 
-    def __getitem__(self, i):
+    def __getitem__(self, id):
         for txn in self:
             if txn.id == id:
                 return txn
-        return super().__getitem__(i)
+        return super().__getitem__(id)
 
-    def append(self, item):
-        if not isinstance(item, __class__):
-            item = __class__(**item)
-        return super().append(item)
-
-    def insert(index, item):
-        if not isinstance(item, __class__):
-            item = __class__(**item)
-        return super().insert(index, item)
+    def jsonable(self):
+        return [ x.jsonable() for x in self ]
 
     def save(self) -> list:
         '''
@@ -51,14 +46,46 @@ class DataModelCollection(list):
             results.append( item.load() )
         return results
 
-class DataModel(EasyDict):
+class DataModel(object):
     '''
     Object extension that represents any single object of Transaction, Account or Institution.
     '''
 
+    def __str__(self) -> str:
+        return json.dumps(self.jsonable())
+
+    def __repr__(self):
+        'For debugging purposes only.'
+        return str(self)
+
+    def items(self):
+        return self.__dict__.items()
+
+    def jsonable(self):
+        '''
+        Make this object JSON serializable for returning to CherryPy.
+        Return the result.
+        '''
+        result = {
+            'id': self.id,
+        }
+        for prop in list( self.__dict__.keys() ):
+            if prop == self._idField:
+                continue
+            if prop == '_idField':
+                continue
+            if prop.startswith('_'):
+                prop = prop[1:]
+            value = getattr(self, prop)
+            if isinstance(value, datetime):
+                result[prop] = value.strftime('%FT%R:%S')
+                continue
+            result[prop] = value
+        return result
+
     @property
     def id(self):
-        return self[self._idField]
+        return getattr(self, self._idField)
 
     # @abstractmethod
     def load(self):

@@ -5,16 +5,21 @@ import dateparser
 from datetime import datetime
 from yaba.models import DataModelCollection, DataModel
 
-class TransactionCollectionModel(DataModelCollection):
+class TransactionCollection(DataModelCollection):
     '''
     List of transactions we would like to contain, aggregate and summarize for the account.
     '''
     def __init__(self, items):
         for item in items:
             self.append(item)
-        return super().__init__(self)
+        return super(list, self).__init__()
 
-class TransactionModel(DataModel):
+    def append(self, item):
+        if not isinstance(item, Transaction):
+            item = Transaction(**item)
+        super().append(item)
+
+class Transaction(DataModel):
     '''
     Transaction Object.
     Represents any transaction object.
@@ -22,33 +27,18 @@ class TransactionModel(DataModel):
     '''
     DATENULL = dateparser.parse('1970-01-01 00:00:00-00:00')
 
-    def __init__(self, txid, **kwargs):
+    def __init__(self, transactionId, **kwargs):
         self._idField = 'transactionId'
-        self.transactionId = txid
-        self.fromAccountId = kwargs.get('fromAccountId', '')
-        self.toAccountId = kwargs.get('toAccountId', '')
+        self.transactionId = transactionId
+        self.fromAccount = kwargs.get('fromAccount', '')
+        self.toAccount = kwargs.get('toAccount', '')
         self.datePending = kwargs.get('datePending', Transaction.DATENULL)
         self.datePosted = kwargs.get('datePosted', Transaction.DATENULL)
         self.amount = kwargs.get('amount', 0.0)
         self.tax = kwargs.get('tax', 0.0)
-        self.summary = kwargs.get('summary', '')
+        self.merchant = kwargs.get('merchant', '')
         self.description = kwargs.get('description', '')
         self.tags = kwargs.get('tags', [])
-
-    def __str__(self) -> str:
-        result = {
-            'id': self.transactionId,
-        }
-        for prop in list( self.__dict__.keys() ):
-            if prop in ('transactionId'):
-                continue
-            if prop.startswith('_'):
-                prop = prop[1:]
-            value = getattr(self, prop)
-            if value is None:
-                continue
-            result[prop] = value
-        return json.dumps(result, default=str)
 
     @property
     def datePending(self) -> datetime:

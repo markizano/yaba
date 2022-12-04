@@ -18,11 +18,16 @@ class ConfigurationManager:
 
     @property
     def config(self):
+        'Property to return the current configuration in memory.'
         return self.getConfig()
 
     def getConfig(self):
+        '''
+        Search the configuration files and load them into memory if we haven't done so already.
+        @return (dict)
+        '''
         if ConfigurationManager._config:
-            log.trace('Returning config from cache.')
+            log.debug('Returning config from cache.')
             return ConfigurationManager._config
         result = {}
 
@@ -38,4 +43,5 @@ class ConfigurationManager:
         return result
 
 def configs():
+    'Module function to return ConfigurationManager()s instance of config.'
     return ConfigurationManager().config
