@@ -44,5 +44,3 @@ class TestConfig(unittest.TestCase):
             shutil.rmtree(self.testdir)
         os.chdir(self.oldcwd)
         os.environ['HOME'] = self.oldhome
-
-print(__name__)
