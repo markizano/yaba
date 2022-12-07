@@ -8,10 +8,10 @@
         <th ng-show="includeTags">Tags</th>
     </thead>
     <tbody>
-        <tr ng-repeat="txn in _transactions | orderBy:sortColumn">
+        <tr ng-repeat="txn in transactions | orderBy:sortColumn">
             <td>{{ txn.datePending }}</td>
             <td>{{ txn.datePosted }}</td>
-            <td>{{ txn.amount }}</td>
+            <td>{{ txn.amount | currency }}</td>
             <td>{{ txn.accountId }}</td>
             <td>{{ txn.description }}</td>
             <td ng-show="includeTags"><md-chips ng-model="txn.tags" ng-blur="save()"></md-chips></td>

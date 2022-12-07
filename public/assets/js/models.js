@@ -363,12 +363,7 @@
             // By default, don't show tags. We can override this in the HTML include for this widget.
             $scope.includeTags = $attrs.hasOwnProperty('includeTags');
             $scope.withHeader = !$attrs.hasOwnProperty('withoutHeader');
-            // When transactions come back, we don't always have the value. This should help ensure
-            // we are watching for that and collect the value once it loads in the page.
-            $scope.$watch($attrs.ngModel, (value) => {
-                $scope._transactions = value;
-            });
-            $scope._transactions = $scope.telescope($attrs.ngModel);
+            $scope.limit = $attrs.limit || -1;
             $scope.sortColumn = 'datePosted';
             $scope.sortBy = this.sortBy;
             $scope.save = this.save;
@@ -392,7 +387,7 @@
 
     class WishlistWidget {
         constructor($scope, $attrs) {
-            $scope.wishlist = $scope.telescope($attrs.ngModel) || [];
+            $scope.wishlist = $scope.wishlist || [];
             $scope.sortColumn = 'datePosted';
             $scope.sortBy = this.sortBy;
             $scope.add = this.add;
@@ -400,7 +395,6 @@
         }
 
         add() {
-            console.log(this);
             this.wishlist.push({
                 amount: this.amount,
                 datePurchase: this.datePurchase,
@@ -459,7 +453,10 @@
         return {
             templateUrl: '/assets/views/tables/transactions.htm',
             controller: TransactionCollection,
-            restrict: 'AE'
+            scope: {
+                'transactions': '='
+            },
+            restrict: 'E'
         };
     }
 
@@ -469,9 +466,9 @@
             templateUrl: '/assets/views/prospect/wishlist.htm',
             controller: WishlistWidget,
             scope: {
-                wishlist: '=prospect'
+                wishlist: '='
             },
-            restrict: 'AE'
+            restrict: 'E'
         };
     }
 
@@ -494,15 +491,15 @@
 (function(Yaba) {
     /* angular.filter() */
     function budgetBy() {
-        return (transactions, incomeTags) => {
+        return (transactions, filterTags) => {
             if ( !transactions ) return transactions;
-            if ( !incomeTags ) return transactions;
+            if ( !filterTags ) return transactions;
             var result = [];
             transactions.forEach((transaction) => {
-                if ( typeof incomeTags == 'string' ) {
-                    incomeTags = incomeTags.split(',');
+                if ( typeof filterTags == 'string' ) {
+                    filterTags = filterTags.split(',');
                 }
-                incomeTags.forEach((incomeTag) => {
+                filterTags.forEach((incomeTag) => {
                     if ( transaction.tags.includes(incomeTag.trim()) ) {
                         result.push(transaction);
                     }

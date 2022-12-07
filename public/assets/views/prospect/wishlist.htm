@@ -6,9 +6,9 @@
     </thead>
     <tbody>
         <tr ng-repeat="txn in wishlist | orderBy:sortColumn">
-            <td> {{ txn.datePurchase }} </td>
-            <td> {{ txn.amount }} </td>
-            <td> {{ txn.description }} </td>
+            <td> {{ txn.datePurchase }}&nbsp;</td>
+            <td> {{ txn.amount | currency }}&nbsp;</td>
+            <td> {{ txn.description }}&nbsp;</td>
         </tr>
     </tbody>
 </table>

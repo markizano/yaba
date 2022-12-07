@@ -10,9 +10,9 @@
     function distinctSum(transactions=[]) {
         var result = [];
         console.log(transactions);
-        this.transactions.forEach(xaction => {
+        this.transactions.forEach((xaction) => {
             result.push([ xaction.name, xaction.amount ]);
-        })
+        });
         return result;
     }
 
@@ -102,19 +102,23 @@
         var services = { $http: $http, $scope: $scope };
 
         function updateBudgets(value) {
-            console.log(value);
-            $scope.incomeTxns = Yaba.filters.budgetBy(value, $scope.incomeTags);
-            $scope.expenseTxns = Yaba.filters.budgetBy(value, $scope.expenseTags);
+            $scope.incomeTxns = Yaba.filters.budgetBy($scope.transactions, $scope.incomeTags);
+            $scope.expenseTxns = Yaba.filters.budgetBy($scope.transactions, $scope.expenseTags);
+            console.log('incomeTxns: ', $scope.incomeTxns);
+            console.log('billTxns: ', $scope.expenseTxns);
         }
 
         $scope.transactions = [];
         $scope.prospect = [];
+        $scope.incomeTxns = [];
+        $scope.expenseTxns = [];
         $scope.budgetBy = Yaba.filters.budgetBy;
         $scope.incomeTags = ['income', 'paycheque'];
         $scope.expenseTags = ['billz'];
-        $scope.$watch('transactions', updateBudgets);
-        // $scope.$watch('incomeTags', updateBudgets);
-        // $scope.$watch('expenseTags', updateBudgets);
+        $scope.$watchCollection('transactions', updateBudgets);
+        $scope.$watch('incomeTags', updateBudgets);
+        $scope.$watch('expenseTags', updateBudgets);
+
         var txns = new Yaba.models.Transactions(services);
         txns.load();
     }
