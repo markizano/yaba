@@ -17,8 +17,8 @@ class Server(object):
         log.info('Starting Yaba...')
         cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
         cherrypy.response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-        self.api = CRUD_Server()
-        #self.api = HardcodeServer()
+        #self.api = CRUD_Server()
+        self.api = HardcodeServer()
 
     def getConfig(self):
         '''

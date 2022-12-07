@@ -40,6 +40,7 @@ class Account(DataModel):
         self.interestRate       = kwargs.get('interestRate', 0.0)
         self.interestStrategy   = kwargs.get('interestStrategy', 'simple')
         self.accountType        = kwargs.get('accountType', '')
+        self.balance            = kwargs.get('balance', 0.0)
         if 'transactions' in kwargs:
             self.transactions   = TransactionCollection(kwargs['transactions'])
 
@@ -50,6 +51,14 @@ class Account(DataModel):
     def interestRate(self, value):
         if value:
             self._interestRate = float(value)
+
+    @property
+    def balance(self) -> float:
+        return self._balance
+    @balance.setter
+    def balance(self, value):
+        if value:
+            self._balance = float(value)
 
     @property
     def transactions(self) -> TransactionCollection:
