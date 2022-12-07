@@ -49,7 +49,7 @@ yaba.accounts.insert({
     routing: '9999999',
     interestRate: 0.01,
     interestStrategy: 'simple'
-});    
+});
 
 yaba.transactions.insert({
     transactionId: '4f7739ec-feb5-4e76-9e28-ce2a139f55eb',
