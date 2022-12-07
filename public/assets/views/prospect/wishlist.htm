@@ -1,0 +1,25 @@
+<table class="data item-list">
+    <thead>
+        <th ng-click="sortBy('datePurchase');">Desired Purchase Date</th>
+        <th ng-click="sortBy('amount');">Amount</th>
+        <th ng-click="sortBy('description');">Description</th>
+    </thead>
+    <tbody>
+        <tr ng-repeat="txn in wishlist | orderBy:sortColumn">
+            <td> {{ txn.datePurchase }} </td>
+            <td> {{ txn.amount }} </td>
+            <td> {{ txn.description }} </td>
+        </tr>
+    </tbody>
+</table>
+<form>
+    I want to buy <input type="text" ng-model="description" />
+    which costs $<input type="number" ng-model="amount" /> by
+    <md-datepicker ng-model="datePurchase"
+        md-placeholder="Desired purchase date"
+        display-date="yyyy-mm-dd"
+        input-aria-describedby="datepicker-description"
+        input-aria-labelledby="datepicker-header ">
+    </md-datepicker>
+    <plus ng-click="add();">+</plus>
+</form>

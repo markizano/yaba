@@ -5,7 +5,7 @@
  (function(Yaba) {
     'use strict';
 
-    const x30_DAYS = 2592000000;
+    const x30_DAYS = 2592000000; // 1000ms * 60s * 60m * 24h * 30d
 
     function distinctSum(transactions=[]) {
         var result = [];
@@ -50,9 +50,7 @@
         var banks = new Yaba.models.Institutions(services);
         var accts = new Yaba.models.Accounts(services);
 
-        banks.load();
-        var myAccountsPromise = accts.load();
-        myAccountsPromise.then((response) => {
+        function fetchTransactions(response) {
             response.data.accounts.forEach((account) => {
                 var transactions = new Yaba.models.Transactions({
                     $scope: account,
@@ -64,8 +62,13 @@
                     toDate: $scope.toDate || 'today'
                 }
                 transactions.load(searchCriteria);
-            })
-        })
+            });
+        }
+
+        banks.load();
+        var myAccountsPromise = accts.load();
+        myAccountsPromise.then((response) => { return fetchTransactions(response); }, Yaba.utils.reject);
+
         console.log('Yaba.controllers.accounts()');
     }
 
@@ -98,9 +101,20 @@
         console.log('Prospect controller');
         var services = { $http: $http, $scope: $scope };
 
+        function updateBudgets(value) {
+            console.log(value);
+            $scope.incomeTxns = Yaba.filters.budgetBy(value, $scope.incomeTags);
+            $scope.expenseTxns = Yaba.filters.budgetBy(value, $scope.expenseTags);
+        }
+
         $scope.transactions = [];
+        $scope.prospect = [];
         $scope.budgetBy = Yaba.filters.budgetBy;
         $scope.incomeTags = ['income', 'paycheque'];
+        $scope.expenseTags = ['billz'];
+        $scope.$watch('transactions', updateBudgets);
+        // $scope.$watch('incomeTags', updateBudgets);
+        // $scope.$watch('expenseTags', updateBudgets);
         var txns = new Yaba.models.Transactions(services);
         txns.load();
     }

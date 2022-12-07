@@ -2,8 +2,7 @@
 (function() {
     function telescope(path='') {
         function index(parent, searchKey) {
-            // console.log(parent);
-            return parent[searchKey] || parent;
+            return parent[searchKey];
         }
         return path.toString().split('.').reduce(index, this);
     }

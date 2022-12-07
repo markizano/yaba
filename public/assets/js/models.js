@@ -37,6 +37,84 @@
         ]
     }
 
+    class Institutions {
+        constructor(services) {
+            this.$http = services.$http;
+            this.$scope = services.$scope;
+        }
+
+        /**
+         * Query for an institution, many institutions and get more details in list format.
+         * @returns Object<Institution>
+         */
+        load() {
+            var result = this.$http({
+                method: 'GET',
+                url: '/api/institutions',
+                data: {}
+            });
+            result.then((response) => { return this.loaded(response); }, Yaba.utils.reject);
+            return result;
+        }
+
+        loaded(response) {
+            var result = [];
+            response.data.institutions.forEach((institution) => {
+                var mappings = [];
+                institution.mappings.forEach((mapping) => {
+                    mappings.push({
+                        fromField: mapping.fromField,
+                        toField: mapping.toField,
+                        mapType: mapping.mapType
+                    });
+                });
+                result.push({
+                    name: institution.name,
+                    description: institution.description,
+                    mappings: mappings
+                });
+            });
+            return this.$scope.institutions = result;
+        }
+
+        /**
+         * Save an institution to the server.
+         * @param {Interface Institution} institution The Institution we are saving to the server.
+         * @returns HTTPResponse.
+         */
+        save() {
+            var params = {
+                institution: {
+                    name: this.$scope.institution.name,
+                    description: this.$scope.institution.description,
+                    mappings: []
+                }
+            };
+            this.$scope.institution.mappings.forEach( (mapping) => {
+                params.institution.mappings.push({
+                    fromField: mapping.fromField,
+                    toField: mapping.toField,
+                    mapType: mapping.mapType
+                })
+            });
+            var result = this.$http({
+                method: 'POST',
+                url: '/api/institution',
+                data: params
+            });
+            result.then((response) =>{ this.saved(response); }, Yaba.utils.reject);
+            console.log('call Institution.save()');
+            return result;
+        }
+
+        saved(response) {
+            this.lastSave = ( response.status <= 200 && response.status >= 299 );
+            if ( !this.lastSave ) {
+                this.saveMessage = response.data.message;
+            }
+        }
+    }
+
     class Accounts {
         constructor(services) {
             services.hasOwnProperty('$http') && ( this.$http = services.$http );
@@ -48,22 +126,28 @@
          * @returns Object<Institution>
          */
         load(options={}) {
-            const self = this;
+            var query = {};
+            if ( options.accountId ) {
+                query.accountId = options.accountId;
+            }
+            if ( options.institutionId ) {
+                query.institutionId = options.institutionId;
+            }
             var result = this.$http({
                 method: 'GET',
                 url: '/api/accounts',
-                data: {}
+                data: query
             });
 
-            function gotAccounts(response) {
-                self.$scope.accounts = [];
-                response.data.accounts.forEach( (account) => {
-                    self.$scope.accounts.push(account);
-                });
-            }
-
-            result.then(gotAccounts, Yaba.utils.reject);
+            result.then((response) => { return this.loaded(response); }, Yaba.utils.reject);
             return result;
+        }
+
+        loaded(response) {
+            this.$scope.accounts = [];
+            response.data.accounts.forEach( (account) => {
+                this.$scope.accounts.push(account);
+            });
         }
 
         /**
@@ -82,11 +166,20 @@
                     interestStrategy: this.$scope.account.interestStrategy
                 }
             };
-            return this.$http({
+            var result = this.$http({
                 method: 'POST',
                 url: '/api/account',
                 data: options
-            })
+            });
+            result.then((response) => { return this.saved(response); }, Yaba.utils.reject);
+            return result;
+        }
+
+        saved(response) {
+            this.lastSave = ( response.status <= 200 && response.status >= 299 );
+            if ( !this.lastSave ) {
+                this.saveMessage = response.data.message;
+            }
         }
     }
 
@@ -128,6 +221,7 @@
                 datePosted: this.$scope.datePosted,
                 amount: this.$scope.amount,
                 accountId: this.$scope.accountId,
+                balance: this.$scope.balance,
                 tags: ( (tags) => {
                     var result = [];
                     tags.forEach(tag => {
@@ -136,85 +230,13 @@
                     return result;
                 })( this.$scope.tags.split(',') )
             };
-            return this.$http({
+            var result = this.$http({
                 method: 'POST',
                 url: '/api/transaction',
                 data: { transaction: transaction }
             });
-        }
-    }
-
-    class Institutions {
-        constructor(services) {
-            this.$http = services.$http;
-            this.$scope = services.$scope;
-        }
-
-        /**
-         * Query for an institution, many institutions and get more details in list format.
-         * @returns Object<Institution>
-         */
-        load() {
-            var self = this;
-            var result = this.$http({
-                method: 'GET',
-                url: '/api/institutions',
-                data: {}
-            });
-            function gotInstitution(response) {
-                var result = [];
-                response.data.institutions.forEach((institution) => {
-                    var mappings = [];
-                    institution.mappings.forEach((mapping) => {
-                        mappings.push({
-                            fromField: mapping.fromField,
-                            toField: mapping.toField,
-                            mapType: mapping.mapType
-                        });
-                    });
-                    result.push({
-                        name: institution.name,
-                        description: institution.description,
-                        mappings: mappings
-                    });
-                })
-                return result;
-            }
-            result.then(gotInstitution, Yaba.utils.reject);
+            result.then((response) => { return this.saved(response); }, Yaba.utils.reject);
             return result;
-        }
-
-        /**
-         * Save an institution to the server.
-         * @param {Interface Institution} institution The Institution we are saving to the server.
-         * @returns HTTPResponse.
-         */
-        save() {
-            var options = {
-                institution: {
-                    name: this.$scope.institution.name,
-                    description: this.$scope.institution.description,
-                    mappings: []
-                }
-            };
-            var self = this;
-            this.$scope.institution.mappings.forEach( (mapping) => {
-                options.institution.mappings.push({
-                    fromField: mapping.fromField,
-                    toField: mapping.toField,
-                    mapType: mapping.mapType
-                })
-            });
-            var result = this.$http({
-                method: 'POST',
-                url: '/api/institution',
-                data: options
-            });
-            result.then((response) =>{
-                self.saved(response);
-            }, Yaba.utils.reject);
-            console.log('call Institution.save()');
-            return this;
         }
 
         saved(response) {
@@ -339,9 +361,13 @@
          */
         constructor($scope, $attrs) {
             // By default, don't show tags. We can override this in the HTML include for this widget.
-            // console.log($attrs);
             $scope.includeTags = $attrs.hasOwnProperty('includeTags');
             $scope.withHeader = !$attrs.hasOwnProperty('withoutHeader');
+            // When transactions come back, we don't always have the value. This should help ensure
+            // we are watching for that and collect the value once it loads in the page.
+            $scope.$watch($attrs.ngModel, (value) => {
+                $scope._transactions = value;
+            });
             $scope._transactions = $scope.telescope($attrs.ngModel);
             $scope.sortColumn = 'datePosted';
             $scope.sortBy = this.sortBy;
@@ -362,6 +388,30 @@
             console.log('save-transaction()');
             console.log(this);
         }
+    }
+
+    class WishlistWidget {
+        constructor($scope, $attrs) {
+            $scope.wishlist = $scope.telescope($attrs.ngModel) || [];
+            $scope.sortColumn = 'datePosted';
+            $scope.sortBy = this.sortBy;
+            $scope.add = this.add;
+            this.$scope = $scope;
+        }
+
+        add() {
+            console.log(this);
+            this.wishlist.push({
+                amount: this.amount,
+                datePurchase: this.datePurchase,
+                description: this.description
+            });
+        }
+
+        sortBy(field) {
+            this.sortColumn = field;
+        }
+
     }
 
     function institutionForm() {
@@ -409,8 +459,18 @@
         return {
             templateUrl: '/assets/views/tables/transactions.htm',
             controller: TransactionCollection,
-            controllerAs: 'budgetWidget',
-            bindToController: true,
+            restrict: 'AE'
+        };
+    }
+
+    function wishlist() {
+        WishlistWidget.$inject = ['$scope', '$attrs'];
+        return {
+            templateUrl: '/assets/views/prospect/wishlist.htm',
+            controller: WishlistWidget,
+            scope: {
+                wishlist: '=prospect'
+            },
             restrict: 'AE'
         };
     }
@@ -419,7 +479,8 @@
         InstitutionForm: InstitutionFormCtrl,
         AccountForm: AccountFormCtrl,
         BudgetCtrl: BudgetCtrl,
-        TransactionCollection: TransactionCollection
+        TransactionCollection: TransactionCollection,
+        WishlistWidget: WishlistWidget
     });
 
     Yaba.app.directive('yabaInstitutionForm', institutionForm);
@@ -427,6 +488,7 @@
     Yaba.app.directive('yabaBudget', budgetWidget);
     Yaba.app.directive('yabaDaterange', daterangeWidget);
     Yaba.app.directive('yabaTransactionList', transactionList);
+    Yaba.app.directive('yabaWishlist', wishlist);
 })(Yaba);
 
 (function(Yaba) {

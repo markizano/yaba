@@ -1,27 +1,19 @@
 <div id="prospect" class="controller" ng-controller="prospect">
     <h1>Prospecting</h1>
     <p>Here is where you come to prospect on future purchases and when you want to make them.</p>
-    <div id="item-list-wrapper">
-        <yaba-transaction-list ng-model="transactions" include-tags></yaba-transaction-list>
-        <yaba-wishlist ng-model="prospect"></yaba-wishlist>
-        <div id="leftover" class="item-column-wrapper">
-            <label for="income-tags">List income related tags here:
-                <md-chips ng-model="incomeTags">income</md-chips>
-            </label>
-            <md-content>
-                <md-list flex>
-                    <md-subheader>Funds leftover after each paycheque:</md-subheader>
-                    <md-list-item ng-repeat="transaction in transactions | budgetBy:incomeTags">
-                        <md-list-item-text layout="column">
-                            <dt> Date: {{ transaction.datePosted }} </dt>
-                            <dt> Amount: ${{ transaction.amount }} </dt>
-                            <dt> Txn: {{ transaction.name }} </dt>
-                            <dt> From: {{ transaction.fromAccount }} </dt>
-                            <dt> To: {{ transaction.toAccount }} </dt>
-                        </md-list-item-text>
-                    </md-list-item>
-                </md-list>
-            </md-content>
-        </div>
+    <div id="item-column-wrapper">
+        <yaba-wishlist ng-model="prospect" prospect="prospect"></yaba-wishlist>
+    </div>
+    <div class="item-column-wrapper">
+        <label for="income-tags">List income related tags here:
+            <md-chips ng-model="incomeTags">income</md-chips>
+        </label>
+        <yaba-transaction-list ng-model="incomeTxns"></yaba-transaction-list>
+    </div>
+    <div class="item-column-wrapper">
+        <label for="expense-tags">List expense related tags here:
+            <md-chips ng-model="expenseTags">billz</md-chips>
+        </label>
+        <yaba-transaction-list ng-model="expenseTxns"></yaba-transaction-list>
     </div>
 </div>
