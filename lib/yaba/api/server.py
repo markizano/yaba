@@ -137,7 +137,6 @@ class CRUD_Server:
             models = api2model[func]
             results = models(documents)
             log.debug(f'DB Response: {documents}')
-            # import pdb; pdb.set_trace()
             return { func: results.jsonable() }
         elif cp.request.method == 'POST':
             log.warn('POST')
@@ -154,6 +153,8 @@ class HardcodeServer(object):
     '''
     API Server that will act as our main way of handling/passing off data to the front-end/client.
     '''
+    def __init__(self):
+      log.info('Starting up \x1b[31mHardcode\x1b[0m server.')
 
     @cp.expose()
     @cp.tools.json_out()
