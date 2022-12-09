@@ -280,6 +280,7 @@
             this.$scope.close = this.close;
             $scope.addMapping = this.addMapping;
             this.institution = new Yaba.models.Institutions({ $scope: $scope, $http: $http });
+            $scope.transactionFields = ['datePending', 'datePosted', 'accountId', 'merchant', 'description', 'txnType', 'currency', 'amount', 'tags'];
             this.$scope.save = (e) => {
                 self.institution.save();
             };
@@ -306,9 +307,9 @@
             this.$scope = $scope;
             this.$http = $scope.$http = $http;
             this.$scope.close = this.close;
-            this.account = new Yaba.models.Accounts({ $scope: $scope, $http: $http });
+            this.accounts = new Yaba.models.Accounts({ $scope: $scope, $http: $http });
             this.$scope.save = (e) => {
-                self.account.save();
+                self.accounts.save();
             };
         }
 
@@ -489,6 +490,8 @@
 })(Yaba);
 
 (function(Yaba) {
+    'use strict';
+
     /* angular.filter() */
     function budgetBy() {
         return (transactions, filterTags) => {

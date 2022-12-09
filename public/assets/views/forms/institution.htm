@@ -11,8 +11,9 @@
                     From {{ mapping.mapType == 'static'? 'Value': 'Field' }}:
                     <input type="text" ng-model="mapping.fromField" />
                 </label>
-                <!-- @TODO: Use an API call to derive the fields/keys of the cannoncial model.  -->
-                <label>To Field: <input type="text" ng-model="mapping.toField" /></label>
+                <label>
+                    To Field: <select ng-model="mapping.toField" ng-options="txnField for txnField in transactionFields"></select>
+                </label>
                 <label>Mapping Type: <select ng-model="mapping.mapType">
                     <option value="static">Static</option>
                     <option value="dynamic">Dynamic</option>

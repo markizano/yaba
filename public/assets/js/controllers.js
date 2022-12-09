@@ -35,6 +35,7 @@
         accts.load();
         txns.load();
     }
+    budget.$inject = ['$scope', '$http'];
 
     /**
      * Angular Accounts controller.
@@ -71,6 +72,7 @@
 
         console.log('Yaba.controllers.accounts()');
     }
+    accounts.$inject = ['$scope', '$http'];
 
     /**
      * Account Institutions Controller.
@@ -88,33 +90,35 @@
         });
         banks.load();
     }
+    institutions.$inject = ['$scope', '$http'];
 
     function charts($scope, $http) {
         var accts = new Yaba.models.Accounts({$scope: $scope, $http: $http});
         accts.load({ withTransactions: false });
     }
+    charts.$inject = ['$scope', '$http'];
 
     /**
      * Angular Prospecting Controller.
      */
-    function prospect($scope, $http, $attrs) {
+    function prospect($scope, $http, $window) {
         console.log('Prospect controller');
         var services = { $http: $http, $scope: $scope };
 
         function updateBudgets(value) {
             $scope.incomeTxns = Yaba.filters.budgetBy($scope.transactions, $scope.incomeTags);
             $scope.expenseTxns = Yaba.filters.budgetBy($scope.transactions, $scope.expenseTags);
-            console.log('incomeTxns: ', $scope.incomeTxns);
-            console.log('billTxns: ', $scope.expenseTxns);
         }
 
         $scope.transactions = [];
         $scope.prospect = [];
         $scope.incomeTxns = [];
         $scope.expenseTxns = [];
+        $scope.incomeTags = $window.localStorage.getItem('incomeTags').split(',').filter(x => x) || [];
+        $scope.expenseTags = $window.localStorage.getItem('expenseTags').split(',').filter(x => x) || [];
+        $scope.transferTags = $window.localStorage.getItem('transferTags').split(',').filter(x => x) || [];
+        $scope.payCycle = $window.localStorage.getItem('payCycle') || '';
         $scope.budgetBy = Yaba.filters.budgetBy;
-        $scope.incomeTags = ['income', 'paycheque'];
-        $scope.expenseTags = ['billz'];
         $scope.$watchCollection('transactions', updateBudgets);
         $scope.$watch('incomeTags', updateBudgets);
         $scope.$watch('expenseTags', updateBudgets);
@@ -122,14 +126,30 @@
         var txns = new Yaba.models.Transactions(services);
         txns.load();
     }
-    prospect.$inject = ['$scope', '$http', '$attrs'];
+    prospect.$inject = ['$scope', '$http', '$window'];
+
+    function settings($scope, $window) {
+        $scope.incomeTags = $window.localStorage.getItem('incomeTags').split(',').filter(x => x) || [];
+        $scope.expenseTags = $window.localStorage.getItem('expenseTags').split(',').filter(x => x) || [];
+        $scope.transferTags = $window.localStorage.getItem('transferTags').split(',').filter(x => x) || [];
+        $scope.payCycle = $window.localStorage.getItem('payCycle') || '';
+
+        $scope.saveSettings = function saveSettings() {
+            ['incomeTags', 'expenseTags', 'transferTags'].forEach(field => {
+                $window.localStorage.setItem(field, Array($scope[field]).join(','));
+            });
+            $window.localStorage.setItem('payCycle', $scope.payCycle);
+        }
+    }
+    settings.$inject = ['$scope', '$window'];
 
     Yaba.hasOwnProperty('controllers') || (Yaba.controllers = {
-        budget: ['$scope', '$http', budget],
-        accounts: ['$scope', '$http', accounts],
-        institutions: ['$scope', '$http', institutions],
-        charts: ['$scope', '$http', charts],
-        prospect: prospect
+        budget: budget,
+        accounts: accounts,
+        institutions: institutions,
+        charts: charts,
+        prospect: prospect,
+        settings: settings,
     });
 
     // Register the controllers to the AngularJS interfaces.
@@ -138,6 +158,7 @@
     Yaba.app.controller('institutions', Yaba.controllers.institutions);
     Yaba.app.controller('charts', Yaba.controllers.charts);
     Yaba.app.controller('prospect', Yaba.controllers.prospect);
+    Yaba.app.controller('settings', Yaba.controllers.settings);
 
     return Yaba;
 })(Yaba);

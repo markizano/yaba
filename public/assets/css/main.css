@@ -146,7 +146,13 @@ table.data tr:nth-child(odd) {
     height: 18px;
     font-size: 14px;
 }
-.new-item-wrapper input[type=text] {
+.new-item-wrapper select {
+    height: 20px;
+    font-size: 16px;
+    margin: 2px;
+    padding: 2px;
+}
+.new-item-wrapper input[type=text], .new-item-wrapper input[type=number], .new-item-wrapper select {
     min-width: 300px;
 }
 .new-item-wrapper input[type=submit] {
