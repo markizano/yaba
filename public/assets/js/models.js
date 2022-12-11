@@ -97,6 +97,8 @@
                     mapType: mapping.mapType
                 })
             });
+            console.log('Sending to server:');
+            console.log(params);
             var result = this.$http({
                 method: 'POST',
                 url: '/api/institution',
@@ -107,11 +109,17 @@
             return result;
         }
 
+        /**
+         * Hook to execute after we've gotten a successful message from the server.
+         * @param {XmlHttpResponse} response HTTP response object from the server.
+         * ${this} context is Institution class object.
+         */
         saved(response) {
-            this.lastSave = ( response.status <= 200 && response.status >= 299 );
-            if ( !this.lastSave ) {
-                this.saveMessage = response.data.message;
+            console.log(`institution saved: ${response.status}`);
+            if (response.status == 200) {
+                this.$scope.$parent.seeForm = false;
             }
+            // @TODO: Make some notification popup saying it was saved OK.
         }
     }
 
@@ -155,7 +163,8 @@
          * @returns null
          */
         save() {
-            options = {
+            console.log(this);
+            var options = {
                 account: {
                     name: this.$scope.account.name,
                     description: this.$scope.account.description,
@@ -176,10 +185,11 @@
         }
 
         saved(response) {
-            this.lastSave = ( response.status <= 200 && response.status >= 299 );
-            if ( !this.lastSave ) {
-                this.saveMessage = response.data.message;
+            console.log(`saved: ${response.status}`);
+            if (response.status == 200) {
+                this.$scope.$parent.seeForm = false;
             }
+            // @TODO: Make some notification popup saying it was saved OK.
         }
     }
 
@@ -270,6 +280,19 @@
 })(Yaba);
 
 (function(Yaba){
+    //@TODO: Find a way to derive this from the server.
+    const TransactionFields = [
+        'datePending',
+        'datePosted',
+        'accountId',
+        'merchant',
+        'description',
+        'txnType',
+        'currency',
+        'amount',
+        'tags'
+    ];
+
     /* Forms as angular.directive() */
     class InstitutionFormCtrl {
         constructor($scope, $http) {
@@ -280,7 +303,7 @@
             this.$scope.close = this.close;
             $scope.addMapping = this.addMapping;
             this.institution = new Yaba.models.Institutions({ $scope: $scope, $http: $http });
-            $scope.transactionFields = ['datePending', 'datePosted', 'accountId', 'merchant', 'description', 'txnType', 'currency', 'amount', 'tags'];
+            $scope.transactionFields = TransactionFields;
             this.$scope.save = (e) => {
                 self.institution.save();
             };
@@ -288,6 +311,7 @@
 
         close() {
             console.log('InstitutionFormCtl.close-box()');
+            this.$parent.seeForm = false;
         }
 
         addMapping() {
@@ -299,25 +323,48 @@
         };
 
     }
+    InstitutionFormCtrl.$inject = ['$scope', '$http'];
+    Yaba.app.directive('yabaInstitutionForm', () => {
+        return {
+            templateUrl: '/assets/views/forms/institution.htm',
+            controller: InstitutionFormCtrl,
+            scope: {
+                institution: '='
+            },
+            restrict: 'E'
+        };
+    });
 
     class AccountFormCtrl {
-        constructor($scope, $http) {
-            // ${this} context here is $scope when functions are assigned like this in the constructor.
+        constructor($scope, $http, $animate) {
             var self = this;
             this.$scope = $scope;
             this.$http = $scope.$http = $http;
+            this.$animate = $animate;
             this.$scope.close = this.close;
             this.accounts = new Yaba.models.Accounts({ $scope: $scope, $http: $http });
-            this.$scope.save = (e) => {
-                self.accounts.save();
+            this.$scope.save = () => {
+                return self.accounts.save();
             };
         }
 
         close() {
             console.log('AccountsFormCtl.close-box()');
+            // this.$animate.removeClass($('#new-account'), 'ng-show');
+            this.$parent.seeForm = false;
         }
-
     }
+    AccountFormCtrl.$inject = ['$scope', '$http', '$animate'];
+    Yaba.app.directive('yabaAccountForm', (() => {
+        return {
+            templateUrl: '/assets/views/forms/account.htm',
+            controller: AccountFormCtrl,
+            scope: {
+                account: '=',
+            },
+            restrict: 'E'
+        };
+    }));
 
     class BudgetCtrl {
         constructor($scope, $http) {
@@ -409,27 +456,6 @@
 
     }
 
-    function institutionForm() {
-        InstitutionFormCtrl.$inject = ['$scope', '$http'];
-        return {
-            templateUrl: '/assets/views/forms/institution.htm',
-            controller: InstitutionFormCtrl,
-            controllerAs: 'institutionForm',
-            bindToController: true,
-            restrict: 'AE'
-        };
-    }
-
-    function accountForm() {
-        AccountFormCtrl.$inject = ['$scope', '$http'];
-        return {
-            templateUrl: '/assets/views/forms/account.htm',
-            controller: AccountFormCtrl,
-            controllerAs: 'accountForm',
-            bindToController: true,
-            restrict: 'AE'
-        };
-    }
 
     function budgetWidget() {
         BudgetCtrl.$inject = ['$scope', '$http'];
@@ -481,8 +507,6 @@
         WishlistWidget: WishlistWidget
     });
 
-    Yaba.app.directive('yabaInstitutionForm', institutionForm);
-    Yaba.app.directive('yabaAccountForm', accountForm);
     Yaba.app.directive('yabaBudget', budgetWidget);
     Yaba.app.directive('yabaDaterange', daterangeWidget);
     Yaba.app.directive('yabaTransactionList', transactionList);

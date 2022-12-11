@@ -26,17 +26,17 @@
     <body>
         <div id="page" ng-app="yaba">
             <header>
-                <div id="navbar">
+                <navigation id="navbar" class="navbar navbar-dark bg-inverse">
                     <ul>
-                        <li><a href="/home">Dashboard</a></li>
-                        <li><a href="/budget">Budgeting</a></li>
-                        <li><a href="/prospect">Prospecting</a></li>
-                        <li><a href="/charts">Charts and Trends</a></li>
-                        <li><a href="/accounts">Accounts</a></li>
-                        <li><a href="/institutions">Institutions</a></li>
-                        <li><a href="/settings">Settings</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/home">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/budget">Budgeting</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/prospect">Prospecting</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/charts">Charts and Trends</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/accounts">Accounts</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/institutions">Institutions</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/settings">Settings</a></li>
                     </ul>
-                </div>
+                </navigation>
             </header>
             <div id="content">
                 <ng-view></ng-view>

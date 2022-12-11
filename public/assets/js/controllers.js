@@ -7,15 +7,6 @@
 
     const x30_DAYS = 2592000000; // 1000ms * 60s * 60m * 24h * 30d
 
-    function distinctSum(transactions=[]) {
-        var result = [];
-        console.log(transactions);
-        this.transactions.forEach((xaction) => {
-            result.push([ xaction.name, xaction.amount ]);
-        });
-        return result;
-    }
-
     /**
      * Angular Budget Controller.
      */
@@ -25,7 +16,6 @@
         var accts = new Yaba.models.Accounts(services);
         var txns = new Yaba.models.Transactions(services);
         
-        $scope.distinctSum = distinctSum;
         $scope.startDate = new Date( Date.now() - x30_DAYS );
         $scope.endDate = new Date();
         $scope.hasOwnProperty('transactions') || ($scope.transactions = []);
@@ -47,6 +37,7 @@
         $scope.accountTypes = Yaba.models.AccountTypes;
         $scope.institutions = [];
         $scope.accounts = [];
+        $scope.account = {};
 
         var banks = new Yaba.models.Institutions(services);
         var accts = new Yaba.models.Accounts(services);
@@ -58,9 +49,9 @@
                     $http: $http
                 });
                 var searchCriteria = {
-                    accountId: account.id,
-                    fromDate: $scope.fromDate || '-30 days',
-                    toDate: $scope.toDate || 'today'
+                    accountId: account.accountId,
+                    fromDate: $scope.fromDate || (new Date() - x30_DAYS),
+                    toDate: $scope.toDate || new Date()
                 }
                 transactions.load(searchCriteria);
             });
@@ -69,6 +60,10 @@
         banks.load();
         var myAccountsPromise = accts.load();
         myAccountsPromise.then((response) => { return fetchTransactions(response); }, Yaba.utils.reject);
+        $scope.seeForm = false;
+        $scope.show = function showForm() {
+            $('#new-account').hasClass('ng-show') || ($('#new-account').addClass('ng-show'));
+        }
 
         console.log('Yaba.controllers.accounts()');
     }
@@ -83,6 +78,7 @@
         console.log('Yaba.app.controller(institution).load()');
         $scope.institutions = [];
         $scope.institution = Yaba.models.EMPTY_Institution;
+        $scope.seeForm = false;
 
         var banks = new Yaba.models.Institutions({
             $scope: $scope,

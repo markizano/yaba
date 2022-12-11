@@ -17,8 +17,6 @@ body {
     margin: 0;
     padding: 0;
     display: block;
-    background-color: #333;
-    border: 1px blue;
 }
 
 #navbar ul {
@@ -37,8 +35,8 @@ body {
 
 #navbar li a {
     display: block;
-    color: grey;
-    background-color: #dddddd;
+    color: #444444;
+    background-color: #eee;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
@@ -47,6 +45,10 @@ body {
 /* Change the link color to #111 (black) on hover */
 #navbar li a:hover {
     background-color: #111;
+}
+
+#navbar li.nav-active a {
+    background-color: #999;
 }
 
 .title {
@@ -124,6 +126,7 @@ table.data th {
     text-align: left;
     padding: 5px;
     border-bottom: 1px solid black;
+    cursor: pointer;
 }
 table.data td {
     padding: 2px 5px 2px 5px;
@@ -141,6 +144,10 @@ table.data tr:nth-child(odd) {
     padding: 10px;
     box-shadow: 8px 8px #1c052c3c;
     border: 2px solid black;
+
+    position: absolute;
+    top: 20%;
+    left: 30%;
 }
 .new-item-wrapper input {
     height: 18px;
@@ -228,4 +235,16 @@ pre {
     font-size: 14px;
     word-wrap: break-word;
     background-color: white;
+}
+
+.ng-fade {
+    transition: all linear 800ms;
+    opacity: 1;
+}
+.ng-fade.ng-hide {
+    opacity: 0;
+}
+.ng-hide {
+    opacity: 0;
+    transition: none 0;
 }
