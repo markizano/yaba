@@ -5,7 +5,7 @@
     <div class="item-list-wrapper" ng-repeat="account in accounts">
         <h2 class="title">{{ account.name }}&nbsp;<span class="accountBalance">${{ account.balance }}</span></h2>
         <p>{{ account.description }}</p><br />
-        <yaba-transaction-list transactions="account.transactions" limit="10"></yaba-transaction-list>
+        <yaba-transaction-list transactions="account.transactions" limit="10" class="dropable"></yaba-transaction-list>
     </div>
     <div class="errors">{{ error }}</div>
     <yaba-account-form

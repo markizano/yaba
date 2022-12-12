@@ -125,13 +125,21 @@
     prospect.$inject = ['$scope', '$http', '$window'];
 
     function settings($scope, $window) {
-        $scope.incomeTags = $window.localStorage.getItem('incomeTags').split(',').filter(x => x) || [];
-        $scope.expenseTags = $window.localStorage.getItem('expenseTags').split(',').filter(x => x) || [];
-        $scope.transferTags = $window.localStorage.getItem('transferTags').split(',').filter(x => x) || [];
+        const tagTypes = [
+            'income',
+            'expense',
+            'transfer',
+            'hide'
+        ];
+        tagTypes.forEach(tagType => {
+            var t = `${tagType}Tags`;
+            $scope[t] = ($window.localStorage.getItem(t) || '').split(',').filter(x => x) || [];
+        });
         $scope.payCycle = $window.localStorage.getItem('payCycle') || '';
 
         $scope.saveSettings = function saveSettings() {
-            ['incomeTags', 'expenseTags', 'transferTags'].forEach(field => {
+            tagTypes.forEach(tagType => {
+                var field = `${tagType}Tags`;
                 $window.localStorage.setItem(field, Array($scope[field]).join(','));
             });
             $window.localStorage.setItem('payCycle', $scope.payCycle);

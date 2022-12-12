@@ -69,6 +69,7 @@
                     });
                 });
                 result.push({
+                    id: institution.id,
                     name: institution.name,
                     description: institution.description,
                     mappings: mappings
@@ -163,7 +164,6 @@
          * @returns null
          */
         save() {
-            console.log(this);
             var options = {
                 account: {
                     name: this.$scope.account.name,
@@ -175,6 +175,8 @@
                     interestStrategy: this.$scope.account.interestStrategy
                 }
             };
+            console.log('sending account to server:');
+            console.log(options);
             var result = this.$http({
                 method: 'POST',
                 url: '/api/account',
@@ -207,31 +209,33 @@
                 toDate: query.toDate || 'today',
                 tags: query.tags || []
             };
-            function gotTransactions(response) {
-                self.$scope.hasOwnProperty('transactions') || (self.$scope.transactions = []);
-                response.data.transactions.forEach(txn => {
-                    self.$scope.transactions.push(txn);
-                })
-            }
             var result = this.$http({
                 method: 'GET',
                 url: '/api/transactions',
                 data: options
             });
-            result.then(gotTransactions, Yaba.utils.reject);
+            result.then(response => { return this.loaded(response); }, Yaba.utils.reject);
             return result;
+        }
+
+        loaded(response) {
+            this.$scope.hasOwnProperty('transactions') || (this.$scope.transactions = []);
+            response.data.transactions.forEach(txn => {
+                this.$scope.transactions.push(txn);
+            });
         }
 
         save() {
             var transaction = {
                 id: this.$scope.id,
+                accountId: this.$scope.accountId,
                 name: this.$scope.name,
                 description: this.$scope.description,
+                merchant: this.$scope.merchant,
                 datePending: this.$scope.datePending,
                 datePosted: this.$scope.datePosted,
                 amount: this.$scope.amount,
-                accountId: this.$scope.accountId,
-                balance: this.$scope.balance,
+                currency: this.$scope.currency,
                 tags: ( (tags) => {
                     var result = [];
                     tags.forEach(tag => {
@@ -273,7 +277,8 @@
         Accounts: Accounts,
         Institutions: Institutions,
         Transactions: Transactions,
-        Prospect: Prospect
+        Prospect: Prospect,
+
     });
 
     return Yaba;
@@ -302,6 +307,9 @@
             this.$http = $scope.$http = $http;
             this.$scope.close = this.close;
             $scope.addMapping = this.addMapping;
+            $scope.remove = this.remove;
+            $scope.reset = this.reset;
+
             this.institution = new Yaba.models.Institutions({ $scope: $scope, $http: $http });
             $scope.transactionFields = TransactionFields;
             this.$scope.save = (e) => {
@@ -309,17 +317,35 @@
             };
         }
 
+        remove($index) {
+            console.log(`Removing ${$index} mapping.`);
+            this.institution.mappings.splice($index, 1);
+        }
+
         close() {
             console.log('InstitutionFormCtl.close-box()');
             this.$parent.seeForm = false;
+            this.reset();
+        }
+
+        reset() {
+            this.institution.name = '';
+            this.institution.description = '';
+            this.institution.mappings = [
+                {
+                    fromField: '',
+                    toField: '',
+                    mapType: '',
+                }
+            ];
         }
 
         addMapping() {
             this.institution.mappings.push({
-                fromField: null,
-                toField: null,
-                mapType: null
-            })
+                fromField: '',
+                toField: '',
+                mapType: '',
+            });
         };
 
     }
@@ -456,6 +482,40 @@
 
     }
 
+    /**
+     * Give me the institution mapping and list of transactions As CSV from bank.
+     * I'll return back to you a data structure you can use to $upsert the database with transactions
+     * mapped to the cannonical model.
+     * @param {Institution} institution The mapped institution to this set of transactions.
+     * @param {Account} account The target account this CSV file has been dropped on.
+     * @param {TransactionCollection} transactions List of transactions/CSV rows as Object from CSV upload.
+     */
+    function mapInstitution(institution, account, transactions) {
+        var results = [];
+        console.log(institution);
+        institution.mappings.unshift({
+            mapType: 'static',
+            toField: 'accountId',
+            fromField: account.id
+        });
+        transactions.map((transaction) => {
+            var cannonical = {};
+            institution.mappings.map((mapping) => {
+                switch(mapping.mapType) {
+                    case 'static':
+                        cannonical[mapping.toField] = mapping.fromField;
+                        break;
+                    case 'dynamic':
+                        cannonical[mapping.toField] = transaction[mapping.fromField];
+                        break;
+                    default:
+                        throw new Exception(`Invalid mapType for institution ${institution.name} attached to account ${account.id} on transaction ${transaction.id}.`);
+                }
+            });
+            results.push( cannonical );
+        });
+        return results;
+    }
 
     function budgetWidget() {
         BudgetCtrl.$inject = ['$scope', '$http'];
@@ -499,6 +559,48 @@
         };
     }
 
+    function filedrop($scope, $element, $attr) {
+        function ignoreEvent(event) {
+            if (event != null) {
+                event.preventDefault();
+            }
+            return false;
+        }
+        function parseError(err, file, element, reason) {
+            console.log(`Papa.parse() error from ${file} in ${element}: ${err}`);
+            console.log(reason);
+        }
+        function done(results) {
+            console.log({
+                account: $scope.account,
+                institutions: $scope.institutions
+            })
+            const account = $scope.account;
+            const institution = $scope.institutions.filter(i => i.id == account.institutionId).shift();
+            var transactions = mapInstitution(institution, account, results.data);
+            console.log(transactions);
+        }
+        $element.bind('dragover', ignoreEvent);
+        $element.bind('dragenter', ignoreEvent);
+        return $element.bind('drop', function (event) {
+            if ( event ) { event.preventDefault(); }
+            angular.forEach(event.originalEvent.dataTransfer.files, (uploadFile) => {
+                Papa.parse(uploadFile, {
+                    header: true,
+                    skipEmptyLines: true,
+                    error: parseError,
+                    complete: done
+                });
+            });
+        });
+
+    }
+    Yaba.app.directive('dropable', () => {
+        return {
+            link: filedrop,
+            restrict: 'AC'
+        }
+    })
     Yaba.hasOwnProperty('components') || (Yaba.components = {
         InstitutionForm: InstitutionFormCtrl,
         AccountForm: AccountFormCtrl,

@@ -1,8 +1,6 @@
 <md-content ng-controller="settings" class="controller">
     <h1>Settings</h1>
-    <p>
-        Where you control the app behaviours.
-    </p>
+    <p>Where you control the app behaviours.</p>
     <md-list flex>
         <md-list-item>
             What is your pay cycle?
@@ -26,6 +24,10 @@
         <md-list-item>
             What is your transfer tag?: <md-chips ng-model="transferTags" ng-change="saveSettings()"></md-chips>
             <span class="helper">Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions.</span>
+        </md-list-item>
+        <md-list-item>
+            What is your hide tag?: <md-chips ng-model="hideTags" ng-change="saveSettings()"></md-chips>
+            <span class="helper">These transactions will be hidden from view and removed from calculations.</span>
         </md-list-item>
     </md-list>
 </md-content>

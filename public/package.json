@@ -29,6 +29,7 @@
     "angular-messages": "^1.8.3",
     "angular-route": "^1.8.3",
     "jquery": "^3.6.1",
-    "jquery-ui": "^1.13.2"
+    "jquery-ui": "^1.13.2",
+    "papaparse": "^5.3.2"
   }
 }
