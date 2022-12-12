@@ -4,37 +4,88 @@
 (function(Yaba) {
     'use strict';
 
-    const AccountTypes = [
-        'checking',
-        'savings',
-        'broker',
-        'credit',
-        'loan',
-        'crypto'
-    ];
+    const NULLDATE = new Date('1970-01-01T00:00:');
 
-    const EMPTY_Account = {
-        id: '',
-        name: '',
-        description: '',
-        accountType: AccountTypes,
-        number: 0,
-        routing: 0,
-        interestRate: 0.0,
-        interestStrategy: ['simple', 'compound']
+    class Institution {
+        constructor(data) {
+            this.id = data.id || '';
+            this.name = data.name || '';
+            this.description = data.description || '';
+            this.mappings = [];
+            data.hasOwnProperty('mappings') && (data.mappings.forEach((mapping) => {
+                this.mappings.push({
+                    fromField: mapping.fromField || '',
+                    toField: mapping.toField || '',
+                    mapType: mapping.mapType || null
+                });
+            }))
+        }
+
+        toString() {
+            return JSON.stringify(this);
+        }
     }
 
-    const EMPTY_Institution = {
-        id: '',
-        name: '', // string
-        description: '', // string
-        mappings: [
-            {
-                fromField: '', // string
-                toField: '', // string
-                mapType: '' // {enum(string)}, one of ['dynamic', 'static'].
-            }
-        ]
+    class Account {
+        static Types = {
+            Checking: 'checking',
+            Savings: 'savings',
+            Credit: 'credit',
+            Loan: 'loan',
+            /* To be supported...
+            Broker: 'broker',
+            IRA: 'ira',
+            k401: '401k',
+            b403: '403b',
+            SEP: 'sep',
+            Crypto: 'crypto',
+            //*/
+        };
+
+        constructor(data) {
+            this.id = data.id || '';
+            this.institutionId = data.institutionId || '';
+            this.name = data.name || '';
+            this.description = data.description || '';
+            this.accountType = data.accountType || null;
+            this.number = data.number || '';
+            this.routing = data.routing || '';
+            this.interestRate = data.interestRate || 0.0;
+            this.interestStrategy = data.interestStrategy || null;
+            this.transactions = [];
+            data.hasOwnProperty('transactions') && (data.transactions.forEach((transaction) => {
+                this.transactions.push(new Transaction(transaction));
+            }));
+        }
+
+        toString() {
+            return JSON.stringify(this);
+        }
+    }
+
+    class Transaction {
+        static Types = {
+            Credit: 'credit',
+            Debit: 'debit',
+            Transfer: 'transfer',
+            Payment: 'payment',
+        }
+
+        constructor(data) {
+            this.id = data.id || '';
+            this.accountId = data.accountId || '';
+            this.datePending = data.datePending || NULLDATE;
+            this.datePosted = data.datePosted || NULLDATE;
+            this.transactionType = data.transactionType || null;
+
+            // This might be a bug later. Can I make such an assumption?
+            this.datePending instanceof Date || (this.datePending = new Date(data.datePending));
+            this.datePosted instanceof Date || (this.datePosted = new Date(data.datePosted));
+        }
+
+        toString() {
+            return JSON.stringify(this);
+        }
     }
 
     class Institutions {
@@ -561,7 +612,7 @@
 
     function filedrop($scope, $element, $attr) {
         function ignoreEvent(event) {
-            if (event != null) {
+            if ( event ) {
                 event.preventDefault();
             }
             return false;
