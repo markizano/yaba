@@ -3,7 +3,10 @@
     <p>This is where you view and manage accounts associated with each institution.</p>
     <button ng-click="seeForm=true"><plus>+</plus>Add Account</button><br clear="all" />
     <div class="item-list-wrapper" ng-repeat="account in accounts">
-        <h2 class="title">{{ account.name }}&nbsp;<span class="accountBalance">${{ account.balance }}</span></h2>
+        <h2 class="title">
+            <a href="/account/{{ account.id }}">{{ account.name }}</a>
+            <span class="accountBalance">{{ account.balance | currency }}</span>
+        </h2>
         <p>{{ account.description }}</p><br />
         <yaba-transaction-list transactions="account.transactions" limit="10" class="dropable"></yaba-transaction-list>
     </div>
