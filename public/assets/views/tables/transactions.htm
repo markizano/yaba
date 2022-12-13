@@ -9,8 +9,8 @@
     </thead>
     <tbody>
         <tr ng-repeat="txn in transactions | orderBy:sortColumn">
-            <td>{{ txn.datePending }}</td>
-            <td>{{ txn.datePosted }}</td>
+            <td>{{ txn.datePending | date:'yyyy-MM-dd' }}</td>
+            <td>{{ txn.datePosted | date:'yyyy-MM-dd' }}</td>
             <td>{{ txn.amount | currency }}</td>
             <td>{{ txn.accountId }}</td>
             <td>{{ txn.description }}</td>
