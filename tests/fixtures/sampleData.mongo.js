@@ -1,9 +1,5 @@
 
-var yaba = db.getSiblingDB('Yaba'),
-  day30 = new Date( (new Date()) - (1000 * 3600 * 24 * 30) ),
-  lastWeek = new Date( (new Date()) - (1000 * 3600 * 24 * 7) ),
-  yesterday = new Date( (new Date()) - (1000 * 3600 * 24) ),
-  today = new Date();
+var yaba = db.getSiblingDB('Yaba');
 // Sample data
 
 /* Reset previous DB */
