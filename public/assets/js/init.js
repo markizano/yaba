@@ -41,7 +41,7 @@ var Yaba = (function(Yaba) {
         $locationProvider.html5Mode(true);
         pages.forEach((page) => {
             var whence = page == 'account'? `/${page}/:accountId`: `/${page}`;
-            $routeProvider.when(`/${page}`, { templateUrl: `/assets/views/${page}.htm` });
+            $routeProvider.when(whence, { templateUrl: `/assets/views/${page}.htm` });
         })
         $routeProvider.when('/', { templateUrl: `/assets/views/home.htm` });
         $routeProvider.otherwise({ template: '<h1>404</h1><p>Page not found!</p><br />Route: {{ $route }}' });
@@ -66,7 +66,6 @@ var Yaba = (function(Yaba) {
      * page we are currently browsing.
      */
     function navigation($scope, $element, $attrs) {
-        console.log('navigation-controller()');
         $scope.$watch('currentPage', () => {
             $element.children().each(function() {
                 var ul = $(this);

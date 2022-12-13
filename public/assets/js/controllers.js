@@ -26,6 +26,7 @@
         txns.load();
     }
     budget.$inject = ['$scope', '$http'];
+    Yaba.app.controller('budget', budget);
 
     /**
      * Angular Accounts controller.
@@ -65,6 +66,45 @@
         console.log('Yaba.controllers.accounts()');
     }
     accounts.$inject = ['$scope', '$http'];
+    Yaba.app.controller('accounts', accounts);
+
+    /**
+     * Account detail page.
+     */
+    function account($scope, $http, $routeParams) {
+        console.log('account-details()');
+        console.log($scope);
+        console.log($routeParams);
+        var accountQuery = {
+            id: $routeParams.accountId
+        },
+          transactionQuery = {
+            accountId: $routeParams.accountId,
+            fromDate: $scope.fromDate || '-30 days',
+            toDate: $scope.toDate || 'today'
+        };
+        $http({
+            method: 'QUERY',
+            url: '/api/account',
+            data: accountQuery
+        }).then((response) => {
+            console.log(`Got account: ${JSON.stringify(response.data)}`);
+            $scope.account = new Yaba.models.Account(response.data.account);
+        }, Yaba.utils.reject);
+
+        $http({
+            method: 'QUERY',
+            url: '/api/transactions',
+            data: transactionQuery
+        }).then((response) => {
+            $scope.transactions = [];
+            response.data.transactions.forEach((txn) => {
+                $scope.transactions.push(new Yaba.models.Transaction(txn));
+            })
+        }, Yaba.utils.reject);
+    }
+    account.$inject = ['$scope', '$http', '$routeParams'];
+    Yaba.app.controller('account', account);
 
     /**
      * Account Institutions Controller.
@@ -84,12 +124,14 @@
         banks.load();
     }
     institutions.$inject = ['$scope', '$http'];
+    Yaba.app.controller('institutions', institutions);
 
     function charts($scope, $http) {
         var accts = new Yaba.models.Accounts({$scope: $scope, $http: $http});
         accts.load({ withTransactions: false });
     }
     charts.$inject = ['$scope', '$http'];
+    Yaba.app.controller('charts', charts);
 
     /**
      * Angular Prospecting Controller.
@@ -120,6 +162,7 @@
         txns.load();
     }
     prospect.$inject = ['$scope', '$http', '$window'];
+    Yaba.app.controller('prospect', prospect);
 
     function settings($scope, $window) {
         const tagTypes = [
@@ -143,14 +186,7 @@
         }
     }
     settings.$inject = ['$scope', '$window'];
-
-    // Register the controllers to the AngularJS interfaces.
-    Yaba.app.controller('budget', Yaba.controllers.budget);
-    Yaba.app.controller('accounts', Yaba.controllers.accounts);
-    Yaba.app.controller('institutions', Yaba.controllers.institutions);
-    Yaba.app.controller('charts', Yaba.controllers.charts);
-    Yaba.app.controller('prospect', Yaba.controllers.prospect);
-    Yaba.app.controller('settings', Yaba.controllers.settings);
+    Yaba.app.controller('settings', settings);
 
     return Yaba;
 })(Yaba);
