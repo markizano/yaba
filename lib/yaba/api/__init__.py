@@ -52,7 +52,7 @@ class Server(object):
         index_html = os.path.join( self.getSiteConfig()['/']['tools.staticdir.dir'], 'index.html' )
         return io.open(index_html, 'r').read()
     home = index
-    accounts = index
+    accounts = account = index
     institutions = index
     settings = index
     budget = index

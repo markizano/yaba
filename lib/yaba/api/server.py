@@ -1,8 +1,8 @@
 
 import os
 import json
+import dateparser
 import cherrypy as cp
-import random
 
 from datetime import datetime
 from yaba.adapters.mdb import MongoDriver
@@ -64,6 +64,17 @@ class CRUD_Server:
         except json.decoder.JSONDecodeError:
             return {}
 
+    def buildSearch(self, search):
+        query = {}
+        if 'id' in search:
+            query['_id'] = search['id']
+        for searchId in ['accountId', 'institutionId']:
+            if searchId in search:
+                query[searchId] = search[searchId]
+        for searchDate in ['fromDate', 'toDate']:
+            if searchDate in search:
+                query[searchDate] = dateparser.parse(search[searchDate])
+
     @cp.expose()
     @cp.tools.json_in()
     @cp.tools.json_out()
@@ -87,16 +98,10 @@ class CRUD_Server:
         }
 
         if cp.request.method in ('GET', 'QUERY'):
-            query = {}
-            if 'id' in search:
-                query['_id'] = search['id']
-            for searchId in ['accountId', 'institutionId']:
-                if searchId in search:
-                    query[searchId] = search[searchId]
-
+            query = self.buildSearch(search)
             document = collection.find_one(query) or {}
             model = api2model[func]
-            result = model(document['_id'], **document)
+            result = model(**document)
             # import pdb; pdb.set_trace()
             return { func: result.jsonable() }
         elif cp.request.method == 'POST':
@@ -125,12 +130,7 @@ class CRUD_Server:
         }
 
         if cp.request.method in ('GET', 'QUERY'):
-            query = {}
-            if 'id' in search:
-                query['_id'] = search['id']
-            for searchId in ['accountId', 'institutionId']:
-                if searchId in search:
-                    query[searchId] = search[searchId]
+            query = self.buildSearch(search)
 
             log.debug(f'Search request: {search}\nQuery: {query}')
             documents = list( collection.find(query) ) or []
@@ -167,6 +167,7 @@ class HardcodeServer(object):
         PUT: Update an account.
         @return (json). Results of the operation (success/fail, message).
         '''
+        import random
         return {
             'accounts': [
                 {
