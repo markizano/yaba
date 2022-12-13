@@ -7,6 +7,9 @@
         return path.toString().split('.').reduce(index, this);
     }
     Object.prototype.telescope = telescope;
+    Date.prototype.toISOShortDate = function toISOShortDate() {
+        return [this.getFullYear(), this.getMonth()+1, this.getDate()].join('-')
+    };
 })();
 /**
  * App Initialization Models for setting up and configuring AngularJS.
@@ -25,6 +28,7 @@ var Yaba = (function(Yaba) {
         'prospect',
         'charts',
         'accounts',
+        'account',
         'institutions',
         'settings'
     ];
@@ -36,6 +40,7 @@ var Yaba = (function(Yaba) {
     function pageConfig($locationProvider, $routeProvider) {
         $locationProvider.html5Mode(true);
         pages.forEach((page) => {
+            var whence = page == 'account'? `/${page}/:accountId`: `/${page}`;
             $routeProvider.when(`/${page}`, { templateUrl: `/assets/views/${page}.htm` });
         })
         $routeProvider.when('/', { templateUrl: `/assets/views/home.htm` });
