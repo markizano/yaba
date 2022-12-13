@@ -86,7 +86,7 @@ class CRUD_Server:
             'institution': Institution
         }
 
-        if cp.request.method == 'GET':
+        if cp.request.method in ('GET', 'QUERY'):
             query = {}
             if 'id' in search:
                 query['_id'] = search['id']
@@ -124,7 +124,7 @@ class CRUD_Server:
             'institutions': InstitutionCollection
         }
 
-        if cp.request.method == 'GET':
+        if cp.request.method in ('GET', 'QUERY'):
             query = {}
             if 'id' in search:
                 query['_id'] = search['id']
@@ -132,8 +132,8 @@ class CRUD_Server:
                 if searchId in search:
                     query[searchId] = search[searchId]
 
-            log.debug('Query: %s' % query)
-            documents = list( collection.find(query) ) or [{}]
+            log.debug(f'Search request: {search}\nQuery: {query}')
+            documents = list( collection.find(query) ) or []
             models = api2model[func]
             results = models(documents)
             log.debug(f'DB Response: {documents}')
