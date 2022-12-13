@@ -1,0 +1,9 @@
+<div id="account-detail" ng-controller="account-detail" class="controller">
+    <h2 class="title">{{ account.name }}</h2>
+    <p>Balance: <span>{{ account.balance | currency }}</span></p>
+    <p>Account Type: <span>{{ account.accountType }}</span></p>
+    <p>{{ account.description }}</p>
+    <yaba-transaction-list transactions="account.transactions" detail="1" class="dropable detail"></yaba-transaction-list>
+
+    <div class="errors">{{ error }}</div>
+</div>
