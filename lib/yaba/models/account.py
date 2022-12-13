@@ -36,6 +36,7 @@ class Account(DataModel):
         self.accountId          = accountId
         self.routing            = kwargs.get('routing', '')
         self.name               = kwargs.get('name', '')
+        self.description        = kwargs.get('description', '')
         self.institutionId      = kwargs.get('institutionId', '')
         self.interestRate       = kwargs.get('interestRate', 0.0)
         self.interestStrategy   = kwargs.get('interestStrategy', 'simple')

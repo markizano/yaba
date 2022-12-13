@@ -30,14 +30,15 @@ class Transaction(DataModel):
     def __init__(self, transactionId, **kwargs):
         self._idField = 'transactionId'
         self.transactionId = transactionId
-        self.fromAccount = kwargs.get('fromAccount', '')
-        self.toAccount = kwargs.get('toAccount', '')
+        self.accountId = kwargs.get('accountId', '')
+        self.description = kwargs.get('description', '')
         self.datePending = kwargs.get('datePending', Transaction.DATENULL)
         self.datePosted = kwargs.get('datePosted', Transaction.DATENULL)
+        self.transactionType = kwargs.get('transactionType', None)
         self.amount = kwargs.get('amount', 0.0)
         self.tax = kwargs.get('tax', 0.0)
+        self.currency = kwargs.get('currency', '')
         self.merchant = kwargs.get('merchant', '')
-        self.description = kwargs.get('description', '')
         self.tags = kwargs.get('tags', [])
 
     @property
