@@ -15,7 +15,7 @@
         var services = { $http: $http, $scope: $scope };
         var accts = new Yaba.models.Accounts(services);
         var txns = new Yaba.models.Transactions(services);
-        
+
         $scope.startDate = new Date( Date.now() - x30_DAYS );
         $scope.endDate = new Date();
         $scope.hasOwnProperty('transactions') || ($scope.transactions = []);
@@ -43,14 +43,14 @@
         var accts = new Yaba.models.Accounts(services);
 
         function fetchTransactions(response) {
-            response.data.accounts.forEach((account) => {
+            $scope.accounts.forEach((account) => {
                 var transactions = new Yaba.models.Transactions({
                     $scope: account,
                     $http: $http
                 });
                 var searchCriteria = {
-                    accountId: account.accountId,
-                    fromDate: $scope.fromDate || (new Date() - x30_DAYS),
+                    accountId: account.id,
+                    fromDate: $scope.fromDate || new Date(new Date() - x30_DAYS),
                     toDate: $scope.toDate || new Date()
                 }
                 transactions.load(searchCriteria);
@@ -61,9 +61,6 @@
         var myAccountsPromise = accts.load();
         myAccountsPromise.then((response) => { return fetchTransactions(response); }, Yaba.utils.reject);
         $scope.seeForm = false;
-        $scope.show = function showForm() {
-            $('#new-account').hasClass('ng-show') || ($('#new-account').addClass('ng-show'));
-        }
 
         console.log('Yaba.controllers.accounts()');
     }
@@ -77,7 +74,7 @@
     function institutions($scope, $http) {
         console.log('Yaba.app.controller(institution).load()');
         $scope.institutions = [];
-        $scope.institution = Yaba.models.EMPTY_Institution;
+        $scope.institution = new Yaba.models.Institution({mappings: [{}]});
         $scope.seeForm = false;
 
         var banks = new Yaba.models.Institutions({
@@ -146,15 +143,6 @@
         }
     }
     settings.$inject = ['$scope', '$window'];
-
-    Yaba.hasOwnProperty('controllers') || (Yaba.controllers = {
-        budget: budget,
-        accounts: accounts,
-        institutions: institutions,
-        charts: charts,
-        prospect: prospect,
-        settings: settings,
-    });
 
     // Register the controllers to the AngularJS interfaces.
     Yaba.app.controller('budget', Yaba.controllers.budget);

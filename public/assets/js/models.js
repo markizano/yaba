@@ -7,7 +7,7 @@
     const NULLDATE = new Date('1970-01-01T00:00:');
 
     class Institution {
-        constructor(data) {
+        constructor(data={}) {
             this.id = data.id || '';
             this.name = data.name || '';
             this.description = data.description || '';
@@ -42,11 +42,12 @@
             //*/
         };
 
-        constructor(data) {
+        constructor(data={}) {
             this.id = data.id || '';
             this.institutionId = data.institutionId || '';
             this.name = data.name || '';
             this.description = data.description || '';
+            this.balance = data.balance || 0.0;
             this.accountType = data.accountType || null;
             this.number = data.number || '';
             this.routing = data.routing || '';
@@ -71,12 +72,18 @@
             Payment: 'payment',
         }
 
-        constructor(data) {
+        constructor(data={}) {
             this.id = data.id || '';
             this.accountId = data.accountId || '';
+            this.description = data.description || '';
             this.datePending = data.datePending || NULLDATE;
             this.datePosted = data.datePosted || NULLDATE;
             this.transactionType = data.transactionType || null;
+            this.amount = data.amount || 0.0;
+            this.tax = data.tax || 0.0;
+            this.currency = data.currency || '';
+            this.merchant = data.merchant || '';
+            this.tags = data.tags || [];
 
             // This might be a bug later. Can I make such an assumption?
             this.datePending instanceof Date || (this.datePending = new Date(data.datePending));
@@ -89,6 +96,11 @@
     }
 
     class Institutions {
+        /**
+         * @property {angular.ChildScope}
+         */
+        $scope;
+
         constructor(services) {
             this.$http = services.$http;
             this.$scope = services.$scope;
@@ -100,7 +112,7 @@
          */
         load() {
             var result = this.$http({
-                method: 'GET',
+                method: 'QUERY',
                 url: '/api/institutions',
                 data: {}
             });
@@ -110,21 +122,9 @@
 
         loaded(response) {
             var result = [];
-            response.data.institutions.forEach((institution) => {
-                var mappings = [];
-                institution.mappings.forEach((mapping) => {
-                    mappings.push({
-                        fromField: mapping.fromField,
-                        toField: mapping.toField,
-                        mapType: mapping.mapType
-                    });
-                });
-                result.push({
-                    id: institution.id,
-                    name: institution.name,
-                    description: institution.description,
-                    mappings: mappings
-                });
+            response.data.institutions.forEach((_institution) => {
+                var institution = new Yaba.models.Institution(_institution);
+                result.push(institution);
             });
             return this.$scope.institutions = result;
         }
@@ -136,28 +136,15 @@
          */
         save() {
             var params = {
-                institution: {
-                    name: this.$scope.institution.name,
-                    description: this.$scope.institution.description,
-                    mappings: []
-                }
+                institution: new Yaba.models.Institution(this.$scope.institution)
             };
-            this.$scope.institution.mappings.forEach( (mapping) => {
-                params.institution.mappings.push({
-                    fromField: mapping.fromField,
-                    toField: mapping.toField,
-                    mapType: mapping.mapType
-                })
-            });
-            console.log('Sending to server:');
-            console.log(params);
             var result = this.$http({
                 method: 'POST',
                 url: '/api/institution',
                 data: params
             });
             result.then((response) =>{ this.saved(response); }, Yaba.utils.reject);
-            console.log('call Institution.save()');
+            this.$scope.$parent.institutions.push(params.institution);
             return result;
         }
 
@@ -167,10 +154,10 @@
          * ${this} context is Institution class object.
          */
         saved(response) {
-            console.log(`institution saved: ${response.status}`);
             if (response.status == 200) {
                 this.$scope.$parent.seeForm = false;
             }
+            this.$scope.close();
             // @TODO: Make some notification popup saying it was saved OK.
         }
     }
@@ -194,7 +181,7 @@
                 query.institutionId = options.institutionId;
             }
             var result = this.$http({
-                method: 'GET',
+                method: 'QUERY',
                 url: '/api/accounts',
                 data: query
             });
@@ -206,8 +193,9 @@
         loaded(response) {
             this.$scope.accounts = [];
             response.data.accounts.forEach( (account) => {
-                this.$scope.accounts.push(account);
+                this.$scope.accounts.push(new Yaba.models.Account(account));
             });
+            return this.$scope.accounts;
         }
 
         /**
@@ -216,15 +204,7 @@
          */
         save() {
             var options = {
-                account: {
-                    name: this.$scope.account.name,
-                    description: this.$scope.account.description,
-                    number: this.$scope.account.number,
-                    routing: this.$scope.account.routing,
-                    institutionId: this.$scope.account.institutionId,
-                    interestRate: this.$scope.account.interestRate,
-                    interestStrategy: this.$scope.account.interestStrategy
-                }
+                account: new Yaba.models.Account(this.$scope.account)
             };
             console.log('sending account to server:');
             console.log(options);
@@ -242,6 +222,7 @@
             if (response.status == 200) {
                 this.$scope.$parent.seeForm = false;
             }
+            this.$scope.close();
             // @TODO: Make some notification popup saying it was saved OK.
         }
     }
@@ -253,7 +234,6 @@
         }
 
         load(query={}) {
-            var self = this;
             var options = {
                 accountId: query.accountId,
                 fromDate: query.fromDate || '-30 days',
@@ -261,7 +241,7 @@
                 tags: query.tags || []
             };
             var result = this.$http({
-                method: 'GET',
+                method: 'QUERY',
                 url: '/api/transactions',
                 data: options
             });
@@ -270,66 +250,40 @@
         }
 
         loaded(response) {
-            this.$scope.hasOwnProperty('transactions') || (this.$scope.transactions = []);
-            response.data.transactions.forEach(txn => {
-                this.$scope.transactions.push(txn);
+            this.$scope.transactions = [];
+            response.data.transactions.forEach((txn) => {
+                var transaction = new Yaba.models.Transaction(txn);
+                this.$scope.transactions.push(transaction);
             });
         }
 
         save() {
-            var transaction = {
-                id: this.$scope.id,
-                accountId: this.$scope.accountId,
-                name: this.$scope.name,
-                description: this.$scope.description,
-                merchant: this.$scope.merchant,
-                datePending: this.$scope.datePending,
-                datePosted: this.$scope.datePosted,
-                amount: this.$scope.amount,
-                currency: this.$scope.currency,
-                tags: ( (tags) => {
-                    var result = [];
-                    tags.forEach(tag => {
-                        result.push(tag);
-                    })
-                    return result;
-                })( this.$scope.tags.split(',') )
-            };
+            var options = { transaction: new Yaba.models.Transaction(this.$scope.transaction) };
             var result = this.$http({
                 method: 'POST',
                 url: '/api/transaction',
-                data: { transaction: transaction }
+                data: options
             });
             result.then((response) => { return this.saved(response); }, Yaba.utils.reject);
             return result;
         }
 
         saved(response) {
-            this.lastSave = ( response.status <= 200 && response.status >= 299 );
-            if ( !this.lastSave ) {
-                this.saveMessage = response.data.message;
+            if (response.status == 200) {
+                this.$scope.$parent.seeForm = false;
             }
+            this.$scope.close();
+            // @TODO: Make some notification popup saying it was saved OK.
         }
-    }
-
-    class Prospect {
-        constructor(services) {
-            services.hasOwnProperty('$http') && ( this.$http = services.$http );
-            services.hasOwnProperty('$scope') && ( this.$scope = services.$scope );
-        }
-
     }
 
     Yaba.hasOwnProperty('models') || (Yaba.models = {
-        AccountTypes: AccountTypes,
-        EMPTY_Account: EMPTY_Account,
-        EMPTY_Institution: EMPTY_Institution,
-
-        Accounts: Accounts,
-        Institutions: Institutions,
-        Transactions: Transactions,
-        Prospect: Prospect,
-
+        Institution,
+        Account,
+        Transaction,
+        Accounts,
+        Institutions,
+        Transactions,
     });
 
     return Yaba;
@@ -337,23 +291,11 @@
 
 (function(Yaba){
     //@TODO: Find a way to derive this from the server.
-    const TransactionFields = [
-        'datePending',
-        'datePosted',
-        'accountId',
-        'merchant',
-        'description',
-        'txnType',
-        'currency',
-        'amount',
-        'tags'
-    ];
+    const TransactionFields = Object.freeze( Object.keys( new Yaba.models.Transaction() ) );
 
     /* Forms as angular.directive() */
     class InstitutionFormCtrl {
         constructor($scope, $http) {
-            // ${this} context here is $scope when functions are assigned like this in the constructor.
-            var self = this;
             this.$scope = $scope;
             this.$http = $scope.$http = $http;
             this.$scope.close = this.close;
@@ -364,17 +306,15 @@
             this.institution = new Yaba.models.Institutions({ $scope: $scope, $http: $http });
             $scope.transactionFields = TransactionFields;
             this.$scope.save = (e) => {
-                self.institution.save();
+                this.institution.save();
             };
         }
 
         remove($index) {
-            console.log(`Removing ${$index} mapping.`);
             this.institution.mappings.splice($index, 1);
         }
 
         close() {
-            console.log('InstitutionFormCtl.close-box()');
             this.$parent.seeForm = false;
             this.reset();
         }
@@ -421,12 +361,11 @@
             this.$scope.close = this.close;
             this.accounts = new Yaba.models.Accounts({ $scope: $scope, $http: $http });
             this.$scope.save = () => {
-                return self.accounts.save();
+                return this.accounts.save();
             };
         }
 
         close() {
-            console.log('AccountsFormCtl.close-box()');
             // this.$animate.removeClass($('#new-account'), 'ng-show');
             this.$parent.seeForm = false;
         }
@@ -478,8 +417,16 @@
         }
 
     }
+    BudgetCtrl.$inject = ['$scope', '$http'];
+    Yaba.app.directive('yabaBudget', () => {
+        return {
+            templateUrl: '/assets/views/tables/budget.htm',
+            controller: BudgetCtrl,
+            restrict: 'AE'
+        };
+    });
 
-    class TransactionCollection {
+    class TransactionListCtrl {
         /**
          * Renders a collection of transactions. Controller for handling the list of transactions
          * and however we may want to render them.
@@ -509,41 +456,56 @@
             console.log(this);
         }
     }
+    TransactionListCtrl.$inject = ['$scope', '$attrs'];
+    Yaba.app.directive('yabaTransactionList', () => {
+        return {
+            templateUrl: '/assets/views/tables/transactions.htm',
+            controller: TransactionListCtrl,
+            scope: {
+                'transactions': '='
+            },
+            restrict: 'E'
+        };
+    });
 
-    class WishlistWidget {
-        constructor($scope, $attrs) {
-            $scope.wishlist = $scope.wishlist || [];
-            $scope.sortColumn = 'datePosted';
-            $scope.sortBy = this.sortBy;
-            $scope.add = this.add;
-            this.$scope = $scope;
-        }
+    function wishlist($scope, $element, $attr) {
+        $scope.wishlist = $scope.wishlist || [];
+        $scope.sortColumn = 'datePosted';
 
-        add() {
+        $scope.add = function add() {
             this.wishlist.push({
                 amount: this.amount,
                 datePurchase: this.datePurchase,
                 description: this.description
             });
-        }
+        };
 
-        sortBy(field) {
+        $scope.sortBy = function sortBy(field) {
             this.sortColumn = field;
-        }
-
+        };
     }
+    Yaba.app.directive('yabaWishlist', () => {
+        return {
+            templateUrl: '/assets/views/prospect/wishlist.htm',
+            link: wishlist,
+            scope: {
+                wishlist: '='
+            },
+            restrict: 'E'
+        };
+    });
+
 
     /**
      * Give me the institution mapping and list of transactions As CSV from bank.
      * I'll return back to you a data structure you can use to $upsert the database with transactions
      * mapped to the cannonical model.
-     * @param {Institution} institution The mapped institution to this set of transactions.
-     * @param {Account} account The target account this CSV file has been dropped on.
-     * @param {TransactionCollection} transactions List of transactions/CSV rows as Object from CSV upload.
+     * @param {Yaba.models.Institution} institution The mapped institution to this set of transactions.
+     * @param {Yaba.models.Account} account The target account this CSV file has been dropped on.
+     * @param {List<Yaba.models.Transaction>} transactions List of transactions/CSV rows as Object from CSV upload.
      */
     function mapInstitution(institution, account, transactions) {
         var results = [];
-        console.log(institution);
         institution.mappings.unshift({
             mapType: 'static',
             toField: 'accountId',
@@ -568,53 +530,23 @@
         return results;
     }
 
-    function budgetWidget() {
-        BudgetCtrl.$inject = ['$scope', '$http'];
-        return {
-            templateUrl: '/assets/views/tables/budget.htm',
-            controller: BudgetCtrl,
-            controllerAs: 'budgetWidget',
-            bindToController: true,
-            restrict: 'AE'
-        };
-    }
-
-    function daterangeWidget() {
-        return {
-            templateUrl: '/assets/views/daterange.htm',
-            restrict: 'E'
-        }
-    }
-
-    function transactionList() {
-        TransactionCollection.$inject = ['$scope', '$attrs'];
-        return {
-            templateUrl: '/assets/views/tables/transactions.htm',
-            controller: TransactionCollection,
-            scope: {
-                'transactions': '='
-            },
-            restrict: 'E'
-        };
-    }
-
-    function wishlist() {
-        WishlistWidget.$inject = ['$scope', '$attrs'];
-        return {
-            templateUrl: '/assets/views/prospect/wishlist.htm',
-            controller: WishlistWidget,
-            scope: {
-                wishlist: '='
-            },
-            restrict: 'E'
-        };
-    }
-
+    /**
+     * Enables one to include class="dropable" as an attribute and it'll attach this event that will
+     * handle dragging a file into the element.
+     */
     function filedrop($scope, $element, $attr) {
-        function ignoreEvent(event) {
+        function highlight(event) {
             if ( event ) {
                 event.preventDefault();
             }
+            $element.addClass('dragging');
+            return false;
+        }
+        function unlight(event) {
+            if ( event ) {
+                event.preventDefault();
+            }
+            $element.removeClass('dragging');
             return false;
         }
         function parseError(err, file, element, reason) {
@@ -622,19 +554,32 @@
             console.log(reason);
         }
         function done(results) {
-            console.log({
-                account: $scope.account,
-                institutions: $scope.institutions
-            })
-            const account = $scope.account;
-            const institution = $scope.institutions.filter(i => i.id == account.institutionId).shift();
-            var transactions = mapInstitution(institution, account, results.data);
-            console.log(transactions);
+            if ( $attr.headers ) {
+                // only get back the headers from the CSV file.
+                var headers = Object.keys(results.data.shift());
+                $scope.institution.mappings = [];
+                headers.forEach((h) => {
+                    $scope.institution.mappings.push({
+                        fromField: h,
+                        toField: '',
+                        mapType: 'dynamic'
+                    });
+                })
+            } else {
+                // Get all the transactions back and fill up the table.
+                const account = $scope.account;
+                const institution = $scope.institutions.filter(i => i.id == account.institutionId).shift();
+                var transactions = mapInstitution(institution, account, results.data);
+                transactions.forEach((txn) => {
+                    $scope.account.transactions.unshift(new Yaba.models.Transaction(txn));
+                });
+            }
+            $scope.$apply();
         }
-        $element.bind('dragover', ignoreEvent);
-        $element.bind('dragenter', ignoreEvent);
-        return $element.bind('drop', function (event) {
+
+        function drop(event) {
             if ( event ) { event.preventDefault(); }
+            unlight(event);
             angular.forEach(event.originalEvent.dataTransfer.files, (uploadFile) => {
                 Papa.parse(uploadFile, {
                     header: true,
@@ -643,8 +588,13 @@
                     complete: done
                 });
             });
-        });
+        }
 
+        $element.bind('dragover', highlight);
+        $element.bind('dragenter', highlight);
+        $element.bind('dragleave', unlight);
+        $element.bind('dragend', unlight);
+        $element.bind('drop', drop);
     }
     Yaba.app.directive('dropable', () => {
         return {
@@ -652,18 +602,14 @@
             restrict: 'AC'
         }
     })
-    Yaba.hasOwnProperty('components') || (Yaba.components = {
-        InstitutionForm: InstitutionFormCtrl,
-        AccountForm: AccountFormCtrl,
-        BudgetCtrl: BudgetCtrl,
-        TransactionCollection: TransactionCollection,
-        WishlistWidget: WishlistWidget
+
+    Yaba.app.directive('yabaDaterange', () => {
+        return {
+            templateUrl: '/assets/views/daterange.htm',
+            restrict: 'E'
+        }
     });
 
-    Yaba.app.directive('yabaBudget', budgetWidget);
-    Yaba.app.directive('yabaDaterange', daterangeWidget);
-    Yaba.app.directive('yabaTransactionList', transactionList);
-    Yaba.app.directive('yabaWishlist', wishlist);
 })(Yaba);
 
 (function(Yaba) {
@@ -690,7 +636,7 @@
     }
 
     Yaba.hasOwnProperty('filters') || (Yaba.filters = {
-        budgetBy: budgetBy()
+        budgetBy: budgetBy(),
     });
 
     Yaba.app.filter('budgetBy', budgetBy);
