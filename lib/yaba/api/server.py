@@ -64,16 +64,17 @@ class CRUD_Server:
         except json.decoder.JSONDecodeError:
             return {}
 
-    def buildSearch(self, search):
+    def buildSearch(self, func, search):
         query = {}
         if 'id' in search:
-            query['_id'] = search['id']
-        for searchId in ['accountId', 'institutionId']:
+            query[f'{func}Id'] = search['id']
+        for searchId in ['institutionId', 'accountId', 'transactionId']:
             if searchId in search:
                 query[searchId] = search[searchId]
         for searchDate in ['fromDate', 'toDate']:
             if searchDate in search:
                 query[searchDate] = dateparser.parse(search[searchDate])
+        return query
 
     @cp.expose()
     @cp.tools.json_in()
@@ -98,9 +99,11 @@ class CRUD_Server:
         }
 
         if cp.request.method in ('GET', 'QUERY'):
-            query = self.buildSearch(search)
+            query = self.buildSearch(func, search)
             document = collection.find_one(query) or {}
+            log.debug({ 'query': query, 'document': document})
             model = api2model[func]
+            log.debug(model)
             result = model(**document)
             # import pdb; pdb.set_trace()
             return { func: result.jsonable() }
@@ -130,7 +133,7 @@ class CRUD_Server:
         }
 
         if cp.request.method in ('GET', 'QUERY'):
-            query = self.buildSearch(search)
+            query = self.buildSearch(func, search)
 
             log.debug(f'Search request: {search}\nQuery: {query}')
             documents = list( collection.find(query) ) or []

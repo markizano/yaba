@@ -51,8 +51,8 @@
                 });
                 var searchCriteria = {
                     accountId: account.id,
-                    fromDate: $scope.fromDate || new Date(new Date() - x30_DAYS),
-                    toDate: $scope.toDate || new Date()
+                    // fromDate: $scope.fromDate || new Date(new Date() - x30_DAYS),
+                    // toDate: $scope.toDate || new Date()
                 }
                 transactions.load(searchCriteria);
             });
@@ -76,9 +76,8 @@
         console.log($scope);
         console.log($routeParams);
         var accountQuery = {
-            id: $routeParams.accountId
-        },
-          transactionQuery = {
+            accountId: $routeParams.accountId
+          }, transactionQuery = {
             accountId: $routeParams.accountId,
             fromDate: $scope.fromDate || '-30 days',
             toDate: $scope.toDate || 'today'
@@ -90,6 +89,15 @@
         }).then((response) => {
             console.log(`Got account: ${JSON.stringify(response.data)}`);
             $scope.account = new Yaba.models.Account(response.data.account);
+            $http({
+                method: 'QUERY',
+                url: '/api/institution',
+                data: {
+                    institutionId: $scope.account.institutionId
+                }
+            }).then((response) => {
+                $scope.institutions = [ response.data.institution ];
+            }, Yaba.utils.reject);
         }, Yaba.utils.reject);
 
         $http({

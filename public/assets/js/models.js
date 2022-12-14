@@ -236,10 +236,10 @@
         load(query={}) {
             var options = {
                 accountId: query.accountId,
-                fromDate: query.fromDate || '-30 days',
-                toDate: query.toDate || 'today',
-                tags: query.tags || []
             };
+            // query.fromDate && (options.fromDate = query.fromDate);
+            // query.toDate && (options.toDate = query.toDate);
+            // query.tags && (options.tags = query.tags);
             var result = this.$http({
                 method: 'QUERY',
                 url: '/api/transactions',
@@ -542,6 +542,7 @@
             $element.addClass('dragging');
             return false;
         }
+
         function unlight(event) {
             if ( event ) {
                 event.preventDefault();
@@ -549,10 +550,12 @@
             $element.removeClass('dragging');
             return false;
         }
+
         function parseError(err, file, element, reason) {
             console.log(`Papa.parse() error from ${file} in ${element}: ${err}`);
             console.log(reason);
         }
+
         function done(results) {
             if ( $attr.headers ) {
                 // only get back the headers from the CSV file.
