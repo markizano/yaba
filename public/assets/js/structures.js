@@ -15,6 +15,12 @@
         Annually: 'annually',
     });
 
+    /**
+     * @property {string} TransactionFields
+     * Constant. List of top-level member fields that represent a transaction.
+     */
+    const TransactionFields = Object.freeze( Object.keys( new Yaba.models.Transaction() ) );
+
     class JSONable {
         constructor(keys) {
             this._keys = Object.freeze(keys);
@@ -149,32 +155,49 @@
      * Object to store settings and interfaces with the localStorage in order to accomplish this.
      */
     class Settings {
+
+        static tagTypes = [
+            'income',
+            'expense',
+            'transfer',
+            'hide'
+        ];
+
         constructor() {
-            this.incomeTags     = localStorage.getItem('incomeTags') || [];
-            this.expenseTags    = localStorage.getItem('expenseTags') || [];
-            this.transferTags   = localStorage.getItem('transferTags') || [];
-            this.hideTags       = localStorage.getItem('hideTags') || [];
-            this.payCycle       = localStorage.getItem('payCycle') || PayCycle.BiMonthly;
+            this.load();
         }
 
         /**
          * Save this instance of settings to localStorage so settings persist.
          */
         save() {
-            Object.keys(this).forEach(ref => {
+            Settings.tagTypes.forEach(ref => {
                 localStorage.setItem(ref, this[ref]);
             });
+            localStorage.setItem('payCycle', this.payCycle);
             return this;
+        }
+
+        /**
+         * Read the local storage for our settings.
+         */
+        load() {
+            Settings.tagTypes.forEach(ref => {
+                var k = `${ref}Tags`;
+                this[k] = localStorage.getItem(k) || [];
+            });
+            this.payCycle = localStorage.getItem('payCycle') || PayCycle.BiMonthly;
         }
     }
 
     Yaba.hasOwnProperty('models') || (Yaba.models = {});
-    Yaba.models.NULLDATE        = NULLDATE;
-    Yaba.models.PayCycle        = PayCycle;
-    Yaba.models.Institution     = Institution;
-    Yaba.models.Account         = Account;
-    Yaba.models.Transaction     = Transaction;
-    Yaba.models.Settings        = Settings;
+    Yaba.models.NULLDATE            = NULLDATE;
+    Yaba.models.PayCycle            = PayCycle;
+    Yaba.models.TransactionFields   = TransactionFields;
+    Yaba.models.Institution         = Institution;
+    Yaba.models.Account             = Account;
+    Yaba.models.Transaction         = Transaction;
+    Yaba.models.Settings            = Settings;
 
     return Yaba;
 })(Yaba);
