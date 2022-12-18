@@ -4,8 +4,14 @@
 (function(Yaba) {
     'use strict';
 
+    /**
+     * Object we can use for NULL but also instanceof Date().
+     */
     const NULLDATE = new Date('1970-01-01T00:00:');
 
+    /**
+     * enum(PayCycle). Set of key-value pairs of pay cycles.
+     */
     const PayCycle = Object.freeze({
         Weekly: 'weekly',
         BiWeekly: 'bi-weekly',
@@ -14,12 +20,6 @@
         Quarterly: 'quarterly',
         Annually: 'annually',
     });
-
-    /**
-     * @property {string} TransactionFields
-     * Constant. List of top-level member fields that represent a transaction.
-     */
-    const TransactionFields = Object.freeze( Object.keys( new Yaba.models.Transaction() ) );
 
     class JSONable {
         constructor(keys) {
@@ -81,7 +81,7 @@
      * Coerces a Hash/Object into something we can use as institution to at least typecast the
      * structure as we need it here.
      */
-    class Account {
+    class Account extends JSONable {
         static Types = {
             Checking: 'checking',
             Savings: 'savings',
@@ -189,6 +189,12 @@
             this.payCycle = localStorage.getItem('payCycle') || PayCycle.BiMonthly;
         }
     }
+
+    /**
+     * @property {string} TransactionFields
+     * Constant. List of top-level member fields that represent a transaction.
+     */
+    const TransactionFields = Object.freeze( Object.keys( new Transaction() ) );
 
     Yaba.hasOwnProperty('models') || (Yaba.models = {});
     Yaba.models.NULLDATE            = NULLDATE;

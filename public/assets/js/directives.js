@@ -1,7 +1,4 @@
 (function(Yaba){
-    //@TODO: Find a way to derive this from the server.
-    Yaba.TransactionFields = TransactionFields;
-
     /* Forms as angular.directive() */
     Yaba.app.directive('yabaInstitutionForm', () => {
         return {

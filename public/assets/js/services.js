@@ -1,11 +1,11 @@
-/**
- * 
- */
 (function(Yaba) {
     'use strict';
 
     Yaba.hasOwnProperty('data') || (Yaba.data = {});
 
+    /**
+     * To start, we will use browser storage for all the data to preserve between sessions.
+     */
     function BrowserStorage($scope, $window, $attrs) {
         this.$scope = $scope;
         this.$window = $window;
@@ -18,8 +18,8 @@
                 var serviceList = JSON.parse( $window.localStorage.getItem(service) || '[]' ), result = [];
                 serviceList.forEach((data) => {
                     let modelName = service[0].toUpperCase() + service.slice(1, service.length - 1);
-                    result.push( new Yaba.models[ modelName ](data) );
-                })
+                    result.push( new Yaba.models[modelName](data) );
+                });
                 return Yaba.data[service] = result;
             });
             
@@ -44,8 +44,8 @@
     Yaba.app.factory('browserStorage', BrowserStorage);
 
     // These services are short handles so we can access them from controllers.
-    Yaba.app.factory('institutions', () => Yaba.data.institutions);
-    Yaba.app.factory('accounts', () => Yaba.data.accounts);
+    Yaba.app.factory('institutions', () => { return () => Yaba.data.institutions; });
+    Yaba.app.factory('accounts', () => { return () => Yaba.data.accounts; });
 
     return Yaba;
 })(Yaba);
