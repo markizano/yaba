@@ -23,9 +23,12 @@
         <script type="text/javascript" src="assets/js/init.js"></script>
         <script type="text/javascript" src="assets/js/models.js"></script>
         <script type="text/javascript" src="assets/js/controllers.js"></script>
+        <script type="text/javascript" src="assets/js/structures.js"></script>
+        <script type="text/javascript" src="assets/js/services.js"></script>
+        <script type="text/javascript" src="assets/js/filters.js"></script>
     </head>
     <body>
-        <div id="page" ng-app="yaba">
+        <div id="page" ng-app="yaba" ng-controller="page">
             <header>
                 <navigation id="navbar" class="navbar navbar-dark bg-inverse">
                     <ul>
@@ -40,6 +43,7 @@
                 </navigation>
             </header>
             <div id="content">
+                <institutions /><accounts /><transactions />
                 <ng-view></ng-view>
             </div>
             <footer>
