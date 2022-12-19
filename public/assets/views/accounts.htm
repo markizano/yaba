@@ -1,7 +1,7 @@
 <div id="accounts" ng-controller="accounts" class="controller">
     <h1>Accounts</h1>
     <p>This is where you view and manage accounts associated with each institution.</p>
-    <button ng-click="seeForm=true"><plus>+</plus>Add Account</button><br clear="all" />
+    <button ng-click="show()"><plus>+</plus>Add Account</button><br clear="all" />
     <div class="item-list-wrapper" ng-repeat="account in accounts">
         <h2 class="title">
             <a href="/account/{{ account.id }}">{{ account.name }}</a>

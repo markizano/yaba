@@ -1,9 +1,9 @@
 (function(Yaba){
-    /* Forms as angular.directive() */
+
     Yaba.app.directive('yabaInstitutionForm', () => {
         return {
             templateUrl: '/assets/views/forms/institution.htm',
-            controller: 'yabaInstitutionForm',
+            controller: 'yabaInstitutionCtrl',
             scope: {
                 institution: '='
             },
@@ -14,7 +14,7 @@
     Yaba.app.directive('yabaAccountForm', (() => {
         return {
             templateUrl: '/assets/views/forms/account.htm',
-            controller: 'yabaAccountForm',
+            controller: 'yabaAccountCtrl',
             scope: {
                 account: '=',
             },
@@ -25,7 +25,7 @@
     Yaba.app.directive('yabaBudget', () => {
         return {
             templateUrl: '/assets/views/tables/budget.htm',
-            controller: 'yabaBudget',
+            controller: 'yabaBudgetCtrl',
             restrict: 'AE'
         };
     });
@@ -33,7 +33,7 @@
     Yaba.app.directive('yabaTransactionList', () => {
         return {
             templateUrl: '/assets/views/tables/transactions.htm',
-            controller: 'yabaTransactionList',
+            controller: 'yabaTransactionListCtrl',
             scope: {
                 'transactions': '='
             },
@@ -110,35 +110,6 @@
                 });
             });
         }
-        // Now this can be handled in the controller since we know we are going to handle the results
-        // once parsed from the upload attempt.
-        $scope.$on('csvParsed', (event, results) => {
-            console.log('csvParsed()');
-            console.log({event: event});
-            console.log({csvResults: results});
-            if ( $attr.headers ) {
-                // only get back the headers from the CSV file.
-                var headers = Object.keys(results.data.shift());
-                $scope.institution.mappings = [];
-                headers.forEach((h) => {
-                    $scope.institution.mappings.push({
-                        fromField: h,
-                        toField: '',
-                        mapType: 'dynamic'
-                    });
-                })
-            } else {
-                // Get all the transactions back and fill up the table.
-                const account = $scope.account;
-                const institution = $scope.institutions.filter(i => i.id == account.institutionId).shift();
-                var transactions = Yaba.models.mapInstitution(institution, account, results.data);
-                transactions.forEach((txn) => {
-                    $scope.account.transactions.unshift(new Yaba.models.Transaction(txn));
-                });
-            }
-            $scope.$apply();
-
-        })
 
         $element.bind('dragover', highlight);
         $element.bind('dragenter', highlight);

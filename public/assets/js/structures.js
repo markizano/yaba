@@ -194,7 +194,7 @@
      * @property {string} TransactionFields
      * Constant. List of top-level member fields that represent a transaction.
      */
-    const TransactionFields = Object.freeze( Object.keys( new Transaction() ) );
+    const TransactionFields = Object.freeze( Object.keys( new Transaction() ).filter(x => x[0] != '_') );
 
     Yaba.hasOwnProperty('models') || (Yaba.models = {});
     Yaba.models.NULLDATE            = NULLDATE;

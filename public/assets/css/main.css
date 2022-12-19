@@ -92,6 +92,9 @@ body {
     width: 99%;
     text-decoration: underline;
 }
+.controller {
+    min-height: 200px;
+}
 .controller h1 {
     font-size: 180%;
     font-weight: bold;
@@ -285,22 +288,17 @@ pre {
 }
 .ng-fade.ng-hide {
     opacity: 0;
-}
-.ng-hide {
-    opacity: 0;
     transition: none 0;
 }
 
-.ng-slide-down {
+mapping {
+    border: 1px solid #999;
+    display: block;
+    padding: 5px;
+    margin: 5px 5px 5px 20px;
     line-height: 20px;
-    opacity: 1;
+    height: 135px;
 }
-.ng-slide-down.ng-hide-add.ng-hide-add-active, .ng-slide-down.ng-hide-remove.ng-hide-remove-active {
-    -webkit-transition: all linear 800ms;
-    transition: all linear 800ms;
-}
-.ng-slide-down.ng-hide {
-    line-height: 0;
-    opacity: 0;
-    padding: 0 10px;
-}
+.slide-down { transition: all 800ms ease-in-out; }
+.slide-down.ng-hide { opacity: 0; height: 0; opacity: 0; }
+.slide-dwon.ng-show { opacity: 1; height: 135px; opacity: 1; }

@@ -6,19 +6,21 @@
         <label>Description: <input type="text" ng-model="institution.description" /></label>
         <label>Mapping: <plus ng-click="addMapping()">+</plus></label>
         <ul>
-            <li ng-repeat="mapping in institution.mappings" class="animate-slide">
-                <trash ng-if="institution.mappings.length > 1" ng-click="remove($index);"></trash>
-                <label>
-                    From {{ mapping.mapType == 'static'? 'Value': 'Field' }}:
-                    <input type="text" ng-model="mapping.fromField" />
-                </label>
-                <label>
-                    To Field: <select ng-model="mapping.toField" ng-options="txnField for txnField in transactionFields"></select>
-                </label>
-                <label>Mapping Type: <select ng-model="mapping.mapType">
-                    <option value="static">Static</option>
-                    <option value="dynamic">Dynamic</option>
-                </select></label>
+            <li ng-repeat="mapping in institution.mappings">
+                <mapping class="slide-down" ng-show="mapping._visible || false">
+                    <trash ng-if="institution.mappings.length > 1" ng-click="remove($index);"></trash>
+                    <label class="slide-down">
+                        From {{ mapping.mapType == 'static'? 'Value': 'Field' }}:
+                        <input type="text" ng-model="mapping.fromField" />
+                    </label>
+                    <label class="slide-down">
+                        To Field: <select ng-model="mapping.toField" ng-options="txnField for txnField in transactionFields"></select>
+                    </label>
+                    <label class="slide-down">Mapping Type: <select ng-model="mapping.mapType">
+                        <option value="static">Static</option>
+                        <option value="dynamic">Dynamic</option>
+                    </select></label>
+                </mapping>
             </li>
         </ul>
         <input type="submit" Value="Save Institution" ng-click="save()" />

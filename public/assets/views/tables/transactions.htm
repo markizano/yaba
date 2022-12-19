@@ -1,7 +1,8 @@
-<!--filters>
+<filters>
     <yaba-daterange />
     <label ng-if="accounts">Account: <select ng-options="(account.id, account.name) for account in accounts"></select></label>
-</filters-->
+</filters>
+<pagination />
 <table class="data item-list">
     <thead ng-show="withHeader">
         <th ng-click="sortBy('datePending');">Date Pending</th>
@@ -12,7 +13,7 @@
         <th ng-show="includeTags">Tags</th>
     </thead>
     <tbody>
-        <tr ng-repeat="txn in transactions | orderBy:sortColumn">
+        <tr ng-repeat="txn in transactions | orderBy:sortColumn | limitTo:limit">
             <td>{{ txn.datePending | date:'yyyy-MM-dd' }}</td>
             <td>{{ txn.datePosted | date:'yyyy-MM-dd' }}</td>
             <td>{{ txn.amount | currency }}</td>
