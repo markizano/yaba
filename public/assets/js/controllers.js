@@ -150,11 +150,9 @@
      * Edit/Manage App Settings.
      */
     function settings($scope) {
-        $scope.settings = new Yaba.models.Settings();
-
-        $scope.save = () => {
-            $scope.settings.save();
-        };
+        $scope.settings = new Yaba.models.Settings($scope.settings || {});
+        $scope.settings.load();
+        $scope.save = () => { return $scope.settings.save(); };
     }
     settings.$inject = ['$scope'];
     Yaba.app.controller('settings', settings);

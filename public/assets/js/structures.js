@@ -154,27 +154,21 @@
     /**
      * Object to store settings and interfaces with the localStorage in order to accomplish this.
      */
-    class Settings {
-
-        static tagTypes = [
-            'income',
-            'expense',
-            'transfer',
-            'hide'
-        ];
-
-        constructor() {
-            this.load();
+    class Settings extends JSONable {
+        constructor(data={}) {
+            super(['incomeTags', 'expenseTags', 'transferTags', 'hideTags', 'payCycle']);
+            this.incomeTags = data.incomeTags || [];
+            this.expenseTags = data.expenseTags || [];
+            this.transferTags = data.transferTags || [];
+            this.hideTags = data.hideTags || [];
+            this.payCycle = data.payCycle || PayCycle.BiMonthly;
         }
 
         /**
          * Save this instance of settings to localStorage so settings persist.
          */
         save() {
-            Settings.tagTypes.forEach(ref => {
-                localStorage.setItem(ref, this[ref]);
-            });
-            localStorage.setItem('payCycle', this.payCycle);
+            localStorage.setItem('settings', this.toString());
             return this;
         }
 
@@ -182,11 +176,13 @@
          * Read the local storage for our settings.
          */
         load() {
-            Settings.tagTypes.forEach(ref => {
-                var k = `${ref}Tags`;
-                this[k] = localStorage.getItem(k) || [];
-            });
-            this.payCycle = localStorage.getItem('payCycle') || PayCycle.BiMonthly;
+            var data = JSON.parse( localStorage.getItem('settings') || '{}' );
+            this.incomeTags = data.incomeTags || [];
+            this.expenseTags = data.expenseTags || [];
+            this.transferTags = data.transferTags || [];
+            this.hideTags = data.hideTags || [];
+            this.payCycle = data.payCycle || PayCycle.BiMonthly;
+            return this;
         }
     }
 
