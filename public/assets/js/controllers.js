@@ -13,8 +13,9 @@
      * Account Institutions Controller.
      */
     function institutions($scope, $timeout, institutions) {
+        console.log('Yaba.controllers.institutions()');
         $scope.institutions = institutions;
-        $scope.institution = new Yaba.models.Institution({mappings: [{}]});
+        $scope.institution = new Yaba.models.Institution();
         $scope.seeForm = false;
         $scope.show = () => {
             console.log('show account form()');
@@ -26,6 +27,8 @@
             $scope.institution.mappings = [];
             headers.forEach((h) => {
                 // Store in variable for later use in function return value.
+                // Also: Assign before appending to the list to ensure we use the index we are
+                //   setting. (avoids out of index error)
                 let i = $scope.institution.mappings.length;
                 $scope.institution.mappings.push({
                     fromField: h,
@@ -33,11 +36,13 @@
                     mapType: 'dynamic',
                     _visible: false
                 });
-                // Set a timeout to alter the visibility immediately after the element has been rendered on the page.
+                // Set a timeout to alter the visibility immediately after the element has been
+                // rendered on the page to enable the animation.
                 $timeout(() => {
                     $scope.institution.mappings[i]._visible = true;
                 }, 10);
             });
+            // Let AngularJS know about this since the papaparser breaks the promise chain.
             $scope.$apply();
         });
     }
@@ -52,12 +57,16 @@
         $scope.accountTypes = Yaba.models.AccountTypes;
         $scope.institutions = institutions;
         $scope.accounts = accounts;
-        $scope.account = {};
+        $scope.account = new Yaba.models.Account();
         $scope.seeForm = false;
         $scope.show = () => {
             console.log('show account form()');
             $scope.seeForm = true;
         };
+        $scope.save = () => {
+            accounts.push( $scope.account );
+            accounts.save($scope);
+        }
     }
     accounts.$inject = ['$scope', 'institutions', 'accounts'];
     Yaba.app.controller('accounts', accounts);
@@ -67,16 +76,10 @@
      */
     function account($scope, $routeParams, institutions, accounts) {
         console.log('account-details()');
-        console.log($scope);
-        console.log($routeParams);
-        $scope.account = accounts.filter(a => a.accountId == $routeParams.accountId).unshift();
-        $scope.institution = institutions.filter(i => i.institutionId == $scope.account.institutionId).unshift();
-        $scope.transactions = $scope.account.transactions;
+        $scope.account = accounts.findById($routeParams.accountId);
         $scope.$on('csvParsed', (event, results) => {
             // Get all the transactions back and fill up the table.
-            const account = $scope.account;
-            const institution = $scope.institutions.filter(i => i.id == account.institutionId).shift();
-            var transactions = Yaba.models.mapInstitution(institution, account, results.data);
+            var transactions = Yaba.models.mapInstitution(institutions.findById($scope.account.institutionId), $scope.account, results.data);
             transactions.forEach((txn) => {
                 $scope.account.transactions.unshift(new Yaba.models.Transaction(txn));
             });
@@ -95,7 +98,7 @@
         $scope.endDate = new Date();
         $scope.budgets = [];
         $scope.accounts = accounts;
-        $scope.transactions = [];
+        $scope.transactions = []; //new Yaba.models.Transactions();
         $scope.transactions.sort = 'datePosted';
         accounts.forEach(account => account.transactions.forEach($scope.transactions.push));
 
@@ -115,100 +118,94 @@
     /**
      * Angular Prospecting Controller.
      */
-    function prospect($scope, accounts) {
+    function prospect($scope, accounts, Settings) {
         console.log('Prospect controller');
-        const settings = new Yaba.models.Settings();
-
         function updateBudgets(value) {
             $scope.incomeTxns = Yaba.filters.budgetBy($scope.transactions, $scope.incomeTags);
             $scope.expenseTxns = Yaba.filters.budgetBy($scope.transactions, $scope.expenseTags);
         }
-
         $scope.transactions     = [];
         $scope.prospect         = [];
         $scope.incomeTxns       = [];
         $scope.expenseTxns      = [];
-        $scope.incomeTags       = settings.incomeTags;
-        $scope.expenseTags      = settings.expenseTags;
-        $scope.transferTags     = settings.transferTags;
-        $scope.hideTags         = settings.hideTags;
-        $scope.payCycle         = settings.payCycle;
+        $scope.incomeTags       = Settings.incomeTags;
+        $scope.expenseTags      = Settings.expenseTags;
+        $scope.transferTags     = Settings.transferTags;
+        $scope.hideTags         = Settings.hideTags;
+        $scope.payCycle         = Settings.payCycle;
         $scope.budgetBy         = Yaba.filters.budgetBy;
 
         accounts.forEach(account => account.transactions.forEach($scope.transactions.push));
         $scope.$watchCollection('transactions', updateBudgets);
         $scope.$watch('incomeTags', updateBudgets);
         $scope.$watch('expenseTags', updateBudgets);
-
-        var txns = new Yaba.models.Transactions(services);
-        txns.load();
     }
-    prospect.$inject = ['$scope', 'accounts'];
+    prospect.$inject = ['$scope', 'accounts', 'Settings'];
     Yaba.app.controller('prospect', prospect);
 
     /**
      * Edit/Manage App Settings.
      */
-    function settings($scope) {
-        $scope.settings = new Yaba.models.Settings($scope.settings || {});
+    function settings($scope, Settings) {
+        $scope.settings = Settings;
         $scope.settings.load();
-        $scope.save = () => { return $scope.settings.save(); };
+        $scope.deleteAll = () => {
+            localStorage.clear();
+            $scope.$emit('notify', 'Cleared ALL local data.');
+        }
     }
-    settings.$inject = ['$scope'];
+    settings.$inject = ['$scope', 'Settings'];
     Yaba.app.controller('settings', settings);
 
-    function pageController($scope) {
-        $scope.hasOwnProperty('institutions') || ($scope.institutions = []);
-        $scope.hasOwnProperty('accounts') || ($scope.accounts = []);
-        $scope.hasOwnProperty('transactions') || ($scope.transactions = []);
+    function pageController($rootScope, $window, institutions, accounts) {
+        console.log('Loading and registering institutions and accounts...');
+        let institutionStorage = JSON.parse($window.localStorage.getItem('institutions') || '[]'),
+        accountStorage = JSON.parse($window.localStorage.getItem('accounts') || '[]');
+
+        institutionStorage.forEach(institutions.push);
+        accountStorage.forEach(accounts.push);
+        
+        $rootScope.$on('save.institution', institutions.store);
+        $rootScope.$on('save.institutions', institutions.store);
+
+        $rootScope.$on('save.account', accounts.store);
+        $rootScope.$on('save.accounts', accounts.store);
+
     }
-    pageController.$inject = ['$scope'];
+    pageController.$inject = ['$rootScope', '$window', 'institutions', 'accounts'];
     Yaba.app.controller('page', pageController);
 
     /**
      * ###            Directive Controllers             ###
      */
-    function InstitutionFormCtrl($scope, $http, $timeout) {
-        const self = this;
-        this.$scope = $scope;
-        this.$http = $http;
-        this.$timeout = $timeout;
-
-        $scope.institution = new Yaba.models.Institution({mappings: [{}]});
-        $scope.institution.mappings[0]._visible = true;
+    function InstitutionFormCtrl($scope, $timeout, institutions) {
         $scope.transactionFields = Yaba.models.TransactionFields;
-        Yaba.debug = $scope;
+        $scope.save = () => {
+            let fromUser = $scope.institution.toObject();
+            institutions.push(fromUser);
+            console.log({institutions, institution: fromUser});
+            institutions.save($scope);
+            $scope.close();
+        };
 
-        this.save = function save(e) {
-            self.institution.save();
-        }
-
-        this.remove = function remove($index) {
+        $scope.remove = function remove($index) {
             $scope.institution.mappings[$index]._visible = false;
             $timeout(() => {
                 $scope.institution.mappings.splice($index, 1);
             }, 850);
         }
 
-        this.close = function close() {
+        $scope.close = function close() {
             $scope.$parent.seeForm = false;
-            $timeout(self.reset, 1000);
+            $timeout($scope.reset, 1000);
         }
 
-        this.reset = function reset() {
-            $scope.institution.name = '';
-            $scope.institution.description = '';
-            $scope.institution.mappings = [
-                {
-                    fromField: '',
-                    toField: '',
-                    mapType: '',
-                    _visible: true,
-                }
-            ];
+        $scope.reset = function reset() {
+            $scope.institution = new Yaba.models.Institution();
+            $scope.institution.mappings[0]._visible = true;
         }
 
-        this.addMapping = function addMapping() {
+        $scope.addMapping = function addMapping() {
             $scope.institution.mappings.push({
                 fromField: '',
                 toField: '',
@@ -220,41 +217,36 @@
             }, 10);
         };
 
-        $scope.save = this.save;
-        $scope.close = this.close;
-        $scope.remove = this.remove;
-        $scope.reset = this.reset;
-        $scope.addMapping = this.addMapping;
-        return this;
+        $scope.reset();
     }
-    InstitutionFormCtrl.$inject = ['$scope', '$http', '$timeout'];
+    InstitutionFormCtrl.$inject = ['$scope', '$timeout', 'institutions'];
     Yaba.app.controller('yabaInstitutionCtrl', InstitutionFormCtrl);
 
-    function AccountFormCtrl($scope, accounts) {
-        var self = this;
-        this.$scope = $scope;
-        this.$scope.close = this.close;
-        this.accounts = accounts;
-        this.$scope.save = () => {
-            return self.accounts.save();
+    function AccountFormCtrl($scope, $timeout, accounts) {
+        $scope.save = () => {
+            accounts.push($scope.account);
+            accounts.save($scope);
         };
 
-        this.close = () => {
-            // this.$animate.removeClass($('#new-account'), 'ng-show');
-            self.$scope.$parent.seeForm = false;
-        };
+        $scope.close = function close() {
+            $scope.$parent.seeForm = false;
+            $timeout($scope.reset, 1000);
+        }
 
-        return this;
+        $scope.reset = function reset() {
+            $scope.account = new Yaba.models.Account();
+        }
     }
-    AccountFormCtrl.$inject = ['$scope', 'accounts'];
+    AccountFormCtrl.$inject = ['$scope', '$timeout', 'accounts'];
     Yaba.app.controller('yabaAccountCtrl', AccountFormCtrl);
 
-    function BudgetCtrl($scope) {
-        this.$scope = $scope;
+    function BudgetCtrl($scope, accounts) {
+        $scope.transactions = [];
+        accounts.forEach(account => account.transactions.forEach($scope.transactions.push));
 
-        function uniques() {
+        $scope.uniques = function uniques() {
             var seen = [];
-            this.transactions.forEach((transaction) => {
+            $scope.transactions.forEach((transaction) => {
                 transaction.tags.forEach((tag) => {
                     if ( seen.includes(tag) ) return;
                     seen.push(tag);
@@ -263,9 +255,9 @@
             return seen;
         }
 
-        function budgets() {
+        $scope.budgets = function budgets() {
             var results = {};
-            this.transactions.forEach((transaction) => {
+            $scope.transactions.forEach((transaction) => {
                 transaction.tags.forEach((tag) => {
                     if ( results.hasOwnProperty(tag) ) {
                         results[tag] += transaction.amount;
@@ -276,11 +268,8 @@
             });
             return results;
         }
-
-        $scope.uniques = uniques;
-        $scope.budgets = budgets;
     }
-    BudgetCtrl.$inject = ['$scope', '$http'];
+    BudgetCtrl.$inject = ['$scope', 'accounts'];
     Yaba.app.controller('yabaBudgetCtrl', BudgetCtrl);
 
     /**
@@ -293,18 +282,14 @@
         $scope.withHeader = !$attrs.hasOwnProperty('withoutHeader');
         $scope.limit = $attrs.limit || -1;
         $scope.sortColumn = 'datePosted';
-        this.$scope = $scope;
 
-        function sortBy(field) {
+        $scope.sortBy = function sortBy(field) {
             $scope.sortColumn = field;
         }
 
-        function save() {
+        $scope.save = function save() {
             console.log('save-transaction()');
-            console.log(this);
         }
-        $scope.sortBy = sortBy;
-        $scope.save = save;
     }
     TransactionListCtrl.$inject = ['$scope', '$attrs'];
     Yaba.app.controller('yabaTransactionListCtrl', TransactionListCtrl);

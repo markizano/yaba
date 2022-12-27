@@ -21,9 +21,28 @@
         Annually: 'annually',
     });
 
-    class JSONable {
-        constructor(keys) {
+    class Storable {
+        save($scope) {
+            return () => {
+                let event = `save.${this._class}`;
+                console.log(`JSONable.save(${event})`);
+                $scope.$emit(event, this);
+            };
+        }
+
+        load($scope) {
+            return () => {
+                var data = JSON.parse( localStorage.getItem(this._class) || '{}' );
+                return $scope[this._class] = new this._class(data);
+            }
+        }
+    }
+
+    class JSONable extends Storable {
+        constructor(keys, child=undefined) {
+            super();
             this._keys = Object.freeze(keys);
+            this._class = child;
         }
 
         /**
@@ -61,18 +80,26 @@
      */
     class Institution extends JSONable {
         constructor(data={}) {
-            super(['id', 'name', 'description', 'mappings']);
+            super(['id', 'name', 'description', 'mappings'], 'institution');
             this.id = data.id || '';
             this.name = data.name || '';
             this.description = data.description || '';
             this.mappings = [];
-            data.hasOwnProperty('mappings') && (data.mappings.forEach((mapping) => {
-                this.mappings.push({
-                    fromField: mapping.fromField || '',
-                    toField: mapping.toField || '',
-                    mapType: mapping.mapType || null
+            if ( data.hasOwnProperty('mappings') ) {
+                data.mappings.forEach((mapping) => {
+                    this.mappings.push({
+                        fromField: mapping.fromField || '',
+                        toField: mapping.toField || '',
+                        mapType: mapping.mapType || null
+                    });
                 });
-            }));
+            } else {
+                this.mappings.push({
+                    fromField: '',
+                    toField: '',
+                    mapType: null
+                });
+            }
         }
     }
 
@@ -99,7 +126,7 @@
 
         constructor(data={}) {
             super(['id', 'institutionId', 'name', 'description', 'balance', 'accountType', 'number', 'routing',
-              'interestRate', 'interestStrategy', 'transactions']);
+              'interestRate', 'interestStrategy', 'transactions'], 'account');
             this.id = data.id || '';
             this.institutionId = data.institutionId || '';
             this.name = data.name || '';
@@ -132,7 +159,7 @@
 
         constructor(data={}) {
             super(['id', 'accountId', 'description', 'datePending', 'datePosted', 'transactionType',
-              'amount', 'tax', 'currency', 'merchant', 'tags']);
+              'amount', 'tax', 'currency', 'merchant', 'tags'], 'transaction');
             this.id = data.id || '';
             this.accountId = data.accountId || '';
             this.description = data.description || '';
@@ -156,7 +183,7 @@
      */
     class Settings extends JSONable {
         constructor(data={}) {
-            super(['incomeTags', 'expenseTags', 'transferTags', 'hideTags', 'payCycle']);
+            super(['incomeTags', 'expenseTags', 'transferTags', 'hideTags', 'payCycle'], 'settings');
             this.incomeTags = data.incomeTags || [];
             this.expenseTags = data.expenseTags || [];
             this.transferTags = data.transferTags || [];
@@ -187,6 +214,91 @@
     }
 
     /**
+     * Extension of an array to give us access to a list of items.
+     * Still send an event when saving needs to occur.
+     * Ability to find objects by ID and Name.
+     * More may come as we find additional use cases for a list/collection.
+     */
+    class InstitutionCollection extends Array {
+
+        __defineSetter__(prop, value) {
+            console.log('institution.__defineSetter__()');
+            console.log({prop: prop, value: value});
+            return super.__defineSetter__(value);
+        }
+
+        push(item) {
+            item instanceof Institution || (item = new Institution(item));
+            return super.push(item);
+        }
+
+        unshift(item) {
+            item instanceof Institution || (item = new Institution(item));
+            return super.unshift(item);
+        }
+
+        save($scope) {
+            console.log('Emitting save.institutions event...');
+            $scope.$emit('save.institutions', this);
+            return this;
+        }
+
+        findById(id) {
+            return this.filter(i => i.institutionId == id).unshift() || null;
+        }
+
+        findByName(name) {
+            return this.filter(i => i.name == name).unshift() || null;
+        }
+
+        toString() {
+            var result = [];
+            this.map((x) => { result.push(x.toObject()); });
+            return JSON.stringify(result);
+        }
+
+        store($event, self) {
+            localStorage.setItem( 'institutions', self.toString() );
+        }
+    }
+
+    class AccountCollection extends Array {
+
+        push(item) {
+            item instanceof Account || (item = new Account(item));
+            return super.push(item);
+        }
+
+        unshift(item) {
+            item instanceof Account || (item = new Account(item));
+            return super.unshift(item);
+        }
+
+        save($scope) {
+            $scope.$emit('save.accounts', this);
+            return this;
+        }
+
+        findById(id) {
+            return this.filter(i => i.accountId == id).unshift() || null;
+        }
+        findByName(name) {
+            return this.filter(i => i.name == name).unshift() || null;
+        }
+
+        toString() {
+            var result = [];
+            this.forEach((x) => { result.append(x.toObject()); });
+            return JSON.stringify(result);
+        }
+
+        store() {
+            console.log('Saving accounts...');
+            localStorage.setItem( 'accounts', this.toString() );
+        }
+    }
+
+    /**
      * @property {string} TransactionFields
      * Constant. List of top-level member fields that represent a transaction.
      */
@@ -200,6 +312,9 @@
     Yaba.models.Account             = Account;
     Yaba.models.Transaction         = Transaction;
     Yaba.models.Settings            = Settings;
+    Yaba.models.Institutions        = InstitutionCollection;
+    Yaba.models.Accounts            = AccountCollection;
+    // Yaba.models.Transactions        = TransactionCollection;
 
     return Yaba;
 })(Yaba);

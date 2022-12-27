@@ -281,6 +281,11 @@ pre {
     word-wrap: break-word;
     background-color: white;
 }
+.warning { 
+    background-color: red;
+    color: yellow;
+    font-size: 20px;
+}
 
 .ng-fade {
     transition: all linear 800ms;

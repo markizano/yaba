@@ -1,7 +1,7 @@
 <div class="new-item-wrapper" ng-show="true">
     <close ng-click="close()">X</close>
     <h1>{{ institution.name || 'New' }} Institution</h1>
-    <form>
+    <form ng-submit="save()">
         <label>Name: <input type="text" ng-model="institution.name" /></label>
         <label>Description: <input type="text" ng-model="institution.description" /></label>
         <label>Mapping: <plus ng-click="addMapping()">+</plus></label>
@@ -23,6 +23,6 @@
                 </mapping>
             </li>
         </ul>
-        <input type="submit" Value="Save Institution" ng-click="save()" />
+        <input type="submit" Value="Save Institution" />
     </form>
 </div>

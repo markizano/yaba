@@ -1,6 +1,6 @@
 <filters>
-    <yaba-daterange />
-    <label ng-if="accounts">Account: <select ng-options="(account.id, account.name) for account in accounts"></select></label>
+    <yaba-daterange ng-if="daterange" from-date="fromDate" to-date="toDate" />
+    <label ng-if="accounts">Account: <select multiple="1" ng-options="(account.id, account.name) for account in accounts"></select></label>
 </filters>
 <pagination />
 <table class="data item-list">

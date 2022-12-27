@@ -4,7 +4,7 @@
     <md-list flex>
         <md-list-item>
             What is your pay cycle?
-            <select ng-model="settings.payCycle" ng-change="save()">
+            <select ng-model="settings.payCycle" ng-change="settings.save()">
                 <option value="weekly">Weekly</option>
                 <option value="bi-weekly">Bi-Weekly</option>
                 <option value="bi-monthly">Bi-Monthly</option>
@@ -14,20 +14,24 @@
             </select>
         </md-list-item>
         <md-list-item>
-            Tell me your income tags: <md-chips ng-model="settings.incomeTags" ng-change="save()"></md-chips>
+            Tell me your income tags: <md-chips ng-model="settings.incomeTags" ng-change="settings.save()"></md-chips>
             <span class="helper">Income tags will tell this app how to treat things you deem as income per defined pay period as defined above.</span>
         </md-list-item>
         <md-list-item>
-            Tell me your expense tags: <md-chips ng-model="settings.expenseTags" ng-change="save()"></md-chips>
+            Tell me your expense tags: <md-chips ng-model="settings.expenseTags" ng-change="settings.save()"></md-chips>
             <span class="helper">Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses.</span>
         </md-list-item>
         <md-list-item>
-            What is your transfer tag?: <md-chips ng-model="settings.transferTags" ng-change="save()"></md-chips>
+            What is your transfer tag?: <md-chips ng-model="settings.transferTags" ng-change="settings.save()"></md-chips>
             <span class="helper">Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions.</span>
         </md-list-item>
         <md-list-item>
-            What is your hide tag?: <md-chips ng-model="settings.hideTags" ng-change="save()"></md-chips>
+            What is your hide tag?: <md-chips ng-model="settings.hideTags" ng-change="settings.save()"></md-chips>
             <span class="helper">These transactions will be hidden from view and removed from calculations.</span>
+        </md-list-item>
+        <md-list-item>
+            Delete all data: <button ng-click="deleteAll()">DELETE</button><br />
+            <p class="warning">NOTE: This will delete ALL the data!!!</p>
         </md-list-item>
     </md-list>
 </md-content>
