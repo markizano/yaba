@@ -23,7 +23,7 @@
         };
         $scope.$on('csvParsed', ($event, results) => {
             // only get back the headers from the CSV file.
-            var headers = Object.keys(results.data.shift());
+            var headers = Object.keys(results.parsedCSV.data.shift());
             $scope.institution.mappings = [];
             headers.forEach((h) => {
                 // Store in variable for later use in function return value.
@@ -54,19 +54,15 @@
      */
     function accounts($scope, institutions, accounts) {
         console.log('Yaba.controllers.accounts()');
-        $scope.accountTypes = Yaba.models.AccountTypes;
+        $scope.accountTypes = Yaba.models.Account.Types;
         $scope.institutions = institutions;
         $scope.accounts = accounts;
         $scope.account = new Yaba.models.Account();
         $scope.seeForm = false;
         $scope.show = () => {
-            console.log('show account form()');
             $scope.seeForm = true;
         };
-        $scope.save = () => {
-            accounts.push( $scope.account );
-            accounts.save($scope);
-        }
+        Yaba.models.txnCsvParsed($scope, institutions, accounts);
     }
     accounts.$inject = ['$scope', 'institutions', 'accounts'];
     Yaba.app.controller('accounts', accounts);
@@ -77,13 +73,7 @@
     function account($scope, $routeParams, institutions, accounts) {
         console.log('account-details()');
         $scope.account = accounts.findById($routeParams.accountId);
-        $scope.$on('csvParsed', (event, results) => {
-            // Get all the transactions back and fill up the table.
-            var transactions = Yaba.models.mapInstitution(institutions.findById($scope.account.institutionId), $scope.account, results.data);
-            transactions.forEach((txn) => {
-                $scope.account.transactions.unshift(new Yaba.models.Transaction(txn));
-            });
-        });
+        Yaba.models.txnCsvParsed($scope, institutions, accounts);
     }
     account.$inject = ['$scope', '$routeParams', 'institutions', 'accounts'];
     Yaba.app.controller('account', account);
@@ -100,7 +90,11 @@
         $scope.accounts = accounts;
         $scope.transactions = []; //new Yaba.models.Transactions();
         $scope.transactions.sort = 'datePosted';
-        accounts.forEach(account => account.transactions.forEach($scope.transactions.push));
+        accounts.forEach(account =>
+            account.transactions.forEach(txn =>
+                $scope.transactions.push(txn)
+            )
+        );
 
     }
     budget.$inject = ['$scope', 'accounts'];
@@ -162,14 +156,14 @@
         let institutionStorage = JSON.parse($window.localStorage.getItem('institutions') || '[]'),
         accountStorage = JSON.parse($window.localStorage.getItem('accounts') || '[]');
 
-        institutionStorage.forEach(institutions.push);
-        accountStorage.forEach(accounts.push);
+        institutionStorage.forEach(i => institutions.push(i));
+        accountStorage.forEach(a => accounts.push(a));
         
-        $rootScope.$on('save.institution', institutions.store);
-        $rootScope.$on('save.institutions', institutions.store);
+        $rootScope.$on('save.institution', e => institutions.store(e));
+        $rootScope.$on('save.institutions', e => institutions.store(e));
 
-        $rootScope.$on('save.account', accounts.store);
-        $rootScope.$on('save.accounts', accounts.store);
+        $rootScope.$on('save.account', e => accounts.store(e));
+        $rootScope.$on('save.accounts', e => accounts.store(e));
 
     }
     pageController.$inject = ['$rootScope', '$window', 'institutions', 'accounts'];
@@ -183,7 +177,6 @@
         $scope.save = () => {
             let fromUser = $scope.institution.toObject();
             institutions.push(fromUser);
-            console.log({institutions, institution: fromUser});
             institutions.save($scope);
             $scope.close();
         };
@@ -224,8 +217,11 @@
 
     function AccountFormCtrl($scope, $timeout, accounts) {
         $scope.save = () => {
-            accounts.push($scope.account);
+            let fromUser = $scope.account.toObject();
+            // fromUser.id = uuid.
+            accounts.push(fromUser);
             accounts.save($scope);
+            $scope.close();
         };
 
         $scope.close = function close() {
@@ -242,7 +238,11 @@
 
     function BudgetCtrl($scope, accounts) {
         $scope.transactions = [];
-        accounts.forEach(account => account.transactions.forEach($scope.transactions.push));
+        accounts.forEach(account =>
+            account.transactions.forEach(txn =>
+                $scope.transactions.push(txn)
+            )
+        );
 
         $scope.uniques = function uniques() {
             var seen = [];
@@ -280,7 +280,7 @@
         // By default, don't show tags. We can override this in the HTML include for this widget.
         $scope.includeTags = $attrs.hasOwnProperty('includeTags');
         $scope.withHeader = !$attrs.hasOwnProperty('withoutHeader');
-        $scope.limit = $attrs.limit || -1;
+        $scope.limit = $attrs.limit || 999;
         $scope.sortColumn = 'datePosted';
 
         $scope.sortBy = function sortBy(field) {

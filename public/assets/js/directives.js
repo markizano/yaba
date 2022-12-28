@@ -73,6 +73,11 @@
      * handle dragging a file into the element.
      */
     function filedrop($scope, $element, $attr) {
+        let institutionId, accountId;
+        if ($scope.account) {
+            institutionId = $scope.account.institutionId || '';
+            accountId = $scope.account.id || '';
+        }
         function highlight(event) {
             if ( event ) {
                 event.preventDefault();
@@ -92,10 +97,24 @@
         function parseError(err, file, element, reason) {
             console.log(`Papa.parse() error from ${file} in ${element}: ${err}`);
             console.log(reason);
+            // @TODO: Find a way to notify the end-user of a failure.
+            $scope.emit('csvError', {
+                err,
+                file,
+                element,
+                reason,
+                institutionId,
+                accountId
+            });
         }
 
         function done(parsedCSV) {
-            $scope.$emit('csvParsed', parsedCSV);
+            let event = {
+                parsedCSV,
+                institutionId,
+                accountId
+            };
+            $scope.$emit('csvParsed', event);
         }
 
         function drop(event) {

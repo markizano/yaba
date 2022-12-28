@@ -21,6 +21,13 @@
         Annually: 'annually',
     });
 
+    class InstitutionMappingException extends Error {
+        constructor(fromField, toField) {
+            super(`Institution Mapping should contain one of "${Yaba.models.TransactionFields.join(", ")}". Got ${toField} when setting ${fromField}`);
+            this.name = this.constructor.name;
+        }
+    }
+
     class Storable {
         save($scope) {
             return () => {
@@ -81,12 +88,15 @@
     class Institution extends JSONable {
         constructor(data={}) {
             super(['id', 'name', 'description', 'mappings'], 'institution');
-            this.id = data.id || '';
+            this.id = data.id || uuid.v4();
             this.name = data.name || '';
             this.description = data.description || '';
             this.mappings = [];
             if ( data.hasOwnProperty('mappings') ) {
                 data.mappings.forEach((mapping) => {
+                    if ( !Yaba.models.TransactionFields.includes(mapping.toField) ) {
+                        throw new InstitutionMappingException(mapping.fromField, mapping.toField);
+                    }
                     this.mappings.push({
                         fromField: mapping.fromField || '',
                         toField: mapping.toField || '',
@@ -127,7 +137,7 @@
         constructor(data={}) {
             super(['id', 'institutionId', 'name', 'description', 'balance', 'accountType', 'number', 'routing',
               'interestRate', 'interestStrategy', 'transactions'], 'account');
-            this.id = data.id || '';
+            this.id = data.id || uuid.v4();
             this.institutionId = data.institutionId || '';
             this.name = data.name || '';
             this.description = data.description || '';
@@ -135,7 +145,7 @@
             this.accountType = data.accountType || null;
             this.number = data.number || '';
             this.routing = data.routing || '';
-            this.interestRate = data.interestRate || 0.0;
+            this.interestRate = Number(data.interestRate) || 0.0;
             this.interestStrategy = data.interestStrategy || null;
             this.transactions = [];
             data.hasOwnProperty('transactions') && (data.transactions.forEach((transaction) => {
@@ -160,7 +170,8 @@
         constructor(data={}) {
             super(['id', 'accountId', 'description', 'datePending', 'datePosted', 'transactionType',
               'amount', 'tax', 'currency', 'merchant', 'tags'], 'transaction');
-            this.id = data.id || '';
+            data = this.scrubInput(data);
+            this.id = data.id || uuid.v4();
             this.accountId = data.accountId || '';
             this.description = data.description || '';
             this.datePending = data.datePending || NULLDATE;
@@ -171,10 +182,27 @@
             this.currency = data.currency || '';
             this.merchant = data.merchant || '';
             this.tags = data.tags || [];
+        }
 
-            // This might be a bug later. Can I make such an assumption?
-            this.datePending instanceof Date || (this.datePending = new Date(data.datePending));
-            this.datePosted instanceof Date || (this.datePosted = new Date(data.datePosted));
+        /**
+         * Scrubs input from user stuffs and asserts the data types we expect.
+         * @param {Object} data input data to scrub and typecast.
+         * @return {object} Transformed data with typecasting done.
+         */
+        scrubInput(data) {
+            if ( data.datePending && ! data.datePending instanceof Date ) {
+                data.datePending = new Date(data.datePending);
+            }
+            if ( data.datePosted && ! data.datePosted instanceof Date ) {
+                data.datePosted = new Date(data.datePosted);
+            }
+            if ( data.amount && data.amount instanceof String ) {
+                data.amount = Number(data.amount.replace(/[^0-9\.-]+/g, '') );
+            }
+            if ( data.tags && ! data.tags instanceof Array ) {
+                data.tags = data.tags.split(',').map(x => x.trim());
+            }
+            return data;
         }
     }
 
@@ -228,6 +256,7 @@
         }
 
         push(item) {
+            console.log(item);
             item instanceof Institution || (item = new Institution(item));
             return super.push(item);
         }
@@ -244,11 +273,11 @@
         }
 
         findById(id) {
-            return this.filter(i => i.institutionId == id).unshift() || null;
+            return this.filter(i => i.id == id).pop() || null;
         }
 
         findByName(name) {
-            return this.filter(i => i.name == name).unshift() || null;
+            return this.filter(i => i.name == name).pop() || null;
         }
 
         toString() {
@@ -257,8 +286,9 @@
             return JSON.stringify(result);
         }
 
-        store($event, self) {
-            localStorage.setItem( 'institutions', self.toString() );
+        store($event, context) {
+            console.log('Writing institutions to browser-disk.');
+            localStorage.setItem( 'institutions', this.toString() );
         }
     }
 
@@ -280,15 +310,15 @@
         }
 
         findById(id) {
-            return this.filter(i => i.accountId == id).unshift() || null;
+            return this.filter(i => i.id == id).pop() || null;
         }
         findByName(name) {
-            return this.filter(i => i.name == name).unshift() || null;
+            return this.filter(i => i.name == name).pop() || null;
         }
 
         toString() {
             var result = [];
-            this.forEach((x) => { result.append(x.toObject()); });
+            this.forEach((x) => { result.push(x.toObject()); });
             return JSON.stringify(result);
         }
 

@@ -8,7 +8,7 @@
             <span class="accountBalance">{{ account.balance | currency }}</span>
         </h2>
         <p>{{ account.description }}</p><br />
-        <yaba-transaction-list transactions="account.transactions" limit="10" class="dropable"></yaba-transaction-list>
+        <yaba-transaction-list transactions="account.transactions" limit="5" class="dropable"></yaba-transaction-list>
     </div>
     <div class="errors">{{ error }}</div>
     <yaba-account-form

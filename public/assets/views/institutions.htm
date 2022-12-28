@@ -10,6 +10,7 @@
     <div class="item-list-wrapper" ng-repeat="institution in institutions">
         <h2>{{ institution.name }}</h2>
         <p>{{ institution.description }}</p>
+        <edit ng-click="edit(institution)"></edit>
         <table id="{{ institution.id }}" class="institution-mappings data item-list">
             <thead>
                 <th>From Field</th>

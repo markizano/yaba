@@ -16,6 +16,7 @@
 
     Yaba.app.factory('accounts', () => {
         const accounts = new Yaba.models.Accounts();
+        Yaba.accounts = accounts;
         return accounts;
     });
 

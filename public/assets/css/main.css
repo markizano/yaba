@@ -125,10 +125,17 @@ body {
     font-size: 16px;
     padding: 5px;
 }
+
 table.data {
     border: 1px solid black;
     box-shadow: 8px 8px #1c052c3c;
     margin: 5px 10px 5px 10px;
+    max-width: 90%;
+    max-height: 500px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    overflow-y: auto;
+    display: inline-block;
 }
 table.data th {
     font-weight: bold;
@@ -136,13 +143,29 @@ table.data th {
     padding: 5px;
     border-bottom: 1px solid black;
     cursor: pointer;
+    margin: 5px auto;
+    /* min-width: 100px; */
+}
+/* table.data tbody {
+    display: block;
+    width: 100%;
+    overflow: auto;
+    max-height: 500px;
+} */
+table.data thead {
+    /* display: block; */
+    position: sticky;
+    top: 0px;
 }
 table.data td {
     padding: 2px 5px 2px 5px;
+    /* min-width: 100px; */
 }
 table.data tr:nth-child(odd) {
     background-color: #f1f1f1;
 }
+
+
 .new-item-wrapper {
     display: block;
     width: 500px;
@@ -215,6 +238,16 @@ trash {
     margin: 0px;
     padding: 0px;
     border: none;
+    cursor: pointer;
+}
+edit {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABjUlEQVRYw+3Wv0tVYRjA8c/1XtEM/LXY1tQf4CYNlxIaRPwDEhKaWtsL+gcSXG1oaWhtbBAkBKGiqUkEhygDFTPCSS/X5TEucs/1vOcej4sPvHA4B873+7zPy/s8XHPUK+IMXKfAKF5hEDtoV7nDo3iPY+xjAbWq4b8whzfYC4n/JWlk1Os+JhNgbXwOwDl8FU08wTo+xbe3WMLHrHKM4SDW75zrZ/z0YuazHVtei504xnKvgzmBQzzCSMKqXwKfjfcfguEygWYfNS8MLypQGryIQKnwVIFe8IdF4CkCVwLPK3Bl8DwCqfB6XEZ3yxAokvkwtvC4X4EBvMZu4mm/hW0sJvXpLjGMeazE3d7uyPwdvuIp/pQyKHSJe7iDtQ74g37gWd0wK5rR039gOnrFc3wpCk8RaITAODYxhaOo+Yui8BSBGv7hGzait3+P1trqZ2rJK3CCZ/F8WuZcl3IGTiodl6uKRo+az+B2CYyhuIxyC5ziL16WPMMfZWXa7d1kL+sC0YqJueUmbuJCnAFrhnzTGoGj4AAAAABJRU5ErkJggg==');
+    display: block;
+    border: 1px solid black;
+    width: 32px;
+    height: 32px;
+    margin: 0px;
+    padding: 0px;
     cursor: pointer;
 }
 
@@ -307,3 +340,4 @@ mapping {
 .slide-down { transition: all 800ms ease-in-out; }
 .slide-down.ng-hide { opacity: 0; height: 0; opacity: 0; }
 .slide-dwon.ng-show { opacity: 1; height: 135px; opacity: 1; }
+
