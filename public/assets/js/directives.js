@@ -5,7 +5,9 @@
             templateUrl: '/assets/views/forms/institution.htm',
             controller: 'yabaInstitutionCtrl',
             scope: {
-                institution: '='
+                institution: '=',
+                seeForm: '=',
+                mode: '='
             },
             restrict: 'E'
         };
@@ -17,6 +19,8 @@
             controller: 'yabaAccountCtrl',
             scope: {
                 account: '=',
+                seeForm: '=',
+                mode: '='
             },
             restrict: 'E'
         };

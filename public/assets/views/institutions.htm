@@ -6,11 +6,12 @@
         to track here.
     </p>
 
-    <button ng-click="show()"><plus>+</plus>Add Institution</button>
+    <add ng-click="add()" class="right">+</add>
     <div class="item-list-wrapper" ng-repeat="institution in institutions">
         <h2>{{ institution.name }}</h2>
         <p>{{ institution.description }}</p>
-        <edit ng-click="edit(institution)"></edit>
+        <edit ng-click="edit(institution)" class="right"></edit>
+        <trash ng-click="remove(institution)" class="right"></trash>
         <table id="{{ institution.id }}" class="institution-mappings data item-list">
             <thead>
                 <th>From Field</th>
@@ -32,6 +33,8 @@
       institution="institution"
       class="ng-fade ng-hide dropable"
       headers="1"
+      mode="mode"
+      see-form="seeForm"
       ng-show="seeForm"
        />
 </div>

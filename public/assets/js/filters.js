@@ -9,14 +9,17 @@
         return (transactions, filterTags) => {
             if ( !transactions ) return transactions;
             if ( !filterTags ) return transactions;
-            var result = [];
+            var result = [], txnIds = [];
             transactions.forEach((transaction) => {
                 if ( typeof filterTags == 'string' ) {
                     filterTags = filterTags.split(',');
                 }
                 filterTags.forEach((incomeTag) => {
                     if ( transaction.tags.includes(incomeTag.trim()) ) {
-                        result.push(transaction);
+                        if ( !txnIds.includes(transaction.id) ) {
+                            result.push(transaction);
+                            txnIds.push(transaction.id);
+                        }
                     }
                 });
             })

@@ -6,7 +6,7 @@
     <tbody>
         <tr ng-repeat="(budget, amount) in budgets()">
             <td>{{ budget }}</td>
-            <td>{{ amount }}</td>
+            <td>{{ amount | currency }}</td>
         </tr>
     </tbody>
 </table>

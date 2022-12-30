@@ -88,6 +88,10 @@
     class Institution extends JSONable {
         constructor(data={}) {
             super(['id', 'name', 'description', 'mappings'], 'institution');
+            this.update(data);
+        }
+
+        update(data) {
             this.id = data.id || uuid.v4();
             this.name = data.name || '';
             this.description = data.description || '';
@@ -137,6 +141,27 @@
         constructor(data={}) {
             super(['id', 'institutionId', 'name', 'description', 'balance', 'accountType', 'number', 'routing',
               'interestRate', 'interestStrategy', 'transactions'], 'account');
+            data = this.scrubInput(data);
+            this.update(data);
+        }
+
+        /**
+         * Ensure we have assigned the desired data structure to each data point.
+         * @param {Object} data Inputs to scrub.
+         * @returns scrubbed results
+         */
+        scrubInput(data) {
+            if ( data.institutionId && data.institutionId instanceof Institution ) {
+                data.institutionId = data.institutionId.id;
+            }
+            return data;
+        }
+
+        /**
+         * Updates this object with any data one might have for updates.
+         * @param {Object} data Input data to update for this object.
+         */
+        update(data) {
             this.id = data.id || uuid.v4();
             this.institutionId = data.institutionId || '';
             this.name = data.name || '';
@@ -147,10 +172,17 @@
             this.routing = data.routing || '';
             this.interestRate = Number(data.interestRate) || 0.0;
             this.interestStrategy = data.interestStrategy || null;
-            this.transactions = [];
-            data.hasOwnProperty('transactions') && (data.transactions.forEach((transaction) => {
-                this.transactions.push(new Transaction(transaction));
-            }));
+            if ( !this.hasOwnProperty('transactions') ) {
+                this.transactions = [];
+            }
+            if ( data.hasOwnProperty('transactions') && data.transactions instanceof Array ) {
+                data.transactions.forEach((transaction) => {
+                    if ( !transaction instanceof Transaction ) {
+                        transaction = new Transaction(transaction);
+                    }
+                    this.transactions.push(transaction);
+                });
+            }
         }
     }
 
@@ -196,10 +228,10 @@
             if ( data.datePosted && ! data.datePosted instanceof Date ) {
                 data.datePosted = new Date(data.datePosted);
             }
-            if ( data.amount && data.amount instanceof String ) {
+            if ( data.amount && typeof data.amount == 'string' ) {
                 data.amount = Number(data.amount.replace(/[^0-9\.-]+/g, '') );
             }
-            if ( data.tags && ! data.tags instanceof Array ) {
+            if ( data.tags && typeof data.tags == 'string' ) {
                 data.tags = data.tags.split(',').map(x => x.trim());
             }
             return data;
@@ -286,8 +318,8 @@
             return JSON.stringify(result);
         }
 
-        store($event, context) {
-            console.log('Writing institutions to browser-disk.');
+        store() {
+            console.log('Saving institutions...');
             localStorage.setItem( 'institutions', this.toString() );
         }
     }
@@ -312,6 +344,7 @@
         findById(id) {
             return this.filter(i => i.id == id).pop() || null;
         }
+
         findByName(name) {
             return this.filter(i => i.name == name).pop() || null;
         }

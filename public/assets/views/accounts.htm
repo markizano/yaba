@@ -1,18 +1,22 @@
 <div id="accounts" ng-controller="accounts" class="controller">
     <h1>Accounts</h1>
     <p>This is where you view and manage accounts associated with each institution.</p>
-    <button ng-click="show()"><plus>+</plus>Add Account</button><br clear="all" />
+    <add ng-click="add()" class="right">+</add>
     <div class="item-list-wrapper" ng-repeat="account in accounts">
         <h2 class="title">
             <a href="/account/{{ account.id }}">{{ account.name }}</a>
             <span class="accountBalance">{{ account.balance | currency }}</span>
         </h2>
         <p>{{ account.description }}</p><br />
+        <edit ng-click="edit(account)" class="right"></edit>
+        <trash ng-click="remove(account)" class="right"></trash>
         <yaba-transaction-list transactions="account.transactions" limit="5" class="dropable"></yaba-transaction-list>
     </div>
     <div class="errors">{{ error }}</div>
     <yaba-account-form
       account="account"
       ng-show="seeForm"
+      mode="mode"
+      see-form="seeForm"
       class="ng-fade ng-hide" />
 </div>

@@ -10,6 +10,11 @@
     const ms30days = 2592000000; // 1000ms * 60s * 60m * 24h * 30d
 
     /**
+     * @property {Number} animationDelay How long the CSS is configured to animate stuff (in MS).
+     */
+    const animationDelay = 400;
+
+    /**
      * Account Institutions Controller.
      */
     function institutions($scope, $timeout, institutions) {
@@ -17,9 +22,29 @@
         $scope.institutions = institutions;
         $scope.institution = new Yaba.models.Institution();
         $scope.seeForm = false;
-        $scope.show = () => {
+        $scope.add = () => {
             console.log('show account form()');
             $scope.seeForm = true;
+            $scope.mode = 'add';
+        };
+        $scope.edit = (institution) => {
+            console.log(`edit(${institution})`)
+            $scope.institution = institution;
+            $scope.seeForm = true;
+            $scope.mode = 'edit';
+            $timeout(() => {
+                institution.mappings.forEach(mapping => {
+                    mapping._visible = true;
+                });
+            }, animationDelay);
+        };
+        $scope.remove = (institution) => {
+            for ( let i in institutions ) {
+                if ( institutions[i].id == institution.id ) {
+                    institutions.splice(i, 1);
+                }
+            }
+            institutions.save($scope);
         };
         $scope.$on('csvParsed', ($event, results) => {
             // only get back the headers from the CSV file.
@@ -40,7 +65,7 @@
                 // rendered on the page to enable the animation.
                 $timeout(() => {
                     $scope.institution.mappings[i]._visible = true;
-                }, 10);
+                }, 100);
             });
             // Let AngularJS know about this since the papaparser breaks the promise chain.
             $scope.$apply();
@@ -59,8 +84,23 @@
         $scope.accounts = accounts;
         $scope.account = new Yaba.models.Account();
         $scope.seeForm = false;
-        $scope.show = () => {
+        $scope.mode = 'edit';
+        $scope.add = () => {
             $scope.seeForm = true;
+            $scope.mode = 'add';
+        };
+        $scope.edit = (account) => {
+            $scope.account = account;
+            $scope.seeForm = true;
+            $scope.mode = 'edit';
+        }
+        $scope.remove = (account) => {
+            for ( let i in accounts ) {
+                if ( accounts[i].id == account.id ) {
+                    accounts.splice(i, 1);
+                }
+            }
+            accounts.save($scope);
         };
         Yaba.models.txnCsvParsed($scope, institutions, accounts);
     }
@@ -83,19 +123,17 @@
      */
     function budget($scope, accounts) {
         console.log('Budget controller');
-
         $scope.startDate = new Date( Date.now() - ms30days );
         $scope.endDate = new Date();
         $scope.budgets = [];
         $scope.accounts = accounts;
         $scope.transactions = []; //new Yaba.models.Transactions();
         $scope.transactions.sort = 'datePosted';
-        accounts.forEach(account =>
-            account.transactions.forEach(txn =>
-                $scope.transactions.push(txn)
-            )
-        );
-
+        accounts.forEach(account => {
+            account.transactions.forEach(txn => {
+                $scope.transactions.push(txn);
+            });
+        });
     }
     budget.$inject = ['$scope', 'accounts'];
     Yaba.app.controller('budget', budget);
@@ -129,7 +167,7 @@
         $scope.payCycle         = Settings.payCycle;
         $scope.budgetBy         = Yaba.filters.budgetBy;
 
-        accounts.forEach(account => account.transactions.forEach($scope.transactions.push));
+        accounts.forEach(account => account.transactions.forEach(txn => $scope.transactions.push(txn)));
         $scope.$watchCollection('transactions', updateBudgets);
         $scope.$watch('incomeTags', updateBudgets);
         $scope.$watch('expenseTags', updateBudgets);
@@ -175,8 +213,10 @@
     function InstitutionFormCtrl($scope, $timeout, institutions) {
         $scope.transactionFields = Yaba.models.TransactionFields;
         $scope.save = () => {
-            let fromUser = $scope.institution.toObject();
-            institutions.push(fromUser);
+            if ( $scope.mode == 'add' ) {
+                let fromUser = $scope.institution.toObject();
+                institutions.push(fromUser);
+            }
             institutions.save($scope);
             $scope.close();
         };
@@ -185,12 +225,17 @@
             $scope.institution.mappings[$index]._visible = false;
             $timeout(() => {
                 $scope.institution.mappings.splice($index, 1);
-            }, 850);
+            }, animationDelay);
         }
 
         $scope.close = function close() {
-            $scope.$parent.seeForm = false;
-            $timeout($scope.reset, 1000);
+            $scope.institution.mappings.forEach(mapping => {
+                mapping._visible = false;
+            });
+            $timeout(() => {
+                $scope.seeForm = false;
+                $timeout(() => { $scope.reset(); }, animationDelay);
+            }, animationDelay / 2);
         }
 
         $scope.reset = function reset() {
@@ -217,16 +262,17 @@
 
     function AccountFormCtrl($scope, $timeout, accounts) {
         $scope.save = () => {
-            let fromUser = $scope.account.toObject();
-            // fromUser.id = uuid.
-            accounts.push(fromUser);
+            if ( $scope.mode == 'add' ) {
+                let fromUser = $scope.account.toObject();
+                accounts.push(fromUser);
+            }
             accounts.save($scope);
             $scope.close();
         };
 
         $scope.close = function close() {
-            $scope.$parent.seeForm = false;
-            $timeout($scope.reset, 1000);
+            $scope.seeForm = false;
+            $timeout($scope.reset, animationDelay);
         }
 
         $scope.reset = function reset() {
@@ -276,7 +322,7 @@
      * Renders a collection of transactions. Controller for handling the list of transactions
      * and however we may want to render them.
      */
-    function TransactionListCtrl($scope, $attrs) {
+    function TransactionListCtrl($scope, $attrs, accounts) {
         // By default, don't show tags. We can override this in the HTML include for this widget.
         $scope.includeTags = $attrs.hasOwnProperty('includeTags');
         $scope.withHeader = !$attrs.hasOwnProperty('withoutHeader');
@@ -289,9 +335,10 @@
 
         $scope.save = function save() {
             console.log('save-transaction()');
+            accounts.save($scope);
         }
     }
-    TransactionListCtrl.$inject = ['$scope', '$attrs'];
+    TransactionListCtrl.$inject = ['$scope', '$attrs', 'accounts'];
     Yaba.app.controller('yabaTransactionListCtrl', TransactionListCtrl);
 
     return Yaba;

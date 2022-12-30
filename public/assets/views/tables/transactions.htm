@@ -13,10 +13,10 @@
         <th ng-show="includeTags">Tags</th>
     </thead>
     <tbody>
-        <tr ng-repeat="txn in transactions | orderBy:sortColumn | limitTo:limit">
+        <tr ng-repeat="txn in transactions | orderBy:sortColumn | limitTo:limit track by txn.id">
             <td>{{ txn.datePending | date:'yyyy-MM-dd' }}</td>
             <td>{{ txn.datePosted | date:'yyyy-MM-dd' }}</td>
-            <td>{{ txn.amount }} ({{ txn.currency }})</td>
+            <td>{{ txn.amount | currency }} ({{ txn.currency }})</td>
             <td>{{ txn.accountId }}</td>
             <td>{{ txn.description }}</td>
             <td ng-show="includeTags"><md-chips ng-model="txn.tags" ng-change="save()"></md-chips></td>

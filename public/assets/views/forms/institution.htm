@@ -4,7 +4,7 @@
     <form ng-submit="save()">
         <label>Name: <input type="text" ng-model="institution.name" /></label>
         <label>Description: <input type="text" ng-model="institution.description" /></label>
-        <label>Mapping: <plus ng-click="addMapping()">+</plus></label>
+        <label>Mapping: <add ng-click="addMapping()">+</add></label>
         <ul>
             <li ng-repeat="mapping in institution.mappings">
                 <mapping class="slide-down" ng-show="mapping._visible || false">
