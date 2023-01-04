@@ -6,7 +6,13 @@
     <p>Routing: <span>{{ account.routing }}</span></p>
     <p>Interest Rate: <span>{{ account.interestRate }} ( {{ account.interestStrategy }} )</span></p>
     <p>{{ account.description }}</p>
-    <yaba-transaction-list transactions="account.transactions" class="dropable detail" include-tags paginated editable></yaba-transaction-list>
+    <yaba-transaction-list
+      transactions="account.transactions"
+      class="dropable detail"
+      include-tags
+      show-daterange
+      show-pagination
+      editable></yaba-transaction-list>
 
     <div class="errors">{{ error }}</div>
 </div>

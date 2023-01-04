@@ -65,6 +65,7 @@ body {
 .item-list-wrapper {
     width: auto;
     display: inline-block;
+    max-width: 1024px;
 }
 
 .item-list-wrapper h1 {
@@ -347,3 +348,39 @@ mapping {
 .slide-down.ng-hide { opacity: 0; height: 0; opacity: 0; }
 .slide-dwon.ng-show { opacity: 1; height: 135px; opacity: 1; }
 
+nav {
+    display: block;
+    text-align: right;
+}
+.pagination {
+    display: inline-block;
+    cursor: pointer;
+}
+.pagination li {
+    display: inline-block;
+    font-weight: bold;
+}
+.pagination li.page-item {
+    border: 1px solid #0f3079;
+    border-radius: 5px;
+    display: inline-block;
+    line-height: 20px;
+    font-size: 20px;
+    text-align: center;
+    vertical-align: middle;
+    width: 34px;
+    height: 28px;
+    margin: 2px;
+    padding: 5px 1px 1px 1px;
+}
+.pagination .active {
+    background-color: #789d12;
+    color: #195281;
+    font-size: 22px;
+}
+.pagination .disabled {
+    color: #630909;
+    font-size: 12px;
+    font-style: italic;
+    cursor: pointer;
+}

@@ -1,3 +1,4 @@
+const DEBUG=true;
 /* /assets/js/init.js */
 (function() {
     function telescope(path='') {
@@ -8,8 +9,14 @@
     }
     Object.prototype.telescope = telescope;
     Date.prototype.toISOShortDate = function toISOShortDate() {
-        return [this.getFullYear(), this.getMonth()+1, this.getDate()].join('-')
+        let yyyy = this.getFullYear(),
+          mm = ('0' + (this.getMonth()+1)).slice(-2),
+          dd = ( '0' + this.getDate()).slice(-2);
+        return [yyyy, mm, dd] .join('-')
     };
+    Math.parseCurrency = (value) => {
+        return Number(value.replace(/[^0-9\.-]+/g, '') );
+    }
 })();
 /**
  * App Initialization Models for setting up and configuring AngularJS.
@@ -37,7 +44,7 @@ var Yaba = (function(Yaba) {
      * Providing this function to AngularJS to configure the service providers to setup the
      * navigation and router.
      */
-    function pageConfig($locationProvider, $routeProvider) {
+    function pageConfig($locationProvider, $routeProvider, $mdDateLocaleProvider) {
         $locationProvider.html5Mode(true);
         pages.forEach((page) => {
             var whence = page == 'account'? `/${page}/:accountId`: `/${page}`;
@@ -45,8 +52,14 @@ var Yaba = (function(Yaba) {
         })
         $routeProvider.when('/', { templateUrl: `/assets/views/home.htm` });
         $routeProvider.otherwise({ template: '<h1>404</h1><p>Page not found!</p><br />Route: {{ $route }}' });
+        $mdDateLocaleProvider.dateFormat = (d) => {
+            if ( typeof d == 'string' ) {
+                d = new Date(d);
+            }
+            return d.toISOShortDate();
+        };
     }
-    pageConfig.$inject = ['$locationProvider', '$routeProvider'];
+    pageConfig.$inject = ['$locationProvider', '$routeProvider', '$mdDateLocaleProvider'];
     Yaba.app.config(pageConfig);
 
     /**

@@ -39,7 +39,7 @@
             templateUrl: '/assets/views/tables/transactions.htm',
             controller: 'yabaTransactionListCtrl',
             scope: {
-                'transactions': '='
+                _transactions: '=transactions'
             },
             restrict: 'E'
         };
@@ -52,7 +52,7 @@
         $scope.add = function add() {
             this.wishlist.push({
                 amount: this.amount,
-                datePurchase: this.datePurchase,
+                datePurchase: new Date(this.datePurchase),
                 description: this.description
             });
         };
@@ -150,8 +150,24 @@
     Yaba.app.directive('yabaDaterange', () => {
         return {
             templateUrl: '/assets/views/daterange.htm',
-            restrict: 'E'
+            restrict: 'E',
+            scope: {
+                fromDate: '=',
+                toDate: '='
+            }
         }
     });
 
+    Yaba.app.directive('yabaPagination', () => {
+        return {
+            templateUrl: '/assets/views/pagination.htm',
+            restrict: 'E',
+            controller: 'yabaPagination',
+            scope: {
+                'itemCount': '=',
+                'itemsPerPage': '=',
+                'offset': '='
+            }
+        }
+    })
 })(Yaba);

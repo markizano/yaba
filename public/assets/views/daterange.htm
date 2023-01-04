@@ -3,12 +3,18 @@
       <div flex-gt-xs>
         <md-datepicker ng-model="fromDate"
             md-placeholder="From date"
+            default-date="fromDate"
+            ng-change="$emit('date.change', this)"
+            datepicker-popup="yyyy-MM-dd"
             input-aria-describedby="datepicker-description"
             input-aria-labelledby="datepicker-header ">
         </md-datepicker>
         &nbsp;
         <md-datepicker ng-model="toDate"
             md-placeholder="To date"
+            default-date="toDate"
+            datepicker-popup="yyyy-MM-dd"
+            ng-change="$emit('date.change', this)"
             input-aria-describedby="datepicker-description"
             input-aria-labelledby="datepicker-header ">
         </md-datepicker>

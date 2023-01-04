@@ -4,6 +4,7 @@
     <controls>
         <yaba-daterange ng-model="dateRange"></yaba-daterange>
         Account: <select ng-model="accountName" ng-options="account.name for account in accounts"></select>
+        Budgets: <select multiple ng-model="budgets" ng-options="budget in transactionBudgets"></select>
     </controls>
     <div id="mychart" style="width: 80%; height: 800px"></div>
 </div>

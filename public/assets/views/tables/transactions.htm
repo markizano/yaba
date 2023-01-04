@@ -1,23 +1,22 @@
 <filters>
-    <yaba-daterange ng-if="daterange" from-date="fromDate" to-date="toDate" />
-    <label ng-if="accounts">Account: <select multiple="1" ng-options="(account.id, account.name) for account in accounts"></select></label>
+    <h3>Filters</h3>
+    <yaba-daterange ng-show="showDaterange" from-date="fromDate" to-date="toDate"></yaba-daterange>
+    <label ng-show="showAccounts">
+        Account: <select ng-model="account" multiple="1" ng-options="account.name for account in accounts track by account.id"></select>
+    </label>
+    <yaba-pagination ng-show="showPagination" item-count="transactions.length" items-per-page="itemsPerPage" offset="offset"></yaba-pagination>
 </filters>
-<pagination />
 <table class="data item-list">
     <thead ng-show="withHeader">
-        <th ng-click="sortBy('datePending');">Date Pending</th>
         <th ng-click="sortBy('datePosted');">Date Posted</th>
         <th ng-click="sortBy('amount');">Amount</th>
-        <th ng-click="sortBy('accountId');">Account ID</th>
         <th ng-click="sortBy('description');">Description</th>
         <th ng-show="includeTags">Tags</th>
     </thead>
     <tbody>
-        <tr ng-repeat="txn in transactions | orderBy:sortColumn | limitTo:limit track by txn.id">
-            <td>{{ txn.datePending | date:'yyyy-MM-dd' }}</td>
+        <tr ng-repeat="txn in transactions | orderBy:sortColumn | limitTo:itemsPerPage:offset track by txn.id">
             <td>{{ txn.datePosted | date:'yyyy-MM-dd' }}</td>
             <td>{{ txn.amount | currency }} ({{ txn.currency }})</td>
-            <td>{{ txn.accountId }}</td>
             <td>{{ txn.description }}</td>
             <td ng-show="includeTags"><md-chips ng-model="txn.tags" ng-change="save()"></md-chips></td>
         </tr>
