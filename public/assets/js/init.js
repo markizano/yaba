@@ -1,5 +1,5 @@
 const DEBUG=true;
-/* /assets/js/init.js */
+/* These methods are extensions of built-ins we wish to append functionality. */
 (function() {
     function telescope(path='') {
         function index(parent, searchKey) {
@@ -18,6 +18,7 @@ const DEBUG=true;
         return Number(value.replace(/[^0-9\.-]+/g, '') );
     }
 })();
+
 /**
  * App Initialization Models for setting up and configuring AngularJS.
  * This is the first time we use it, so it'll be the first time we define it.

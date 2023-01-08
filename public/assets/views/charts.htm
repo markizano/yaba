@@ -2,9 +2,12 @@
     <h1>Charts</h1>
     <p>Charts help us visualize our data to observe trends over time.</p>
     <controls>
-        <yaba-daterange ng-model="dateRange"></yaba-daterange>
-        Account: <select ng-model="accountName" ng-options="account.name for account in accounts"></select>
-        Budgets: <select multiple ng-model="budgets" ng-options="budget in transactionBudgets"></select>
-    </controls>
-    <div id="mychart" style="width: 80%; height: 800px"></div>
+        <yaba-daterange from-date="fromDate" to-date="toDate"></yaba-daterange>
+        Account: <select multiple ng-model="selectedAccounts" ng-options="account.name for account in accounts"></select>
+        Budgets: <select multiple ng-model="txnTags" ng-options="budget for budget in transactionBudgets"></select>
+    </controls><br clear="all" />
+    Transactions: <p>{{ transactions.length }}</p><br />
+    Selected Budgets: <p ng-bind="txnTags"></p><br />
+    Calculated budgets: <data-table ng-repeat="budget in myBudgets"><p>"{{ budget.join('", "') }}"</p><br /></data-table>
+    <google-chart id="mychart" style="width: 80%; height: 800px"></google-chart>
 </div>

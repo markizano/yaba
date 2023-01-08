@@ -8,6 +8,7 @@
      * @property {number} ms30days 30 days in milliseconds
      */
     const ms30days = 2592000000; // 1000ms * 60s * 60m * 24h * 30d
+    const ms90days = 7776000000; // 1000ms * 60s * 60m * 24h * 90d
 
     /**
      * @property {Number} animationDelay How long the CSS is configured to animate stuff (in MS).
@@ -45,7 +46,7 @@
             }
             institutions.save($scope);
         };
-        $scope.$on('csvParsed', Yaba.models.Institutions.csvHandler($scope));
+        $scope.$on('csvParsed', Yaba.models.Institutions.csvHandler($scope, $timeout));
     }
     institutions.$inject = ['$scope', '$timeout', 'institutions'];
     Yaba.app.controller('institutions', institutions);
@@ -116,20 +117,76 @@
      * Charts and Graphs of Budgets created.
      */
     function charts($scope, accounts) {
-        $scope.transactions = [];
+        $scope.transactions = new Yaba.models.Transactions();
+        $scope.selectedAccounts = new Yaba.models.Accounts();
+        $scope.fromDate = new Date(new Date() - (ms90days * 8));
+        $scope.toDate = new Date();
+        $scope.accounts = accounts;
         $scope.transactionBudgets = [];
-        accounts.forEach(account => {
-            account.transactions.forEach(txn => {
-                $scope.transactions.push(txn);
-                txn.tags.forEach(tag => {
-                    if ( $scope.transactionBudgets.hasOwnProperty(tag) ) {
-                        $scope.transactionBudgets[tag] += txn.amount;
-                    } else {
-                        $scope.transactionBudgets[tag] = txn.amount;
-                    }
+        $scope.txnTags = [];
+
+        $scope.rebalance = () => {
+            transactionBudgets();
+            $scope.transactions.clear();
+            let selectedAccounts = accounts.selected($scope.selectedAccounts);
+            selectedAccounts.forEach(account => {
+                $scope.transactions.push(...account.transactions
+                    .daterange($scope.fromDate, $scope.toDate)
+                    .byTags($scope.txnTags)
+                );
+            });
+        };
+
+        const transactionBudgets = () => {
+            $scope.transactionBudgets.length = 0;
+            accounts.selected($scope.selectedAccounts).forEach(account => {
+                account.transactions.daterange($scope.fromDate, $scope.toDate).forEach(txn => {
+                    txn.tags.forEach(tag => {
+                        if ( !$scope.transactionBudgets.includes(tag) ) {
+                            $scope.transactionBudgets.push(tag);
+                        }
+                    });
                 });
             });
-        });
+            return $scope.transactionBudgets;
+        };
+
+        $scope.rebalance();
+        $scope.$watch('fromDate', () => $scope.rebalance());
+        $scope.$watch('toDate', () => $scope.rebalance());
+        $scope.$watchCollection('txnTags', () => $scope.rebalance());
+        $scope.$watchCollection('selectedAccounts', () => $scope.rebalance());
+
+        $scope.budgets = () => {
+            var results = [ ['Date'].concat($scope.txnTags) ];
+            $scope.transactions.forEach((transaction) => {
+                let dataPoint = [transaction.datePosted];
+                for ( let i = 0; i < $scope.txnTags.length; i++ ) {
+                    if ( transaction.tags.includes($scope.txnTags[i]) ) {
+                        dataPoint.push(transaction.amount);
+                    } else {
+                        dataPoint.push(0);
+                    }
+                }
+                results.push(dataPoint);
+            });
+            return results;
+        }
+
+        Yaba.debug = $scope;
+
+        // meterReads = JSON.parse(meterReads);
+        // var data = new google.visualization.DataTable();
+        // data.addColumn('number', 'Date');
+        // data.addColumn('number', 'Amount');
+        // meterReads['value'].unshift(['Date', 'Reading'])
+        // var data = google.visualization.arrayToDataTable(meterReads.value);
+        // var options = {
+        //     title: 'Budget Spending',
+        //     legend: { position: 'bottom' }
+        // };
+        // var chart = new google.visualization.LineChart($element);
+        // chart.draw(data, options);
     }
     charts.$inject = ['$scope', 'accounts'];
     Yaba.app.controller('charts', charts);
@@ -330,12 +387,13 @@
         $scope.showAccounts     = $attrs.hasOwnProperty('showAccounts');
         $scope.showDaterange    = $attrs.hasOwnProperty('showDaterange');
         $scope.showPagination   = $attrs.hasOwnProperty('showPagination');
+        $scope.editable         = $attrs.hasOwnProperty('editable');
 
         $scope.sortColumn = 'datePosted';
         $scope.itemsPerPage = $attrs.limit || ($scope.showPagination? 10: 999);
         $scope.offset = 0;
-        $scope.fromDate = new Date((new Date()) - ms30days);
-        $scope.toDate = new Date();
+        $scope.fromDate = $scope.fromDate || new Date((new Date()) - ms90days);
+        $scope.toDate = $scope.toDate || new Date();
 
         $scope.transactions = $scope.showDaterange?
           $scope._transactions.daterange($scope.fromDate, $scope.toDate)

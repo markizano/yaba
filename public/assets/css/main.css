@@ -160,10 +160,14 @@ table.data thead {
 }
 table.data td {
     padding: 2px 5px 2px 5px;
+    overflow: auto;
     /* min-width: 100px; */
 }
 table.data tr:nth-child(odd) {
     background-color: #f1f1f1;
+}
+table.data th:first-child {
+    min-width: 120px;
 }
 
 
@@ -327,14 +331,6 @@ pre {
 }
 .right { display: block; float: right; }
 
-.ng-fade {
-    transition: all ease-in-out 400ms;
-    opacity: 1;
-}
-.ng-fade.ng-hide {
-    opacity: 0;
-    transition: none 0;
-}
 
 mapping {
     border: 1px solid #999;
@@ -344,9 +340,15 @@ mapping {
     line-height: 20px;
     height: 135px;
 }
+
+.ng-fade { transition: all ease-in-out 400ms; }
+.ng-fade.ng-hide { opacity: 0; }
+.ng-fade.ng-hide { opacity: 1; }
+
 .slide-down { transition: all 400ms ease-in-out; }
 .slide-down.ng-hide { opacity: 0; height: 0; opacity: 0; }
 .slide-dwon.ng-show { opacity: 1; height: 135px; opacity: 1; }
+
 
 nav {
     display: block;
@@ -383,4 +385,16 @@ nav {
     font-size: 12px;
     font-style: italic;
     cursor: pointer;
+}
+
+.txn-edit-field {
+    width: 100%;
+    height: 28px;
+    background-color: #c4c4c4;
+}
+google-chart {
+    display: block;
+    min-width: 800px;
+    min-height: 600px;
+    border: 1px solid black;
 }

@@ -5,8 +5,8 @@
         <th ng-click="sortBy('description');">Description</th>
     </thead>
     <tbody>
-        <tr ng-repeat="txn in wishlist | orderBy:sortColumn">
-            <td> {{ txn.datePurchase }}&nbsp;</td>
+        <tr ng-repeat="txn in wishlist | orderBy:sortColumn" class="slide-down">
+            <td> {{ txn.datePurchase | date:'yyyy-MM-dd' }}&nbsp;</td>
             <td> {{ txn.amount | currency }}&nbsp;</td>
             <td> {{ txn.description }}&nbsp;</td>
         </tr>

@@ -77,11 +77,8 @@
      * handle dragging a file into the element.
      */
     function filedrop($scope, $element, $attr) {
-        let institutionId, accountId;
-        if ($scope.account) {
-            institutionId = $scope.account.institutionId || '';
-            accountId = $scope.account.id || '';
-        }
+        const institutionId = $scope.account.institutionId;
+        const accountId = $scope.account.id;
         function highlight(event) {
             if ( event ) {
                 event.preventDefault();
@@ -169,5 +166,29 @@
                 'offset': '='
             }
         }
-    })
+    });
+
+    /**
+     * txn-edit/Transaction Editor: Enable the ability to edit a field given this as an attribute.
+     * Requires 2 children elements: view and edit as HTML child objects to the holder of this attribute.
+     * The 0th element will be the view. It will bind to the desired ng-model connected to this control.
+     * The 1st element will be the edit input where we accept user input as per the field data type this
+     *   element controls.
+     * This will attach an `actively-editing` class to the elements when they are currently being edited.
+     * This allows for custom controlling the way it would be rendered with CSS and transitions.
+     */
+    Yaba.app.directive('txnEdit', ($timeout) => {
+        return {
+            require: 'ngModel',
+            restrict: 'A',
+            link: Yaba.models.Transactions.txnTable($timeout)
+        }
+    });
+
+    Yaba.app.directive('googleChart', () => {
+        return {
+            restrict: 'E',
+            link: Yaba.models.Transactions.dataChart
+        }
+    });
 })(Yaba);

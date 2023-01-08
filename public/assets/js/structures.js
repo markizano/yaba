@@ -47,6 +47,11 @@
     }
 
     class Storables extends Array {
+
+        clear() {
+            this.length = 0;
+        }
+
         store() {
 
               localStorage.setItem(this.constructor.name.toLowerCase(), this.toString());
@@ -394,7 +399,7 @@
             return super.unshift(...items);
         }
 
-        static csvHandler($scope) {
+        static csvHandler($scope, $timeout) {
             return ($event, results) => {
                 // only get back the headers from the CSV file.
                 var headers = Object.keys(results.parsedCSV.data.shift());
@@ -438,6 +443,12 @@
                 item instanceof Account || (items[i] = new Account(item));
             }
             return super.unshift(...items);
+        }
+
+        selected(selectedAccounts) {
+            return this.filter(a => {
+                return selectedAccounts.includes(a);
+            });
         }
 
     }
@@ -538,11 +549,13 @@
         static digest(institution, accountId, transactions) {
             console.log('mapInstitution()', institution);
             var results = [];
-            institution.mappings.unshift({
-                mapType: 'static',
-                toField: 'accountId',
-                fromField: accountId
-            });
+            if ( institution.mappings.filter(i => i.toField == 'accountId').length == 0 ) {
+                institution.mappings.unshift({
+                    mapType: 'static',
+                    toField: 'accountId',
+                    fromField: accountId
+                });
+            }
             transactions.map((transaction) => {
                 var cannonical = {};
                 institution.mappings.map((mapping) => {
@@ -554,8 +567,8 @@
                             cannonical[mapping.toField] = transaction[mapping.fromField];
                             break;
                         default:
-                            throw new Exception(`Invalid mapType for institution ${institution.name} ` +
-                            `attached to account ${accountId} on transaction ${transaction.id}.`);
+                            throw new Error(`Invalid mapType(${mapping.mapType}) for institution "${institution.name}" ` +
+                            `attached to account "${accountId}" on transaction "${transaction.id}".`);
                     }
                 });
                 results.push( cannonical );
@@ -585,7 +598,127 @@
                 accounts.save($scope);
             };
         }
-    }
+
+        /**
+         * Linker function to join a transaction to the edit boxes we embed in a transaction listing.
+         */
+        static txnTable($timeout) {
+            return function($scope, $element, $attr, ngModel) {
+                // Store the name of the element we will use later in distinguishing events.
+                const fieldName = $attr.ngModel.replace('.', '-');
+                let events = {};
+                $scope.edit = {};
+                const clickEvent = ($event) => {
+                    if ( !$element.hasClass('active-editing') ) {
+                        const eventName = `yaba.edit2view-${fieldName}`;
+                        /**
+                         * For the onblur, onkeypress(Enter|Esc|Shift+Enter|Tab|Shift+Tab) events. This will let us
+                         * leave editing context and return to view context.
+                         * @param {Event} $$event JS Event object provided by AngularJS.
+                         * @param {jQuery.element} input Input element that will hold the value we will extract.
+                         * @param {Boolean} toSave TRUE if we should invoke the save event. FALSE if we are cancelling the edit.
+                         */
+                        events[eventName] = $scope.$on(eventName, ($$event, oldFieldValue=false) => {
+                            if ( $element.hasClass('active-editing') ) {
+                                $$event && $$event.preventDefault();
+                                $scope.edit[fieldName] = false;
+                                $element.removeClass('active-editing');
+                                if ( events.includes(eventName) ) {
+                                    events[eventName]();
+                                    delete events[eventName];
+                                }
+
+                                // If we are saving, then we are taking the value from the textbox as our input.
+                                // If we are not saving, meaning we are cancelling the edit, then we revert to the
+                                // ng-model="" value instead. We just use this method to ensure that it's decorated
+                                // the same no matter how we return to "view-mode".
+                                if ( oldFieldValue !== false ) {
+                                    console.log('cancel: ', oldFieldValue);
+                                    ngModel.$viewValue = oldFieldValue;
+                                }
+                                // $scope.$emit('save.accounts', this);
+                                // $scope.$off(eventName);
+                            } else {
+                                console.warn(`${eventName} called, but we are not actively-editing.`);
+                            }
+                        });
+
+                        const attachEvents = () => {
+                            console.log('delay: ', $element.children());
+                            const childSpan = $($element.children()[0]); // Get the containing <span /> element.
+                            const childInput = $(childSpan.children()[0]); // Get the actual <input /> as jQuery element.
+                            childInput.on('keydown', $$event => {
+                                switch($$event.which) {
+                                    case 27: // [ESC]
+                                        console.log(`fire keypress(key.Esc, ${eventName})`);
+                                        $scope.$emit(eventName, $$event, fieldValue)
+                                        break;
+                                    case 13: // [Enter]
+                                        console.log(`fire keypress(key.Enter, ${eventName})`);
+                                        $scope.$emit(eventName, $$event)
+                                        break;
+                                }
+                            }).focus();
+                        };
+
+                        const fieldValue = ngModel.$viewValue;
+                        $event && $event.preventDefault();
+                        $scope.edit[fieldName] = true;
+                        $element.addClass('active-editing');
+                        $scope.edit2view = ($$event) => {
+                            console.log('edit2view()', $$event);
+                        }
+
+                        /**
+                         * We have to call $timeout() here to ensure we've given the animations
+                         * enough time to render the next components we are going to edit here.
+                         */
+                         $timeout(attachEvents, 10);
+
+                        $scope.$apply();
+                    } else { // if ( !$element.hasClass('active-editing') )
+                        console.warn('click() called but we already hasClass(active-editing)');
+                    }
+                }; // clickEvent($event){}
+                $scope.$parent.editable && $element.on('click', clickEvent);
+            } // link($scope, $element, $attr, ngModel);
+        } // static txnTable();
+
+        static dataChart($scope, $element, $attr) {
+            const that = this;
+            this.getChart = () => {
+                if ( !this._chart ) {
+                    this._chart = new google.visualization.LineChart($element[0]);
+                }
+                return this._chart;
+            };
+
+            google.charts.load(
+                'current',
+                {
+                    'packages': ['corechart'],
+                    callback: () => {
+                        $scope.$watchCollection('transactions', () => {
+                            const dataTable = new google.visualization.DataTable();
+                            dataTable.addColumn({type: 'date', label: 'Date', pattern: 'yyyy-MM-dd'});
+                            $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
+                            $scope.myBudgets = $scope.budgets(); // DEBUGGING
+                            console.log($scope.myBudgets);
+                            dataTable.addRows($scope.myBudgets.slice(1));
+                            console.log(dataTable);
+                            var options = {
+                                title: 'Budget Spending',
+                                legend: { position: 'bottom' }
+                            };
+                            const chart = that.getChart();
+                            chart.draw(dataTable, options);
+                        });
+                    }
+                }
+            );
+        }
+
+    } // class Transactions() {}
 
     /**
      * @property {string} TransactionFields
