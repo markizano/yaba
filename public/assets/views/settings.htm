@@ -14,26 +14,43 @@
             </select>
         </md-list-item>
         <md-list-item>
-            Tell me your income tags: <md-chips ng-model="settings.incomeTags" ng-change="settings.save()"></md-chips>
-            <span class="helper">Income tags will tell this app how to treat things you deem as income per defined pay period as defined above.</span>
+            <label for="settings.incomeTags">Tell me your income tags: </label>
+            <md-chips ng-model="settings.incomeTags" ng-change="settings.save()"></md-chips>
+            <span class="helper">
+                Income tags will tell this app how to treat things you deem as income per defined
+                pay period as defined above.
+            </span>
         </md-list-item>
         <md-list-item>
-            Tell me your expense tags: <md-chips ng-model="settings.expenseTags" ng-change="settings.save()"></md-chips>
-            <span class="helper">Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses.</span>
+            <label>Tell me your expense tags: </label>
+            <md-chips ng-model="settings.expenseTags" ng-change="settings.save()"></md-chips>
+            <span class="helper">
+                Expense tags will tell me how to handle things that are bills.
+                This is best suited for recurring expenses rather than 1-time expenses.
+            </span>
         </md-list-item>
         <md-list-item>
-            What is your transfer tag?: <md-chips ng-model="settings.transferTags" ng-change="settings.save()"></md-chips>
-            <span class="helper">Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions.</span>
+            <label>What is your transfer tag?: </label>
+            <md-chips ng-model="settings.transferTags" ng-change="settings.save()"></md-chips>
+            <span class="helper">
+                Tags with this transfer will be marked as such and I will attempt
+                to marry them to matching transactions.
+            </span>
         </md-list-item>
         <md-list-item>
-            What is your hide tag?: <md-chips ng-model="settings.hideTags" ng-change="settings.save()"></md-chips>
+            <label> is your hide tag?: </label><md-chips ng-model="settings.hideTags" ng-change="settings.save()"></md-chips>
             <span class="helper">These transactions will be hidden from view and removed from calculations.</span>
         </md-list-item>
         <md-list-item>
-            Export all data to CSV: <button ng-click="export2csv()">[Export]</button>
+            <label>Export all data to a set of CSV files in ZIP format: </label><button ng-click="export2zip()">[Export]</button>
         </md-list-item>
         <md-list-item>
-            Delete all data: <button ng-click="deleteAll()">DELETE</button><br />
+            <label>Import a previous export: </label>
+            <button ng-click="import4zip()">[IMPORT]</button>
+        </md-list-item>
+        <md-list-item>
+            <label>Delete all data: </label>
+            <button ng-click="deleteAll()">DELETE</button><br />
             <p class="warning">NOTE: This will delete ALL the data!!!</p>
         </md-list-item>
     </md-list>

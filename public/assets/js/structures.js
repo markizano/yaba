@@ -618,12 +618,13 @@
                          * @param {jQuery.element} input Input element that will hold the value we will extract.
                          * @param {Boolean} toSave TRUE if we should invoke the save event. FALSE if we are cancelling the edit.
                          */
-                        events[eventName] = $scope.$on(eventName, ($$event, oldFieldValue=false) => {
+                        events[eventName] = $scope.$on(eventName, ($$event, jqEvent, oldFieldValue=false) => {
                             if ( $element.hasClass('active-editing') ) {
                                 $$event && $$event.preventDefault();
-                                $scope.edit[fieldName] = false;
+                                jqEvent && jqEvent.preventDefault();
+                                console.log(`Setting edit[${fieldName}] to false.`);
                                 $element.removeClass('active-editing');
-                                if ( events.includes(eventName) ) {
+                                if ( eventName in events ) {
                                     events[eventName]();
                                     delete events[eventName];
                                 }
@@ -633,30 +634,35 @@
                                 // ng-model="" value instead. We just use this method to ensure that it's decorated
                                 // the same no matter how we return to "view-mode".
                                 if ( oldFieldValue !== false ) {
-                                    console.log('cancel: ', oldFieldValue);
-                                    ngModel.$viewValue = oldFieldValue;
+                                    ngModel.$$ngModelSet($scope, oldFieldValue);
                                 }
+                                $scope.edit[fieldName] = false;
                                 // $scope.$emit('save.accounts', this);
-                                // $scope.$off(eventName);
+                                console.log({$$event, jqEvent, oldFieldValue});
+                                if ( jqEvent.type && jqEvent.type == 'keydown' ) {
+                                    $scope.$apply();
+                                }
                             } else {
                                 console.warn(`${eventName} called, but we are not actively-editing.`);
                             }
                         });
 
                         const attachEvents = () => {
-                            console.log('delay: ', $element.children());
+                            console.log('<input>: ', $($element).find('input'));
                             const childSpan = $($element.children()[0]); // Get the containing <span /> element.
                             const childInput = $(childSpan.children()[0]); // Get the actual <input /> as jQuery element.
                             childInput.on('keydown', $$event => {
+                                $$event.element = childInput;
+                                $$event.keypress = true;
                                 switch($$event.which) {
                                     case 27: // [ESC]
                                         console.log(`fire keypress(key.Esc, ${eventName})`);
                                         $scope.$emit(eventName, $$event, fieldValue)
-                                        break;
+                                        return;
                                     case 13: // [Enter]
                                         console.log(`fire keypress(key.Enter, ${eventName})`);
                                         $scope.$emit(eventName, $$event)
-                                        break;
+                                        return;
                                 }
                             }).focus();
                         };
@@ -665,9 +671,6 @@
                         $event && $event.preventDefault();
                         $scope.edit[fieldName] = true;
                         $element.addClass('active-editing');
-                        $scope.edit2view = ($$event) => {
-                            console.log('edit2view()', $$event);
-                        }
 
                         /**
                          * We have to call $timeout() here to ensure we've given the animations
@@ -685,34 +688,49 @@
         } // static txnTable();
 
         static dataChart($scope, $element, $attr) {
-            const that = this;
-            this.getChart = () => {
-                if ( !this._chart ) {
-                    this._chart = new google.visualization.LineChart($element[0]);
-                }
-                return this._chart;
-            };
-
             google.charts.load(
-                'current',
-                {
+                'current', {
                     'packages': ['corechart'],
                     callback: () => {
-                        $scope.$watchCollection('transactions', () => {
-                            const dataTable = new google.visualization.DataTable();
-                            dataTable.addColumn({type: 'date', label: 'Date', pattern: 'yyyy-MM-dd'});
-                            $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
-                            $scope.myBudgets = $scope.budgets(); // DEBUGGING
-                            console.log($scope.myBudgets);
-                            dataTable.addRows($scope.myBudgets.slice(1));
-                            console.log(dataTable);
-                            var options = {
-                                title: 'Budget Spending',
-                                legend: { position: 'bottom' }
-                            };
-                            const chart = that.getChart();
-                            chart.draw(dataTable, options);
-                        });
+                        if ( $attr.id == 'budgets' ) {
+                            return $scope.$watchCollection('transactions', () => {
+                                const dataTable = new google.visualization.DataTable();
+                                dataTable.addColumn({type: 'date', label: 'Date', pattern: 'yyyy-MM-dd'});
+                                $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
+                                $scope.myBudgets = $scope.budgets(); // DEBUG
+                                if ( $scope.myBudgets.length <= 1 ) {
+                                    console.log('No budgets.');
+                                    return;
+                                }
+                                dataTable.addRows($scope.myBudgets.slice(1));
+                                var options = {
+                                    title: 'Budget Spending',
+                                    legend: { position: 'bottom' }
+                                };
+                                const chart = new google.visualization.LineChart($element[0]);
+                                chart.draw(dataTable, options);
+                            });
+                        }
+                        if ( $attr.id == 'example' ) {
+                            function drawExample() {
+                                var data = google.visualization.arrayToDataTable([
+                                    ['Year', 'Sales', 'Expenses'],
+                                    ['2004',  1000,      400],
+                                    ['2005',  1170,      460],
+                                    ['2006',  660,       1120],
+                                    ['2007',  1030,      540]
+                                ]);
+                                var options = {
+                                    title: 'Company Performance',
+                                    curveType: 'function',
+                                    legend: { position: 'bottom' }
+                                };
+                                console.log(data);
+                                var chart = new google.visualization.LineChart($element[0]);
+                                return chart.draw(data, options);
+                            }
+                            return drawExample();
+                        }
                     }
                 }
             );

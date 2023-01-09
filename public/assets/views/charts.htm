@@ -9,5 +9,6 @@
     Transactions: <p>{{ transactions.length }}</p><br />
     Selected Budgets: <p ng-bind="txnTags"></p><br />
     Calculated budgets: <data-table ng-repeat="budget in myBudgets"><p>"{{ budget.join('", "') }}"</p><br /></data-table>
-    <google-chart id="mychart" style="width: 80%; height: 800px"></google-chart>
+    <google-chart id="budgets" style="width: 80%; height: 800px"></google-chart>
+    <google-chart id="example"></google-chart>
 </div>

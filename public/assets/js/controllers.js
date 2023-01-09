@@ -100,12 +100,11 @@
      */
     function budget($scope, accounts) {
         console.log('Budget controller');
-        $scope.startDate = new Date( Date.now() - ms30days );
-        $scope.endDate = new Date();
-        $scope.budgets = [];
-        $scope.accounts = accounts;
-        $scope.transactions = new Yaba.models.Transactions();
-        $scope.transactions.sort = 'datePosted';
+        $scope.startDate || ($scope.startDate = new Date( Date.now() - ms30days ));
+        $scope.endDate || ($scope.endDate = new Date());
+        $scope.budgets || ($scope.budgets = []);
+        $scope.accounts || ($scope.accounts = accounts);
+        $scope.transactions || ($scope.transactions = new Yaba.models.Transactions());
         accounts.forEach(account => {
             $scope.transactions.push(...account.transactions);
         });
@@ -165,7 +164,7 @@
                     if ( transaction.tags.includes($scope.txnTags[i]) ) {
                         dataPoint.push(transaction.amount);
                     } else {
-                        dataPoint.push(0);
+                        dataPoint.push(null);
                     }
                 }
                 results.push(dataPoint);
@@ -173,20 +172,8 @@
             return results;
         }
 
+        // DEBUG
         Yaba.debug = $scope;
-
-        // meterReads = JSON.parse(meterReads);
-        // var data = new google.visualization.DataTable();
-        // data.addColumn('number', 'Date');
-        // data.addColumn('number', 'Amount');
-        // meterReads['value'].unshift(['Date', 'Reading'])
-        // var data = google.visualization.arrayToDataTable(meterReads.value);
-        // var options = {
-        //     title: 'Budget Spending',
-        //     legend: { position: 'bottom' }
-        // };
-        // var chart = new google.visualization.LineChart($element);
-        // chart.draw(data, options);
     }
     charts.$inject = ['$scope', 'accounts'];
     Yaba.app.controller('charts', charts);
@@ -389,9 +376,11 @@
         $scope.showPagination   = $attrs.hasOwnProperty('showPagination');
         $scope.editable         = $attrs.hasOwnProperty('editable');
 
-        $scope.sortColumn = 'datePosted';
-        $scope.itemsPerPage = $attrs.limit || ($scope.showPagination? 10: 999);
-        $scope.offset = 0;
+        if ( ! $scope.sort ) {
+            $scope.sort = { column: 'datePosted', asc: true };
+        }
+        $scope.itemsPerPage || ($scope.itemsPerPage = $attrs.limit || ($scope.showPagination? 10: 999));
+        $scope.offset || ($scope.offset = 0);
         $scope.fromDate = $scope.fromDate || new Date((new Date()) - ms90days);
         $scope.toDate = $scope.toDate || new Date();
 
@@ -400,7 +389,8 @@
           : $scope._transactions;
 
         $scope.sortBy = (field) => {
-            $scope.sortColumn = field;
+            $scope.sort.asc = $scope.sort.column == field? !$scope.sort.asc: true;
+            $scope.sort.column = field;
         };
 
         $scope.save = () => {

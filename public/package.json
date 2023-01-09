@@ -30,6 +30,7 @@
     "angular-route": "^1.8.2",
     "jquery": "^3.6.3",
     "jquery-ui": "^1.13.2",
+    "jszip": "^3.10.1",
     "papaparse": "^5.3.2"
   }
 }
