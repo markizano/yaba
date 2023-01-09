@@ -62,10 +62,9 @@
 
     
     class JSONable extends Storable {
-        constructor(keys, child=undefined) {
+        constructor(keys) {
             super();
             this._keys = Object.freeze(keys);
-            this._class = child;
         }
 
         /**
@@ -399,6 +398,29 @@
             return super.unshift(...items);
         }
 
+        /**
+         * Produce a CSV result of the contents of this object.
+         * @returns {String}
+         */
+        toCSV(jszip) {
+            if ( this.length == 0 ) {
+                return jszip;
+            }
+            let institutionZIP = ['"institutionId","Name","Description"'];
+            let mappingZIP = ['"institutionId","fromField","toField","mapType"'];
+            this.map(institution => {
+                let iFields = [institution.id, institution.name, institution.description];
+                institutionZIP.push(`"${iFields.join('","')}"`);
+                institution.mappings.map(mapping => {
+                    let mFields = [institution.id, mapping.fromField, mapping.toField, mapping.mapType];
+                    mappingZIP.push(`"${mFields.join('","')}"`);
+                });
+            });
+            jszip.file('institutions.csv', institutionZIP.join("\n"));
+            jszip.file('institution-mappings.csv', mappingZIP.join("\n"));
+            return jszip;
+        }
+
         static csvHandler($scope, $timeout) {
             return ($event, results) => {
                 // only get back the headers from the CSV file.
@@ -451,6 +473,35 @@
             });
         }
 
+        /**
+         * Produce a CSV result of the contents of this object.
+         * @returns {String}
+         */
+        toCSV(jszip) {
+            if ( this.length == 0 ) {
+                return jszip;
+            }
+            let accountsZIP = ['"accountId","institutionId","Name","Description"' +
+              ',"accountType","number","routing","interestRate","interestStrategy"'];
+            this.map(account => {
+                let aFields = [
+                    account.id,
+                    account.institutionId,
+                    account.name,
+                    account.description,
+                    account.accountType,
+                    account.number,
+                    account.routing,
+                    account.interestRate,
+                    account.interestStrategy
+                ];
+                accountsZIP.push(`"${aFields.join('","')}"`);
+                jszip.file(`transactions_${account.id}.csv`, account.transactions.toCSV());
+            });
+            jszip.file('accounts.csv', accountsZIP.join("\n"));
+            return jszip;
+        }
+
     }
 
     class Transactions extends JSONables {
@@ -469,6 +520,34 @@
                 item instanceof Transaction || (items[i] = new Transaction(item));
             }
             return super.unshift(...items);
+        }
+
+        /**
+         * Produce a CSV result of the contents of this object.
+         * @returns {String}
+         */
+        toCSV() {
+            if ( this.length == 0 ) {
+                return '';
+            }
+            let transactionsZIP = ['"transactionId","accountId","description","datePending","datePosted"' +
+                ',"transactionType","amount","tax","currency","merchant","tags"'];
+            this.map(transaction => {
+                let tFields = [
+                    transaction.id,
+                    transaction.accountId,
+                    transaction.datePending.toISOShortDate(),
+                    transaction.datePosted.toISOShortDate(),
+                    transaction.transactionType,
+                    transaction.amount,
+                    transaction.tax,
+                    transaction.currency,
+                    transaction.merchant,
+                    transaction.tags.join("|")
+                ];
+                transactionsZIP.push(`"${tFields.join('","')}"`);
+            });
+            return transactionsZIP.join("\n");
         }
 
         /**

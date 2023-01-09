@@ -217,15 +217,33 @@
     /**
      * Edit/Manage App Settings.
      */
-    function settings($scope, Settings) {
+    function settings($scope, institutions, accounts, Settings) {
         $scope.settings = Settings;
         $scope.settings.load();
+
         $scope.deleteAll = () => {
             localStorage.clear();
             $scope.$emit('notify', 'Cleared ALL local data.');
         }
+
+        $scope.export2zip = () => {
+            let exportZIP = new JSZip();
+            institutions.toCSV(exportZIP);
+            accounts.toCSV(exportZIP);
+
+            exportZIP.generateAsync({ type: "blob" })
+            .then(content => {
+                // see FileSaver.js
+                let d = new Date();
+                saveAs(content, `yaba-export-${d.toISOShortDate()}.zip`);
+            });
+        };
+
+        $scope.import4zip = () => {
+            console.warn('To be implemented...');
+        }
     }
-    settings.$inject = ['$scope', 'Settings'];
+    settings.$inject = ['$scope', 'institutions', 'accounts', 'Settings'];
     Yaba.app.controller('settings', settings);
 
     function pageController($rootScope, $window, institutions, accounts) {
