@@ -35,14 +35,9 @@
      */
     class Storable {
         save($scope) {
-            let event = `save.${this.constructor.name}()`;
+            let event = `save.${this.constructor.name.toLowerCase()}`;
             console.log('JSONable.save()', event);
             return $scope.$emit(event, this);
-        }
-
-        load($scope) {
-            var data = JSON.parse( localStorage.getItem(this.constructor.name.toLowerCase()) || '[]' );
-            return $scope[this.constructor.name.toLowerCase()] = new this(data);
         }
     }
 
@@ -53,8 +48,9 @@
         }
 
         store() {
-
-              localStorage.setItem(this.constructor.name.toLowerCase(), this.toString());
+            const storeItem = this.constructor.name.toLowerCase();
+            console.log(`Storables.store(${storeItem})`);
+            localStorage.setItem(storeItem, this.toString());
         }
     }
     Storables.prototype.save = Storable.prototype.save;
@@ -110,16 +106,6 @@
             this.forEach((x) => { result.push(x.toObject()); });
             return JSON.stringify(result);
         }
-
-        save($scope) {
-            $scope.$emit('save.accounts', this);
-            return this;
-        }
-
-        store() {
-            console.log(`Saving ${this.constructor.name}...`);
-            localStorage.setItem( this.constructor.name.toLowerCase(), this.toString() );
-        }
     }
 
     /**
@@ -134,21 +120,25 @@
             this.name = data.name || '';
             this.description = data.description || '';
             this.mappings = [];
-            data.mappings && (data.mappings.forEach(mapping => {
-                if ( !Yaba.models.TransactionFields.includes(mapping.toField) ) {
-                    throw new InstitutionMappingException(mapping.fromField, mapping.toField);
-                }
-                this.mappings.push({
-                    fromField: mapping.fromField || '',
-                    toField: mapping.toField || '',
-                    mapType: mapping.mapType || null
+            if (data.mappings) {
+                data.mappings.forEach(mapping => {
+                    if ( !Yaba.models.TransactionFields.includes(mapping.toField) ) {
+                        throw new InstitutionMappingException(mapping.fromField, mapping.toField);
+                    }
+                    this.mappings.push({
+                        fromField: mapping.fromField || '',
+                        toField: mapping.toField || '',
+                        mapType: mapping.mapType || null
+                    });
                 });
-            })) || (this.mappings.push({
-                fromField: '',
-                toField: '',
-                mapType: null,
-                _visible: false
-            }));
+            } else {
+                this.mappings.push({
+                    fromField: '',
+                    toField: '',
+                    mapType: null,
+                    _visible: false
+                });
+            }
         }
 
         /**

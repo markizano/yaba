@@ -1,14 +1,19 @@
 <table class="data item-list">
     <thead>
-        <th ng-click="sortBy('datePurchase');">Desired Purchase Date</th>
+        <th ng-click="sortBy('datePosted');">Desired Purchase Date</th>
         <th ng-click="sortBy('amount');">Amount</th>
         <th ng-click="sortBy('description');">Description</th>
+        <th>Actions</th>
     </thead>
     <tbody>
         <tr ng-repeat="txn in wishlist | orderBy:sortColumn" class="slide-down">
-            <td> {{ txn.datePurchase | date:'yyyy-MM-dd' }}&nbsp;</td>
+            <td> {{ txn.datePosted | date:'yyyy-MM-dd' }}&nbsp;</td>
             <td> {{ txn.amount | currency }}&nbsp;</td>
             <td> {{ txn.description }}&nbsp;</td>
+            <td>
+                <edit ng-click="edit($index)" class="small-icon"></edit>&nbsp;
+                <trash ng-click="remove($index)" class="small-icon"></trash>
+            </td>
         </tr>
     </tbody>
 </table>
@@ -21,5 +26,10 @@
         input-aria-describedby="datepicker-description"
         input-aria-labelledby="datepicker-header ">
     </md-datepicker>
-    <add ng-click="add();" class="right">+</add>
+    <input type="hidden" ng-model="index" />
+    <controls ng-switch on="mode">
+        <add ng-switch-when="add" ng-click="add();" class="right"></add>
+        <close ng-switch-when="edit" ng-click="cancel();" class="right"></close>
+        <save ng-switch-when="edit" ng-click="save();" class="right"></save>
+    </controls>
 </form>

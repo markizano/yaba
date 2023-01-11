@@ -27,8 +27,16 @@
         };
     }
 
+    function sortBy(sortAgent) {
+        return (field) => {
+            sortAgent.asc = sortAgent.column == field? !sortAgent.asc: true;
+            sortAgent.column = field;
+        };
+    }
+
     Yaba.hasOwnProperty('filters') || (Yaba.filters = {
         budgetBy: budgetBy(),
+        sortBy: sortBy
     });
 
     Yaba.app.filter('budgetBy', budgetBy);

@@ -232,7 +232,7 @@ yaba-transaction-list {
     margin: 2px;
     padding: 2px;
 }
-.dropable.dragging {
+.csvdrop.dragging {
   border: 3px solid #11F;
 }
 

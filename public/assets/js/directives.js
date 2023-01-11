@@ -45,26 +45,10 @@
         };
     });
 
-    function wishlist($scope, $element, $attr) {
-        $scope.wishlist = $scope.wishlist || [];
-        $scope.sortColumn = 'datePosted';
-
-        $scope.add = function add() {
-            this.wishlist.push({
-                amount: this.amount,
-                datePurchase: new Date(this.datePurchase),
-                description: this.description
-            });
-        };
-
-        $scope.sortBy = function sortBy(field) {
-            this.sortColumn = field;
-        };
-    }
     Yaba.app.directive('yabaWishlist', () => {
         return {
             templateUrl: '/assets/views/prospect/wishlist.htm',
-            link: wishlist,
+            controller: 'yabaWishlist',
             scope: {
                 wishlist: '='
             },
@@ -73,12 +57,10 @@
     });
 
     /**
-     * Enables one to include class="dropable" as an attribute and it'll attach this event that will
+     * Enables one to include class="csvdrop" as an attribute and it'll attach this event that will
      * handle dragging a file into the element.
      */
-    function filedrop($scope, $element, $attr) {
-        const institutionId = $scope.account.institutionId;
-        const accountId = $scope.account.id;
+    function csvdrop($scope, $element, $attr) {
         function highlight(event) {
             if ( event ) {
                 event.preventDefault();
@@ -95,38 +77,47 @@
             return false;
         }
 
-        function parseError(err, file, element, reason) {
-            console.log(`Papa.parse() error from ${file} in ${element}: ${err}`);
-            console.log(reason);
-            // @TODO: Find a way to notify the end-user of a failure.
-            $scope.emit('csvError', {
-                err,
-                file,
-                element,
-                reason,
-                institutionId,
-                accountId
-            });
+        function parseError(event) {
+            return (err, file, element, reason) => {
+                console.log(`Papa.parse() error from ${file} in ${element}: ${err}`);
+                console.log(reason);
+                // @TODO: Find a way to notify the end-user of a failure.
+                $scope.emit('csvError', {
+                    err,
+                    file,
+                    element,
+                    reason,
+                    institutionId: event.institutionId,
+                    accountId: event.accountId
+                });
+            };
         }
 
-        function done(parsedCSV) {
-            let event = {
-                parsedCSV,
-                institutionId,
-                accountId
+        function done(event) {
+            return (parsedCSV) => {
+                let result = {
+                    parsedCSV,
+                    institutionId: event.institutionId,
+                    accountId: event.accountId
+                };
+                $scope.$emit('csvParsed', result);
             };
-            $scope.$emit('csvParsed', event);
         }
 
         function drop(event) {
             if ( event ) { event.preventDefault(); }
             unlight(event);
+            console.log($scope);
+            if ( $scope.account ) {
+                event.institutionId = $scope.account.institutionId || '';
+                event.accountId = $scope.account.id || '';
+            }
             angular.forEach(event.originalEvent.dataTransfer.files, (uploadFile) => {
                 Papa.parse(uploadFile, {
                     header: true,
                     skipEmptyLines: true,
-                    error: parseError,
-                    complete: done
+                    error: parseError(event),
+                    complete: done(event)
                 });
             });
         }
@@ -137,9 +128,9 @@
         $element.bind('dragend', unlight);
         $element.bind('drop', drop);
     }
-    Yaba.app.directive('dropable', () => {
+    Yaba.app.directive('csvdrop', () => {
         return {
-            link: filedrop,
+            link: csvdrop,
             restrict: 'AC'
         }
     })
