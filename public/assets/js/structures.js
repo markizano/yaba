@@ -9,23 +9,11 @@
      */
     const NULLDATE = new Date('1970-01-01T00:00:');
 
-    /**
-     * enum(PayCycle). Set of key-value pairs of pay cycles.
-     */
-    const PayCycle = Object.freeze({
-        Weekly: 'weekly',
-        BiWeekly: 'bi-weekly',
-        BiMonthly: 'bi-monthly',
-        Monthly: 'monthly',
-        Quarterly: 'quarterly',
-        Annually: 'annually',
-    });
-
     class InstitutionMappingException extends Error {
         constructor(fromField, toField) {
             super(`Institution Mapping should contain one of` +
               ` "${Yaba.models.TransactionFields.join(", ")}". ` +
-              `Got ${toField} when setting ${fromField}`);
+              `Got "${toField}" when setting "${fromField}"`);
             this.name = this.constructor.name;
         }
     }
@@ -198,7 +186,7 @@
             this.institutionId = data.institutionId || '';
             this.name = data.name || '';
             this.description = data.description || '';
-            this.balance = data.balance || 0.0;
+            // this.balance = data.balance || 0.0;
             this.accountType = data.accountType || null;
             this.number = data.number || '';
             this.routing = data.routing || '';
@@ -214,9 +202,9 @@
          * @returns scrubbed results
          */
         typecast(data) {
-            if ( data.balance && ! typeof data.balance == 'number' ) {
-                data.balance = Math.parseCurrency(data.balance);
-            }
+            // if ( data.balance && ! typeof data.balance == 'number' ) {
+            //     data.balance = Math.parseCurrency(data.balance);
+            // }
             if ( data.institutionId && data.institutionId instanceof Institution ) {
                 data.institutionId = data.institutionId.id;
             }
@@ -242,7 +230,7 @@
             data.institutionId      && (this.institutionId = data.institutionId);
             data.name               && (this.name = data.name);
             data.description        && (this.description = data.description);
-            data.balance            && (this.balance = data.balance);
+            // data.balance            && (this.balance = data.balance);
             data.accountType        && (this.accountType = data.accountType);
             data.number             && (this.number = data.number);
             data.routing            && (this.routing = data.routing);
@@ -254,6 +242,15 @@
             if ( data.hasOwnProperty('transactions') && data.transactions instanceof Array ) {
                 this.transactions.push(...data.transactions);
             }
+        }
+        /**
+         * Balance as a function will allow us to traverse the current transaction list.
+         * @returns {Number} The current running balance of this account.
+         */
+        balance() {
+            let result = 0.0;
+            this.transactions.map(txn => result += txn.amount);
+            return result;
         }
     }
 
@@ -333,13 +330,40 @@
      * Object to store settings and interfaces with the localStorage in order to accomplish this.
      */
     class Settings extends JSONable {
+
+        /**
+         * enum(PayCycle). Set of key-value pairs of pay cycles.
+         */
+        static PayCycle = Object.freeze({
+            Weekly: 'weekly',
+            BiWeekly: 'bi-weekly',
+            BiMonthly: 'bi-monthly',
+            Monthly: 'monthly',
+            Quarterly: 'quarterly',
+            Annually: 'annually',
+        });
+
+        /**
+         * enum(TransactionDeltas). Possible default transaction history values
+         * we'd use when rendering transaction history.
+         */
+        static TransactionDeltas = Object.freeze({
+            days30:  2592000000,
+            days60:  5184000000,
+            days90:  7776000000,
+            days180: 15552000000,
+            days365: 31104000000,
+            days730: 62208000000,
+        });
+
         constructor(data={}) {
-            super(['incomeTags', 'expenseTags', 'transferTags', 'hideTags', 'payCycle'], 'settings');
+            super(['incomeTags', 'expenseTags', 'transferTags', 'hideTags', 'payCycle', 'txnDelta'], 'settings');
             this.incomeTags = data.incomeTags || [];
             this.expenseTags = data.expenseTags || [];
             this.transferTags = data.transferTags || [];
             this.hideTags = data.hideTags || [];
-            this.payCycle = data.payCycle || PayCycle.BiMonthly;
+            this.payCycle = data.payCycle || Settings.PayCycle.Weekly;
+            this.txnDelta = data.txnDelta || Settings.TransactionDeltas.days30;
         }
 
         /**
@@ -359,7 +383,8 @@
             this.expenseTags = data.expenseTags || [];
             this.transferTags = data.transferTags || [];
             this.hideTags = data.hideTags || [];
-            this.payCycle = data.payCycle || PayCycle.BiMonthly;
+            this.payCycle = data.payCycle || Settings.PayCycle.Weekly;
+            this.txnDelta = data.txnDelta || Settings.TransactionDeltas.days30;
             return this;
         }
     }
@@ -440,6 +465,9 @@
     }
 
     class Accounts extends JSONables {
+        constructor() {
+            super();
+        }
 
         push(...items) {
             for ( let i in items ) {
@@ -455,6 +483,21 @@
                 item instanceof Account || (items[i] = new Account(item));
             }
             return super.unshift(...items);
+        }
+
+        /**
+         * Override includes method to consider class or account.id.
+         * @param {String|Account} item Item to check against inclusion.
+         * @returns {Boolean}
+         */
+        includes(item) {
+            let itemId;
+            if ( item instanceof Account ) {
+                itemId = item.id;
+            } else {
+                itemId = item;
+            }
+            return !!this.filter(x => x.id ==  itemId).length;
         }
 
         selected(selectedAccounts) {
@@ -607,6 +650,59 @@
         }
 
         /**
+         * Assumes all data points are found as they are required.
+         * @param {Array<String>|Accounts|undefined} selectedAccounts Account collection we can use to filter ID's.
+         *   Limitation of angularjs being unable to use `track by` to actually return just the ID.
+         * @param {Date|String|undefined} fromDate No transactions older than this date.
+         * @param {Date|String|undefined} toDate No transactions newer than this date.
+         * @param {Number} limit Limit the number of transactions to this many.
+         *  Use -1 to disable this filter.
+         * @param {Array<String>|undefined} tags List of tags transaction must match.
+         *  Leave undefined if you don't want to use this filter.
+         * @returns {Transactions} List of transactions after filtering and limiting.
+         */
+        applyFilters(selectedAccounts, fromDate, toDate, limit=-1, tags=undefined) {
+            let result = this.filter(txn => {
+                let tests = {
+                    selectedAccounts: false,
+                    date: true,
+                    tags: false,
+                };
+                /* SELECTED ACCOUNT */
+                if ( !angular.isUndefined(selectedAccounts) ) {
+                    tests.selectedAccounts = Accounts.prototype.includes.call(selectedAccounts, txn.accountId);
+                }
+
+                if ( !angular.isUndefined(fromDate) && !angular.isUndefined(toDate) ) {
+                    /* DATES */
+                    const recent = txn.datePosted >= fromDate;
+                    const older = txn.datePosted <= toDate;
+                    tests.date = recent && older;
+                }
+
+                /* TAGS (conditional) */
+                if ( !angular.isUndefined(tags) ) {
+                    tests.tags = tags.some(tag => txn.tags.includes(tag));
+                }
+                const useAccounts = !angular.isUndefined(selectedAccounts),
+                  useDate = (!angular.isUndefined(fromDate) && !angular.isUndefined(toDate)),
+                  useTags = !angular.isUndefined(tags);
+                let truthy = useAccounts? tests.selectedAccounts: true 
+                  && useDate? tests.date: true
+                  && useTags? tests.tags: true;
+                // console.log(`applyFilters(sa=${useAccounts}/${JSON.stringify((selectedAccounts||[]).map(a => a.id))}, `
+                //   + `dt=${useDate}/${tests.date}f:${fromDate.toISOShortDate()},t:${toDate.toISOShortDate()}, `
+                //   + `tags=${useTags}/${tests.tags})=${truthy};`);
+                return truthy;
+            });
+            if ( limit > 0 ) {
+                // console.log(`Limit results by ${limit}`);
+                result = result.slice(0, limit);
+            }
+            return result;
+        }
+
+        /**
          * Give me the institution mapping and list of transactions As CSV from bank.
          * I'll return back to you a data structure you can use to $upsert the database with transactions
          * mapped to the cannonical model.
@@ -616,23 +712,28 @@
          * @returns {Array} List of transactions mapped to the canonical model.
          */
         static digest(institution, accountId, transactions) {
-            console.log('mapInstitution()', institution);
-            var results = [];
-            if ( institution.mappings.filter(i => i.toField == 'accountId').length == 0 ) {
-                institution.mappings.unshift({
-                    mapType: 'static',
-                    toField: 'accountId',
-                    fromField: accountId
-                });
-            }
+            let results = new Transactions(), mappings = Object.assign([], institution.mappings);
+            mappings.unshift({
+                mapType: 'static',
+                toField: 'accountId',
+                fromField: accountId
+            });
             transactions.map((transaction) => {
                 var cannonical = {};
-                institution.mappings.map((mapping) => {
+                mappings.map((mapping) => {
                     switch(mapping.mapType) {
                         case 'static':
                             cannonical[mapping.toField] = mapping.fromField;
                             break;
                         case 'dynamic':
+                            if ( mapping.toField == 'amount' ) {
+                                if ( cannonical.hasOwnProperty('amount') ) {
+                                    cannonical[mapping.toField] += transaction[mapping.fromField];
+                                } else {
+                                    cannonical[mapping.toField] = transaction[mapping.fromField];
+                                }
+                                break;
+                            }
                             cannonical[mapping.toField] = transaction[mapping.fromField];
                             break;
                         default:
@@ -654,15 +755,16 @@
         static csvHandler($scope, institutions, accounts) {
             return (event, results) => {
                 // Get all the transactions back and fill up the table.
-                console.log(results);
                 let transactions = Transactions.digest(
                     institutions.byId(results.institutionId),
                     results.accountId,
-                    results.parsedCSV.data);
+                    results.parsedCSV.data
+                );
                 let account = accounts.byId(results.accountId);
-                transactions.forEach((txn) => {
-                    account.transactions.unshift(new Transaction(txn));
-                });
+                account.transactions.unshift(...transactions);
+                if ( $scope.transactions ) {
+                    $scope.transactions.push(...transactions);
+                }
                 $scope.$apply();
                 accounts.save($scope);
             };
@@ -691,7 +793,6 @@
                             if ( $element.hasClass('active-editing') ) {
                                 $$event && $$event.preventDefault();
                                 jqEvent && jqEvent.preventDefault();
-                                console.log(`Setting edit[${fieldName}] to false.`);
                                 $element.removeClass('active-editing');
                                 if ( eventName in events ) {
                                     events[eventName]();
@@ -706,10 +807,10 @@
                                     ngModel.$$ngModelSet($scope, oldFieldValue);
                                 }
                                 $scope.edit[fieldName] = false;
-                                // $scope.$emit('save.accounts', this);
-                                console.log({$$event, jqEvent, oldFieldValue});
-                                if ( jqEvent.type && jqEvent.type == 'keydown' ) {
-                                    $scope.$apply();
+                                $scope.$emit('save.accounts', this);
+                                $scope.$emit('update.budgets');
+                                if ( jqEvent.type && ['keydown'].includes(jqEvent.type) ) {
+                                    try{ $scope.$apply(); } catch(e) { console.error(e); }
                                 }
                             } else {
                                 console.warn(`${eventName} called, but we are not actively-editing.`);
@@ -717,9 +818,9 @@
                         });
 
                         const attachEvents = () => {
-                            console.log('<input>: ', $($element).find('input'));
-                            const childSpan = $($element.children()[0]); // Get the containing <span /> element.
-                            const childInput = $(childSpan.children()[0]); // Get the actual <input /> as jQuery element.
+                            const childInput = $($element).find('input');
+                            // const childSpan = $($element.children()[0]); // Get the containing <span /> element.
+                            // const childInput = $(childSpan.children()[0]); // Get the actual <input /> as jQuery element.
                             childInput.on('keydown', $$event => {
                                 $$event.element = childInput;
                                 $$event.keypress = true;
@@ -729,10 +830,14 @@
                                         $scope.$emit(eventName, $$event, fieldValue)
                                         return;
                                     case 13: // [Enter]
+                                        if ( !$$event.ctrlKey ) return;
                                         console.log(`fire keypress(key.Enter, ${eventName})`);
                                         $scope.$emit(eventName, $$event)
                                         return;
                                 }
+                            // }).on('blur', ($$event) => {
+                            //     console.log(`fire blur(${eventName})`);
+                            //     $scope.$emit(eventName, $$event);
                             }).focus();
                         };
 
@@ -756,56 +861,80 @@
             } // link($scope, $element, $attr, ngModel);
         } // static txnTable();
 
-        static dataChart($scope, $element, $attr) {
-            google.charts.load(
-                'current', {
-                    'packages': ['corechart'],
-                    callback: () => {
-                        if ( $attr.id == 'budgets' ) {
-                            return $scope.$watchCollection('transactions', () => {
-                                const dataTable = new google.visualization.DataTable();
-                                dataTable.addColumn({type: 'date', label: 'Date', pattern: 'yyyy-MM-dd'});
-                                $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
-                                $scope.myBudgets = $scope.budgets(); // DEBUG
-                                if ( $scope.myBudgets.length <= 1 ) {
-                                    console.log('No budgets.');
-                                    return;
-                                }
-                                dataTable.addRows($scope.myBudgets.slice(1));
-                                var options = {
-                                    title: 'Budget Spending',
-                                    legend: { position: 'bottom' }
-                                };
-                                const chart = new google.visualization.LineChart($element[0]);
-                                chart.draw(dataTable, options);
-                            });
-                        }
-                        if ( $attr.id == 'example' ) {
-                            function drawExample() {
-                                var data = google.visualization.arrayToDataTable([
-                                    ['Year', 'Sales', 'Expenses'],
-                                    ['2004',  1000,      400],
-                                    ['2005',  1170,      460],
-                                    ['2006',  660,       1120],
-                                    ['2007',  1030,      540]
-                                ]);
-                                var options = {
-                                    title: 'Company Performance',
-                                    curveType: 'function',
-                                    legend: { position: 'bottom' }
-                                };
-                                console.log(data);
-                                var chart = new google.visualization.LineChart($element[0]);
-                                return chart.draw(data, options);
-                            }
-                            return drawExample();
-                        }
+        static ngGoogleChart(GoogleChartService) {
+            return ($scope, $element, $attr) => {
+                $scope.$watchCollection('transactions', () => {
+                    const budgets = $scope.myBudgets = $scope.budgets(); // DEBUG
+                    budgets.element = $element[0];
+                    const $google = new GoogleChartService(budgets);
+                    Yaba.google = $google;
+                    console.log($google);
+                        if ( budgets.length <= 1 ) {
+                        console.log('No budgets.');
+                        return false;
                     }
+                    $google.setElement($($element[0]));
+                    // $google.setData(budgets);
+                    // $google.draw();
+                });
+            }
+        }
+
+        static dataChart($scope, $element, $attr) {
+            if ( !Yaba.gCharts ) {
+                console.log('Google Charts not loaded yet?!?!');
+                return false;
+            }
+            if ( $attr.id == 'budgets' ) {
+                return $scope.$on('google-charts-ready', () => {
+                    console.log('Match google-charts-ready! Registering watcher...');
+                    return $scope.$watchCollection('transactions', () => {
+                        const dataTable = new google.visualization.DataTable();
+                        dataTable.addColumn({type: 'date', label: 'Date', pattern: 'yyyy-MM-dd'});
+                        $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
+                        $scope.myBudgets = $scope.budgets(); // DEBUG
+                        if ( $scope.myBudgets.length <= 1 ) {
+                            console.log('No budgets.');
+                            return;
+                        }
+                        dataTable.addRows($scope.myBudgets.slice(1));
+                        var options = {
+                            title: 'Budget Spending',
+                            legend: { position: 'bottom' }
+                        };
+                        const chart = new google.visualization.LineChart($element[0]);
+                        chart.draw(dataTable, options);
+                    });
+                });
+            }
+            if ( $attr.id == 'example' ) {
+                function drawExample() {
+                    var data = google.visualization.arrayToDataTable([
+                        ['Year', 'Sales', 'Expenses'],
+                        ['2004',  1000,      400],
+                        ['2005',  1170,      460],
+                        ['2006',  660,       1120],
+                        ['2007',  1030,      540]
+                    ]);
+                    var options = {
+                        title: 'Company Performance',
+                        curveType: 'function',
+                        legend: { position: 'bottom' }
+                    };
+                    var chart = new google.visualization.LineChart($element[0]);
+                    return chart.draw(data, options);
                 }
-            );
+                return $scope.$on('google-charts-ready', () => { return drawExample(); });
+            }
         }
 
     } // class Transactions() {}
+
+    /**
+     * This is a transaction list for all intent and purposes, but I need it stored under a different name.
+     * An easy way to do this is to extend the class, but override nothing.
+     */
+    class Prospects extends Transactions {};
 
     /**
      * @property {string} TransactionFields
@@ -815,7 +944,6 @@
 
     Yaba.hasOwnProperty('models') || (Yaba.models = {});
     Yaba.models.NULLDATE            = NULLDATE;
-    Yaba.models.PayCycle            = PayCycle;
     Yaba.models.TransactionFields   = TransactionFields;
     Yaba.models.Institution         = Institution;
     Yaba.models.Account             = Account;
@@ -824,6 +952,7 @@
     Yaba.models.Institutions        = Institutions;
     Yaba.models.Accounts            = Accounts;
     Yaba.models.Transactions        = Transactions;
+    Yaba.models.Prospects           = Prospects;
 
     return Yaba;
 })(Yaba);

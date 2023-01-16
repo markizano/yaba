@@ -1,2 +1,8 @@
 <p>Home page.</p><br />
-<p>Hello World.</p>
+<div>
+    <md-list flex>
+        <md-list-item ng-repeat="chart in charts">
+            <google-chart ng-model="chart"></google-chart>
+        </md-list-item>
+    </md-list>
+</div>

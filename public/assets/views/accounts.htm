@@ -5,12 +5,17 @@
     <div class="item-list-wrapper" ng-repeat="account in accounts">
         <h2 class="title">
             <a href="/account/{{ account.id }}">{{ account.name }}</a>
-            <span class="accountBalance">{{ account.balance | currency }}</span>
         </h2>
+        <div class="account-balance">{{ account.balance() | currency }}</div>
         <p>{{ account.description }}</p><br />
         <edit ng-click="edit(account)" class="right"></edit>
         <trash ng-click="remove(account)" class="right"></trash>
-        <yaba-transaction-list transactions="account.transactions" limit="5" class="csvdrop"></yaba-transaction-list>
+        <yaba-transaction-list
+          transactions="account.transactions"
+          selected-accounts="[account]"
+          limit="5"
+          class="csvdrop"
+        ></yaba-transaction-list>
     </div>
     <div class="errors">{{ error }}</div>
     <yaba-account-form

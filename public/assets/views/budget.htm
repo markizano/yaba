@@ -4,6 +4,9 @@
     <div class="item-list-wrapper">
         <yaba-transaction-list
           transactions="transactions"
+          from-date="fromDate"
+          to-date="toDate"
+          selected-accounts="selectedAccounts"
           include-tags
           show-daterange
           show-accounts
@@ -11,8 +14,13 @@
           editable />
     </div>
     <div>
-        <h2>Budgets</h2>
-        <yaba-budget ng-model="budgets"></yaba-budget>
+        <yaba-budget
+          budgets="budgets"
+          transactions="transactions"
+          from-date="fromDate"
+          to-date="toDate"
+          selected-accounts="selectedAccounts"
+        ></yaba-budget>
     </div>
     <div class="errors">{{ error }}</div>
 </div>

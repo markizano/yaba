@@ -24,7 +24,6 @@
         $scope.institution = new Yaba.models.Institution();
         $scope.seeForm = false;
         $scope.add = () => {
-            console.log('show account form()');
             $scope.seeForm = true;
             $scope.mode = 'add';
         };
@@ -46,6 +45,7 @@
             }
             institutions.save($scope);
         };
+        $scope.$on('popup.close', () => { $scope.seeForm = false; $scope.$apply(); });
         $scope.$on('csvParsed', Yaba.models.Institutions.csvHandler($scope, $timeout));
     }
     institutions.$inject = ['$scope', '$timeout', 'institutions'];
@@ -79,7 +79,9 @@
             }
             accounts.save($scope);
         };
+        $scope.$on('popup.close', () => { $scope.seeForm = false; $scope.$apply(); });
         $scope.$on('csvParsed', Yaba.models.Transactions.csvHandler($scope, institutions, accounts));
+        Yaba.accountScope = $scope;
     }
     accounts.$inject = ['$scope', 'institutions', 'accounts'];
     Yaba.app.controller('accounts', accounts);
@@ -89,9 +91,9 @@
      */
     function account($scope, $routeParams, institutions, accounts) {
         console.log('account-details()');
-        $scope.fromDate = new Date(new Date() - (ms90days * 8));
         $scope.account = accounts.byId($routeParams.accountId);
         $scope.$on('csvParsed', Yaba.models.Transactions.csvHandler($scope, institutions, accounts));
+        Yaba.accountScope = $scope; // DEBUG
     }
     account.$inject = ['$scope', '$routeParams', 'institutions', 'accounts'];
     Yaba.app.controller('account', account);
@@ -101,11 +103,9 @@
      */
     function budget($scope, accounts) {
         console.log('Budget controller');
-        $scope.startDate || ($scope.startDate = new Date( Date.now() - ms30days ));
-        $scope.endDate || ($scope.endDate = new Date());
         $scope.budgets || ($scope.budgets = []);
-        $scope.accounts || ($scope.accounts = accounts);
         $scope.transactions || ($scope.transactions = new Yaba.models.Transactions());
+
         accounts.forEach(account => {
             $scope.transactions.push(...account.transactions);
         });
@@ -116,11 +116,10 @@
     /**
      * Charts and Graphs of Budgets created.
      */
-    function charts($scope, accounts) {
+    function charts($scope, accounts, GoogleChartService) {
+        // const $google = new GoogleChartService();
         $scope.transactions = new Yaba.models.Transactions();
         $scope.selectedAccounts = new Yaba.models.Accounts();
-        $scope.fromDate = new Date(new Date() - (ms90days * 8));
-        $scope.toDate = new Date();
         $scope.accounts = accounts;
         $scope.transactionBudgets = [];
         $scope.txnTags = [];
@@ -158,25 +157,64 @@
         $scope.$watchCollection('selectedAccounts', () => $scope.rebalance());
 
         $scope.budgets = () => {
-            var results = [ ['Date'].concat($scope.txnTags) ];
+            const headers = [];
+            headers.push({
+                id: 'date',
+                label: 'Date',
+                type: 'date'
+            });
+            $scope.txnTags.forEach(tag => {
+                headers.push({
+                    id: tag,
+                    label: tag[0].toUpperCase() + tag.slice(1),
+                    type: 'number'
+                });
+            })
+            let results = {};
+            results.chartType = 'LineChart';
+            results.cols = headers;
+            results.rows = [];
             $scope.transactions.forEach((transaction) => {
-                let dataPoint = [transaction.datePosted];
+                let dataPoint = {c: [
+                    {v: transaction.datePosted, f: 'yyyy-MM-dd'}
+                ]};
                 for ( let i = 0; i < $scope.txnTags.length; i++ ) {
                     if ( transaction.tags.includes($scope.txnTags[i]) ) {
-                        dataPoint.push(transaction.amount);
+                        dataPoint.c.push({v: transaction.amount});
                     } else {
-                        dataPoint.push(null);
+                        dataPoint.push({v: null});
                     }
                 }
-                results.push(dataPoint);
+                results.rows.push(dataPoint);
             });
+            results.options = {
+                title: 'Budget Spending',
+                isStacked: "true",
+                displayExactValues: true,
+                legend: {
+                    position: 'bottom'
+                }
+            }
+            results.formatters = {};
+            results.diaplayed = true;
             return results;
         }
 
-        // DEBUG
-        Yaba.debug = $scope;
+        // console.log($google);
+        // $scope.$watchCollection('transactions', () => {
+        //     $scope.myBudgets = $scope.budgets(); // DEBUG
+        //     if ( $scope.myBudgets.length <= 1 ) {
+        //         console.log('No budgets.');
+        //         return false;
+        //     }
+        //     $google.setOption('title', 'Budget Spending');
+        //     $google.setOption('legend', { position: 'bottom' });
+        //     $google.setElement($element[0]);
+        //     $google.setData($scope.myBudgets);
+        //     $google.draw();
+        // });
     }
-    charts.$inject = ['$scope', 'accounts'];
+    charts.$inject = ['$scope', 'accounts', 'GoogleChartService'];
     Yaba.app.controller('charts', charts);
 
     /**
@@ -210,8 +248,7 @@
         $scope.$watchCollection('transactions', updateBudgets);
         updateBudgets();
 
-        class Prospects extends Yaba.models.Transactions {};
-        $scope.prospect = $scope.prospect || new Prospects();
+        $scope.prospect = $scope.prospect || new Yaba.models.Prospects();
         $scope.$on('save.prospects', () => {
             $scope.prospect.store();
         });
@@ -233,7 +270,11 @@
         $scope.settings.load();
 
         $scope.deleteAll = () => {
+            if ( prompt('Enter YES to be sure to delete ALL data NOW: ').toLowerCase() !== 'yes' ) {
+                return false;
+            }
             localStorage.clear();
+            window.location.reload();
             $scope.$emit('notify', 'Cleared ALL local data.');
         }
 
@@ -257,8 +298,9 @@
     settings.$inject = ['$scope', 'institutions', 'accounts', 'Settings'];
     Yaba.app.controller('settings', settings);
 
-    function pageController($rootScope, $window, institutions, accounts) {
+    function pageController($rootScope, $scope, $window, institutions, accounts) {
         console.log('Loading and registering institutions and accounts...');
+        $scope.Year = (new Date()).getFullYear();
         let institutionStorage = JSON.parse($window.localStorage.getItem('institutions') || '[]'),
         accountStorage = JSON.parse($window.localStorage.getItem('accounts') || '[]');
 
@@ -272,21 +314,25 @@
         $rootScope.$on('save.accounts', e => accounts.store(e));
 
         $window.document.addEventListener('keydown', (e) => {
+            // console.log(e.which);
             switch(e.which) {
+                case 27: // Esc
+                    $rootScope.$broadcast('popup.close');
+                    break;
                 case 39: // ArrowRight
-                    if ( e.ctrlKey ) {
+                    if ( e.ctrlKey && e.shiftKey ) {
                         $rootScope.$broadcast('pagination.proximo', e);
                     }
                     break;
                 case 37: // ArrowLeft
-                    if ( e.ctrlKey ) {
+                    if ( e.ctrlKey && e.shiftKey ) {
                         $rootScope.$broadcast('pagination.previous', e);
                     }
                     break;
             }
         });
     }
-    pageController.$inject = ['$rootScope', '$window', 'institutions', 'accounts'];
+    pageController.$inject = ['$rootScope', '$scope', '$window', 'institutions', 'accounts'];
     Yaba.app.controller('page', pageController);
 
     /**
@@ -365,53 +411,67 @@
     AccountFormCtrl.$inject = ['$scope', '$timeout', 'accounts'];
     Yaba.app.controller('yabaAccountCtrl', AccountFormCtrl);
 
-    function BudgetCtrl($scope, accounts) {
-        $scope.transactions = new Yaba.models.Transactions();
-        accounts.forEach(account => {
-            let transactions = new Yaba.models.Transactions();
-            transactions.push(...account.transactions);
-            if ( $scope.fromDate && $scope.toDate ) {
-                transactions = transactions.daterange($scope.fromDate, $scope.toDate);
-            }
-            if ( $scope.accountIds ) {
-                transactions = transactions.byAccountIds($scope.accountIds);
-            }
-            $scope.transactions.push(...transactions);
-        });
-
-        $scope.uniques = function uniques() {
-            var seen = [];
+/*
+        function budgets() {
+            let budgets = {};
             $scope.transactions.forEach((transaction) => {
                 transaction.tags.forEach((tag) => {
-                    if ( seen.includes(tag) ) return;
-                    seen.push(tag);
-                });
-            });
-            return seen;
-        }
-
-        $scope.budgets = function budgets() {
-            var results = {};
-            $scope.transactions.forEach((transaction) => {
-                transaction.tags.forEach((tag) => {
-                    if ( results.hasOwnProperty(tag) ) {
-                        results[tag] += transaction.amount;
+                    if ( budgets.hasOwnProperty(tag) ) {
+                        budgets[tag] += transaction.amount;
                     } else {
-                        results[tag] = transaction.amount;
+                        budgets[tag] = transaction.amount;
                     }
                 });
             });
-            return results;
+            $scope.budgets = [];
+            for ( let b in budgets ) {
+                $scope.budgets.push({budget: b, amount: budgets[b]});
+            }
+            return $scope.budgets;
         }
+*/
+
+    /**
+     * This controller uses an isolate scope, so we will need to reference the parent scope if we don't
+     * want/need to bind the from-date, to-date and selected-accounts values.
+     */
+    function BudgetCtrl($rootScope, $scope) {
+        let isBudgeting = false;
+        function budgets() {
+            let budgets = {};
+            $scope.transactions.applyFilters($scope.selectedAccounts, $scope.fromDate, $scope.toDate, -1)
+              .map(transaction => {
+                return transaction.tags.map(tag => {
+                    budgets.hasOwnProperty(tag) || (budgets[tag] = 0);
+                    return { tag: tag, amount: transaction.amount };
+                }).map(tagMap => {
+                    return budgets[tagMap.tag] += tagMap.amount;
+                });
+            });
+            $scope.budgets = [];
+            for ( let b in budgets ) {
+                $scope.budgets.push({budget: b, amount: budgets[b]});
+            }
+            return $scope.budgets;
+        }
+        budgets();
+        $scope.updateBudgets = budgets;
+        $rootScope.$on('yaba.txn-change', ($event) => {
+            if ( isBudgeting ) {
+                console.warn('another rebudget in progress. ignoring this event.');
+                return;
+            }
+            budgets();
+        });
     }
-    BudgetCtrl.$inject = ['$scope', 'accounts'];
+    BudgetCtrl.$inject = ['$rootScope', '$scope'];
     Yaba.app.controller('yabaBudgetCtrl', BudgetCtrl);
 
     /**
      * Renders a collection of transactions. Controller for handling the list of transactions
      * and however we may want to render them.
      */
-    function TransactionListCtrl($scope, $attrs, accounts) {
+    function TransactionListCtrl($scope, $attrs, accounts, Settings) {
         // By default, don't show tags. We can override this in the HTML include for this widget.
         $scope.accounts         = accounts;
         $scope.includeTags      = $attrs.hasOwnProperty('includeTags');
@@ -421,25 +481,48 @@
         $scope.showPagination   = $attrs.hasOwnProperty('showPagination');
         $scope.editable         = $attrs.hasOwnProperty('editable');
 
-        $scope.itemsPerPage || ($scope.itemsPerPage = $attrs.limit || ($scope.showPagination? 10: 999));
-        $scope.offset || ($scope.offset = 0);
-        $scope.fromDate = $scope.fromDate || new Date(new Date() - ms90days);
-        $scope.toDate = $scope.toDate || new Date();
+        $scope.itemsPerPage     || ($scope.itemsPerPage = 10);
+        $scope.offset           || ($scope.offset       = 0);
+        $scope.limit            || ($scope.limit        = -1);
 
-        $scope.transactions = $scope.showDaterange?
-          $scope._transactions.daterange($scope.fromDate, $scope.toDate)
-          : $scope._transactions;
+        $scope.selectedAccounts || ($scope.selectedAccounts = Object.assign([], accounts));
+        $scope.fromDate         || ($scope.fromDate         = new Date(new Date() - Settings.txnDelta));
+        $scope.toDate           || ($scope.toDate           = new Date());
+
+        const update = () => {
+            $scope.transactions = $scope._transactions.applyFilters(
+                $scope.showAccounts? $scope.selectedAccounts: undefined,
+                $scope.showDaterange? $scope.fromDate: undefined,
+                $scope.showDaterange? $scope.toDate: undefined,
+                $scope.limit
+            );
+        };
+        update();
 
         $scope.sortBy = Yaba.filters.sortBy($scope.sort || ($scope.sort = { column: 'datePosted', asc: true }));
 
-        $scope.save = () => {
-            accounts.save($scope);
-        };
-        $scope.$on('date.change', ($event) => {
-            $scope.transactions = $scope._transactions.daterange($scope.fromDate, $scope.toDate);
-        });
+        $scope.save = () => { accounts.save($scope); };
+
+        const forwardEvent = ($event) => {
+            if ( $event && $event instanceof Event ) {
+                $event.hasOwnProperty('preventDefault') && $event.preventDefault();
+                $event.hasOwnProperty('stopPropagation') && $event.stopPropagation();
+            }
+            update();
+            $scope.$emit('yaba.txn-change');
+            return false;
+        }
+        if ( $scope.showDaterange ) {
+            $scope.$on('date.change', forwardEvent);
+        }
+
+        if ( $scope.showAccounts ) {
+            $scope.$watchCollection('selectedAccounts', forwardEvent);
+        }
+        $scope.$watchCollection('_transactions', forwardEvent);
+        $scope.$watchCollection('transactions', forwardEvent);
     }
-    TransactionListCtrl.$inject = ['$scope', '$attrs', 'accounts'];
+    TransactionListCtrl.$inject = ['$scope', '$attrs', 'accounts', 'Settings'];
     Yaba.app.controller('yabaTransactionListCtrl', TransactionListCtrl);
 
     /**
@@ -509,7 +592,6 @@
         };
 
         $scope.edit = ($index) => {
-            console.log(`edit(${$index})`, $scope);
             $scope.datePurchase = $scope.wishlist[$index].datePosted;
             $scope.amount = $scope.wishlist[$index].amount;
             $scope.description = $scope.wishlist[$index].description;

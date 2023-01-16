@@ -12,10 +12,10 @@
   </ul>
   <label>Items per Page:</label>
   <select ng-model="itemsPerPage" ng-change="refresh()">
-    <option value="10" selected>10</option>
-    <option value="25">25</option>
-    <option value="50">50</option>
-    <option value="100">100</option>
+    <option ng-value="10" selected>10</option>
+    <option ng-value="25">25</option>
+    <option ng-value="50">50</option>
+    <option ng-value="100">100</option>
   </select>
   <label>Results: <span ng-bind="itemCount"></span></label>
 </nav>

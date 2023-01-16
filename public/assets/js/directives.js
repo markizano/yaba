@@ -29,6 +29,13 @@
     Yaba.app.directive('yabaBudget', () => {
         return {
             templateUrl: '/assets/views/tables/budget.htm',
+            scope: {
+                budget: '=',
+                transactions: '=',
+                selectedAccounts: '=',
+                fromDate: '=',
+                toDate: '=',
+            },
             controller: 'yabaBudgetCtrl',
             restrict: 'AE'
         };
@@ -39,7 +46,11 @@
             templateUrl: '/assets/views/tables/transactions.htm',
             controller: 'yabaTransactionListCtrl',
             scope: {
-                _transactions: '=transactions'
+                _transactions: '=transactions',
+                selectedAccounts: '=?',
+                fromDate: '=?',
+                toDate: '=?',
+                limit: '=?'
             },
             restrict: 'E'
         };
@@ -107,7 +118,6 @@
         function drop(event) {
             if ( event ) { event.preventDefault(); }
             unlight(event);
-            console.log($scope);
             if ( $scope.account ) {
                 event.institutionId = $scope.account.institutionId || '';
                 event.accountId = $scope.account.id || '';
@@ -176,10 +186,10 @@
         }
     });
 
-    Yaba.app.directive('googleChart', () => {
+    Yaba.app.directive('googleChart', (GoogleChartService) => {
         return {
             restrict: 'E',
-            link: Yaba.models.Transactions.dataChart
+            link: Yaba.models.Transactions.ngGoogleChart(GoogleChartService)
         }
     });
 })(Yaba);

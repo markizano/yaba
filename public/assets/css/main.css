@@ -61,6 +61,7 @@ body {
 .item-list {
     margin: 2px;
     padding: 2px;
+    min-width: 350px;
 }
 .item-list-wrapper {
     width: auto;
@@ -221,11 +222,14 @@ table.data th:first-child {
     margin: 2px auto 2px 2px;
     width: 65%;
 }
-.accountBalance {
-    display: inline-block;
+.account-balance {
+    display: block;
     margin: 2px 2px 2px auto;
     padding: 2px;
     width: 30%;
+    float: right;
+    font-style: italic;
+    font-size: 20px;
 }
 yaba-transaction-list {
     display: block;
@@ -387,4 +391,36 @@ google-chart {
     min-width: 800px;
     min-height: 600px;
     border: 1px solid black;
+}
+.chart {
+    display: block;
+    width: 1024px;
+    height: 768px;
+    border: 1px solid black;
+}
+data-table {
+    font-size: 25px;
+}
+yaba-daterange {
+    width: 100%;
+}
+filters {
+    display: block;
+    width: 99%;
+    border: 1px solid #00000050;
+}
+debug {
+    display: block;
+    width: 400px;
+    height: 400px;
+    overflow: auto;
+    border: 2px solid blue;
+    float: right;
+}
+debug p {
+    display: block;
+    width: 97%;
+    font-family: monospace, "Sans Serif";
+    font-size: 10px;
+    word-wrap: break-word;
 }

@@ -14,6 +14,17 @@
             </select>
         </md-list-item>
         <md-list-item>
+            How many months do you want in a transaction view by default?
+            <select ng-model="settings.txnDelta" ng-change="settings.save()">
+                <option value="2592000000">30 days</option>
+                <option value="5184000000">60 days</option>
+                <option value="7776000000">90 days</option>
+                <option value="15552000000">6 months</option>
+                <option value="31104000000">1 year</option>
+                <option value="62208000000">2 years</option>
+            </select>
+        </md-list-item>
+        <md-list-item>
             <label for="settings.incomeTags">Tell me your income tags: </label>
             <md-chips ng-model="settings.incomeTags" ng-change="settings.save()"></md-chips>
             <span class="helper">

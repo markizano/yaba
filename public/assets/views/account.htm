@@ -8,6 +8,9 @@
     <p>{{ account.description }}</p>
     <yaba-transaction-list
       transactions="account.transactions"
+      selected-accounts="[account]"
+      from-date="fromDate"
+      to-date="toDate"
       class="csvdrop detail"
       include-tags
       show-daterange

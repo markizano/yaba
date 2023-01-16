@@ -1,59 +1,72 @@
-<filters>
-    <h3>Filters</h3>
-    <yaba-daterange ng-show="showDaterange" from-date="fromDate" to-date="toDate"></yaba-daterange>
-    <label ng-show="showAccounts">
-        Account: <select ng-model="account" multiple="1" ng-options="account.name for account in accounts track by account.id"></select>
-    </label>
-</filters>
-<table class="data item-list">
-    <thead ng-show="withHeader">
-        <th ng-click="sortBy('datePosted');">Date Posted</th>
-        <th ng-click="sortBy('amount');">Amount</th>
-        <th ng-click="sortBy('description');">Description</th>
-        <th ng-show="includeTags">Tags</th>
-    </thead>
-    <tbody>
-        <tr ng-repeat="txn in transactions | orderBy:sort.column:sort.asc | limitTo:itemsPerPage:offset track by txn.id">
-            <td txn-edit="true" ng-model="txn.datePosted" ng-switch on="!!edit['txn-datePosted']">
-                <span ng-switch-when="false" ng-bind="txn.datePosted | date:'yyyy-MM-dd'"></span>
-                <div ng-switch-when="true" ng-blur="$emit('yaba.edit2view-txn-datePosted', $event)"><md-datepicker ng-model="txn.datePosted"
-                    default-date="txn.datePosted"
-                    datepicker-popup="yyyy-MM-dd"
-                  ></md-datepicker>
-                </div>
-            </td>
-            <td txn-edit="true" ng-model="txn.amount" ng-switch on="!!edit['txn-amount']">
-                <span ng-switch-when="false" ng-bind="txn.amount | currency"></span>
-                <span ng-switch-when="true">
-                    <input
-                      type="number"
-                      ng-model="txn.amount"
-                      class="txn-edit-field"
-                      ng-blur="$emit('yaba.edit2view-txn-amount', $event)"
-                    />
-                </span>
-            </td>
-            <td txn-edit="true" ng-model="txn.description" ng-switch on="!!edit['txn-description']">
-                <span ng-switch-when="false" ng-bind="txn.description"></span>
-                <span ng-switch-when="true">
-                    <input
-                      type="text"
-                      ng-model="txn.description"
-                      class="txn-edit-field"
-                      ng-blur="$emit('yaba.edit2view-txn-description', $event)"
-                    />
-                </span>
-            </td>
-            <td ng-show="includeTags">
-                <md-chips
-                  ng-model="txn.tags"
-                  ng-blur="$scope.$emit('yaba.edit2view-txn-tags', $event)"
-                  md-readonly="editable"
-                  md-removable="false"
-                  md-enable-chip-edit="true"
-                ></md-chips>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<yaba-pagination ng-show="showPagination" item-count="transactions.length" items-per-page="itemsPerPage" offset="offset"></yaba-pagination>
+<transaction-list-wrapper ng-class="editable && { '': '' }">
+    <filters ng-show="showDaterange || showAccounts">
+        <h3>Filters</h3>
+        <yaba-daterange ng-show="showDaterange" from-date="fromDate" to-date="toDate"></yaba-daterange>
+        <label ng-show="showAccounts">
+            Account: <select ng-model="selectedAccounts" multiple="1" ng-options="account.name for account in accounts track by account.id"></select>
+        </label>
+    </filters>
+    <table class="data item-list">
+        <thead ng-show="withHeader">
+            <th ng-click="sortBy('datePosted');">Date Posted</th>
+            <th ng-click="sortBy('amount');">Amount</th>
+            <th ng-click="sortBy('description');">Description</th>
+            <th ng-show="includeTags">Tags</th>
+        </thead>
+        <tbody>
+            <tr ng-repeat="txn in transactions | orderBy:sort.column:sort.asc | limitTo:itemsPerPage:offset track by txn.id">
+                <td txn-edit="true" ng-model="txn.datePosted" ng-switch on="!!edit['txn-datePosted']">
+                    <span ng-switch-when="false" ng-bind="txn.datePosted | date:'yyyy-MM-dd'"></span>
+                    <div ng-switch-when="true" ng-blur="$emit('yaba.edit2view-txn-datePosted', $event)">
+                        <md-datepicker ng-model="txn.datePosted"
+                            default-date="txn.datePosted"
+                            datepicker-popup="yyyy-MM-dd"
+                        ></md-datepicker>
+                    </div>
+                </td>
+                <td txn-edit="true" ng-model="txn.amount" ng-switch on="!!edit['txn-amount']">
+                    <span ng-switch-when="false" ng-bind="txn.amount | currency"></span>
+                    <span ng-switch-when="true">
+                        <input
+                        type="number"
+                        ng-model="txn.amount"
+                        class="txn-edit-field"
+                        ng-blur="$emit('yaba.edit2view-txn-amount', $event)"
+                        />
+                    </span>
+                </td>
+                <td txn-edit="true" ng-model="txn.description" ng-switch on="!!edit['txn-description']">
+                    <span ng-switch-when="false" ng-bind="txn.description"></span>
+                    <span ng-switch-when="true">
+                        <input
+                        type="text"
+                        ng-model="txn.description"
+                        class="txn-edit-field"
+                        ng-blur="$emit('yaba.edit2view-txn-description', $event)"
+                        />
+                    </span>
+                </td>
+                <td txn-edit="true" ng-model="txn.tags" ng-switch on="!!edit['txn-tags']" ng-show="includeTags">
+                    <span ng-switch-when="false"> {{ txn.tags.join(", ") }} </span>
+                    <span ng-switch-when="true">
+                        <md-chips
+                        ng-model="txn.tags"
+                        ng-blur="$scope.$emit('yaba.edit2view-txn-tags', $event)"
+                        md-readonly="false"
+                        md-removable="false"
+                        md-enable-chip-edit="true"
+                        ></md-chips>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <yaba-pagination
+    ng-show="showPagination"
+    item-count="transactions.length"
+    items-per-page="itemsPerPage"
+    offset="offset"
+    ></yaba-pagination><br />
+    local Txn: <span ng-bind="transactions.length"></span>
+    Raw Txn: <span ng-bind="_transactions.length"></span>
+</transaction-list-wrapper>

@@ -7,7 +7,7 @@ const DEBUG=true;
         }
         return path.toString().split('.').reduce(index, this);
     }
-    Object.prototype.telescope = telescope;
+    // Object.prototype.telescope = telescope;
     Date.prototype.toISOShortDate = function toISOShortDate() {
         let yyyy = this.getFullYear(),
           mm = ('0' + (this.getMonth()+1)).slice(-2),
@@ -26,8 +26,9 @@ const DEBUG=true;
 var Yaba = (function(Yaba) {
     'use strict';
 
+    const ngModelList = ['ngRoute', 'ngAnimate', 'ngMessages', 'ngMaterial', 'googlechart'];
     Yaba || ( Yaba = {} );
-    Yaba.hasOwnProperty('app') || (Yaba.app = angular.module('yaba', ['ngRoute', 'ngAnimate', 'ngMessages', 'ngMaterial']));
+    Yaba.hasOwnProperty('app') || (Yaba.app = angular.module('yaba', ngModelList));
 
     // Used later on to describe the navigation.
     const pages = [
@@ -111,8 +112,24 @@ var Yaba = (function(Yaba) {
     Yaba.hasOwnProperty('utils') || (Yaba.utils = {
         reject: function handleError(response) {
             console.error('Promise rejection error.');
-            console.log(response);
+            console.error(response);
             return false;
         }
-    })
+    });
+
+    /*
+    Yaba.gCharts = false;
+    google.charts.load(
+        'current', {
+            'packages': ['corechart'],
+            callback: () => {
+                console.log('Google Charts ready!');
+                Yaba.gCharts = true;
+                const injector = angular.bootstrap($('#page'), ['ngModel']);
+                const $rootScope = injector.get('$rootScope');
+                $rootScope.$broadcast('google-charts-ready');
+            }
+        }
+    );
+    //*/
 })(Yaba)
