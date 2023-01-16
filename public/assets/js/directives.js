@@ -186,10 +186,22 @@
         }
     });
 
-    Yaba.app.directive('googleChart', (GoogleChartService) => {
+    Yaba.app.directive('googleChart', (/* GoogleChartService */) => {
         return {
+            // require: 'gCharts',
             restrict: 'E',
-            link: Yaba.models.Transactions.ngGoogleChart(GoogleChartService)
+            // link: Yaba.models.Transactions.ngGoogleChart(GoogleChartService)
+            link: Yaba.models.Transactions.dataChart
         }
     });
+
+    Yaba.app.directive('debug', () => {
+        return {
+            restrict: 'E',
+            link: ($scope, $element, $attr) => {
+                //@TODO: Somehow make this a config to hide all <debug /> tags instead of commenting this line.
+                $element.hide();
+            }
+        }
+    })
 })(Yaba);

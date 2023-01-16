@@ -81,7 +81,6 @@
         };
         $scope.$on('popup.close', () => { $scope.seeForm = false; $scope.$apply(); });
         $scope.$on('csvParsed', Yaba.models.Transactions.csvHandler($scope, institutions, accounts));
-        Yaba.accountScope = $scope;
     }
     accounts.$inject = ['$scope', 'institutions', 'accounts'];
     Yaba.app.controller('accounts', accounts);
@@ -93,7 +92,6 @@
         console.log('account-details()');
         $scope.account = accounts.byId($routeParams.accountId);
         $scope.$on('csvParsed', Yaba.models.Transactions.csvHandler($scope, institutions, accounts));
-        Yaba.accountScope = $scope; // DEBUG
     }
     account.$inject = ['$scope', '$routeParams', 'institutions', 'accounts'];
     Yaba.app.controller('account', account);
@@ -116,13 +114,14 @@
     /**
      * Charts and Graphs of Budgets created.
      */
-    function charts($scope, accounts, GoogleChartService) {
-        // const $google = new GoogleChartService();
+    function charts($scope, accounts, Settings, gCharts) {
         $scope.transactions = new Yaba.models.Transactions();
         $scope.selectedAccounts = new Yaba.models.Accounts();
         $scope.accounts = accounts;
         $scope.transactionBudgets = [];
         $scope.txnTags = [];
+        $scope.fromDate = new Date(new Date() - Settings.txnDelta);
+        $scope.toDate = new Date();
 
         $scope.rebalance = () => {
             transactionBudgets();
@@ -156,65 +155,24 @@
         $scope.$watchCollection('txnTags', () => $scope.rebalance());
         $scope.$watchCollection('selectedAccounts', () => $scope.rebalance());
 
-        $scope.budgets = () => {
-            const headers = [];
-            headers.push({
-                id: 'date',
-                label: 'Date',
-                type: 'date'
-            });
-            $scope.txnTags.forEach(tag => {
-                headers.push({
-                    id: tag,
-                    label: tag[0].toUpperCase() + tag.slice(1),
-                    type: 'number'
-                });
-            })
-            let results = {};
-            results.chartType = 'LineChart';
-            results.cols = headers;
-            results.rows = [];
+        const simpleDataTable = () => {
+            var results = [ ['Date'].concat($scope.txnTags) ];
             $scope.transactions.forEach((transaction) => {
-                let dataPoint = {c: [
-                    {v: transaction.datePosted, f: 'yyyy-MM-dd'}
-                ]};
+                let dataPoint = [transaction.datePosted];
                 for ( let i = 0; i < $scope.txnTags.length; i++ ) {
                     if ( transaction.tags.includes($scope.txnTags[i]) ) {
-                        dataPoint.c.push({v: transaction.amount});
+                        dataPoint.push(transaction.amount);
                     } else {
-                        dataPoint.push({v: null});
+                        dataPoint.push(null);
                     }
                 }
-                results.rows.push(dataPoint);
+                results.push(dataPoint);
             });
-            results.options = {
-                title: 'Budget Spending',
-                isStacked: "true",
-                displayExactValues: true,
-                legend: {
-                    position: 'bottom'
-                }
-            }
-            results.formatters = {};
-            results.diaplayed = true;
             return results;
-        }
-
-        // console.log($google);
-        // $scope.$watchCollection('transactions', () => {
-        //     $scope.myBudgets = $scope.budgets(); // DEBUG
-        //     if ( $scope.myBudgets.length <= 1 ) {
-        //         console.log('No budgets.');
-        //         return false;
-        //     }
-        //     $google.setOption('title', 'Budget Spending');
-        //     $google.setOption('legend', { position: 'bottom' });
-        //     $google.setElement($element[0]);
-        //     $google.setData($scope.myBudgets);
-        //     $google.draw();
-        // });
+        };
+        $scope.budgets = simpleDataTable;
     }
-    charts.$inject = ['$scope', 'accounts', 'GoogleChartService'];
+    charts.$inject = ['$scope', 'accounts', 'Settings', 'gCharts'];
     Yaba.app.controller('charts', charts);
 
     /**
@@ -410,26 +368,6 @@
     }
     AccountFormCtrl.$inject = ['$scope', '$timeout', 'accounts'];
     Yaba.app.controller('yabaAccountCtrl', AccountFormCtrl);
-
-/*
-        function budgets() {
-            let budgets = {};
-            $scope.transactions.forEach((transaction) => {
-                transaction.tags.forEach((tag) => {
-                    if ( budgets.hasOwnProperty(tag) ) {
-                        budgets[tag] += transaction.amount;
-                    } else {
-                        budgets[tag] = transaction.amount;
-                    }
-                });
-            });
-            $scope.budgets = [];
-            for ( let b in budgets ) {
-                $scope.budgets.push({budget: b, amount: budgets[b]});
-            }
-            return $scope.budgets;
-        }
-*/
 
     /**
      * This controller uses an isolate scope, so we will need to reference the parent scope if we don't

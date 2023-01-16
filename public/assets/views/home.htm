@@ -1,5 +1,32 @@
 <p>Home page.</p><br />
 <div>
+    <detail>
+        <p>
+            Hello and welcome to Yaba: Yet Another Budgeting App.<br />
+            This application was constructed using AngularJS, and a little bit of Google Charts to render your transactions
+            to you in a way that makes sense. The idea is that you should be able to access the app, download your CSV files
+            from your bank, unplug the ethernet cable and be able to do your budgeting. No big brother, no tracking, no logins,
+            no excessive security requirements, no MFA: just you and your data.
+        </p>
+        <p>
+            This app is still very much under construction, but enough of it has been built that a demonstration of some pages
+            can be rendered for folks to checkout and preview. Please understand that this has not passed a security audit or check.
+            This application is for demonstration and experimentation purposes only.
+        </p>
+        <p>
+            The pages that currently work include:
+        </p>
+        <ul>
+            <li>Settings</li>
+            <li>Institutions</li>
+            <li>Accounts</li>
+            <li>Budgeting</li>
+        </ul>
+        <p>
+            The parts still under construction are the Prospecting and Charts &amp; Trends pages. You will see errors on those pages
+            until the next update.
+        </p>
+    </detail>
     <md-list flex>
         <md-list-item ng-repeat="chart in charts">
             <google-chart ng-model="chart"></google-chart>

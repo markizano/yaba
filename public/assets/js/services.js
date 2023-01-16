@@ -22,5 +22,20 @@
         return accounts;
     });
 
+    Yaba.app.factory('gCharts', ($rootScope) => {
+        Yaba.gCharts = false;
+        google.charts.load(
+            'current', {
+                'packages': ['corechart'],
+                callback: () => {
+                    console.log('Google Charts ready!');
+                    Yaba.gCharts = true;
+                    $rootScope.$broadcast('google-charts-ready');
+                }
+            }
+        );
+        return {};
+    });
+
     return Yaba;
 })(Yaba);

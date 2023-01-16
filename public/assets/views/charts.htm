@@ -7,7 +7,7 @@
         Budgets: <select multiple ng-model="txnTags" ng-options="budget for budget in transactionBudgets"></select>
     </controls><br clear="all" />
     Transactions: <p>{{ transactions.length }}</p><br />
-    Selected Budgets: <p ng-bind="txnTags"></p><br />
-    Calculated budgets: <data-table ng-bind="myBudgets"></data-table>
+    <!-- Selected Budgets: <p ng-bind="txnTags"></p><br /> -->
+    <!-- Calculated budgets: <data-table ng-bind="myBudgets"></data-table> -->
     <google-chart google-chart id="budgets" chart="chart"></google-chart>
 </div>

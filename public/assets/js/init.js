@@ -1,13 +1,5 @@
-const DEBUG=true;
 /* These methods are extensions of built-ins we wish to append functionality. */
 (function() {
-    function telescope(path='') {
-        function index(parent, searchKey) {
-            return parent[searchKey];
-        }
-        return path.toString().split('.').reduce(index, this);
-    }
-    // Object.prototype.telescope = telescope;
     Date.prototype.toISOShortDate = function toISOShortDate() {
         let yyyy = this.getFullYear(),
           mm = ('0' + (this.getMonth()+1)).slice(-2),
@@ -26,7 +18,12 @@ const DEBUG=true;
 var Yaba = (function(Yaba) {
     'use strict';
 
-    const ngModelList = ['ngRoute', 'ngAnimate', 'ngMessages', 'ngMaterial', 'googlechart'];
+    const ngModelList = [
+        'ngRoute',
+        'ngAnimate',
+        'ngMessages',
+        'ngMaterial',
+    ];
     Yaba || ( Yaba = {} );
     Yaba.hasOwnProperty('app') || (Yaba.app = angular.module('yaba', ngModelList));
 
@@ -116,20 +113,4 @@ var Yaba = (function(Yaba) {
             return false;
         }
     });
-
-    /*
-    Yaba.gCharts = false;
-    google.charts.load(
-        'current', {
-            'packages': ['corechart'],
-            callback: () => {
-                console.log('Google Charts ready!');
-                Yaba.gCharts = true;
-                const injector = angular.bootstrap($('#page'), ['ngModel']);
-                const $rootScope = injector.get('$rootScope');
-                $rootScope.$broadcast('google-charts-ready');
-            }
-        }
-    );
-    //*/
 })(Yaba)

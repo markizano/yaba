@@ -690,13 +690,9 @@
                 let truthy = useAccounts? tests.selectedAccounts: true 
                   && useDate? tests.date: true
                   && useTags? tests.tags: true;
-                // console.log(`applyFilters(sa=${useAccounts}/${JSON.stringify((selectedAccounts||[]).map(a => a.id))}, `
-                //   + `dt=${useDate}/${tests.date}f:${fromDate.toISOShortDate()},t:${toDate.toISOShortDate()}, `
-                //   + `tags=${useTags}/${tests.tags})=${truthy};`);
                 return truthy;
             });
             if ( limit > 0 ) {
-                // console.log(`Limit results by ${limit}`);
                 result = result.slice(0, limit);
             }
             return result;
@@ -861,70 +857,35 @@
             } // link($scope, $element, $attr, ngModel);
         } // static txnTable();
 
-        static ngGoogleChart(GoogleChartService) {
-            return ($scope, $element, $attr) => {
-                $scope.$watchCollection('transactions', () => {
-                    const budgets = $scope.myBudgets = $scope.budgets(); // DEBUG
-                    budgets.element = $element[0];
-                    const $google = new GoogleChartService(budgets);
-                    Yaba.google = $google;
-                    console.log($google);
-                        if ( budgets.length <= 1 ) {
-                        console.log('No budgets.');
-                        return false;
-                    }
-                    $google.setElement($($element[0]));
-                    // $google.setData(budgets);
-                    // $google.draw();
-                });
-            }
-        }
-
         static dataChart($scope, $element, $attr) {
-            if ( !Yaba.gCharts ) {
-                console.log('Google Charts not loaded yet?!?!');
-                return false;
-            }
-            if ( $attr.id == 'budgets' ) {
+            const redrawCharts = () => {
+                const dataTable = new google.visualization.DataTable();
+                dataTable.addColumn({type: 'date', label: 'Date', pattern: 'yyyy-MM-dd'});
+                $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
+                $scope.myBudgets = $scope.budgets(); // DEBUG
+                if ( $scope.myBudgets.length <= 1 ) {
+                    console.log('No budgets.');
+                    return;
+                }
+                dataTable.addRows($scope.myBudgets.slice(1));
+                var options = {
+                    title: 'Budget Spending',
+                    lineStyle: 'connected',
+                    legend: { position: 'bottom' }
+                };
+                const chart = new google.visualization.LineChart($element[0]);
+                chart.draw(dataTable, options);
+            };
+
+            if ( Yaba.gCharts ) {
+                // just do/listen
+                return $scope.$watchCollection('transactions', redrawCharts);
+            } else {
+                // wait
                 return $scope.$on('google-charts-ready', () => {
                     console.log('Match google-charts-ready! Registering watcher...');
-                    return $scope.$watchCollection('transactions', () => {
-                        const dataTable = new google.visualization.DataTable();
-                        dataTable.addColumn({type: 'date', label: 'Date', pattern: 'yyyy-MM-dd'});
-                        $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
-                        $scope.myBudgets = $scope.budgets(); // DEBUG
-                        if ( $scope.myBudgets.length <= 1 ) {
-                            console.log('No budgets.');
-                            return;
-                        }
-                        dataTable.addRows($scope.myBudgets.slice(1));
-                        var options = {
-                            title: 'Budget Spending',
-                            legend: { position: 'bottom' }
-                        };
-                        const chart = new google.visualization.LineChart($element[0]);
-                        chart.draw(dataTable, options);
-                    });
+                    return $scope.$watchCollection('transactions', redrawCharts);
                 });
-            }
-            if ( $attr.id == 'example' ) {
-                function drawExample() {
-                    var data = google.visualization.arrayToDataTable([
-                        ['Year', 'Sales', 'Expenses'],
-                        ['2004',  1000,      400],
-                        ['2005',  1170,      460],
-                        ['2006',  660,       1120],
-                        ['2007',  1030,      540]
-                    ]);
-                    var options = {
-                        title: 'Company Performance',
-                        curveType: 'function',
-                        legend: { position: 'bottom' }
-                    };
-                    var chart = new google.visualization.LineChart($element[0]);
-                    return chart.draw(data, options);
-                }
-                return $scope.$on('google-charts-ready', () => { return drawExample(); });
             }
         }
 

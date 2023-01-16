@@ -1,4 +1,4 @@
-<transaction-list-wrapper ng-class="editable && { '': '' }">
+<transaction-list-wrapper ng-class="editable">
     <filters ng-show="showDaterange || showAccounts">
         <h3>Filters</h3>
         <yaba-daterange ng-show="showDaterange" from-date="fromDate" to-date="toDate"></yaba-daterange>
@@ -6,7 +6,7 @@
             Account: <select ng-model="selectedAccounts" multiple="1" ng-options="account.name for account in accounts track by account.id"></select>
         </label>
     </filters>
-    <table class="data item-list">
+    <table class="data item-list" ng-class="editable">
         <thead ng-show="withHeader">
             <th ng-click="sortBy('datePosted');">Date Posted</th>
             <th ng-click="sortBy('amount');">Amount</th>
@@ -67,6 +67,8 @@
     items-per-page="itemsPerPage"
     offset="offset"
     ></yaba-pagination><br />
-    local Txn: <span ng-bind="transactions.length"></span>
-    Raw Txn: <span ng-bind="_transactions.length"></span>
+    <debug>
+        local Txn: <span ng-bind="transactions.length"></span>
+        Raw Txn: <span ng-bind="_transactions.length"></span>
+    </debug>
 </transaction-list-wrapper>
