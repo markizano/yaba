@@ -446,8 +446,17 @@ debug p {
     word-wrap: break-word;
 }
 
-#transaction ul {
-    list-style-type: circle;
+#develop ul {
+    list-style-type: square;
     margin-right: 10px;
     font-size: 110%;
+    padding: 10px 10px 10px 20px;
+}
+#develop ul li {
+    margin-right: 20px;
+}
+
+#develop ul ul {
+    display: inline-block;
+    max-width: 400px;
 }

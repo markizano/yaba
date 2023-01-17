@@ -558,7 +558,7 @@
     wishlist.$inject = ['$scope'];
     Yaba.app.controller('yabaWishlist', wishlist);
 
-    function develop($scope) {
+    function develop($scope, institutions, accounts, Settings) {
         class RandomArray extends Array {
             random() {
                 return this[Math.floor(Math.random() * this.length)];
@@ -600,16 +600,74 @@
             'Mortgage', 'Interest', 'Dividends'
         );
         seedlist.transactionTypes = new RandomArray('withdraw', 'deposit');
-        seedlist.genTransaction = () => {
+        seedlist.headerTypes = {
+            datePending: new RandomArray('Requested Date', 'Date Pending', 'Pending Date', 'Pending'),
+            datePosted: new RandomArray('Transaction Date', 'Txn Date', 'Date Posted', 'Posted Date', 'Posted'),
+            amount: new RandomArray('Amount', 'amount', 'Cost', 'Debit', 'Credit'),
+            description: new RandomArray('Description', 'description', 'Memo', 'Remarks'),
+        };
+        seedlist.accountTypes = new RandomArray(...Object.values(Yaba.models.Account.Types));
+        seedlist.number = (upper=100, dec=2) => {
+            const decimals = (value, index) => index? value.slice(0, dec): value;
+            return Number((Math.random() * upper).toString().split('.').map(decimals).join('.'));
+        }
+
+        seedlist.genInstitution = () => {
+            let name, description;
+            ((i) => { name = i.name; description = i.description })(seedlist.institutions.random());
+            let mappings = [];
+            mappings.push({
+                fromField: seedlist.headerTypes.datePending.random(),
+                toField: 'datePending',
+                mapType: 'dynamic'
+            });
+            mappings.push({
+                fromField: seedlist.headerTypes.datePosted.random(),
+                toField: 'datePosted',
+                mapType: 'dynamic'
+            });
+            mappings.push({
+                fromField: seedlist.headerTypes.amount.random(),
+                toField: 'amount',
+                mapType: 'dynamic'
+            });
+            mappings.push({
+                fromField: seedlist.headerTypes.description.random(),
+                toField: 'description',
+                mapType: 'dynamic'
+            });
+            mappings.push({
+                fromField: 'USD',
+                toField: 'currency',
+                mapType: 'static'
+            });
+            return new Yaba.models.Institution({name, description, mappings});
+        };
+        seedlist.genAccount = (institutionId=null) => {
+            let name, description;
+            ((i) => { name = i.name; description = i.description })(seedlist.institutions.random());
+            return new Yaba.models.Account({
+                id: uuid.v4(),
+                institutionId: institutionId,
+                name: name,
+                description: description,
+                accountType: seedlist.accountTypes.random(),
+                number: Math.floor(Math.random() * 999999999),
+                routing: Math.floor(Math.random() * 99999999),
+                interestRate: seedlist.number(5, 2),
+                interestStrategy: 'simple',
+            });
+        }
+        seedlist.genTransaction = (accountId=null) => {
             let merchant = seedlist.merchants.random(),
               product = seedlist.products.random(),
-              amount = Number((Math.random() * 100).toString().split('.').map((value, index) => index? value.slice(0, 2): value).join('.')),
+              amount = seedlist.number(),
               datePosted = new Date(new Date() - Math.floor(Math.random() * 30 * 1000 * 3600 * 24)),
               datePending = new Date(datePosted - (3 * 1000 * 3600 * 24));
             return new Yaba.models.Transaction({
                 id: uuid.v4(),
                 description: `${product} at ${merchant}`,
-                accountId: null,
+                accountId: accountId,
                 datePending: datePending,
                 datePosted: datePosted,
                 transactionType: seedlist.transactionTypes.random(),
@@ -621,11 +679,19 @@
             });
         };
         Yaba.seedlist = seedlist;
-        $scope.genTransaction = () => {
-            $scope.transaction = seedlist.genTransaction();
-        }
+        $scope.genInstitution = () => {
+            $scope.institution = seedlist.genInstitution();
+        };
+        $scope.genAccount = (institutionId=null) => {
+            $scope.account = seedlist.genAccount(institutionId=null);
+        };
+        $scope.genTransaction = (accountId=null) => {
+            $scope.transaction = seedlist.genTransaction(accountId=null);
+        };
+        $scope.institutions = institutions;
+        $scope.accounts = accounts;
     }
-    develop.$inject = ['$scope'];
+    develop.$inject = ['$scope', 'institutions', 'accounts', 'Settings'];
     Yaba.app.controller('develop', develop);
 
     return Yaba;

@@ -1,22 +1,47 @@
 <md-content ng-controller="develop" class="controller">
     Hello Developer,<br />
 
-    <div>
+    <div id="develop">
         <h1 class="md-toolbar-tools">Generate Mock Informations</h1>
         <form id="institution">
             <input type="submit" ng-click="genInstitution()" value="Generate an Institution" />
-            Generated: <p ng-bind="institution"></p>
+            <div id="institution" ng-if="institution">
+                <ul>
+                    <li>ID: <span ng-bind="institution.id"></span></li>
+                    <li>Name: <span ng-bind="institution.name"></span></li>
+                    <li>Description: <span ng-bind="institution.description"></span></li>
+                    <li>Mappings: <br />
+                        <ul ng-repeat="mapping in institution.mappings">
+                            <li>From Field: <span ng-bind="mapping.fromField"></span></li>
+                            <li>To {{ mapping.mapType == 'dynamic'? 'Field': 'Value' }}: <span ng-bind="mapping.toField"></span></li>
+                            <li>Map Type: <span ng-bind="mapping.mapType"></span></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </form>
 
         <form id="account">
-            <input type="submit" ng-click="genAccount()" value="Generate an Account" />
-            Generated: <p ng-bind="account"></p>
+            <input type="submit" ng-click="genAccount(institution.id)" value="Generate an Account" />
+            Bound to institution: <select ng-model="institution" ng-options="institution.description for institution in institutions track by institution.id"></select><br />
+            <div ng-if="account">
+                <ul>
+                    <li>ID: <span ng-bind="account.id"></span></li>
+                    <li>Institution ID: <span ng-bind="account.institutionId"></span></li>
+                    <li>Name: <span ng-bind="account.name"></span></li>
+                    <li>Description: <span ng-bind="account.description"></span></li>
+                    <li>Type: <span ng-bind="account.accountType"></span></li>
+                    <li>Number: <span ng-bind="account.number"></span></li>
+                    <li>Routing: <span ng-bind="account.routing"></span></li>
+                    <li>Interest Rate: <span ng-bind="account.interestRate"></span> (<span ng-bind="account.interestStrategy"></span>)</li>
+                </ul>
+            </div>
         </form>
 
         <form id="transaction">
-            <input type="submit" ng-click="genTransaction()" value="Generate a Transaction" /><br />
-            <label>Generated: </label>
-            <div id="transaction">
+            <input type="submit" ng-click="genTransaction(account.id)" value="Generate a Transaction" /><br />
+            Bound to account: <select ng-model="account" ng-options="account.description for account in accounts track by account.id"></select><br />
+            <div id="transaction" ng-if="transaction">
                 <ul>
                     <li>ID: <span ng-bind="transaction.id"></span></li>
                     <li>Account ID: <span ng-bind="transaction.accountId"></span></li>
