@@ -27,7 +27,11 @@ var Yaba = (function(Yaba) {
     Yaba || ( Yaba = {} );
     Yaba.hasOwnProperty('app') || (Yaba.app = angular.module('yaba', ngModelList));
 
-    // Used later on to describe the navigation.
+    // Whether to actively render debugging informations, details and other infos.
+    Yaba.DEBUG = true;
+    // Feature check to see if developer-friendly options should be available.
+    Yaba.mode = 'dev';
+
     const pages = [
         'home',
         'budget',
@@ -38,6 +42,9 @@ var Yaba = (function(Yaba) {
         'institutions',
         'settings'
     ];
+    if ( Yaba.mode == 'dev' ) {
+        pages.push('develop');
+    }
 
     /**
      * Providing this function to AngularJS to configure the service providers to setup the

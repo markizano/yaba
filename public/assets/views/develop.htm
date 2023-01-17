@@ -1,0 +1,41 @@
+<md-content ng-controller="develop" class="controller">
+    Hello Developer,<br />
+
+    <div>
+        <h1 class="md-toolbar-tools">Generate Mock Informations</h1>
+        <form id="institution">
+            <input type="submit" ng-click="genInstitution()" value="Generate an Institution" />
+            Generated: <p ng-bind="institution"></p>
+        </form>
+
+        <form id="account">
+            <input type="submit" ng-click="genAccount()" value="Generate an Account" />
+            Generated: <p ng-bind="account"></p>
+        </form>
+
+        <form id="transaction">
+            <input type="submit" ng-click="genTransaction()" value="Generate a Transaction" /><br />
+            <label>Generated: </label>
+            <div id="transaction">
+                <ul>
+                    <li>ID: <span ng-bind="transaction.id"></span></li>
+                    <li>Account ID: <span ng-bind="transaction.accountId"></span></li>
+                    <li>
+                        Pending: <span ng-bind="transaction.datePending.toISOShortDate()"></span>;
+                        Posted: <span ng-bind="transaction.datePosted.toISOShortDate()"></span>
+                    </li>
+                    <li>Description: <span ng-bind="transaction.description"></span></li>
+                    <li>Type: <span ng-bind="transaction.transactionType"></span></li>
+                    <li>Amount: <span>{{ transaction.amount | currency }} ({{ transaction.currency}})</span></li>
+                    <li>Tax: <span ng-bind="transaction.tax|currency"></span></li>
+                    <li>Merchant: <span ng-bind="transaction.merchant"></span></li>
+                    <li>Tags: <span> {{ transaction.tags.join(", ") }} </span></li>
+                </ul>
+            </div>
+
+            <br />
+            Generate <input type="number" ng-model="txnCount" /> transactions:
+            <input type="submit" ng-click="genTransactions(txnCount)" value="Go!" />
+        </form>
+    </div>
+</md-content>

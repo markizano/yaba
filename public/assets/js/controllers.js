@@ -45,7 +45,6 @@
             }
             institutions.save($scope);
         };
-        $scope.$on('popup.close', () => { $scope.seeForm = false; $scope.$apply(); });
         $scope.$on('csvParsed', Yaba.models.Institutions.csvHandler($scope, $timeout));
     }
     institutions.$inject = ['$scope', '$timeout', 'institutions'];
@@ -258,6 +257,7 @@
 
     function pageController($rootScope, $scope, $window, institutions, accounts) {
         console.log('Loading and registering institutions and accounts...');
+        $rootScope.DEBUG = $scope.DEBUG = Yaba.DEBUG;
         $scope.Year = (new Date()).getFullYear();
         let institutionStorage = JSON.parse($window.localStorage.getItem('institutions') || '[]'),
         accountStorage = JSON.parse($window.localStorage.getItem('accounts') || '[]');
@@ -342,6 +342,7 @@
             }, 10);
         };
 
+        $scope.$on('popup.close', () => { $scope.close(); $scope.$apply(); });
         $scope.reset();
     }
     InstitutionFormCtrl.$inject = ['$scope', '$timeout', 'institutions'];
@@ -556,6 +557,76 @@
     }
     wishlist.$inject = ['$scope'];
     Yaba.app.controller('yabaWishlist', wishlist);
+
+    function develop($scope) {
+        class RandomArray extends Array {
+            random() {
+                return this[Math.floor(Math.random() * this.length)];
+            }
+        }
+        const seedlist = {};
+        seedlist.institutions = new RandomArray(
+            {name: 'JPMC', description: 'JP Morgan Chase'},
+            {name: 'BoA', description: 'Bank of America'},
+            {name: 'WF', description: 'Wells Fargo'},
+            {name: 'Synchrony', description: 'Synchrony Bank'},
+            {name: 'CapOne', description: 'Capital One'},
+            {name: 'Fidelity', description: 'Fidelity Checking'},
+            {name: 'AmEx', description: 'American Express'},
+            {name: '', description: ''},
+        );
+        seedlist.accounts = new RandomArray(
+            // {name?: ''}
+        );
+        seedlist.merchants = new RandomArray(
+            'Macys',
+            'Dillards',
+            'Banana Republic', 'Gap', 'Old Navy',
+            'JC Pennys',
+            'Nordstrom', 'Nordstrom Rack',
+            'Target', 'Walmart', 'Kroger', 'Tom Thumb', 'King Soopers', 'WinnCo Foods',
+            'Dollar Tree', 'Dollar General', '99 cent store',
+            'Ace Hardware', 'Toms Mechanics',
+            'Toyota', 'Honda', 'Chevy', 'RAM',
+            'Loves', 'Race Track', 'Raceway', '7-Eleven', 'Valero', 'BP: Better Petroleum', 'Shell Gas',
+            'Fidelity', 'Robinhood'
+        ).concat(seedlist.institutions.map(i => i.description));
+        seedlist.products = new RandomArray(
+            '2% Milk', 'Whole Milk', 'Half and Half', 'Heavy Whipping Cream',
+            'Eggs', 'Cheese', 'Lunchmeat', 'Bread', 'Coffee', 'Ice Cream', 'Chips',
+            'Pickles', 'Olives', 'Oil change', 'Brake Check', 'Tire Rotation', 'Fleece Shirt',
+            'Barbie Doll', 'Ken Doll', 'Action Figure #3', 'Sausage', 'Bacon', 'Ham', 'Onion',
+            'Celery', 'Jeans', 'Credit Card Payments', 'Tax Returns', 'Tax Payments', 'Insurance',
+            'Mortgage', 'Interest', 'Dividends'
+        );
+        seedlist.transactionTypes = new RandomArray('withdraw', 'deposit');
+        seedlist.genTransaction = () => {
+            let merchant = seedlist.merchants.random(),
+              product = seedlist.products.random(),
+              amount = Number((Math.random() * 100).toString().split('.').map((value, index) => index? value.slice(0, 2): value).join('.')),
+              datePosted = new Date(new Date() - Math.floor(Math.random() * 30 * 1000 * 3600 * 24)),
+              datePending = new Date(datePosted - (3 * 1000 * 3600 * 24));
+            return new Yaba.models.Transaction({
+                id: uuid.v4(),
+                description: `${product} at ${merchant}`,
+                accountId: null,
+                datePending: datePending,
+                datePosted: datePosted,
+                transactionType: seedlist.transactionTypes.random(),
+                amount: amount,
+                tax: amount * 0.09,
+                currency: 'USDC',
+                merchant: merchant,
+                tags: [],
+            });
+        };
+        Yaba.seedlist = seedlist;
+        $scope.genTransaction = () => {
+            $scope.transaction = seedlist.genTransaction();
+        }
+    }
+    develop.$inject = ['$scope'];
+    Yaba.app.controller('develop', develop);
 
     return Yaba;
 })(Yaba);

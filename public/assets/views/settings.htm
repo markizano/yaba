@@ -1,69 +1,71 @@
 <md-content ng-controller="settings" class="controller">
-    <h1>Settings</h1>
-    <p>Where you control the app behaviours.</p>
-    <md-list flex>
-        <md-list-item>
-            What is your pay cycle?
-            <select ng-model="settings.payCycle" ng-change="settings.save()">
-                <option value="weekly">Weekly</option>
-                <option value="bi-weekly">Bi-Weekly</option>
-                <option value="bi-monthly">Bi-Monthly</option>
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="annually">Annually</option>
-            </select>
-        </md-list-item>
-        <md-list-item>
-            How many months do you want in a transaction view by default?
-            <select ng-model="settings.txnDelta" ng-change="settings.save()">
-                <option value="2592000000">30 days</option>
-                <option value="5184000000">60 days</option>
-                <option value="7776000000">90 days</option>
-                <option value="15552000000">6 months</option>
-                <option value="31104000000">1 year</option>
-                <option value="62208000000">2 years</option>
-            </select>
-        </md-list-item>
-        <md-list-item>
-            <label for="settings.incomeTags">Tell me your income tags: </label>
-            <md-chips ng-model="settings.incomeTags" ng-change="settings.save()"></md-chips>
-            <span class="helper">
-                Income tags will tell this app how to treat things you deem as income per defined
-                pay period as defined above.
-            </span>
-        </md-list-item>
-        <md-list-item>
-            <label>Tell me your expense tags: </label>
-            <md-chips ng-model="settings.expenseTags" ng-change="settings.save()"></md-chips>
-            <span class="helper">
-                Expense tags will tell me how to handle things that are bills.
-                This is best suited for recurring expenses rather than 1-time expenses.
-            </span>
-        </md-list-item>
-        <md-list-item>
-            <label>What is your transfer tag?: </label>
-            <md-chips ng-model="settings.transferTags" ng-change="settings.save()"></md-chips>
-            <span class="helper">
-                Tags with this transfer will be marked as such and I will attempt
-                to marry them to matching transactions.
-            </span>
-        </md-list-item>
-        <md-list-item>
-            <label> is your hide tag?: </label><md-chips ng-model="settings.hideTags" ng-change="settings.save()"></md-chips>
-            <span class="helper">These transactions will be hidden from view and removed from calculations.</span>
-        </md-list-item>
-        <md-list-item>
-            <label>Export all data to a set of CSV files in ZIP format: </label><button ng-click="export2zip()">[Export]</button>
-        </md-list-item>
-        <md-list-item>
-            <label>Import a previous export: </label>
-            <button ng-click="import4zip()">[IMPORT]</button>
-        </md-list-item>
-        <md-list-item>
-            <label>Delete all data: </label>
-            <button ng-click="deleteAll()">DELETE</button><br />
-            <p class="warning">NOTE: This will delete ALL the data!!!</p>
-        </md-list-item>
-    </md-list>
+    <md-toolbar class="md-menu-toolbar">
+        <h1 class="md-toolbar-tools">Settings</h1>
+        <p>Where you control the app behaviours.</p>
+        <md-list layout="column" flex>
+            <md-list-item>
+                What is your pay cycle?
+                <select ng-model="settings.payCycle" ng-change="settings.save()">
+                    <option value="weekly">Weekly</option>
+                    <option value="bi-weekly">Bi-Weekly</option>
+                    <option value="bi-monthly">Bi-Monthly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="annually">Annually</option>
+                </select>
+            </md-list-item>
+            <md-list-item>
+                How many months do you want in a transaction view by default?
+                <select ng-model="settings.txnDelta" ng-change="settings.save()">
+                    <option value="2592000000">30 days</option>
+                    <option value="5184000000">60 days</option>
+                    <option value="7776000000">90 days</option>
+                    <option value="15552000000">6 months</option>
+                    <option value="31104000000">1 year</option>
+                    <option value="62208000000">2 years</option>
+                </select>
+            </md-list-item>
+            <md-list-item>
+                <label for="settings.incomeTags">Tell me your income tags: </label>
+                <md-chips ng-model="settings.incomeTags" ng-change="settings.save()"></md-chips>
+                <span class="helper">
+                    Income tags will tell this app how to treat things you deem as income per defined
+                    pay period as defined above.
+                </span>
+            </md-list-item>
+            <md-list-item>
+                <label>Tell me your expense tags: </label>
+                <md-chips ng-model="settings.expenseTags" ng-change="settings.save()"></md-chips>
+                <span class="helper">
+                    Expense tags will tell me how to handle things that are bills.
+                    This is best suited for recurring expenses rather than 1-time expenses.
+                </span>
+            </md-list-item>
+            <md-list-item>
+                <label>What is your transfer tag?: </label>
+                <md-chips ng-model="settings.transferTags" ng-change="settings.save()"></md-chips>
+                <span class="helper">
+                    Tags with this transfer will be marked as such and I will attempt
+                    to marry them to matching transactions.
+                </span>
+            </md-list-item>
+            <md-list-item>
+                <label> is your hide tag?: </label><md-chips ng-model="settings.hideTags" ng-change="settings.save()"></md-chips>
+                <span class="helper">These transactions will be hidden from view and removed from calculations.</span>
+            </md-list-item>
+            <md-list-item>
+                <label>Export all data to a set of CSV files in ZIP format: </label><button ng-click="export2zip()">[Export]</button>
+            </md-list-item>
+            <md-list-item>
+                <label>Import a previous export: </label>
+                <button ng-click="import4zip()">[IMPORT]</button>
+            </md-list-item>
+            <md-list-item>
+                <label>Delete all data: </label>
+                <button ng-click="deleteAll()">DELETE</button><br />
+                <p class="warning">NOTE: This will delete ALL the data!!!</p>
+            </md-list-item>
+        </md-list>
+    </md-toolbar>
 </md-content>
 <br clear="all" />

@@ -359,7 +359,7 @@ mapping {
 
 .ng-fade { transition: all ease-in-out 400ms; }
 .ng-fade.ng-hide { opacity: 0; }
-.ng-fade.ng-hide { opacity: 1; }
+.ng-fade.ng-show { opacity: 1; }
 
 .slide-down { transition: all 400ms ease-in-out; }
 .slide-down.ng-hide { opacity: 0; height: 0; opacity: 0; }
@@ -444,4 +444,10 @@ debug p {
     font-family: monospace, "Sans Serif";
     font-size: 10px;
     word-wrap: break-word;
+}
+
+#transaction ul {
+    list-style-type: circle;
+    margin-right: 10px;
+    font-size: 110%;
 }
