@@ -60,7 +60,8 @@
 
             <br />
             Generate <input type="number" ng-model="txnCount" /> transactions:
-            <input type="submit" ng-click="genTransactions(txnCount)" value="Go!" />
+            <input type="submit" ng-click="produceCSV(txnCount)" value="Go!" />
+            <pre ng-bind="csvfile"></pre>
         </form>
     </div>
 </md-content>

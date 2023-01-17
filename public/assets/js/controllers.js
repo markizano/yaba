@@ -690,6 +690,21 @@
         };
         $scope.institutions = institutions;
         $scope.accounts = accounts;
+        $scope.produceCSV = (txnCount=10) => {
+            let csvFile = '';
+            const map2string = (t) => (m) => t[m.toField] instanceof Date? t[m.toField].toISOShortDate(): t[m.toField];
+            let institution = seedlist.genInstitution();
+            let account = seedlist.genAccount(institution.id);
+            let mapFields = institution.mappings.filter(m => m.mapType == 'dynamic');
+            for ( let i=0; i <= txnCount; i++ ) {
+                account.transactions.push(seedlist.genTransaction(account.id));
+            }
+            csvFile = '"' + mapFields.map(m => m.fromField).join('","') + '"\n"'
+              + account.transactions.map(t => mapFields.map(map2string(t)).join('","') ).join('"\n"') + '"';
+            $scope.csvfile = csvFile;
+            const csvBlob = new Blob([csvFile], { type: 'text/csv' } );
+            saveAs(csvBlob, 'mock-transactions.csv');
+        }
     }
     develop.$inject = ['$scope', 'institutions', 'accounts', 'Settings'];
     Yaba.app.controller('develop', develop);
