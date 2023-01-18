@@ -226,8 +226,22 @@
         $scope.settings = Settings;
         $scope.settings.load();
 
+        // I gotta have at least some defaults set. I can't stand looking at a completely blank app...
+        if ( !Settings.incomeTags ) {
+            Settings.incomeTags = ['income'];
+        }
+        if ( !Settings.expenseTags ) {
+            Settings.expenseTags = ['expense'];
+        }
+        if ( !Settings.transferTags ) {
+            Settings.transferTags = ['transfer'];
+        }
+        if ( !Settings.hideTags ) {
+            Settings.hideTags = ['hidden'];
+        }
+
         $scope.deleteAll = () => {
-            if ( prompt('Enter YES to be sure to delete ALL data NOW: ').toLowerCase() !== 'yes' ) {
+            if ( (prompt('Enter YES to be sure to delete ALL data NOW: ') || '').toLowerCase() !== 'yes' ) {
                 return false;
             }
             localStorage.clear();
@@ -662,7 +676,7 @@
             let merchant = seedlist.merchants.random(),
               product = seedlist.products.random(),
               amount = seedlist.number(),
-              datePosted = new Date(new Date() - Math.floor(Math.random() * 30 * 1000 * 3600 * 24)),
+              datePosted = new Date(new Date() - Math.floor(Math.random() * 365 * 1000 * 3600 * 24)),
               datePending = new Date(datePosted - (3 * 1000 * 3600 * 24));
             return new Yaba.models.Transaction({
                 id: uuid.v4(),
@@ -699,8 +713,12 @@
             for ( let i=0; i <= txnCount; i++ ) {
                 account.transactions.push(seedlist.genTransaction(account.id));
             }
+            account.transactions.sort((a, b) => b.datePosted - a.datePosted);
             csvFile = '"' + mapFields.map(m => m.fromField).join('","') + '"\n"'
-              + account.transactions.map(t => mapFields.map(map2string(t)).join('","') ).join('"\n"') + '"';
+              + account.transactions
+                .map(t => mapFields.map(map2string(t))
+                .join('","') )
+                .join('"\n"') + '"';
             $scope.csvfile = csvFile;
             const csvBlob = new Blob([csvFile], { type: 'text/csv' } );
             saveAs(csvBlob, 'mock-transactions.csv');
