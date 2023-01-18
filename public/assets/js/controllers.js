@@ -579,6 +579,11 @@
             }
         }
         const seedlist = {};
+        seedlist.number = (upper=100, dec=2) => {
+            // Gimmie a random number no greater than ${upper} as float() with ${dec} number of decimal places.
+            const decimals = (value, index) => index? value.slice(0, dec): value;
+            return Number((Math.random() * upper).toString().split('.').map(decimals).join('.'));
+        }
         seedlist.institutions = new RandomArray(
             {name: 'JPMC', description: 'JP Morgan Chase'},
             {name: 'BoA', description: 'Bank of America'},
@@ -589,30 +594,25 @@
             {name: 'AmEx', description: 'American Express'},
             {name: '', description: ''},
         );
-        seedlist.accounts = new RandomArray(
-            // {name?: ''}
-        );
         seedlist.merchants = new RandomArray(
-            'Macys',
-            'Dillards',
-            'Banana Republic', 'Gap', 'Old Navy',
-            'JC Pennys',
+            'Macys', 'Dillards', 'Banana Republic', 'Gap', 'Old Navy', 'JC Pennys',
             'Nordstrom', 'Nordstrom Rack',
             'Target', 'Walmart', 'Kroger', 'Tom Thumb', 'King Soopers', 'WinnCo Foods',
             'Dollar Tree', 'Dollar General', '99 cent store',
             'Ace Hardware', 'Toms Mechanics',
-            'Toyota', 'Honda', 'Chevy', 'RAM',
-            'Loves', 'Race Track', 'Raceway', '7-Eleven', 'Valero', 'BP: Better Petroleum', 'Shell Gas',
-            'Fidelity', 'Robinhood'
-        ).concat(seedlist.institutions.map(i => i.description));
+            'Toyota', 'Honda', 'Chevy', 'RAM', 'Loves', 'Race Track', 'Raceway',
+            '7-Eleven', 'Valero', 'BP: Better Petroleum', 'Shell Gas', 'Robinhood'
+        );
         seedlist.products = new RandomArray(
             '2% Milk', 'Whole Milk', 'Half and Half', 'Heavy Whipping Cream',
             'Eggs', 'Cheese', 'Lunchmeat', 'Bread', 'Coffee', 'Ice Cream', 'Chips',
             'Pickles', 'Olives', 'Oil change', 'Brake Check', 'Tire Rotation', 'Fleece Shirt',
-            'Barbie Doll', 'Ken Doll', 'Action Figure #3', 'Sausage', 'Bacon', 'Ham', 'Onion',
-            'Celery', 'Jeans', 'Credit Card Payments', 'Tax Returns', 'Tax Payments', 'Insurance',
-            'Mortgage', 'Interest', 'Dividends'
+            'Barbie Doll', 'Ken Doll', `Action Figure #${seedlist.number(10, 0)}`,
+            'Sausage', 'Bacon', 'Ham', 'Onion', 'Celery', 'Jeans',
+            'Credit Card Payments', 'Tax Returns', 'Tax Payments', 'Insurance',
+            'Mortgage', 'Interest'
         );
+        seedlist.income = new RandomArray('Payroll', 'Income', 'Tips', 'Gifts', 'Sales', 'Dividends', 'Tax Returns');
         seedlist.transactionTypes = new RandomArray('withdraw', 'deposit');
         seedlist.headerTypes = {
             datePending: new RandomArray('Requested Date', 'Date Pending', 'Pending Date', 'Pending'),
@@ -621,11 +621,6 @@
             description: new RandomArray('Description', 'description', 'Memo', 'Remarks'),
         };
         seedlist.accountTypes = new RandomArray(...Object.values(Yaba.models.Account.Types));
-        seedlist.number = (upper=100, dec=2) => {
-            const decimals = (value, index) => index? value.slice(0, dec): value;
-            return Number((Math.random() * upper).toString().split('.').map(decimals).join('.'));
-        }
-
         seedlist.genInstitution = () => {
             let name, description;
             ((i) => { name = i.name; description = i.description })(seedlist.institutions.random());
@@ -671,36 +666,55 @@
                 interestRate: seedlist.number(5, 2),
                 interestStrategy: 'simple',
             });
-        }
+        };
         seedlist.genTransaction = (accountId=null) => {
-            let merchant = seedlist.merchants.random(),
-              product = seedlist.products.random(),
+            console.log(`Gen txn with ${accountId}.`);
+            let ttype = seedlist.transactionTypes.random(),
+              institution = seedlist.institutions.random(),
               amount = seedlist.number(),
               datePosted = new Date(new Date() - Math.floor(Math.random() * 365 * 1000 * 3600 * 24)),
               datePending = new Date(datePosted - (3 * 1000 * 3600 * 24));
-            return new Yaba.models.Transaction({
-                id: uuid.v4(),
-                description: `${product} at ${merchant}`,
-                accountId: accountId,
-                datePending: datePending,
-                datePosted: datePosted,
-                transactionType: seedlist.transactionTypes.random(),
-                amount: amount,
-                tax: amount * 0.09,
-                currency: 'USDC',
-                merchant: merchant,
-                tags: [],
-            });
+            switch(ttype) {
+                case 'withdraw':
+                    let merchant = seedlist.merchants.random();
+                    return new Yaba.models.Transaction({
+                        id: uuid.v4(),
+                        description: `${seedlist.products.random()} at ${merchant}`,
+                        accountId: accountId,
+                        datePending: datePending,
+                        datePosted: datePosted,
+                        transactionType: ttype,
+                        amount: -amount,
+                        tax: amount * 0.09,
+                        currency: 'USDC',
+                        merchant: merchant,
+                        tags: [],
+                    });
+                case 'deposit':
+                    return new Yaba.models.Transaction({
+                        id: uuid.v4(),
+                        description: `${seedlist.income.random()} at ${institution.description}`,
+                        accountId: accountId,
+                        datePending: datePending,
+                        datePosted: datePosted,
+                        transactionType: ttype,
+                        amount: amount,
+                        tax: 0,
+                        currency: 'USDC',
+                        merchant: institution.description,
+                        tags: [],
+                    });
+            }
         };
         Yaba.seedlist = seedlist;
         $scope.genInstitution = () => {
             $scope.institution = seedlist.genInstitution();
         };
         $scope.genAccount = (institutionId=null) => {
-            $scope.account = seedlist.genAccount(institutionId=null);
+            $scope.account = seedlist.genAccount(institutionId);
         };
         $scope.genTransaction = (accountId=null) => {
-            $scope.transaction = seedlist.genTransaction(accountId=null);
+            $scope.transaction = seedlist.genTransaction(accountId);
         };
         $scope.institutions = institutions;
         $scope.accounts = accounts;
