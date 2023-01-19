@@ -650,6 +650,15 @@
         }
 
         /**
+         * Sorts the array based on datePosted.
+         * @param {boolean} asc TRUE for Ascending; FALSE for Descending.
+         * @returns {Transactions} The sorted list of transactions by datePosted.
+         */
+        sorted(asc=true) {
+            return this.sort((a, b) => {asc ? b.datePosted - a.datePosted: a.datePosted - b.datePosted});
+        }
+
+        /**
          * Assumes all data points are found as they are required.
          * @param {Array<String>|Accounts|undefined} selectedAccounts Account collection we can use to filter ID's.
          *   Limitation of angularjs being unable to use `track by` to actually return just the ID.
@@ -714,7 +723,7 @@
                 toField: 'accountId',
                 fromField: accountId
             });
-            transactions.map((transaction) => {
+            Transactions.prototype.sorted.call(transactions).map((transaction) => {
                 var cannonical = {};
                 mappings.map((mapping) => {
                     switch(mapping.mapType) {
@@ -804,7 +813,7 @@
                                 }
                                 $scope.edit[fieldName] = false;
                                 $scope.$emit('save.accounts', this);
-                                $scope.$emit('update.budgets');
+                                $scope.$emit('yaba.txn-change');
                                 if ( jqEvent.type && ['keydown'].includes(jqEvent.type) ) {
                                     try{ $scope.$apply(); } catch(e) { console.error(e); }
                                 }

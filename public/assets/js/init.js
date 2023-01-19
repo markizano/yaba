@@ -1,6 +1,10 @@
 /* These methods are extensions of built-ins we wish to append functionality. */
 (function() {
-    Date.prototype.toISOShortDate = function toISOShortDate() {
+    if ( typeof Object.defineProperty == 'function' ) {
+        try{ Object.defineProperty(Date.prototype, 'toISOShortDate', {value: toISOShortDate}); } catch(e){}
+    }
+    if ( !Date.prototype.toISOShortDate ) Date.prototype.toISOShortDate = toISOShortDate;
+    function toISOShortDate() {
         let yyyy = this.getFullYear(),
           mm = ('0' + (this.getMonth()+1)).slice(-2),
           dd = ( '0' + this.getDate()).slice(-2);
