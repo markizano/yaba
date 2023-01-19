@@ -18,10 +18,16 @@
                 <td txn-edit="true" ng-model="txn.datePosted" ng-switch on="!!edit['txn-datePosted']">
                     <span ng-switch-when="false" ng-bind="txn.datePosted | date:'yyyy-MM-dd'"></span>
                     <div ng-switch-when="true" ng-blur="$emit('yaba.edit2view-txn-datePosted', $event)">
-                        <md-datepicker ng-model="txn.datePosted"
+                        <input
+                          type="date"
+                          ng-model="txn.datePosted"
+                          class="txn-edit-field"
+                          ng-blur="$emit('yaba.edit2view-txn-datePosted', $event)"
+                        />
+                        <!-- <md-datepicker ng-model="txn.datePosted"
                             default-date="txn.datePosted"
                             datepicker-popup="yyyy-MM-dd"
-                        ></md-datepicker>
+                        ></md-datepicker> -->
                     </div>
                 </td>
                 <td txn-edit="true" ng-model="txn.amount" ng-switch on="!!edit['txn-amount']">

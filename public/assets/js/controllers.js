@@ -667,13 +667,12 @@
                 interestStrategy: 'simple',
             });
         };
-        seedlist.genTransaction = (accountId=null) => {
-            console.log(`Gen txn with ${accountId}.`);
-            let ttype = seedlist.transactionTypes.random(),
+        seedlist.genTransaction = (accountId=null, o={}) => {
+            let ttype = o.ttype? o.ttype: seedlist.transactionTypes.random(),
               institution = seedlist.institutions.random(),
-              amount = seedlist.number(),
-              datePosted = new Date(new Date() - Math.floor(Math.random() * 365 * 1000 * 3600 * 24)),
-              datePending = new Date(datePosted - (3 * 1000 * 3600 * 24));
+              amount = seedlist.number(o.amount || 100, 2),
+              datePosted = new Date(new Date() - Math.floor(Math.random() * (o.since || 31536000000))), // 1 year by default.
+              datePending = new Date(datePosted - 259200000); // 3 days ago.
             switch(ttype) {
                 case 'withdraw':
                     let merchant = seedlist.merchants.random();
@@ -734,9 +733,11 @@
                 .join('","') )
                 .join('"\n"') + '"';
             $scope.csvfile = csvFile;
-            const csvBlob = new Blob([csvFile], { type: 'text/csv' } );
+        };
+        $scope.downloadCSV = () => {
+            const csvBlob = new Blob([$scope.csvfile], { type: 'text/csv' } );
             saveAs(csvBlob, 'mock-transactions.csv');
-        }
+        };
     }
     develop.$inject = ['$scope', 'institutions', 'accounts', 'Settings'];
     Yaba.app.controller('develop', develop);
