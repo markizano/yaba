@@ -22,6 +22,13 @@
         return accounts;
     });
 
+    Yaba.app.factory('prospects', () => {
+        const prospects = new Yaba.models.Prospects();
+        // Global accessor for debugging.
+        Yaba.prospects = prospects;
+        return prospects;
+    });
+
     Yaba.app.factory('gCharts', ($rootScope) => {
         Yaba.gCharts = false;
         google.charts.load(

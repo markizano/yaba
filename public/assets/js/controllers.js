@@ -145,7 +145,7 @@
                     });
                 });
             });
-            return $scope.transactionBudgets;
+            return $scope.transactionBudgets = $scope.transactionBudgets.sort();
         };
 
         $scope.rebalance();
@@ -184,7 +184,7 @@
      * In the resulting box, show the remaining amount to be paid based on the previous cycle's
      * income.
      */
-    function prospect($scope, accounts, Settings) {
+    function prospect($scope, accounts, prospects, Settings) {
         console.log('Prospect controller');
         // Rename the constructor to save under a different name.
         function updateBudgets(value) {
@@ -205,18 +205,9 @@
         $scope.$watchCollection('transactions', updateBudgets);
         updateBudgets();
 
-        $scope.prospect = $scope.prospect || new Yaba.models.Prospects();
-        $scope.$on('save.prospects', () => {
-            $scope.prospect.store();
-        });
-
-        if ( localStorage.prospects ) {
-            console.log('Found saved prospects!');
-            let prospects = JSON.parse( localStorage.getItem('prospects') || '[]' );
-            $scope.prospect.push(...prospects);
-        }
+        $scope.prospect = $scope.prospect || prospects;
     }
-    prospect.$inject = ['$scope', 'accounts', 'Settings'];
+    prospect.$inject = ['$scope', 'accounts', 'prospects', 'Settings'];
     Yaba.app.controller('prospect', prospect);
 
     /**
@@ -269,21 +260,25 @@
     settings.$inject = ['$scope', 'institutions', 'accounts', 'Settings'];
     Yaba.app.controller('settings', settings);
 
-    function pageController($rootScope, $scope, $window, institutions, accounts) {
+    function pageController($rootScope, $scope, $window, institutions, accounts, prospects) {
         console.log('Loading and registering institutions and accounts...');
         $rootScope.DEBUG = $scope.DEBUG = Yaba.DEBUG;
         $scope.Year = (new Date()).getFullYear();
         let institutionStorage = JSON.parse($window.localStorage.getItem('institutions') || '[]'),
-        accountStorage = JSON.parse($window.localStorage.getItem('accounts') || '[]');
+          accountStorage = JSON.parse($window.localStorage.getItem('accounts') || '[]'),
+          prospectStorage = JSON.parse( localStorage.getItem('prospects') || '[]' );
 
         institutions.push(...institutionStorage);
         accounts.push(...accountStorage);
+        prospects.push(...prospectStorage);
 
         $rootScope.$on('save.institution', e => institutions.store(e));
         $rootScope.$on('save.institutions', e => institutions.store(e));
 
         $rootScope.$on('save.account', e => accounts.store(e));
         $rootScope.$on('save.accounts', e => accounts.store(e));
+
+        $rootScope.$on('save.prospects', e => prospects.store(e));
 
         $window.document.addEventListener('keydown', (e) => {
             // console.log(e.which);
@@ -304,7 +299,7 @@
             }
         });
     }
-    pageController.$inject = ['$rootScope', '$scope', '$window', 'institutions', 'accounts'];
+    pageController.$inject = ['$rootScope', '$scope', '$window', 'institutions', 'accounts', 'prospects'];
     Yaba.app.controller('page', pageController);
 
     /**
