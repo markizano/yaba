@@ -7,20 +7,19 @@
           from-date="fromDate"
           to-date="toDate"
           selected-accounts="selectedAccounts"
-          include-tags
-          show-daterange
-          show-accounts
-          show-pagination
+          description="description"
+          include-tags="true"
+          show-daterange="true"
+          show-accounts="true"
+          show-pagination="true"
           editable="editable" />
     </div>
-    <div>
-        <yaba-budget
-          budgets="budgets"
-          transactions="transactions"
-          from-date="fromDate"
-          to-date="toDate"
-          selected-accounts="selectedAccounts"
-        ></yaba-budget>
-    </div>
+      <yaba-budget
+        budgets="budgets"
+        transactions="transactions"
+        from-date="fromDate"
+        to-date="toDate"
+        selected-accounts="selectedAccounts"
+      ></yaba-budget>
     <div class="errors">{{ error }}</div>
 </div>

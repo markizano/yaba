@@ -8,14 +8,13 @@
     <p>{{ account.description }}</p>
     <yaba-transaction-list
       transactions="account.transactions"
-      selected-accounts="[account]"
       from-date="fromDate"
       to-date="toDate"
       class="csvdrop detail"
       include-tags
-      show-daterange
-      show-pagination
-      editable></yaba-transaction-list>
-
+      show-daterange="true"
+      show-pagination="true"
+      editable="editable"
+    ></yaba-transaction-list>
     <div class="errors">{{ error }}</div>
 </div>

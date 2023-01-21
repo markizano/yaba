@@ -47,9 +47,11 @@
             controller: 'yabaTransactionListCtrl',
             scope: {
                 _transactions: '=transactions',
-                selectedAccounts: '=?',
                 fromDate: '=?',
                 toDate: '=?',
+                selectedAccounts: '=?',
+                description: '=?',
+                txnTags: '=?',
                 limit: '=?'
             },
             restrict: 'E'
@@ -67,80 +69,9 @@
         };
     });
 
-    /**
-     * Enables one to include class="csvdrop" as an attribute and it'll attach this event that will
-     * handle dragging a file into the element.
-     */
-    function csvdrop($scope, $element, $attr) {
-        function highlight(event) {
-            if ( event ) {
-                event.preventDefault();
-            }
-            $element.addClass('dragging');
-            return false;
-        }
-
-        function unlight(event) {
-            if ( event ) {
-                event.preventDefault();
-            }
-            $element.removeClass('dragging');
-            return false;
-        }
-
-        function parseError(event) {
-            return (err, file, element, reason) => {
-                console.log(`Papa.parse() error from ${file} in ${element}: ${err}`);
-                console.log(reason);
-                // @TODO: Find a way to notify the end-user of a failure.
-                $scope.emit('csvError', {
-                    err,
-                    file,
-                    element,
-                    reason,
-                    institutionId: event.institutionId,
-                    accountId: event.accountId
-                });
-            };
-        }
-
-        function done(event) {
-            return (parsedCSV) => {
-                let result = {
-                    parsedCSV,
-                    institutionId: event.institutionId,
-                    accountId: event.accountId
-                };
-                $scope.$emit('csvParsed', result);
-            };
-        }
-
-        function drop(event) {
-            if ( event ) { event.preventDefault(); }
-            unlight(event);
-            if ( $scope.account ) {
-                event.institutionId = $scope.account.institutionId || '';
-                event.accountId = $scope.account.id || '';
-            }
-            angular.forEach(event.originalEvent.dataTransfer.files, (uploadFile) => {
-                Papa.parse(uploadFile, {
-                    header: true,
-                    skipEmptyLines: true,
-                    error: parseError(event),
-                    complete: done(event)
-                });
-            });
-        }
-
-        $element.bind('dragover', highlight);
-        $element.bind('dragenter', highlight);
-        $element.bind('dragleave', unlight);
-        $element.bind('dragend', unlight);
-        $element.bind('drop', drop);
-    }
     Yaba.app.directive('csvdrop', () => {
         return {
-            link: csvdrop,
+            link: Yaba.Links.csvdrop,
             restrict: 'AC'
         }
     })
@@ -186,6 +117,25 @@
         }
     });
 
+    Yaba.app.directive('yabaControls', () => {
+        return {
+            templateUrl: '/assets/views/controls.htm',
+            restrict: 'E',
+            controller: 'yabaControlsCtrl',
+            scope: {
+                fromDate: '=?',
+                toDate: '=?',
+                selectedAccounts: '=?',
+                description: '=?',
+                txnTags: '=?',
+                showDaterange: '=?',
+                showDescription: '=?',
+                showAccounts: '=?',
+                showTags: '=?',
+            }
+        }
+    });
+
     Yaba.app.directive('googleChart', (/* GoogleChartService */) => {
         return {
             // require: 'gCharts',
@@ -200,7 +150,9 @@
             restrict: 'E',
             link: ($scope, $element, $attr) => {
                 //@TODO: Somehow make this a config to hide all <debug /> tags instead of commenting this line.
-                $element.hide();
+                if ( !Yaba.DEBUG ) {
+                    $element.hide();
+                }
             }
         }
     })

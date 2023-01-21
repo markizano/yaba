@@ -254,9 +254,10 @@ table.data th:first-child {
     font-size: 20px;
 }
 yaba-transaction-list {
-    display: block;
+    display: inline-block;
     margin: 2px;
     padding: 2px;
+    max-width: 800px;
 }
 .csvdrop.dragging {
   border: 3px solid #11F;
@@ -424,7 +425,9 @@ data-table {
     font-size: 25px;
 }
 yaba-daterange {
-    width: 100%;
+    max-width: 500px;
+    display: inline-block;
+    overflow: hidden;
 }
 filters {
     display: block;
@@ -463,4 +466,24 @@ debug p {
 .csv-content {
     max-height: 500px;
     overflow-y: auto;
+}
+
+controls {
+    display: block;
+    width: 99%;
+}
+controls accounts {
+    display: inline-block;
+    max-width: 500px;
+}
+controls description {
+    display: inline-block;
+}
+controls budgets {
+    display: inline-block;
+}
+yaba-budget {
+    max-width: 224px;
+    display: block;
+    float: right;
 }
