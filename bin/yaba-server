@@ -1,6 +1,0 @@
-#!/usr/bin/env python3
-
-import yaba.api
-import sys
-
-sys.exit( yaba.api.main() )

@@ -1,2 +1,0 @@
-
-from kizano import getLogger
