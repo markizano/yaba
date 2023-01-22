@@ -13,7 +13,7 @@
     const animationDelay = 400;
 
     function pageController($rootScope, $scope, $window, institutions, accounts, prospects) {
-        console.log('Loading and registering institutions and accounts...');
+        console.info('Loading and registering institutions and accounts...');
         $rootScope.DEBUG = $scope.DEBUG = Yaba.DEBUG;
         $scope.Year = (new Date()).getFullYear();
         let institutionStorage = JSON.parse($window.localStorage.getItem('institutions') || '[]'),
@@ -58,7 +58,7 @@
      * Account Institutions Controller.
      */
     function institutions($scope, $timeout, institutions) {
-        console.log('Yaba.controllers.institutions()');
+        console.info('Yaba.controllers.institutions()');
         $scope.institutions = institutions;
         $scope.institution = new Yaba.models.Institution();
         $scope.seeForm = false;
@@ -93,7 +93,7 @@
      * Angular Accounts controller.
      */
     function accounts($scope, institutions, accounts) {
-        console.log('Yaba.controllers.accounts()');
+        console.info('Yaba.controllers.accounts()');
         $scope.accountTypes = Yaba.models.Account.Types;
         $scope.institutions = institutions;
         $scope.accounts = accounts;
@@ -127,7 +127,7 @@
      * Account detail page.
      */
     function account($scope, $routeParams, institutions, accounts) {
-        console.log('account-details()');
+        console.info('account-details()');
         $scope.account = accounts.byId($routeParams.accountId);
         $scope.$on('csvParsed', Yaba.models.Transactions.csvHandler($scope, institutions, accounts));
     }
@@ -138,7 +138,7 @@
      * Angular Budget Controller.
      */
     function budget($scope, accounts) {
-        console.log('Budget controller');
+        console.info('Budget controller');
         $scope.budgets || ($scope.budgets = []);
         $scope.transactions || ($scope.transactions = new Yaba.models.Transactions());
 
@@ -155,36 +155,18 @@
     function charts($scope, accounts, Settings, gCharts) {
         $scope.accounts = accounts;
         $scope.transactions = new Yaba.models.Transactions();
-        $scope.selectedAccounts = new Yaba.models.Accounts();
-        $scope.transactionBudgets = [];
         $scope.txnTags = [];
         $scope.fromDate = new Date(new Date() - Settings.txnDelta);
         $scope.toDate = new Date();
 
         $scope.rebalance = () => {
-            transactionBudgets();
             $scope.transactions.clear();
-            let selectedAccounts = accounts.selected($scope.selectedAccounts);
-            selectedAccounts.forEach(account => {
+            accounts.selected($scope.selectedAccounts).forEach(account => {
                 $scope.transactions.push(...account.transactions
                     .daterange($scope.fromDate, $scope.toDate)
                     .byTags($scope.txnTags)
                 );
             });
-        };
-
-        const transactionBudgets = () => {
-            $scope.transactionBudgets.length = 0;
-            accounts.selected($scope.selectedAccounts).forEach(account => {
-                account.transactions.daterange($scope.fromDate, $scope.toDate).forEach(txn => {
-                    txn.tags.forEach(tag => {
-                        if ( !$scope.transactionBudgets.includes(tag) ) {
-                            $scope.transactionBudgets.push(tag);
-                        }
-                    });
-                });
-            });
-            return $scope.transactionBudgets = $scope.transactionBudgets.sort();
         };
 
         $scope.rebalance();
@@ -194,18 +176,24 @@
         $scope.$watchCollection('selectedAccounts', () => $scope.rebalance());
 
         const simpleDataTable = () => {
-            var results = [ ['Date'].concat($scope.txnTags) ];
-            $scope.transactions.forEach((transaction) => {
-                let dataPoint = [transaction.datePosted];
-                for ( let i = 0; i < $scope.txnTags.length; i++ ) {
-                    if ( transaction.tags.includes($scope.txnTags[i]) ) {
-                        dataPoint.push(transaction.amount);
+            const results = [ ['Date'].concat($scope.txnTags) ];
+            let dataTable = {};
+            $scope.transactions.sorted().map(txn => {
+                dataTable.hasOwnProperty(txn.datePosted) || (dataTable[txn.datePosted] = {});
+                txn.tags.filter(tag => $scope.txnTags.includes(tag)).forEach(tag => {
+                    if ( dataTable[txn.datePosted].hasOwnProperty(tag) ) {
+                        dataTable[txn.datePosted][tag] += txn.amount;
                     } else {
-                        dataPoint.push(null);
+                        dataTable[txn.datePosted][tag] = txn.amount;
                     }
-                }
-                results.push(dataPoint);
+                });
+                return dataTable;
             });
+            results.push(...Object.keys(dataTable).map(date => {
+                const tag2dataTable = tag => (dataTable[date][tag] || null);
+                let dataPoint = [new Date(date)].concat($scope.txnTags.map(tag2dataTable));
+                return dataPoint;
+            }));
             return results;
         };
         $scope.budgets = simpleDataTable;
@@ -224,7 +212,7 @@
      * income.
      */
     function Prospect($scope, accounts, prospects, Settings) {
-        console.log('Prospect controller');
+        console.info('Prospect controller');
         // Rename the constructor to save under a different name.
         function updateBudgets(value) {
             $scope.incomeTxns = $scope.transactions.byTags($scope.incomeTags);
@@ -392,7 +380,14 @@
         let isBudgeting = false;
         function budgets() {
             let budgets = {};
-            $scope.transactions.applyFilters($scope.selectedAccounts, $scope.fromDate, $scope.toDate, -1)
+            $scope.transactions.applyFilters(
+                $scope.selectedAccounts,
+                $scope.fromDate,
+                $scope.toDate,
+                $scope.description,
+                $scope.txnTags,
+                -1
+            )
               .map(transaction => {
                 return transaction.tags.map(tag => {
                     budgets.hasOwnProperty(tag) || (budgets[tag] = 0);
@@ -451,8 +446,11 @@
                 $scope.showAccounts? $scope.selectedAccounts: undefined,
                 $scope.showDaterange? $scope.fromDate: undefined,
                 $scope.showDaterange? $scope.toDate: undefined,
+                $scope.showDescription? $scope.description: undefined,
+                $scope.showTags? $scope.txnTags: undefined,
                 $scope.limit
             );
+            console.log(`update.transactions(${$scope.transactions.length}, useDesc=${$scope.showDescription}, desc=${$scope.description})`);
         };
         update();
 
@@ -475,10 +473,14 @@
         if ( $scope.showAccounts ) {
             $scope.$watchCollection('selectedAccounts', forwardEvent);
         }
+        if ( $scope.showDescription ) {
+            $scope.$watch('description', () => { forwardEvent() } );
+        }
+        if ( $scope.showTags && $scope.txnTags ) {
+            $scope.$watch('txnTags', forwardEvent);
+        }
         if ( $scope.showPagination ) {
-            $scope.$on('pagination.changed', () => {
-                //@TODO: Find the element and run $($element).scrollTop(); on it.
-            })
+            $scope.$on('pagination.changed', () => { $attrs.$$element.find('table').scrollTop(0); });
         }
         $scope.$watchCollection('_transactions', forwardEvent);
         $scope.$watchCollection('transactions', forwardEvent);
@@ -541,26 +543,27 @@
      * - Description ($description) for txns matching this for any of their text fields.
      * - Tags ($txnTags) list of budgets selected that should match these tags.
      */
-    function ControlsCtrl($scope, $attrs, accounts, Settings) {
+    function ControlsCtrl($scope, accounts, Settings) {
         $scope.accounts = accounts;
         $scope.fromDate = new Date(new Date() - Settings.txnDelta);
         $scope.toDate = new Date();
         $scope.selectedAccounts = Object.assign([], accounts);
         $scope.description = '';
         $scope.useRegEx = false;
+        $scope.transactionBudgets = [];
         $scope.txnTags = [];
         $scope.$watch('selectedAccounts', () => {
-            $scope.txnTags.length = 0;
+            $scope.transactionBudgets.length = 0;
             accounts.selected($scope.selectedAccounts).forEach(account => {
                 account.transactions.map(txn => {
                     txn.tags.forEach(tag => {
-                        $scope.txnTags.includes(tag) || $scope.txnTags.push(tag);
+                        $scope.transactionBudgets.includes(tag) || $scope.transactionBudgets.push(tag);
                     });
                 });
             });
         });
     }
-    ControlsCtrl.$inject = ['$scope', '$attrs', 'accounts', 'Settings'];
+    ControlsCtrl.$inject = ['$scope', 'accounts', 'Settings'];
     Yaba.app.controller('yabaControlsCtrl', Widgets.Controls = ControlsCtrl);
 
     function wishlist($scope) {
@@ -577,7 +580,7 @@
         };
 
         $scope.remove = ($index) => {
-            console.log(`Removing wishlist(${$index})`);
+            console.info(`Removing wishlist(${$index})`);
             $scope.wishlist.splice($index, 1);
             $scope.$emit('save.prospects');
         };
@@ -641,8 +644,8 @@
 
         function parseError(event) {
             return (err, file, element, reason) => {
-                console.log(`Papa.parse() error from ${file} in ${element}: ${err}`);
-                console.log(reason);
+                console.error(`Papa.parse() error from ${file} in ${element}: ${err}`);
+                console.error(reason);
                 // @TODO: Find a way to notify the end-user of a failure.
                 $scope.emit('csvError', {
                     err,

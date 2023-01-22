@@ -478,12 +478,22 @@ controls accounts {
 }
 controls description {
     display: inline-block;
+    width: 220px;
+    height: 40px;
 }
 controls budgets {
     display: inline-block;
+    min-width: 150px;
+    min-height: 120px;
+    vertical-align: top;
 }
+controls budgets select {
+    min-width:99%;
+    min-height: 100px;
+}
+
 yaba-budget {
-    max-width: 224px;
+    max-width: 500px;
     display: block;
     float: right;
 }

@@ -24,7 +24,7 @@
     class Storable {
         save($scope) {
             let event = `save.${this.constructor.name.toLowerCase()}`;
-            console.log('JSONable.save()', event);
+            console.info('JSONable.save()', event);
             return $scope.$emit(event, this);
         }
     }
@@ -37,7 +37,7 @@
 
         store() {
             const storeItem = this.constructor.name.toLowerCase();
-            console.log(`Storables.store(${storeItem})`);
+            console.info(`Storables.store(${storeItem})`);
             localStorage.setItem(storeItem, this.toString());
         }
     }
@@ -465,9 +465,6 @@
     }
 
     class Accounts extends JSONables {
-        constructor() {
-            super();
-        }
 
         push(...items) {
             for ( let i in items ) {
@@ -502,7 +499,7 @@
 
         selected(selectedAccounts) {
             return this.filter(a => {
-                return selectedAccounts.includes(a);
+                return Accounts.prototype.includes.call(selectedAccounts || [], a);
             });
         }
 
@@ -670,11 +667,12 @@
          *  Leave undefined if you don't want to use this filter.
          * @returns {Transactions} List of transactions after filtering and limiting.
          */
-        applyFilters(selectedAccounts, fromDate, toDate, limit=-1, tags=undefined) {
+        applyFilters(selectedAccounts, fromDate, toDate, description=undefined, tags=undefined, limit=-1) {
             let result = this.filter(txn => {
                 let tests = {
                     selectedAccounts: false,
                     date: true,
+                    description: false,
                     tags: false,
                 };
                 /* SELECTED ACCOUNT */
@@ -688,6 +686,11 @@
                     const older = txn.datePosted <= toDate;
                     tests.date = recent && older;
                 }
+                if ( !angular.isUndefined(description) ) {
+                    tests.description = txn.merchant.toLowerCase().indexOf(description.toLowerCase()) !== -1
+                      || txn.description.toLowerCase().indexOf(description.toLowerCase()) !== -1;
+                    // console.log(`tests.description: ${tests.description} for "${description}" from "${txn.description.toLowerCase()}"`);
+                }
 
                 /* TAGS (conditional) */
                 if ( !angular.isUndefined(tags) ) {
@@ -695,13 +698,15 @@
                 }
                 const useAccounts = !angular.isUndefined(selectedAccounts),
                   useDate = (!angular.isUndefined(fromDate) && !angular.isUndefined(toDate)),
+                  useDescription = !angular.isUndefined(description),
                   useTags = !angular.isUndefined(tags);
                 let truthy = useAccounts? tests.selectedAccounts: true 
                   && useDate? tests.date: true
+                  && useDescription? tests.description: true
                   && useTags? tests.tags: true;
                 return truthy;
             });
-            if ( limit > 0 ) {
+            if ( limit && limit > 0 ) {
                 result = result.slice(0, limit);
             }
             return result;
@@ -831,12 +836,12 @@
                                 $$event.keypress = true;
                                 switch($$event.which) {
                                     case 27: // [ESC]
-                                        console.log(`fire keypress(key.Esc, ${eventName})`);
+                                        console.info(`fire keypress(key.Esc, ${eventName})`);
                                         $scope.$emit(eventName, $$event, fieldValue)
                                         return;
                                     case 13: // [Enter]
                                         if ( !$$event.ctrlKey ) return;
-                                        console.log(`fire keypress(key.Enter, ${eventName})`);
+                                        console.info(`fire keypress(key.Enter, ${eventName})`);
                                         $scope.$emit(eventName, $$event)
                                         return;
                                 }
@@ -873,7 +878,7 @@
                 $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
                 $scope.myBudgets = $scope.budgets(); // DEBUG
                 if ( $scope.myBudgets.length <= 1 ) {
-                    console.log('No budgets.');
+                    console.warn('No budgets.');
                     return;
                 }
                 dataTable.addRows($scope.myBudgets.slice(1));
@@ -892,7 +897,7 @@
             } else {
                 // wait
                 return $scope.$on('google-charts-ready', () => {
-                    console.log('Match google-charts-ready! Registering watcher...');
+                    console.info('Match google-charts-ready! Registering watcher...');
                     return $scope.$watchCollection('transactions', redrawCharts);
                 });
             }

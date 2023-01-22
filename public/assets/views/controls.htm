@@ -8,11 +8,12 @@
     </accounts>
 
     <description ng-show="showDescription">
-        Description: <input type="text" ng-model="description" placeholder="Search Description" />
+        <input type="text" ng-model="description" placeholder="Search Description" />
     </description>
 
     <budgets ng-show="showTags">
-        Budgets: <select multiple ng-model="txnTags" ng-options="budget for budget in transactionBudgets"></select>
+        Budgets: <br />
+        <select multiple ng-model="txnTags" ng-options="budget for budget in transactionBudgets" class="budget-list"></select>
     </budgets>
 
 </controls>
