@@ -192,8 +192,7 @@
             this.routing = data.routing || '';
             this.interestRate = Number(data.interestRate) || 0.0;
             this.interestStrategy = data.interestStrategy || null;
-            this.transactions = new Transactions();
-            this.transactions.push(...data.transactions || []);
+            this.transactions = new Transactions(...data.transactions || []);
         }
 
         /**
@@ -208,14 +207,12 @@
             if ( data.institutionId && data.institutionId instanceof Institution ) {
                 data.institutionId = data.institutionId.id;
             }
-            if ( data.interestRate && ! typeof data.interestRate == 'number' ) {
+            if ( data.interestRate && typeof data.interestRate != 'number' ) {
                 data.interestRate = Number(data.interestRate);
             }
             if ( data.transactions
-              && ! data.transactions instanceof Transactions ) {
-                let txns = data.transactions;
-                data.transactions = new Transactions();
-                data.transactions.push(...txns);
+              && ! (data.transactions instanceof Transactions) ) {
+                data.transactions = new Transactions(...data.transactions);
             }
             return data;
         }
@@ -243,6 +240,7 @@
                 this.transactions.push(...data.transactions);
             }
         }
+
         /**
          * Balance as a function will allow us to traverse the current transaction list.
          * @returns {Number} The current running balance of this account.
@@ -494,13 +492,36 @@
             } else {
                 itemId = item;
             }
-            return !!this.filter(x => x.id ==  itemId).length;
+            return !!this.filter(x => x instanceof Account? x.id: x == itemId).length;
         }
 
-        selected(selectedAccounts) {
-            return this.filter(a => {
-                return Accounts.prototype.includes.call(selectedAccounts || [], a);
-            });
+        /**
+         * Gets the unique set of tags from the transactions of this account.
+         * @returns {Array<String>} The list of tags from the transactions in this list.
+         */
+        getTags() {
+            return [].concat(...this.map(a =>
+                [... new Set([].concat(...a.transactions.filter(t =>
+                    t.tags.length).map(t => t.tags)).sort()
+                )]
+            ) );
+        }
+
+        /**
+         * Get the list of transactions that match the filters.
+         * @returns {Transactions} New list of transactions that match the search criteria.
+         */
+        getTransactions(selectedAccounts, fromDate, toDate, description=undefined, tags=undefined, limit=-1) {
+            return (new Transactions()).concat(...this.selected(selectedAccounts).map(
+                a => a.transactions.applyFilters(
+                    // selectedAccounts,
+                    fromDate,
+                    toDate,
+                    description,
+                    tags,
+                    limit
+                )
+            ));
         }
 
         /**
@@ -532,7 +553,34 @@
             return jszip;
         }
 
-    }
+        /**
+         * Execute on the filtering of accounts based on what was selected.
+         * @param {String|Account|Array<String>|Array<Account>|Accounts} selectedAccounts The selected accounts to filter against.
+         * @returns The accounts that match what was listed in the provided item or collection.
+         */
+        filterSelected(account, selectedAccounts) {
+            if ( typeof selectedAccounts == 'string') { 
+                selectedAccounts = new Accounts([new Account({id: selectedAccounts})]);
+            }
+            if ( selectedAccounts instanceof Account ) {
+                selectedAccounts = new Accounts(selectedAccounts);
+            }
+            if ( selectedAccounts instanceof Array && ! (selectedAccounts instanceof Accounts) ) {
+                selectedAccounts = new Accounts(...selectedAccounts);
+            }
+            return selectedAccounts.includes(account instanceof Account? account.id: account);
+        }
+
+        /**
+         * Get the list of selected accounts from the input provided.
+         * @param {Array|Accounts} selectedAccounts The list of accounts to check for includes. Match ANY accounts listed.
+         * @returns {Accounts}
+         */
+        selected(selectedAccounts) {
+            return this.filter(a => this.filterSelected(a, selectedAccounts));
+        }
+
+}
 
     class Transactions extends JSONables {
 
@@ -581,6 +629,59 @@
         }
 
         /**
+         * Filter method for returning the date range specified.
+         * @param {Transaction} txn The transaction for the filter iteration
+         * @returns {Boolean} TRUE|FALSE based on if this txn is in the specified date range.
+         */
+        filterDaterange(txn, fromDate, toDate) {
+            if ( typeof fromDate == 'string' ) {
+                fromDate = new Date(fromDate);
+            }
+            if ( typeof toDate == 'string' ) {
+                toDate = new Date(toDate);
+            }
+            
+            if ( typeof txn.datePosted == 'string' ) {
+                txn.datePosted = new Date(txn.datePosted);
+            }
+            let recent = txn.datePosted >= fromDate;
+            let older = txn.datePosted <= toDate;
+            return recent && older;
+        }
+
+        /**
+         * Filters out based on accountId even if what is provided is more than just a string.
+         * @param {String|Account} accountId
+         * @returns {Boolean}
+         */
+        filterAccountId(txn, accountId) {
+            return txn.accountId == (accountId instanceof Account? accountId.id: accountId);
+        }
+
+        /**
+         * Filters out based on a list or collection of accountIds even if what is provided is more than just a string.
+         * @param {String|Account} accountId
+         * @returns {Boolean}
+         */
+        filterAccountIds(txn, accountIds) {
+            return accountIds instanceof Accounts? accountIds.includes(txn.accountId):
+              (new Accounts(accountIds)).includes(txn.accountId);
+        }
+
+        /**
+         * Filter by description.
+         * @param {Transaction} txn Transaction by this.filter() function.
+         * @param {String|undefined} description String description to filter against. Will match in .merchant or in .description.
+         * @returns {Boolean} TRUE|FALSE if we find this in the description.
+         */
+        filterDescription(txn, description) {
+            // Assign as booleans to check if any in match.
+            const inMerchant = txn.merchant.toLowerCase().indexOf(description.toLowerCase()) !== -1;
+            const inDescription = txn.description.toLowerCase().indexOf(description.toLowerCase()) !== -1;
+            return inMerchant || inDescription;
+        }
+
+        /**
          * Filters out transactions by date. Gives a Transaction collection
          * within a time range between two dates.
          * @param {Date} fromDate No transactions older than this date.
@@ -588,22 +689,7 @@
          * @returns {Transactions}
          */
         daterange(fromDate, toDate) {
-            return this.filter((txn) => {
-
-                if ( typeof fromDate == 'string' ) {
-                    fromDate = new Date(fromDate);
-                }
-                if ( typeof toDate == 'string' ) {
-                    toDate = new Date(toDate);
-                }
-                
-                if ( typeof txn.datePosted == 'string' ) {
-                    txn.datePosted = new Date(txn.datePosted);
-                }
-                let recent = txn.datePosted >= fromDate;
-                let older = txn.datePosted <= toDate;
-                return recent && older;
-            });
+            return this.filter((txn) => this.filterDaterange(txn, fromDate, toDate));
         }
 
         /**
@@ -614,7 +700,7 @@
          * @returns {Transactions} List of transactions only by accountId
          */
         byAccountId(accountId) {
-            return this.filter((txn) => txn.accountId == accountId);
+            return this.filter((txn) => this.filterAccountId(txn, accountId));
         }
 
         /**
@@ -625,7 +711,7 @@
          * @returns {Transactions} List of transactions only by accountId
          */
         byAccountIds(accountIds) {
-            return this.filter((txn) => accountIds.includes(txn.accountId));
+            return this.filter((txn) => this.filterAccountIds(txn, accountIds));
         }
 
         /**
@@ -657,54 +743,65 @@
 
         /**
          * Assumes all data points are found as they are required.
-         * @param {Array<String>|Accounts|undefined} selectedAccounts Account collection we can use to filter ID's.
-         *   Limitation of angularjs being unable to use `track by` to actually return just the ID.
+         * This method takes and combines the filter functions above to give us a robust method that will filter on
+         * an "ANY" basis for the criteria described. In this way, we only iterate the transactions once and filter out
+         * exactly what we need instead of iterating the transactions multiple times in a series of filters.
+         * 
+         * Unless otherwise specified, use `undefined` to disable any of the filters.
+         * The DateRange filter requires both $fromDate and $toDate to be defined.
+         * 
          * @param {Date|String|undefined} fromDate No transactions older than this date.
          * @param {Date|String|undefined} toDate No transactions newer than this date.
+         * @param {String|undefined} description Transactions matching this string.
          * @param {Number} limit Limit the number of transactions to this many.
          *  Use -1 to disable this filter.
          * @param {Array<String>|undefined} tags List of tags transaction must match.
-         *  Leave undefined if you don't want to use this filter.
          * @returns {Transactions} List of transactions after filtering and limiting.
          */
-        applyFilters(selectedAccounts, fromDate, toDate, description=undefined, tags=undefined, limit=-1) {
+        applyFilters(fromDate=undefined, toDate=undefined, description=undefined, tags=undefined, limit=-1) {
             let result = this.filter(txn => {
                 let tests = {
-                    selectedAccounts: false,
                     date: true,
                     description: false,
                     tags: false,
                 };
-                /* SELECTED ACCOUNT */
-                if ( !angular.isUndefined(selectedAccounts) ) {
-                    tests.selectedAccounts = Accounts.prototype.includes.call(selectedAccounts, txn.accountId);
+
+                /* DATES */
+                if ( fromDate !== undefined && toDate !== undefined ) {
+                    tests.date = this.filterDaterange(fromDate, toDate);
                 }
 
-                if ( !angular.isUndefined(fromDate) && !angular.isUndefined(toDate) ) {
-                    /* DATES */
-                    const recent = txn.datePosted >= fromDate;
-                    const older = txn.datePosted <= toDate;
-                    tests.date = recent && older;
-                }
-                if ( !angular.isUndefined(description) ) {
-                    tests.description = txn.merchant.toLowerCase().indexOf(description.toLowerCase()) !== -1
-                      || txn.description.toLowerCase().indexOf(description.toLowerCase()) !== -1;
+                /* DESCRIPTION */
+                if ( description !== undefined ) {
+                    tests.description = this.filterDescription(txn, description);
                     // console.log(`tests.description: ${tests.description} for "${description}" from "${txn.description.toLowerCase()}"`);
                 }
 
-                /* TAGS (conditional) */
-                if ( !angular.isUndefined(tags) ) {
+                /* TAGS (OR|ANY) */
+                if ( !angular.isUndefined(tags) && tags.length > 0 ) {
                     tests.tags = tags.some(tag => txn.tags.includes(tag));
                 }
-                const useAccounts = !angular.isUndefined(selectedAccounts),
+
+                const /*useAccounts = !angular.isUndefined(selectedAccounts),*/
                   useDate = (!angular.isUndefined(fromDate) && !angular.isUndefined(toDate)),
                   useDescription = !angular.isUndefined(description),
-                  useTags = !angular.isUndefined(tags);
-                let truthy = useAccounts? tests.selectedAccounts: true 
-                  && useDate? tests.date: true
-                  && useDescription? tests.description: true
-                  && useTags? tests.tags: true;
-                return truthy;
+                  useTags = !angular.isUndefined(tags) && tags.length > 0;
+
+                  let truthy = [
+                    // useAccounts? tests.selectedAccounts: true,
+                    useDate? tests.date: true,
+                    useDescription? tests.description: true,
+                    useTags? tests.tags: true
+                ];
+                /*console.log([
+                    {useAccounts, selectedAccounts},
+                    {useDate, fromDate, toDate },
+                    {useDescription, description},
+                    {useTags, tags},
+                    {truthy}
+                ]); //*/
+
+                return truthy.every(x => x);
             });
             if ( limit && limit > 0 ) {
                 result = result.slice(0, limit);
@@ -931,3 +1028,7 @@
 
     return Yaba;
 })(Yaba);
+
+if ( typeof module !== 'undefined' && module.hasOwnProperty('exports') ) {
+    module.exports = Yaba;
+}
