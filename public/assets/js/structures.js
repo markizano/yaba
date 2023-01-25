@@ -901,7 +901,7 @@
         /**
          * Linker function to join a transaction to the edit boxes we embed in a transaction listing.
          */
-        static txnTable($timeout) {
+        static txnTable($rootScope, $timeout) {
             return function($scope, $element, $attr, ngModel) {
                 // Store the name of the element we will use later in distinguishing events.
                 const fieldName = $attr.ngModel.replace('.', '-');
@@ -936,7 +936,7 @@
                                 }
                                 $scope.edit[fieldName] = false;
                                 $scope.$emit('save.accounts', this);
-                                $scope.$emit('yaba.txn-change');
+                                $rootScope.$broadcast('yaba.txn-change');
                                 if ( jqEvent.type && ['keydown'].includes(jqEvent.type) ) {
                                     try{ $scope.$apply(); } catch(e) { console.error(e); }
                                 }

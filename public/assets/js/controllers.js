@@ -372,46 +372,7 @@
     AccountForm.$inject = ['$scope', '$timeout', 'accounts'];
     Yaba.app.controller('yabaAccountCtrl', Forms.Account = AccountForm);
 
-    /**
-     * This controller uses an isolate scope, so we will need to reference the parent scope if we don't
-     * want/need to bind the from-date, to-date and selected-accounts values.
-     */
-    function BudgetCtrl($rootScope, $scope) {
-        let isBudgeting = false;
-        function budgets() {
-            let budgets = {};
-            $scope.transactions/*.applyFilters(
-                $scope.selectedAccounts,
-                $scope.fromDate,
-                $scope.toDate,
-                $scope.description,
-                $scope.txnTags,
-                -1
-            ) //*/
-              .map(transaction => {
-                return transaction.tags.map(tag => {
-                    budgets.hasOwnProperty(tag) || (budgets[tag] = 0);
-                    return { tag: tag, amount: transaction.amount };
-                }).map(tagMap => {
-                    return budgets[tagMap.tag] += tagMap.amount;
-                });
-            });
-            $scope.budgets = Object.keys(budgets).map(b => ({budget: b, amount: budgets[b]}) );
-            return $scope.budgets;
-        }
-        budgets();
-        $scope.updateBudgets = budgets;
-        $rootScope.$on('yaba.txn-change', ($event) => {
-            if ( isBudgeting ) {
-                console.warn('another rebudget in progress. ignoring this event.');
-                return;
-            }
-            budgets();
-        });
-    }
-    BudgetCtrl.$inject = ['$rootScope', '$scope'];
-    Yaba.app.controller('yabaBudgetCtrl', Forms.Budget = BudgetCtrl);
-
+    return Yaba;
 })(Yaba);
 
 /**
@@ -426,7 +387,7 @@
      * and however we may want to render them.
      * Directed by the <yaba-controls /> Controller. By giving us the $fromDate, $toDate, $description,
      * $selectedAccounts and $txnTags, we can render back a list of transactions from the accounts we
-     * have stored. Think of this as the eyeglass that gives you a view into the data that is the book
+     * have stored. Think of this as the eyeglassrootScope that gives you a view into the data that is the book
      * that contains the backend storage.
      * I am no longer trying to feed this control a list of transactions to render. It will render
      * what is provided by another control that will share its values and inputs from the user.
@@ -598,12 +559,38 @@
             update();
             Yaba.$scope = $scope;
 
-            $scope.$on('yaba.txn-change', () => update() );
-            $scope.$on('controls.change', () => update() );
+            $scope.$on('yaba.txn-change', update );
+            $scope.$on('controls.change', update );
             $scope.$on('pagination.changed', () => $element.find('table').scrollTop(0) );
         };
     }
     Links.transactionList = transactionList;
+
+    /**
+     * This linker function will control the budget widget and ensure it stays up to date when you pick
+     * certain things from the user-controls.
+     */
+    function Budgets($scope, $element, $attr) {
+        const rebudget = () => {
+            let budgets = {};
+            $scope.transactions.map(transaction => {
+                return transaction.tags.map(tag => {
+                    budgets.hasOwnProperty(tag) || (budgets[tag] = 0);
+                    return { tag: tag, amount: transaction.amount };
+                }).map(tagMap => {
+                    return budgets[tagMap.tag] += tagMap.amount;
+                });
+            });
+            $scope.budgets = Object.keys(budgets).sort().map(b => ({budget: b, amount: budgets[b]}) );
+            console.log('rebudgeting...', $scope.transactions.length, budgets);
+            return $scope.budgets;
+        }
+        rebudget();
+        $scope.$watchCollection('transactions', rebudget);
+        $scope.$on('yaba.txn-change', rebudget);
+        console.log('Yaba-Budget.Link()');
+    }
+    Links.Budgets = Budgets;
 
     /**
      * Enables one to include class="csvdrop" as an attribute and it'll attach this event that will
