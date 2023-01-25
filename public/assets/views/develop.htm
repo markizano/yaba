@@ -72,5 +72,9 @@
                 <input type="button" ng-click="downloadCSV()" value="Download this as CSV" />
             </div>
         </form>
+        <form>
+            <input type="submit" ng-click="testStorageLimit()" value="Test Browser Limits (Stroage)" />
+            <p ng-bind="txnLength"></p>
+        </form>
     </div>
 </md-content>

@@ -41,41 +41,6 @@
         };
     });
 
-    Yaba.app.directive('yabaTransactionList', () => {
-        return {
-            templateUrl: '/assets/views/tables/transactions.htm',
-            controller: 'yabaTransactionListCtrl',
-            scope: {
-                _transactions: '=transactions',
-                fromDate: '=?',
-                toDate: '=?',
-                selectedAccounts: '=?',
-                description: '=?',
-                txnTags: '=?',
-                limit: '=?'
-            },
-            restrict: 'E'
-        };
-    });
-
-    Yaba.app.directive('yabaWishlist', () => {
-        return {
-            templateUrl: '/assets/views/prospect/wishlist.htm',
-            controller: 'yabaWishlist',
-            scope: {
-                wishlist: '='
-            },
-            restrict: 'E'
-        };
-    });
-
-    Yaba.app.directive('csvdrop', () => {
-        return {
-            link: Yaba.Links.csvdrop,
-            restrict: 'AC'
-        }
-    })
-
     Yaba.app.directive('yabaDaterange', () => {
         return {
             templateUrl: '/assets/views/daterange.htm',
@@ -83,6 +48,26 @@
             scope: {
                 fromDate: '=',
                 toDate: '='
+            }
+        }
+    });
+
+    Yaba.app.directive('yabaControls', () => {
+        return {
+            require: ['yabDaterange'],
+            templateUrl: '/assets/views/controls.htm',
+            restrict: 'E',
+            controller: 'yabaControlsCtrl',
+            scope: {
+                fromDate: '=?',
+                toDate: '=?',
+                selectedAccounts: '=?',
+                description: '=?',
+                txnTags: '=?',
+                showDaterange: '=?',
+                showDescription: '=?',
+                showAccounts: '=?',
+                showTags: '=?',
             }
         }
     });
@@ -117,24 +102,43 @@
         }
     });
 
-    Yaba.app.directive('yabaControls', () => {
+    Yaba.app.directive('yabaTransactionList', (accounts) => {
         return {
-            templateUrl: '/assets/views/controls.htm',
-            restrict: 'E',
-            controller: 'yabaControlsCtrl',
+            // require: ['yabaControls', 'yabaPagination', 'txnEdit'],
+            templateUrl: '/assets/views/tables/transactions.htm',
+            controller: 'yabaTransactionListCtrl',
+            link: Yaba.Links.transactionList(accounts),
             scope: {
+                // _transactions: '=transactions',
+                accountId: '=?',
                 fromDate: '=?',
                 toDate: '=?',
                 selectedAccounts: '=?',
                 description: '=?',
                 txnTags: '=?',
-                showDaterange: '=?',
-                showDescription: '=?',
-                showAccounts: '=?',
-                showTags: '=?',
-            }
-        }
+                limit: '=?'
+            },
+            restrict: 'E'
+        };
     });
+
+    Yaba.app.directive('yabaWishlist', () => {
+        return {
+            templateUrl: '/assets/views/prospect/wishlist.htm',
+            controller: 'yabaWishlist',
+            scope: {
+                wishlist: '='
+            },
+            restrict: 'E'
+        };
+    });
+
+    Yaba.app.directive('csvdrop', () => {
+        return {
+            link: Yaba.Links.csvdrop,
+            restrict: 'AC'
+        }
+    })
 
     Yaba.app.directive('googleChart', (/* GoogleChartService */) => {
         return {

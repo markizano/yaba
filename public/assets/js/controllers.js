@@ -380,14 +380,14 @@
         let isBudgeting = false;
         function budgets() {
             let budgets = {};
-            $scope.transactions.applyFilters(
+            $scope.transactions/*.applyFilters(
                 $scope.selectedAccounts,
                 $scope.fromDate,
                 $scope.toDate,
                 $scope.description,
                 $scope.txnTags,
                 -1
-            )
+            ) //*/
               .map(transaction => {
                 return transaction.tags.map(tag => {
                     budgets.hasOwnProperty(tag) || (budgets[tag] = 0);
@@ -396,10 +396,7 @@
                     return budgets[tagMap.tag] += tagMap.amount;
                 });
             });
-            $scope.budgets = [];
-            for ( let b in budgets ) {
-                $scope.budgets.push({budget: b, amount: budgets[b]});
-            }
+            $scope.budgets = Object.keys(budgets).map(b => ({budget: b, amount: budgets[b]}) );
             return $scope.budgets;
         }
         budgets();
@@ -427,65 +424,27 @@
     /**
      * Renders a collection of transactions. Controller for handling the list of transactions
      * and however we may want to render them.
+     * Directed by the <yaba-controls /> Controller. By giving us the $fromDate, $toDate, $description,
+     * $selectedAccounts and $txnTags, we can render back a list of transactions from the accounts we
+     * have stored. Think of this as the eyeglass that gives you a view into the data that is the book
+     * that contains the backend storage.
+     * I am no longer trying to feed this control a list of transactions to render. It will render
+     * what is provided by another control that will share its values and inputs from the user.
+     * This TxnList Control will react accordingly to changes in directive updates from the end-user.
+     * e.g. $rootScope.$broadcast() events.
      */
-    function TransactionListCtrl($scope, $attrs, accounts, Settings) {
-        // By default, don't show tags. We can override this in the HTML include for this widget.
+    function TransactionListCtrl($scope, $attrs, accounts) {
         $scope.accounts         = accounts;
         $scope.includeTags      = $attrs.hasOwnProperty('includeTags');
         $scope.withHeader       = !$attrs.hasOwnProperty('withoutHeader');
         $scope.editable         = $attrs.hasOwnProperty('editable');
-
-        ['showDaterange', 'showAccounts', 'showPagination', 'showDescription', 'showTags'].forEach(attr => {
-            $scope[attr] = $attrs.hasOwnProperty(attr) && !!$attrs[attr];
-        });
+        $scope.transactions     = new Yaba.models.Transactions();
 
         $scope.limit || ($scope.limit = -1);
-
-        const update = () => {
-            $scope.transactions = $scope._transactions.applyFilters(
-                $scope.showAccounts? $scope.selectedAccounts: undefined,
-                $scope.showDaterange? $scope.fromDate: undefined,
-                $scope.showDaterange? $scope.toDate: undefined,
-                $scope.showDescription? $scope.description: undefined,
-                $scope.showTags? $scope.txnTags: undefined,
-                $scope.limit
-            );
-            console.log(`update.transactions(${$scope.transactions.length}, useDesc=${$scope.showDescription}, desc=${$scope.description})`);
-        };
-        update();
-
         $scope.sortBy = Yaba.filters.sortBy($scope.sort || ($scope.sort = { column: 'datePosted', asc: true }));
-
         $scope.save = () => { accounts.save($scope); };
-
-        const forwardEvent = ($event) => {
-            if ( $event && $event instanceof Event ) {
-                $event.hasOwnProperty('preventDefault') && $event.preventDefault();
-                $event.hasOwnProperty('stopPropagation') && $event.stopPropagation();
-            }
-            update();
-            $scope.$emit('yaba.txn-change');
-            return false;
-        }
-        if ( $scope.showDaterange ) {
-            $scope.$on('date.change', forwardEvent);
-        }
-        if ( $scope.showAccounts ) {
-            $scope.$watchCollection('selectedAccounts', forwardEvent);
-        }
-        if ( $scope.showDescription ) {
-            $scope.$watch('description', () => { forwardEvent() } );
-        }
-        if ( $scope.showTags && $scope.txnTags ) {
-            $scope.$watch('txnTags', forwardEvent);
-        }
-        if ( $scope.showPagination ) {
-            $scope.$on('pagination.changed', () => { $attrs.$$element.find('table').scrollTop(0); });
-        }
-        $scope.$watchCollection('_transactions', forwardEvent);
-        $scope.$watchCollection('transactions', forwardEvent);
     }
-    TransactionListCtrl.$inject = ['$scope', '$attrs', 'accounts', 'Settings'];
+    TransactionListCtrl.$inject = ['$scope', '$attrs', 'accounts'];
     Yaba.app.controller('yabaTransactionListCtrl', Widgets.TransactionList = TransactionListCtrl);
 
     /**
@@ -543,27 +502,27 @@
      * - Description ($description) for txns matching this for any of their text fields.
      * - Tags ($txnTags) list of budgets selected that should match these tags.
      */
-    function ControlsCtrl($scope, accounts, Settings) {
+    function ControlsCtrl($rootScope, $scope, accounts, Settings) {
         $scope.accounts = accounts;
-        $scope.fromDate = new Date(new Date() - Settings.txnDelta);
-        $scope.toDate = new Date();
-        $scope.selectedAccounts = Object.assign([], accounts);
-        $scope.description = '';
         $scope.useRegEx = false;
-        $scope.transactionBudgets = [];
-        $scope.txnTags = [];
-        $scope.$watch('selectedAccounts', () => {
-            $scope.transactionBudgets.length = 0;
-            accounts.selected($scope.selectedAccounts).forEach(account => {
-                account.transactions.map(txn => {
-                    txn.tags.forEach(tag => {
-                        $scope.transactionBudgets.includes(tag) || $scope.transactionBudgets.push(tag);
-                    });
-                });
-            });
-        });
+        $scope.transactionBudgets = accounts.getTags();
+
+        $scope.fromDate = $scope.fromDate || new Date(new Date() - Settings.txnDelta);
+        $scope.toDate = $scope.toDate || new Date();
+        $scope.selectedAccounts = $scope.selectedAccounts || Object.assign([], accounts); // must be array or <select/> resets.
+        $scope.description = $scope.description || '';
+        $scope.txnTags = $scope.txnTags || [];
+
+        const controlsChange = () => $rootScope.$broadcast('controls.change');
+        $scope.$watch('fromDate', controlsChange);
+        $scope.$watch('toDate', controlsChange);
+        $scope.$watch('selectedAccounts', controlsChange);
+        $scope.$watch('description', controlsChange);
+        $scope.$watch('txnTags', controlsChange);
+        // I don't expect this will ever fire, but just in case...
+        $scope.$on('yaba.txn-change', () => $scope.transactionBudgets = accounts.getTags());
     }
-    ControlsCtrl.$inject = ['$scope', 'accounts', 'Settings'];
+    ControlsCtrl.$inject = ['$rootScope', '$scope', 'accounts', 'Settings'];
     Yaba.app.controller('yabaControlsCtrl', Widgets.Controls = ControlsCtrl);
 
     function wishlist($scope) {
@@ -620,6 +579,31 @@
 (function(Yaba) {
     const Links = {};
     Yaba.hasOwnProperty('Links') || (Yaba.Links = Links);
+
+    /**
+     * Linker function for watching for changes in transactions to update what is rendered in the screen.
+     */
+    function transactionList(accounts) {
+        return ($scope, $element, $attr) => {
+            const update = () => {
+                $scope.transactions = accounts.getTransactions(
+                    $scope.selectedAccounts,
+                    $scope.fromDate,
+                    $scope.toDate,
+                    $scope.description,
+                    $scope.txnTags,
+                    $scope.limit
+                );
+            };
+            update();
+            Yaba.$scope = $scope;
+
+            $scope.$on('yaba.txn-change', () => update() );
+            $scope.$on('controls.change', () => update() );
+            $scope.$on('pagination.changed', () => $element.find('table').scrollTop(0) );
+        };
+    }
+    Links.transactionList = transactionList;
 
     /**
      * Enables one to include class="csvdrop" as an attribute and it'll attach this event that will

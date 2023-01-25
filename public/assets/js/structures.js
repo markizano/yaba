@@ -559,16 +559,21 @@
          * @returns The accounts that match what was listed in the provided item or collection.
          */
         filterSelected(account, selectedAccounts) {
-            if ( typeof selectedAccounts == 'string') { 
-                selectedAccounts = new Accounts([new Account({id: selectedAccounts})]);
+            if ( selectedAccounts === undefined ) {
+                return true;
             }
-            if ( selectedAccounts instanceof Account ) {
-                selectedAccounts = new Accounts(selectedAccounts);
+            const accountId = account instanceof Account? account.id: account;
+            if ( selectedAccounts instanceof Array ) {
+                return selectedAccounts.some(selectedAccount =>
+                    (account instanceof Account? account.id: account) == (selectedAccount instanceof Account? selectedAccount.id: selectedAccount)
+                );
+            } else {
+                if ( selectedAccounts instanceof Account ) {
+                    return selectedAccounts.id == accountId;
+                } else {
+                    return selectedAccounts == accountId;
+                }
             }
-            if ( selectedAccounts instanceof Array && ! (selectedAccounts instanceof Accounts) ) {
-                selectedAccounts = new Accounts(...selectedAccounts);
-            }
-            return selectedAccounts.includes(account instanceof Account? account.id: account);
         }
 
         /**
@@ -580,7 +585,7 @@
             return this.filter(a => this.filterSelected(a, selectedAccounts));
         }
 
-}
+    }
 
     class Transactions extends JSONables {
 
@@ -682,6 +687,26 @@
         }
 
         /**
+         * Check to see if tag is attached to this transaction.
+         * @param {Transaction} txn Transaction as provided by this.filter();
+         * @param {String|undefined} tag The tag to match against.
+         * @returns TRUE|FALSE for `this.filter()` use on if this tag exists on this transaction or not.
+         */
+        filterTag(txn, tag) {
+            return txn.tags.includes(tag);
+        }
+
+        /**
+         * Check to see if the collection of tags is attached to this transaction. Match ANY.
+         * @param {Transaction} txn Transaction as provided by this.filter();
+         * @param {Array<String>|undefined} tags The tags to match against.
+         * @returns TRUE|FALSE for `this.filter()` use on if this tag exists on this transaction or not.
+         */
+        filterTags(txn, tags) {
+            return txn.tags.some(tag => tags === undefined? true: tags.includes(tag));
+        }
+
+        /**
          * Filters out transactions by date. Gives a Transaction collection
          * within a time range between two dates.
          * @param {Date} fromDate No transactions older than this date.
@@ -720,7 +745,7 @@
          * @returns {Transactions}
          */
         byTag(tag) {
-            return this.filter(txn => txn.tags.includes(tag));
+            return this.filter(txn => this.filterTag(txn, tag));
         }
 
         /**
@@ -729,7 +754,7 @@
          * @returns {Transactions}
          */
         byTags(tags) {
-            return this.filter(txn => tags.some(tag => txn.tags.includes(tag)));
+            return this.filter(txn => this.filterTags(txn, tags));
         }
 
         /**
@@ -768,33 +793,29 @@
 
                 /* DATES */
                 if ( fromDate !== undefined && toDate !== undefined ) {
-                    tests.date = this.filterDaterange(fromDate, toDate);
+                    tests.date = this.filterDaterange(txn, fromDate, toDate);
                 }
 
                 /* DESCRIPTION */
                 if ( description !== undefined ) {
                     tests.description = this.filterDescription(txn, description);
-                    // console.log(`tests.description: ${tests.description} for "${description}" from "${txn.description.toLowerCase()}"`);
                 }
 
                 /* TAGS (OR|ANY) */
-                if ( !angular.isUndefined(tags) && tags.length > 0 ) {
-                    tests.tags = tags.some(tag => txn.tags.includes(tag));
+                if ( tags !== undefined && tags.length > 0 ) {
+                    tests.tags = this.filterTags(txn, tags);
                 }
 
-                const /*useAccounts = !angular.isUndefined(selectedAccounts),*/
-                  useDate = (!angular.isUndefined(fromDate) && !angular.isUndefined(toDate)),
-                  useDescription = !angular.isUndefined(description),
-                  useTags = !angular.isUndefined(tags) && tags.length > 0;
+                const useDate = ( fromDate !== undefined && toDate !== undefined ),
+                  useDescription = description !== undefined,
+                  useTags = tags !== undefined && tags.length > 0;
 
                   let truthy = [
-                    // useAccounts? tests.selectedAccounts: true,
                     useDate? tests.date: true,
                     useDescription? tests.description: true,
                     useTags? tests.tags: true
                 ];
                 /*console.log([
-                    {useAccounts, selectedAccounts},
                     {useDate, fromDate, toDate },
                     {useDescription, description},
                     {useTags, tags},
@@ -1028,7 +1049,3 @@
 
     return Yaba;
 })(Yaba);
-
-if ( typeof module !== 'undefined' && module.hasOwnProperty('exports') ) {
-    module.exports = Yaba;
-}

@@ -256,6 +256,41 @@
             const csvBlob = new Blob([$scope.csvfile], { type: 'text/csv' } );
             saveAs(csvBlob, 'mock-transactions.csv');
         };
+
+        /**
+         * Test/debugging function that will let me probe how much storage is available to the
+         * localStorage. I can set a cookie with the max number of bytes permitted and create a
+         * pie chart on the results of that calculation.
+         */
+        $scope.txnLength = localStorage.testtxns.length
+        $scope.testStorageLimit = function() {
+            class TestTxns extends Yaba.models.Transactions {}
+            const txns = new TestTxns()
+            const newTxn = () => txns.push({
+                id: uuid.v4(),
+                currency: 'USD',
+                description: '!! Test Transaction !!'.repeat(10),
+                merchant: 'Test Merchant',
+                amount: 9.99,
+                datePosted: new Date(),
+                datePending: new Date(),
+                accountId: '00000000-0000-0000-00000000',
+                transactionType: 'test',
+                tags: ['test1', 'test2', 'test3']
+            });
+            txns.push(...JSON.parse(localStorage.testtxns))
+            for ( let i = 0; i <= 1000; i++ ) {
+                try{
+                    newTxn();
+                    txns.store();
+                } catch(e) {
+                    console.error(e);
+                    break;
+                }
+                $scope.txnLength = localStorage.testtxns.length;
+            }
+
+        };
     }
     develop.$inject = ['$scope', 'institutions', 'accounts', 'Settings'];
     Yaba.app.controller('develop', develop);

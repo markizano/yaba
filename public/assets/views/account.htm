@@ -6,14 +6,21 @@
     <p>Routing: <span>{{ account.routing }}</span></p>
     <p>Interest Rate: <span>{{ account.interestRate }} ( {{ account.interestStrategy }} )</span></p>
     <p>{{ account.description }}</p>
+    <yaba-controls
+      from-date="fromDate"
+      to-date="toDate"
+      description="description"
+      txn-tags="txnTags"
+      show-daterange="true"
+      show-description="true"
+      show-tags="true"
+  ></yaba-controls>
     <yaba-transaction-list
-      transactions="account.transactions"
+      account-id="account.id"
       from-date="fromDate"
       to-date="toDate"
       class="csvdrop detail"
-      include-tags
-      show-daterange="true"
-      show-pagination="true"
+      include-tags="true"
       editable="editable"
     ></yaba-transaction-list>
     <div class="errors">{{ error }}</div>

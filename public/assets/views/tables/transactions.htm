@@ -1,15 +1,4 @@
 <transaction-list-wrapper ng-class="editable">
-    <yaba-controls
-      from-date="fromDate"
-      to-date="toDate"
-      selected-accounts="selectedAccounts"
-      description="description"
-      txn-tags="txnTags"
-      show-daterange="showDaterange"
-      show-accounts="showAccounts"
-      show-description="showDescription"
-      show-tags="showTags"
-  ></yaba-controls>
     <table class="data item-list" ng-class="editable">
         <thead ng-show="withHeader">
             <th ng-click="sortBy('datePosted');">Date Posted</th>
@@ -79,6 +68,5 @@
     ></yaba-pagination><br />
     <debug>
         local Txn: <span ng-bind="transactions.length"></span>
-        Raw Txn: <span ng-bind="_transactions.length"></span>
     </debug>
 </transaction-list-wrapper>
