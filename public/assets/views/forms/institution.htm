@@ -2,21 +2,25 @@
     <close ng-click="close()"></close>
     <h1>{{ institution.name || 'New' }} Institution</h1>
     <form ng-submit="save()">
-        <label>Name: <input type="text" ng-model="institution.name" /></label>
-        <label>Description: <input type="text" ng-model="institution.description" /></label>
-        <label>Mapping: <add ng-click="addMapping()"></add></label>
+        <label>Name: <input type="text" tabindex="1" ng-model="institution.name" /></label>
+        <label>Description: <input type="text" tabindex="2" ng-model="institution.description" /></label>
+        <label>Mapping: <add tabindex="3" ng-click="addMapping()"></add></label>
         <ul>
             <li ng-repeat="mapping in institution.mappings">
                 <mapping class="slide-down" ng-show="mapping._visible || false">
-                    <trash ng-if="institution.mappings.length > 1" ng-click="remove($index);"></trash>
+                    <trash ng-if="institution.mappings.length > 1" ng-click="remove($index);" tabindex="{{ 7 * ($index+1) }}" ></trash>
                     <label class="slide-down">
                         From {{ mapping.mapType == 'static'? 'Value': 'Field' }}:
-                        <input type="text" ng-model="mapping.fromField" />
+                        <input type="text" tabindex="{{ 4 * ($index+1) }}" ng-model="mapping.fromField" />
                     </label>
                     <label class="slide-down">
-                        To Field: <select ng-model="mapping.toField" ng-options="txnField for txnField in transactionFields"></select>
+                        To Field: <select
+                          tabindex="{{ 5 * ($index+1) }}"
+                          ng-model="mapping.toField"
+                          ng-options="txnField for txnField in transactionFields"
+                        ></select>
                     </label>
-                    <label class="slide-down">Mapping Type: <select ng-model="mapping.mapType">
+                    <label class="slide-down">Mapping Type: <select tabindex="{{ 6 * ($index+1) }}" ng-model="mapping.mapType">
                         <option value="static">Static</option>
                         <option value="dynamic">Dynamic</option>
                     </select></label>
