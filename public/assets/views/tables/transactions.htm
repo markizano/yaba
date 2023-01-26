@@ -52,7 +52,7 @@
                         ng-model="txn.tags"
                         ng-blur="$scope.$emit('yaba.edit2view-txn-tags', $event)"
                         md-readonly="false"
-                        md-removable="false"
+                        md-removable="true"
                         md-enable-chip-edit="true"
                         ></md-chips>
                     </span>
@@ -61,7 +61,7 @@
         </tbody>
     </table>
     <yaba-pagination
-      ng-show="showPagination"
+      ng-show="transactions.length > itemsPerPage"
       item-count="transactions.length"
       items-per-page="itemsPerPage"
       offset="offset"

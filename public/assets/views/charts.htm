@@ -12,9 +12,9 @@
     ></yaba-controls>
     <br clear="all" />
     <debug>
-        Transactions: <p>{{ transactions.length }}</p><br />
-        Selected Budgets: <p ng-bind="txnTags"></p><br />
-        Calculated budgets: <data-table ng-bind="myBudgets"></data-table>
+        Transactions: <span ng-bind="transactions.length"></span>
+        Selected Budgets: <span ng-bind="txnTags"></span><br />
+        Calculated budgets: <span ng-bind="myBudgets"></span>
     </debug>
     <google-chart google-chart id="budgets" chart="chart"></google-chart>
 </div>

@@ -500,11 +500,7 @@
          * @returns {Array<String>} The list of tags from the transactions in this list.
          */
         getTags() {
-            return [].concat(...this.map(a =>
-                [... new Set([].concat(...a.transactions.filter(t =>
-                    t.tags.length).map(t => t.tags)).sort()
-                )]
-            ) );
+            return [... new Set( [].concat(...this.map(a => a.transactions.getTags())).sort() )];
         }
 
         /**
@@ -631,6 +627,14 @@
                 transactionsZIP.push(`"${tFields.join('","')}"`);
             });
             return transactionsZIP.join("\n");
+        }
+
+        /**
+         * Get the list of tags we have for this transaction collection.
+         * @returns {Array<String>} List of tags associated with this collection of transactions.
+         */
+        getTags() {
+            return [... new Set([].concat(...this.filter(t => t.tags.length).map(t => t.tags)).sort())];
         }
 
         /**
@@ -763,7 +767,8 @@
          * @returns {Transactions} The sorted list of transactions by datePosted.
          */
         sorted(asc=true) {
-            return this.sort((a, b) => {asc ? b.datePosted - a.datePosted: a.datePosted - b.datePosted});
+            console.log('sorting...');
+            return this.concat().sort((a, b) => asc ? b.datePosted - a.datePosted: a.datePosted - b.datePosted);
         }
 
         /**
@@ -840,7 +845,7 @@
          * @returns {Array} List of transactions mapped to the canonical model.
          */
         static digest(institution, accountId, transactions) {
-            let results = new Transactions(), mappings = Object.assign([], institution.mappings);
+            let results = new Transactions(), mappings = institution.mappings.concat();
             mappings.unshift({
                 mapType: 'static',
                 toField: 'accountId',
@@ -990,15 +995,27 @@
         } // static txnTable();
 
         static dataChart($scope, $element, $attr) {
+            const budgets = () => {
+                return [ ['Date'].concat($scope.txnTags) ].concat($scope.transactions.byTags($scope.txnTags).sorted().map(txn => {
+                    return [txn.datePosted].concat($scope.txnTags.map(tag => txn.tags.includes(tag)? txn.amount: 0.0 ));
+                }));
+            };
+            $scope.$on('controls.change', () => $scope.rebalance());
+
             const redrawCharts = () => {
                 const dataTable = new google.visualization.DataTable();
+                const zeroTags = $scope.txnTags.map(x => 0.0);
                 dataTable.addColumn({type: 'date', label: 'Date', pattern: 'yyyy-MM-dd'});
                 $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
-                $scope.myBudgets = $scope.budgets(); // DEBUG
+                $scope.myBudgets = budgets(); // DEBUG
                 if ( $scope.myBudgets.length <= 1 ) {
                     console.warn('No budgets.');
                     return;
                 }
+                // Insert a 0 metric for all tags to give them a starting point for the graph.
+                $scope.myBudgets.splice(1, 0, [$scope.fromDate].concat(zeroTags));
+                // Append a 0 metric to the end as well to give the graphs something to render for the present.
+                $scope.myBudgets.push([$scope.toDate].concat(zeroTags));
                 dataTable.addRows($scope.myBudgets.slice(1));
                 var options = {
                     title: 'Budget Spending',

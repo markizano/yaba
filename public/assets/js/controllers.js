@@ -7,11 +7,6 @@
     const Ctrl = {};
     Yaba.hasOwnProperty('ctrl') || (Yaba.ctrl = Ctrl);
 
-    /**
-     * @property {Number} animationDelay How long the CSS is configured to animate stuff (in MS).
-     */
-    const animationDelay = 400;
-
     function pageController($rootScope, $scope, $window, institutions, accounts, prospects) {
         console.info('Loading and registering institutions and accounts...');
         $rootScope.DEBUG = $scope.DEBUG = Yaba.DEBUG;
@@ -161,42 +156,16 @@
 
         $scope.rebalance = () => {
             $scope.transactions.clear();
-            accounts.selected($scope.selectedAccounts).forEach(account => {
-                $scope.transactions.push(...account.transactions
-                    .daterange($scope.fromDate, $scope.toDate)
-                    .byTags($scope.txnTags)
-                );
-            });
+            $scope.transactions.push(...accounts.getTransactions(
+                $scope.selectedAccounts,
+                $scope.fromDate,
+                $scope.toDate,
+                $scope.description,
+                $scope.tags,
+                -1
+            ));
         };
-
         $scope.rebalance();
-        $scope.$watch('fromDate', () => $scope.rebalance());
-        $scope.$watch('toDate', () => $scope.rebalance());
-        $scope.$watchCollection('txnTags', () => $scope.rebalance());
-        $scope.$watchCollection('selectedAccounts', () => $scope.rebalance());
-
-        const simpleDataTable = () => {
-            const results = [ ['Date'].concat($scope.txnTags) ];
-            let dataTable = {};
-            $scope.transactions.sorted().map(txn => {
-                dataTable.hasOwnProperty(txn.datePosted) || (dataTable[txn.datePosted] = {});
-                txn.tags.filter(tag => $scope.txnTags.includes(tag)).forEach(tag => {
-                    if ( dataTable[txn.datePosted].hasOwnProperty(tag) ) {
-                        dataTable[txn.datePosted][tag] += txn.amount;
-                    } else {
-                        dataTable[txn.datePosted][tag] = txn.amount;
-                    }
-                });
-                return dataTable;
-            });
-            results.push(...Object.keys(dataTable).map(date => {
-                const tag2dataTable = tag => (dataTable[date][tag] || null);
-                let dataPoint = [new Date(date)].concat($scope.txnTags.map(tag2dataTable));
-                return dataPoint;
-            }));
-            return results;
-        };
-        $scope.budgets = simpleDataTable;
     }
     charts.$inject = ['$scope', 'accounts', 'Settings', 'gCharts'];
     Yaba.app.controller('charts', Ctrl.charts = charts);
@@ -294,6 +263,11 @@
 (function(Yaba) {
     const Forms = {};
     Yaba.hasOwnProperty('Forms') || (Yaba.Forms = Forms);
+
+    /**
+     * @property {Number} animationDelay How long the CSS is configured to animate stuff (in MS).
+     */
+    const animationDelay = 400;
 
     /**
      * ###            Directive Controllers             ###
@@ -582,13 +556,11 @@
                 });
             });
             $scope.budgets = Object.keys(budgets).sort().map(b => ({budget: b, amount: budgets[b]}) );
-            console.log('rebudgeting...', $scope.transactions.length, budgets);
             return $scope.budgets;
         }
         rebudget();
         $scope.$watchCollection('transactions', rebudget);
         $scope.$on('yaba.txn-change', rebudget);
-        console.log('Yaba-Budget.Link()');
     }
     Links.Budgets = Budgets;
 
