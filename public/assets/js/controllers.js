@@ -4,6 +4,11 @@
  (function(Yaba) {
     'use strict';
 
+    /**
+     * @property {Number} animationDelay How long the CSS is configured to animate stuff (in MS).
+     */
+    Yaba.animationDelay = 400;
+
     const Ctrl = {};
     Yaba.hasOwnProperty('ctrl') || (Yaba.ctrl = Ctrl);
 
@@ -69,7 +74,7 @@
                 institution.mappings.forEach(mapping => {
                     mapping._visible = true;
                 });
-            }, animationDelay);
+            }, Yaba.animationDelay);
         };
         $scope.remove = (institution) => {
             for ( let i in institutions ) {
@@ -180,6 +185,26 @@
         $scope.transferTags     = Settings.transferTags;
         $scope.hideTags         = Settings.hideTags;
         $scope.budgetBy         = Yaba.filters.budgetBy;
+
+        const getAvgTxns = (tags) => {
+            return (txns => {
+                let result = {};
+                result.sum = txns.reduce((a, b) => (typeof a == 'number'? a: a.amount) + b.amount);
+                result.avg = result.sum / txns.length;
+                return result;
+            })(accounts.getTransactions(
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            tags,
+            -1
+          ));
+        };
+        $scope.avgIncome        = getAvgTxns($scope.incomeTags);
+        $scope.avgExpense        = getAvgTxns($scope.expenseTags);
+        Yaba.$prospect = $scope;
+
     }
     Prospect.$inject = ['$scope', 'accounts', 'prospects', 'Settings'];
     Yaba.app.controller('prospect', Ctrl.prospect = Prospect);
@@ -243,11 +268,6 @@
     Yaba.hasOwnProperty('Forms') || (Yaba.Forms = Forms);
 
     /**
-     * @property {Number} animationDelay How long the CSS is configured to animate stuff (in MS).
-     */
-    const animationDelay = 400;
-
-    /**
      * New or Edit Institution form controller.
      */
     function InstitutionForm($scope, $timeout, institutions) {
@@ -266,7 +286,7 @@
             $scope.institution.mappings[$index]._visible = false;
             $timeout(() => {
                 $scope.institution.mappings.splice($index, 1);
-            }, animationDelay);
+            }, Yaba.animationDelay);
         }
 
         $scope.close = function close() {
@@ -275,8 +295,8 @@
             });
             $timeout(() => {
                 $scope.seeForm = false;
-                $timeout(() => { $scope.reset(); }, animationDelay);
-            }, animationDelay / 2);
+                $timeout(() => { $scope.reset(); }, Yaba.animationDelay);
+            }, Yaba.animationDelay / 2);
         }
 
         $scope.reset = function reset() {
@@ -317,7 +337,7 @@
 
         $scope.close = function close() {
             $scope.seeForm = false;
-            $timeout($scope.reset, animationDelay);
+            $timeout($scope.reset, Yaba.animationDelay);
         }
 
         $scope.reset = function reset() {
@@ -532,7 +552,6 @@
                         $scope.limit
                     );
                 }
-                console.log('new.txns: ', $scope);
             };
             update();
             Yaba.$scope = $scope;
