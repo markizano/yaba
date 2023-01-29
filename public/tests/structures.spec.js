@@ -247,15 +247,15 @@ describe('Yaba.models.Transactions', function () {
     });
 
     it('filter() instanceof Transaction', () => {
-        expect(transactions.filter(x => x)).shift().toBeInstanceOf(Yaba.models.Transaction);
+        expect(transactions.filter(x => x.id).shift()).toBeInstanceOf(Yaba.models.Transaction);
     });
 
     /**
-     * I just needed a way to collapse applyFilters() without describing it separately with this.
+     * I just needed a way to collapse getTransactions() without describing it separately with this.
      */
     (function() {
-        it('applyFilters(fromDate, toDate, undefined, undefined, undefined)', () => {
-            let actual = transactions.applyFilters(
+        it('getTransactions(fromDate, toDate, undefined, undefined, undefined)', () => {
+            let actual = transactions.getTransactions(
                 new Date(_D_ - 259200000),
                 _D_,
                 undefined,
@@ -264,9 +264,9 @@ describe('Yaba.models.Transactions', function () {
             );
             expect(actual.length).toEqual(1);
         });
-        it('applyFilters(!fromDate, !toDate, undefined, undefined, undefined)', () => {
+        it('getTransactions(!fromDate, !toDate, undefined, undefined, undefined)', () => {
             _D_.setDate(_D_.getDate() - 3);
-            let actual = transactions.applyFilters(
+            let actual = transactions.getTransactions(
                 new Date(_D_ - (259200000 * 5)),
                 new Date(_D_ - (259200000 * 3)),
                 undefined,
@@ -275,8 +275,8 @@ describe('Yaba.models.Transactions', function () {
             );
             expect(actual.length).toEqual(0);
         });
-        it('applyFilters(undefined, undefined, description, undefined, undefined)', () => {
-            let actual = transactions.applyFilters(
+        it('getTransactions(undefined, undefined, description, undefined, undefined)', () => {
+            let actual = transactions.getTransactions(
                 undefined,
                 undefined,
                 'groceries', // should be case-insensitive too!
@@ -285,8 +285,8 @@ describe('Yaba.models.Transactions', function () {
             );
             expect(actual.length).toEqual(1);
         });
-        it('applyFilters(undefined, undefined, description="", undefined, undefined)', () => {
-            let actual = transactions.applyFilters(
+        it('getTransactions(undefined, undefined, description="", undefined, undefined)', () => {
+            let actual = transactions.getTransactions(
                 undefined,
                 undefined,
                 '', // empty string should return all results too!
@@ -295,8 +295,8 @@ describe('Yaba.models.Transactions', function () {
             );
             expect(actual.length).toEqual(1);
         });
-        it('applyFilters(undefined, undefined, !description, undefined, undefined)', () => {
-            let actual = transactions.applyFilters(
+        it('getTransactions(undefined, undefined, !description, undefined, undefined)', () => {
+            let actual = transactions.getTransactions(
                 undefined,
                 undefined,
                 'invalid-description',
@@ -305,8 +305,8 @@ describe('Yaba.models.Transactions', function () {
             );
             expect(actual.length).toEqual(0);
         });
-        it('applyFilters(undefined, undefined, undefined, tags, undefined)', () => {
-            let actual = transactions.applyFilters(
+        it('getTransactions(undefined, undefined, undefined, tags, undefined)', () => {
+            let actual = transactions.getTransactions(
                 undefined,
                 undefined,
                 undefined,
@@ -315,8 +315,8 @@ describe('Yaba.models.Transactions', function () {
             );
             expect(actual.length).toEqual(1);
         });
-        it('applyFilters(undefined, undefined, undefined, tags=[], undefined)', () => {
-            let actual = transactions.applyFilters(
+        it('getTransactions(undefined, undefined, undefined, tags=[], undefined)', () => {
+            let actual = transactions.getTransactions(
                 undefined,
                 undefined,
                 undefined,
@@ -325,8 +325,8 @@ describe('Yaba.models.Transactions', function () {
             );
             expect(actual.length).toEqual(1);
         });
-        it('applyFilters(undefined, undefined, undefined, !tags, undefined)', () => {
-            let actual = transactions.applyFilters(
+        it('getTransactions(undefined, undefined, undefined, !tags, undefined)', () => {
+            let actual = transactions.getTransactions(
                 undefined,
                 undefined,
                 undefined,
@@ -335,7 +335,7 @@ describe('Yaba.models.Transactions', function () {
             );
             expect(actual.length).toEqual(0);
         });
-        it('applyFilters(undefined, undefined, undefined, undefined, limit)', () => {
+        it('getTransactions(undefined, undefined, undefined, undefined, limit)', () => {
             transactions.push({
                 accountId: accountId,
                 datePending: new Date(_D_ - 259200000), // 3 days ago
@@ -348,7 +348,7 @@ describe('Yaba.models.Transactions', function () {
                 tags: ['grocery']
             });
 
-            let actual = transactions.applyFilters(
+            let actual = transactions.getTransactions(
                 undefined,
                 undefined,
                 undefined,
