@@ -11,7 +11,7 @@
         <edit ng-click="edit(account)" class="right"></edit>
         <trash ng-click="remove(account)" class="right"></trash>
         <yaba-transaction-list
-          transactions="account.transactions"
+          account-id="account.id"
           limit="5"
           class="csvdrop"
         ></yaba-transaction-list>

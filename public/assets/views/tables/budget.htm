@@ -6,11 +6,11 @@
     </thead>
     <tbody>
         <tr ng-repeat="b in budgets | orderBy:'budget'">
-            <td>{{ b.budget }}</td>
+            <td>{{ b.tag }}</td>
             <td>{{ b.amount | currency }}</td>
         </tr>
     </tbody>
 </table>
 <debug>
-    budget Txn: <span ng-bind="transactions.length"></span>
+    budgets: <span ng-bind="budgets.length"></span>
 </debug>

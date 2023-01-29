@@ -36,7 +36,7 @@
     /**
      * Budget widget to show us our budgets as we tag our transactions.
      */
-    Yaba.app.directive('yabaBudget', () => {
+    Yaba.app.directive('yabaBudget', (accounts) => {
         return {
             templateUrl: '/assets/views/tables/budget.htm',
             scope: {
@@ -46,7 +46,7 @@
                 fromDate: '=',
                 toDate: '=',
             },
-            link: Yaba.Links.Budgets,
+            link: Yaba.Links.Budgets(accounts),
             restrict: 'AE'
         };
     });
@@ -132,7 +132,6 @@
             controller: 'yabaTransactionListCtrl',
             link: Yaba.Links.transactionList(accounts),
             scope: {
-                transactions: '=',
                 accountId: '=?',
                 fromDate: '=?',
                 toDate: '=?',

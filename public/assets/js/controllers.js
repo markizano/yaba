@@ -132,16 +132,11 @@
     /**
      * Angular Budget Controller.
      */
-    function budget($scope, accounts) {
+    function budget($scope) {
         console.info('Budget controller');
         $scope.budgets || ($scope.budgets = []);
-        $scope.transactions || ($scope.transactions = new Yaba.models.Transactions());
-
-        accounts.forEach(account => {
-            $scope.transactions.push(...account.transactions);
-        });
     }
-    budget.$inject = ['$scope', 'accounts'];
+    budget.$inject = ['$scope'];
     Yaba.app.controller('budget', Ctrl.budget = budget);
 
     /**
@@ -150,9 +145,6 @@
     function charts($scope, accounts, Settings, gCharts) {
         $scope.accounts = accounts;
         $scope.transactions = new Yaba.models.Transactions();
-        $scope.txnTags = [];
-        $scope.fromDate = new Date(new Date() - Settings.txnDelta);
-        $scope.toDate = new Date();
 
         $scope.rebalance = () => {
             $scope.transactions.clear();
@@ -161,7 +153,7 @@
                 $scope.fromDate,
                 $scope.toDate,
                 $scope.description,
-                $scope.tags,
+                $scope.txnTags,
                 -1
             ));
         };
@@ -182,26 +174,12 @@
      */
     function Prospect($scope, accounts, prospects, Settings) {
         console.info('Prospect controller');
-        // Rename the constructor to save under a different name.
-        function updateBudgets(value) {
-            $scope.incomeTxns = $scope.transactions.byTags($scope.incomeTags);
-            $scope.expenseTxns = $scope.transactions.byTags($scope.expenseTags);
-        }
-        $scope.transactions     = $scope.transactions   || new Yaba.models.Transactions();
-        $scope.incomeTxns       = $scope.incomeTxns     || new Yaba.models.Transactions();
-        $scope.expenseTxns      = $scope.expenseTxns    || new Yaba.models.Transactions();
+        $scope.prospect         = prospects;
         $scope.incomeTags       = Settings.incomeTags;
         $scope.expenseTags      = Settings.expenseTags;
         $scope.transferTags     = Settings.transferTags;
         $scope.hideTags         = Settings.hideTags;
-        $scope.payCycle         = Settings.payCycle;
         $scope.budgetBy         = Yaba.filters.budgetBy;
-
-        accounts.forEach(account => $scope.transactions.push(...account.transactions));
-        $scope.$watchCollection('transactions', updateBudgets);
-        updateBudgets();
-
-        $scope.prospect = $scope.prospect || prospects;
     }
     Prospect.$inject = ['$scope', 'accounts', 'prospects', 'Settings'];
     Yaba.app.controller('prospect', Ctrl.prospect = Prospect);
@@ -270,7 +248,7 @@
     const animationDelay = 400;
 
     /**
-     * ###            Directive Controllers             ###
+     * New or Edit Institution form controller.
      */
     function InstitutionForm($scope, $timeout, institutions) {
         $scope.transactionFields = Yaba.models.TransactionFields;
@@ -324,6 +302,9 @@
     InstitutionForm.$inject = ['$scope', '$timeout', 'institutions'];
     Yaba.app.controller('yabaInstitutionCtrl', Forms.Institution = InstitutionForm);
 
+    /**
+     * New and Edit Account Form Controller.
+     */
     function AccountForm($scope, $timeout, accounts) {
         $scope.save = () => {
             if ( $scope.mode == 'add' ) {
@@ -369,15 +350,19 @@
      * e.g. $rootScope.$broadcast() events.
      */
     function TransactionListCtrl($scope, $attrs, accounts) {
-        $scope.accounts         = accounts;
         $scope.includeTags      = $attrs.hasOwnProperty('includeTags');
         $scope.withHeader       = !$attrs.hasOwnProperty('withoutHeader');
         $scope.editable         = $attrs.hasOwnProperty('editable');
-        $scope.transactions     = new Yaba.models.Transactions();
-
         $scope.limit || ($scope.limit = -1);
-        $scope.sortBy = Yaba.filters.sortBy($scope.sort || ($scope.sort = { column: 'datePosted', asc: true }));
         $scope.save = () => { accounts.save($scope); };
+        $scope.sortBy = Yaba.filters.sortBy($scope.sort || ($scope.sort = { column: 'datePosted', asc: true }));
+        $scope.$watch('sort.column', () => $scope.$emit('yaba.txnList.resetScroll'));
+        $scope.$watch('sort.asc',    () => $scope.$emit('yaba.txnList.resetScroll'));
+
+        $scope.transactions     = new Yaba.models.Transactions();
+        if ($scope.accountId !== undefined) {
+            $scope.selectedAccounts = [accounts.byId($scope.accountId)];
+        }
     }
     TransactionListCtrl.$inject = ['$scope', '$attrs', 'accounts'];
     Yaba.app.controller('yabaTransactionListCtrl', Widgets.TransactionList = TransactionListCtrl);
@@ -394,7 +379,7 @@
             if ( $page < 0 || $page > $scope.pageCount -1 ) return;
             $scope.page = $page;
             $scope.offset = $page * $scope.itemsPerPage;
-            $scope.$emit('pagination.changed', $page);
+            $scope.$emit('yaba.txnList.resetScroll', $page);
         };
         $scope.previous = () => $scope.setPage($scope.page -1);
         $scope.proximo = () => $scope.setPage($scope.page +1);
@@ -436,18 +421,23 @@
      * - Selected Account(s) ($selectedAccounts)
      * - Description ($description) for txns matching this for any of their text fields.
      * - Tags ($txnTags) list of budgets selected that should match these tags.
+     * Binds to $rootScope because it watches for changes and inputs from the user to broadcast to the
+     * application.
      */
     function ControlsCtrl($rootScope, $scope, accounts, Settings) {
         $scope.accounts = accounts;
-        $scope.useRegEx = false;
         $scope.transactionBudgets = accounts.getTags();
+        $scope.useRegexp = false;
 
         $scope.fromDate = $scope.fromDate || new Date(new Date() - Settings.txnDelta);
         $scope.toDate = $scope.toDate || new Date();
-        $scope.selectedAccounts = $scope.selectedAccounts || Object.assign([], accounts); // must be array or <select/> resets.
+        $scope.selectedAccounts = $scope.selectedAccounts || Object.assign([], accounts); // must be Array() or <select/> resets to 0.
         $scope.description = $scope.description || '';
         $scope.txnTags = $scope.txnTags || [];
 
+        // I use $rootScope.$broadcast() here to signify changes from the user.
+        // In this way, the user is broadcasting events into the app and we respond to those with the
+        // local $scope.$on() events to consume them at the control.
         const controlsChange = () => $rootScope.$broadcast('controls.change');
         $scope.$watch('fromDate', controlsChange);
         $scope.$watch('toDate', controlsChange);
@@ -463,6 +453,7 @@
     function wishlist($scope) {
         $scope.wishlist = $scope.wishlist || new Yaba.models.Transactions();
         $scope.mode = $scope.mode || 'add';
+        $scope.sortBy = Yaba.filters.sortBy($scope.sort || ($scope.sort = { column: 'datePosted', asc: true }));
 
         $scope.add = () => {
             $scope.wishlist.push({
@@ -501,8 +492,6 @@
             $scope.cancel(); // cancel() acts a lot like reset();
             $scope.$emit('save.prospects');
         }
-
-        $scope.sortBy = Yaba.filters.sortBy($scope.sort || ($scope.sort = { column: 'datePosted', asc: true }));
     }
     wishlist.$inject = ['$scope'];
     Yaba.app.controller('yabaWishlist', Widgets.Wishlist = wishlist);
@@ -520,22 +509,37 @@
      */
     function transactionList(accounts) {
         return ($scope, $element, $attr) => {
+            /**
+             * Instead of iterating all the transactions every time, let's optimize by only iterating
+             * the account if there is one set.
+             */
             const update = () => {
-                $scope.transactions = accounts.getTransactions(
-                    $scope.selectedAccounts,
-                    $scope.fromDate,
-                    $scope.toDate,
-                    $scope.description,
-                    $scope.txnTags,
-                    $scope.limit
-                );
+                if ( $scope.accountId ) {
+                    $scope.transactions = accounts.byId($scope.accountId).transactions.getTransactions(
+                        $scope.fromDate,
+                        $scope.toDate,
+                        $scope.description,
+                        $scope.txnTags,
+                        $scope.limit
+                    );
+                } else {
+                    $scope.transactions = accounts.getTransactions(
+                        $scope.selectedAccounts,
+                        $scope.fromDate,
+                        $scope.toDate,
+                        $scope.description,
+                        $scope.txnTags,
+                        $scope.limit
+                    );
+                }
+                console.log('new.txns: ', $scope);
             };
             update();
             Yaba.$scope = $scope;
 
             $scope.$on('yaba.txn-change', update );
             $scope.$on('controls.change', update );
-            $scope.$on('pagination.changed', () => $element.find('table').scrollTop(0) );
+            $scope.$on('yaba.txnList.resetScroll', () => $element.find('table').scrollTop(0) );
         };
     }
     Links.transactionList = transactionList;
@@ -544,23 +548,21 @@
      * This linker function will control the budget widget and ensure it stays up to date when you pick
      * certain things from the user-controls.
      */
-    function Budgets($scope, $element, $attr) {
-        const rebudget = () => {
-            let budgets = {};
-            $scope.transactions.map(transaction => {
-                return transaction.tags.map(tag => {
-                    budgets.hasOwnProperty(tag) || (budgets[tag] = 0);
-                    return { tag: tag, amount: transaction.amount };
-                }).map(tagMap => {
-                    return budgets[tagMap.tag] += tagMap.amount;
-                });
-            });
-            $scope.budgets = Object.keys(budgets).sort().map(b => ({budget: b, amount: budgets[b]}) );
-            return $scope.budgets;
-        }
-        rebudget();
-        $scope.$watchCollection('transactions', rebudget);
-        $scope.$on('yaba.txn-change', rebudget);
+    function Budgets(accounts) {
+        return ($scope, $element, $attr) => {
+            const rebudget = () => {
+                return $scope.budgets = accounts.getTransactions(
+                    $scope.selectedAccounts,
+                    $scope.fromDate,
+                    $scope.toDate,
+                    $scope.description,
+                    $scope.txnTags,
+                    -1
+                ).getBudgets();
+            }
+            rebudget();
+            $scope.$on('yaba.txn-change', rebudget);
+        };
     }
     Links.Budgets = Budgets;
 

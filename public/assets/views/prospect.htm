@@ -6,14 +6,20 @@
     </div>
     <div class="item-column-wrapper">
         <label>Income Transactions:</label>
-        <yaba-transaction-list transactions="incomeTxns" limit="5"></yaba-transaction-list>
+        <yaba-transaction-list
+          txn-tags="incomeTags"
+          limit="5"
+        ></yaba-transaction-list>
     </div>
     <div class="item-column-wrapper">
         <label>Expense Transactions:</label>
-        <yaba-transaction-list transactions="expenseTxns" limit="5"></yaba-transaction-list>
+        <yaba-transaction-list
+          txn-tags="expenseTags"
+          limit="5"
+        ></yaba-transaction-list>
     </div>
     <div class="item-list-wrapper">
         <label>Available Money:</label>
-        <yaba-income-bundles></yaba-income-bundles>
+        <yaba-income-list></yaba-income-list>
     </div>
 </div>

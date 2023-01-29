@@ -246,108 +246,116 @@ describe('Yaba.models.Transactions', function () {
         expect(transactions.byAccountId(new Yaba.models.Account({id: accountId})).length).toEqual(1);
     });
 
-    it('applyFilters(fromDate, toDate, undefined, undefined, undefined)', () => {
-        let actual = transactions.applyFilters(
-            new Date(_D_ - 259200000),
-            _D_,
-            undefined,
-            undefined,
-            undefined
-        );
-        expect(actual.length).toEqual(1);
+    it('filter() instanceof Transaction', () => {
+        expect(transactions.filter(x => x)).shift().toBeInstanceOf(Yaba.models.Transaction);
     });
-    it('applyFilters(!fromDate, !toDate, undefined, undefined, undefined)', () => {
-        _D_.setDate(_D_.getDate() - 3);
-        let actual = transactions.applyFilters(
-            new Date(_D_ - (259200000 * 5)),
-            new Date(_D_ - (259200000 * 3)),
-            undefined,
-            undefined,
-            undefined
-        );
-        expect(actual.length).toEqual(0);
-    });
-    it('applyFilters(undefined, undefined, description, undefined, undefined)', () => {
-        let actual = transactions.applyFilters(
-            undefined,
-            undefined,
-            'groceries', // should be case-insensitive too!
-            undefined,
-            undefined
-        );
-        expect(actual.length).toEqual(1);
-    });
-    it('applyFilters(undefined, undefined, description="", undefined, undefined)', () => {
-        let actual = transactions.applyFilters(
-            undefined,
-            undefined,
-            '', // empty string should return all results too!
-            undefined,
-            undefined
-        );
-        expect(actual.length).toEqual(1);
-    });
-    it('applyFilters(undefined, undefined, !description, undefined, undefined)', () => {
-        let actual = transactions.applyFilters(
-            undefined,
-            undefined,
-            'invalid-description',
-            undefined,
-            undefined
-        );
-        expect(actual.length).toEqual(0);
-    });
-    it('applyFilters(undefined, undefined, undefined, tags, undefined)', () => {
-        let actual = transactions.applyFilters(
-            undefined,
-            undefined,
-            undefined,
-            ['grocery'],
-            undefined,
-        );
-        expect(actual.length).toEqual(1);
-    });
-    it('applyFilters(undefined, undefined, undefined, tags=[], undefined)', () => {
-        let actual = transactions.applyFilters(
-            undefined,
-            undefined,
-            undefined,
-            [],
-            undefined,
-        );
-        expect(actual.length).toEqual(1);
-    });
-    it('applyFilters(undefined, undefined, undefined, !tags, undefined)', () => {
-        let actual = transactions.applyFilters(
-            undefined,
-            undefined,
-            undefined,
-            ['invalid-tag'],
-            undefined,
-        );
-        expect(actual.length).toEqual(0);
-    });
-    it('applyFilters(undefined, undefined, undefined, undefined, limit)', () => {
-        transactions.push({
-            accountId: accountId,
-            datePending: new Date(_D_ - 259200000), // 3 days ago
-            datePosted: _D_,
-            description: 'More groceries at the store.',
-            amount: 10.99,
-            tax: 1.89,
-            currency: 'USD',
-            merchant: 'Supermarket',
-            tags: ['grocery']
+
+    /**
+     * I just needed a way to collapse applyFilters() without describing it separately with this.
+     */
+    (function() {
+        it('applyFilters(fromDate, toDate, undefined, undefined, undefined)', () => {
+            let actual = transactions.applyFilters(
+                new Date(_D_ - 259200000),
+                _D_,
+                undefined,
+                undefined,
+                undefined
+            );
+            expect(actual.length).toEqual(1);
         });
+        it('applyFilters(!fromDate, !toDate, undefined, undefined, undefined)', () => {
+            _D_.setDate(_D_.getDate() - 3);
+            let actual = transactions.applyFilters(
+                new Date(_D_ - (259200000 * 5)),
+                new Date(_D_ - (259200000 * 3)),
+                undefined,
+                undefined,
+                undefined
+            );
+            expect(actual.length).toEqual(0);
+        });
+        it('applyFilters(undefined, undefined, description, undefined, undefined)', () => {
+            let actual = transactions.applyFilters(
+                undefined,
+                undefined,
+                'groceries', // should be case-insensitive too!
+                undefined,
+                undefined
+            );
+            expect(actual.length).toEqual(1);
+        });
+        it('applyFilters(undefined, undefined, description="", undefined, undefined)', () => {
+            let actual = transactions.applyFilters(
+                undefined,
+                undefined,
+                '', // empty string should return all results too!
+                undefined,
+                undefined
+            );
+            expect(actual.length).toEqual(1);
+        });
+        it('applyFilters(undefined, undefined, !description, undefined, undefined)', () => {
+            let actual = transactions.applyFilters(
+                undefined,
+                undefined,
+                'invalid-description',
+                undefined,
+                undefined
+            );
+            expect(actual.length).toEqual(0);
+        });
+        it('applyFilters(undefined, undefined, undefined, tags, undefined)', () => {
+            let actual = transactions.applyFilters(
+                undefined,
+                undefined,
+                undefined,
+                ['grocery'],
+                undefined,
+            );
+            expect(actual.length).toEqual(1);
+        });
+        it('applyFilters(undefined, undefined, undefined, tags=[], undefined)', () => {
+            let actual = transactions.applyFilters(
+                undefined,
+                undefined,
+                undefined,
+                [],
+                undefined,
+            );
+            expect(actual.length).toEqual(1);
+        });
+        it('applyFilters(undefined, undefined, undefined, !tags, undefined)', () => {
+            let actual = transactions.applyFilters(
+                undefined,
+                undefined,
+                undefined,
+                ['invalid-tag'],
+                undefined,
+            );
+            expect(actual.length).toEqual(0);
+        });
+        it('applyFilters(undefined, undefined, undefined, undefined, limit)', () => {
+            transactions.push({
+                accountId: accountId,
+                datePending: new Date(_D_ - 259200000), // 3 days ago
+                datePosted: _D_,
+                description: 'More groceries at the store.',
+                amount: 10.99,
+                tax: 1.89,
+                currency: 'USD',
+                merchant: 'Supermarket',
+                tags: ['grocery']
+            });
 
-        let actual = transactions.applyFilters(
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            1,
-        );
-        expect(actual.length).toEqual(1);
-    });
-
+            let actual = transactions.applyFilters(
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                1,
+            );
+            expect(actual.length).toEqual(1);
+        });
+    })();
 });

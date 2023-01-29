@@ -192,7 +192,7 @@
             this.routing = data.routing || '';
             this.interestRate = Number(data.interestRate) || 0.0;
             this.interestStrategy = data.interestStrategy || null;
-            this.transactions = new Transactions(...data.transactions || []);
+            this.transactions = data.hasOwnProperty('transactions')? new Transactions(...data.transactions): new Transactions();
         }
 
         /**
@@ -321,6 +321,22 @@
             data.currency           && (this.currency = data.currency);
             data.merchant           && (this.merchant = data.merchant);
             data.tags               && (this.tags = data.tags);
+        }
+
+        hasTag(tag) {
+            return this.tags.includes(tag);
+        }
+
+        setTag(tag) {
+            if ( ! this.hasTag(tag) ) {
+                this.addTag(tag);
+            }
+            return this;
+        }
+
+        addTag(tag) {
+            this.tags.push(tag);
+            return this;
         }
     }
 
@@ -463,6 +479,17 @@
     }
 
     class Accounts extends JSONables {
+        constructor(...items) {
+            if ( items.length > 0 && typeof items[0] !== 'number' ) {
+                for ( let i in items ) {
+                    let item = items[i];
+                    if ( ! ( item instanceof Account ) ) {
+                        items[i] = new Account(item);
+                    }
+                }
+            }
+            super(...items);
+        }
 
         push(...items) {
             for ( let i in items ) {
@@ -478,6 +505,32 @@
                 item instanceof Account || (items[i] = new Account(item));
             }
             return super.unshift(...items);
+        }
+
+        /**
+         * Removes an item from this collection. Easier to understand than [].splice() since
+         * we are using the ID field.
+         * @param {String} ID The ID field to remove.
+         * @returns {Accounts} New Mutated array no longer containing the account.
+         */
+        remove(ID) {
+            for ( let i=0; i < this.length; i++ ) {
+                let item = this[i];
+                if (item.id == ID) {
+                    return this.splice(i, 1);
+                }
+            }
+            return this;
+        }
+
+        /**
+         * Gimmie this account by ID.
+         * Since the ID is unique, this will only ever return 1 element.
+         * @param {String} ID The account.id we want to find.
+         * @returns {Account} The Account object by reference.
+         */
+        byId(ID) {
+            return this.filter(acct => acct.id == ID).shift();
         }
 
         /**
@@ -508,16 +561,27 @@
          * @returns {Transactions} New list of transactions that match the search criteria.
          */
         getTransactions(selectedAccounts, fromDate, toDate, description=undefined, tags=undefined, limit=-1) {
-            return (new Transactions()).concat(...this.selected(selectedAccounts).map(
-                a => a.transactions.applyFilters(
-                    // selectedAccounts,
+                /*
+                console.log([
+                    {selectedAccounts},
+                    {fromDate, toDate},
+                    {description},
+                    {tags},
+                    {limit},
+                ]); //*/
+            const result = (new Transactions()).concat(...this.selected(selectedAccounts).map(
+                a => a.transactions.getTransactions(
                     fromDate,
                     toDate,
                     description,
                     tags,
-                    limit
                 )
             ));
+            if ( limit && limit > 0 ) {
+                return result.slice(0, limit);
+            } else {
+                return result;
+            }
         }
 
         /**
@@ -584,6 +648,17 @@
     }
 
     class Transactions extends JSONables {
+        constructor(...items) {
+            if ( items.length > 0 && typeof items[0] !== 'number' ) {
+                for ( let i in items ) {
+                    let item = items[i];
+                    if ( ! ( item instanceof Transaction ) ) {
+                        items[i] = new Transaction(item);
+                    }
+                }
+            }
+            super(...items);
+        }
 
         push(...items) {
             for ( let i in items ) {
@@ -593,6 +668,12 @@
             return super.push(...items);
         }
 
+        /**
+         * Override of unshift() to check if item added is an instance of a Transaction() or not
+         * to ensure we only ever contain a list of Transactions.
+         * @param  {...any} items Any list of arguments of items to add as Transaction()
+         * @returns Number of items unshift()ed.
+         */
         unshift(...items) {
             for (let i in items) {
                 let item = items[i];
@@ -600,6 +681,24 @@
             }
             return super.unshift(...items);
         }
+
+        /**
+         * Removes an item from this collection. Easier to understand than [].splice() since
+         * we are using the ID field.
+         * @param {String} ID The ID field to remove.
+         * @returns {Transactions} New Mutated array no longer containing the transaction.
+         *   returns itself if no action was taken.
+         */
+        remove(ID) {
+            for ( let i=0; i < this.length; i++ ) {
+                let item = this[i];
+                if (item.id == ID) {
+                    return this.splice(i, 1);
+                }
+            }
+            return this;
+        }
+
 
         /**
          * Produce a CSV result of the contents of this object.
@@ -691,6 +790,19 @@
         }
 
         /**
+         * Filter by RegExp(description).
+         * @param {Transaction} txn Transaction by this.filter() function.
+         * @param {RegExp|undefined} description RegExp description to filter against. Will match in .merchant or in .description.
+         * @returns {Boolean} TRUE|FALSE if we find this in the string columns of a transaction.
+         */
+        filterDescription(txn, description) {
+            // Assign as booleans to check if any in match.
+            const inMerchant = txn.merchant.toLowerCase().indexOf(description.toLowerCase()) !== -1;
+            const inDescription = txn.description.toLowerCase().indexOf(description.toLowerCase()) !== -1;
+            return inMerchant || inDescription;
+        }
+
+        /**
          * Check to see if tag is attached to this transaction.
          * @param {Transaction} txn Transaction as provided by this.filter();
          * @param {String|undefined} tag The tag to match against.
@@ -722,6 +834,16 @@
         }
 
         /**
+         * Gimmie this transaction by ID.
+         * Since the ID is unique, this will only ever return 1 element.
+         * @param {String} ID The transaction.id we want to find.
+         * @returns {Transaction} The transaction object by reference.
+         */
+        byId(ID) {
+            return this.filter(txn => txn.id == ID).shift();
+        }
+
+        /**
          * In the case that we have multiple accounts transactions in this collection,
          * this allows us to filter them out so we only have transactions of a specific
          * accountId.
@@ -744,6 +866,15 @@
         }
 
         /**
+         * Gets a list of transactions that match the description.
+         * @param {String|RegExp} description The description to match against.
+         * @returns {Transactions} The list of matching transactions.
+         */
+        byDescription(description) {
+            return this.filter(txn => this.filterDescription(txn, description));
+        }
+
+        /**
          * Filter the list of transactions by tag.
          * @param {String} tag Filter the list of transactions by tag.
          * @returns {Transactions}
@@ -759,6 +890,38 @@
          */
         byTags(tags) {
             return this.filter(txn => this.filterTags(txn, tags));
+        }
+
+        /**
+         * In place mutation method to set a tag across all the selected transactions in this collection.
+         * @param {String} tag The Tag to associate with all these transactions.
+         * @returns {Transactions} Updated copy of transactions with this tag set on all of them.
+         */
+        setTag(tag) {
+            return this.concat().map(txn => txn.setTag(tag));
+        }
+
+        /**
+         * Reduce this set of transactions down to get the list of budgets in alpha order with
+         * transaction amounts associated with them.
+         * @returns {Array<{tag: String, amount: Number}>} List of budgets to render in the widget.
+         */
+        getBudgets() {
+            const hasTags = t => t.tags.length;
+            const tag2amount = t => t.tags.map(tag => ({tag, amount: t.amount}) );
+            const sortTags = (a, b) => a.tag > b.tag? 1: -1;
+            const sumTags = (accumulator, currentValue) => {
+                currentValue.forEach(cv => {
+                    let a = accumulator.filter(x => x.tag == cv.tag);
+                    if ( a.length ) {
+                        a[0].amount += cv.amount;
+                    } else {
+                        accumulator.push(cv);
+                    }
+                });
+                return accumulator;
+            };
+            return this.filter(hasTags).map(tag2amount).reduce(sumTags).sort(sortTags);
         }
 
         /**
@@ -788,7 +951,7 @@
          * @param {Array<String>|undefined} tags List of tags transaction must match.
          * @returns {Transactions} List of transactions after filtering and limiting.
          */
-        applyFilters(fromDate=undefined, toDate=undefined, description=undefined, tags=undefined, limit=-1) {
+        getTransactions(fromDate=undefined, toDate=undefined, description=undefined, tags=undefined, limit=-1) {
             let result = this.filter(txn => {
                 let tests = {
                     date: true,
@@ -820,7 +983,8 @@
                     useDescription? tests.description: true,
                     useTags? tests.tags: true
                 ];
-                /*console.log([
+                /*
+                console.log([
                     {useDate, fromDate, toDate },
                     {useDescription, description},
                     {useTags, tags},
@@ -843,6 +1007,11 @@
          * @param {Yaba.models.Account.id} accountId The target accountId this CSV file has been dropped on.
          * @param {List<Yaba.models.Transaction>} transactions List of transactions/CSV rows as Object from CSV upload.
          * @returns {Array} List of transactions mapped to the canonical model.
+         * @todo Reject bad data. Sure, we throw an Exception if the engineer does something wrong, but if the user
+         *   drops the wrong CSV file on us, we need to filter out the txns that don't match what we expect to reduce
+         *   the chances of cluttered data.
+         * @todo Have the ability to accept or reject the changes as a result of dropping the CSV file on this account.
+         *   Here is where we can implement some sort of "undo" function.
          */
         static digest(institution, accountId, transactions) {
             let results = new Transactions(), mappings = institution.mappings.concat();
@@ -851,7 +1020,7 @@
                 toField: 'accountId',
                 fromField: accountId
             });
-            Transactions.prototype.sorted.call(transactions).map((transaction) => {
+            transactions.map((transaction) => {
                 var cannonical = {};
                 mappings.map((mapping) => {
                     switch(mapping.mapType) {
@@ -876,7 +1045,7 @@
                 });
                 results.push( cannonical );
             });
-            return results;
+            return results.sorted();
         }
 
         /**
@@ -1013,9 +1182,9 @@
                     return;
                 }
                 // Insert a 0 metric for all tags to give them a starting point for the graph.
-                $scope.myBudgets.splice(1, 0, [$scope.fromDate].concat(zeroTags));
+                $scope.myBudgets.splice(1, 0, [$scope.toDate].concat(zeroTags));
                 // Append a 0 metric to the end as well to give the graphs something to render for the present.
-                $scope.myBudgets.push([$scope.toDate].concat(zeroTags));
+                $scope.myBudgets.push([$scope.fromDate].concat(zeroTags));
                 dataTable.addRows($scope.myBudgets.slice(1));
                 var options = {
                     title: 'Budget Spending',
