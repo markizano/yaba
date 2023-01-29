@@ -353,8 +353,6 @@
             BiWeekly: 'bi-weekly',
             BiMonthly: 'bi-monthly',
             Monthly: 'monthly',
-            Quarterly: 'quarterly',
-            Annually: 'annually',
         });
 
         /**
@@ -400,6 +398,28 @@
             this.payCycle = data.payCycle || Settings.PayCycle.Weekly;
             this.txnDelta = data.txnDelta || Settings.TransactionDeltas.days30;
             return this;
+        }
+
+        payCycle2ms(cycle) {
+            switch (cycle) {
+                case Settings.PayCycle.Weekly:
+                    return 7 * 24 * 60 * 60 * 1000;
+                case Settings.PayCycle.BiWeekly:
+                    return 14 * 24 * 60 * 60 * 1000;
+                case Settings.PayCycle.BiMonthly:
+                    var next1st = new Date();
+                    next1st.setDate(1);
+                    next1st.setMonth(next1st.getMonth() + 1);
+                    var next15th = new Date();
+                    next15th.setDate(15);
+                    next15th.setMonth(next15th.getMonth() + 1);
+                    return (next15th - next1st);
+                case Settings.PayCycle.Monthly:
+                    var next1st = new Date();
+                    next1st.setDate(1);
+                    next1st.setMonth(next1st.getMonth() + 1);
+                    return (next1st - new Date());
+            }
         }
     }
 
