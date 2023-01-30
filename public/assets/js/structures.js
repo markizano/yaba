@@ -925,11 +925,18 @@
          * Reduce this set of transactions down to get the list of budgets in alpha order with
          * transaction amounts associated with them.
          * @returns {Array<{tag: String, amount: Number}>} List of budgets to render in the widget.
+         * For example, for each transaction that has a "Grocery" tag on it, it will be sum()d up
+         * and result as a single {"Groceries": $amount} object in the resulting Array().
          */
         getBudgets() {
+            // Filter for tags.
             const hasTags = t => t.tags.length;
+            // Map each transaction to a {tag, amount} object.
             const tag2amount = t => t.tags.map(tag => ({tag, amount: t.amount}) );
+            // Sort by tag near the end of this operation.
             const sortTags = (a, b) => a.tag > b.tag? 1: -1;
+            // Reducer method for filtering out duplicates into a unique
+            // list of budgets with the amounts aggregated.
             const sumTags = (accumulator, currentValue) => {
                 currentValue.forEach(cv => {
                     let a = accumulator.filter(x => x.tag == cv.tag);
@@ -941,7 +948,85 @@
                 });
                 return accumulator;
             };
+            // Run this rube-goldberg and haphazardly return the result.
             return this.filter(hasTags).map(tag2amount).reduce(sumTags).sort(sortTags);
+        }
+
+        /** ###  REDUCER FUNCTIONS  ###
+         * These reducer methods are designed mostly for transaction collections that have already
+         * been filtered in some fashion to where we want to start reporting on their data.
+         * ############################
+         */
+
+        /**
+         * Reducer method to get us the sum() of all the transactions in this collection.
+         * @returns {Number}
+         */
+        sum() {
+            switch (this.length) {
+                case 0:
+                    return 0;
+                case 1:
+                    return this[0].amount;
+                default:
+                    return this.reduce((total, txn) => total + txn.amount, 0);
+            }
+        }
+
+        /**
+         * Take advantage of the sum() method and return for us an average() of the transactions
+         * in this collection.
+         * @returns {Number}
+         */
+        avg() {
+            return this.length > 0? this.sum() / this.length: 0;
+        }
+
+        /**
+         * Take this list of transactions and group them by month.
+         * @returns {Array[Date, Transactions]} An Object mapping of {`YYYY-MM`: Transactions()}
+         * with the key being the year and month and the value being a transaction collection
+         * with subsequent matching year and month.
+         */
+        monthly() {
+            if ( typeof Date.prototype.YYYYMM === 'undefined' ) {
+                Date.prototype.YYYYMM = function() { return this.toISOShortDate().split('-', 2).join('-'); };
+            }
+            const groupByMonth = (dateGroup, txn) => {
+                let dtPost = txn.datePosted.YYYYMM();
+                if ( dateGroup.hasOwnProperty(dtPost) ) {
+                    dateGroup[dtPost].push(txn);
+                } else {
+                    dateGroup[dtPost] = new Transactions(txn);
+                }
+                return dateGroup;
+            };
+            switch (this.length) {
+                case 0:
+                    return {};
+                case 1:
+                    let single = {}, dt = this[0].datePosted.YYYYMM();
+                    single[dt] = this.concat();
+                    return single;
+                default:
+                    let sorted = this.sorted();
+                    let result = sorted.reduce(groupByMonth, {});
+                    for (
+                      let startDate = sorted.pop().datePosted.round(),
+                      endDate = sorted.shift().datePosted.round();
+                      startDate < endDate;
+                      startDate.setUTCMonth(startDate.getUTCMonth() +1)
+                    ) {
+                        console.log(`Checking ${startDate.toISOShortDate()}...`);
+                        if ( result.hasOwnProperty( startDate.YYYYMM() ) ) {
+                            console.log('Has date. Skipping');
+                        } else {
+                            console.log(`Missing ${startDate.toISOShortDate()}, setting to 0...`);
+                            result[ startDate.YYYYMM() ] = new Transactions();
+                        }
+                    }
+                    return result;
+            }
         }
 
         /**

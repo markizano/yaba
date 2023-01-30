@@ -2,14 +2,25 @@
 (function() {
     if ( typeof Object.defineProperty == 'function' ) {
         try{ Object.defineProperty(Date.prototype, 'toISOShortDate', {value: toISOShortDate}); } catch(e){}
+        try{ Object.defineProperty(Date.prototype, 'round', {value: round}); } catch(e){}
     }
     if ( !Date.prototype.toISOShortDate ) Date.prototype.toISOShortDate = toISOShortDate;
+    if ( !Date.prototype.round ) Date.prototype.round = round;
     function toISOShortDate() {
         let yyyy = this.getFullYear(),
-          mm = ('0' + (this.getMonth()+1)).slice(-2),
-          dd = ( '0' + this.getDate()).slice(-2);
+          mm = ('0' + (this.getUTCMonth()+1)).slice(-2),
+          dd = ( '0' + this.getUTCDate()).slice(-2);
         return [yyyy, mm, dd] .join('-')
-    };
+    }
+    function round() {
+        const result = new Date(this);
+        result.setUTCMilliseconds(0);
+        result.setUTCSeconds(0);
+        result.setUTCMinutes(0);
+        result.setUTCHours(0);
+        result.setUTCDate(1);
+        return result;
+    }
     Math.parseCurrency = (value) => {
         return Number(value.replace(/[^0-9\.-]+/g, '') );
     }
@@ -32,7 +43,7 @@ var Yaba = (function(Yaba) {
     Yaba.hasOwnProperty('app') || (Yaba.app = angular.module('yaba', ngModelList));
 
     // Whether to actively render debugging informations, details and other infos.
-    Yaba.DEBUG = window.location.hostname == 'yaba.markizano.net';
+    Yaba.DEBUG = window.location.hostname != 'yaba.markizano.net';
     // Feature check to see if developer-friendly options should be available.
     Yaba.mode = Yaba.DEBUG? 'dev': 'prod';
 
