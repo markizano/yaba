@@ -1010,7 +1010,7 @@
         monthly() {
             switch( this.length ) {
                 case 0:
-                    return {};
+                    return new TransactionGroup();
                 case 1:
                     return new TransactionGroup(this);
                 default:
@@ -1485,7 +1485,12 @@
          * @returns {Date} The date of the oldest transaction of this collection, `round()`ed.
          */
         oldest() {
-            return this.items().pop().pop().sorted().pop().datePosted.round();
+            try {
+                return this.items().pop().pop().sorted().pop().datePosted.round();
+            } catch (e) {
+                console.error(`Failed getting oldest(): ${e}`);
+                return Yaba.models.DATENULL;
+            }
         }
 
         /**
@@ -1493,7 +1498,12 @@
          * @returns {Date} The date of the newest/latest transaction of this collection, round()ed.
          */
         newest() {
-            return this.items().shift().pop().sorted().shift().datePosted.round();
+            try {
+                return this.items().shift().pop().sorted().shift().datePosted.round();
+            } catch (e) {
+                console.error(`Failed getting newest(): ${e}`);
+                return Yaba.models.DATENULL;
+            }
         }
 
         /**

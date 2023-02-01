@@ -195,20 +195,27 @@
             -1
           );
         $scope.incomeTxns = handyGetByTag(Settings.incomeTags);
-        $scope.expenseTxns = handyGetByTag(Settings.expenseTags);
         let income = $scope.incomeTxns.monthly();
-        let expense = $scope.expenseTxns.monthly();
         $scope.income = income.items();
+
+        $scope.expenseTxns = handyGetByTag(Settings.expenseTags);
+        let expense = $scope.expenseTxns.monthly();
         $scope.expense = expense.items();
 
-        $scope.leftovers = expense.subtract(income);
-        $scope.leftoverItems = $scope.leftovers.items();
+        if ( $scope.incomeTxns.length ) {
+            $scope.leftovers = expense.subtract(income);
+            $scope.leftoverItems = $scope.leftovers.items();
+    
+            $scope.projections = $scope.leftovers.project(prospects);
+            $scope.projectionItems = $scope.projections.items();
+        } else {
+            $scope.leftovers = { sum: () => 0.0 };
+            $scope.leftoverItems = [];
 
-        $scope.projections = $scope.leftovers.project(prospects);
-        $scope.projectionItems = $scope.projections.items();
-
+            $scope.projections = { sum: () => 0.0 };
+            $scope.projectionItems = [];
+        }
         Yaba.$prospect = $scope; //@DEBUG
-
     }
     Prospect.$inject = ['$scope', 'accounts', 'prospects', 'Settings'];
     Yaba.app.controller('prospect', Ctrl.prospect = Prospect);
