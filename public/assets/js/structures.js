@@ -958,7 +958,15 @@
                 return accumulator;
             };
             // Run this rube-goldberg and haphazardly return the result.
-            return this.filter(hasTags).map(tag2amount).reduce(sumTags).sort(sortTags);
+            let txns = this.filter(hasTags).map(tag2amount);
+            switch ( txns.length ) {
+                case 0:
+                    return [];
+                case 1:
+                    return [txns[0].amount];
+                default:
+                    return txns.reduce(sumTags).sort(sortTags);
+            }
         }
 
         /** ###  REDUCER FUNCTIONS  ###
