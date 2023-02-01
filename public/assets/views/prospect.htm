@@ -5,26 +5,24 @@
         <yaba-wishlist wishlist="prospect"></yaba-wishlist>
     </div>
     <div class="item-column-wrapper">
-        <label>Income Transactions (<span>{{ avgIncome.sum|currency }}</span>):</label>
+        <h2>Income Transactions (<span>{{ incomeTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2>
         <yaba-transaction-list
           txn-tags="incomeTags"
           limit="5"
         ></yaba-transaction-list>
+        <yaba-txn-stats transactions="income"></yaba-txn-stats>
     </div>
     <div class="item-column-wrapper">
-        <label>Expense Transactions (<span>{{ avgExpense.sum|currency }}</span>):</label>
+        <h2>Expense Transactions (<span>{{ expenseTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2>
         <yaba-transaction-list
           txn-tags="expenseTags"
           limit="5"
         ></yaba-transaction-list>
+        <yaba-txn-stats transactions="expense"></yaba-txn-stats>
     </div>
     <div class="item-list-wrapper">
         <label>Available Money:</label>
-        <debug>
-            averageIncome: <span>sum: {{ avgIncome.sum }}, avg: {{ avgIncome.avg }}</span><br />
-            averageExpense: <span>sum: {{ avgExpense.sum }}, avg: {{ avgExpense.avg }}</span><br />
-            leftovers: <span ng-bind="leftovers"></span><br />
-        </debug>
+        <yaba-income-list></yaba-income-list>
         <yaba-income-list></yaba-income-list>
     </div>
 </div>

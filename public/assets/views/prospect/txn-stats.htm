@@ -1,0 +1,23 @@
+<table class="data item-list">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Sum</th>
+            <th>Average</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="(date, txns) in transactions">
+            <td><span ng-bind="date"></span></td>
+            <td><span ng-bind="txns.sum() | currency"></span></td>
+            <td><span ng-bind="txns.avg() | currency"></span></td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td><b>Totals</b></td>
+            <td><span ng-bind="transactions.sum()|currency"></span></td>
+            <td><span ng-bind="transactions.average()|currency"></span></td>
+        </tr>
+    </tfoot>
+</table>

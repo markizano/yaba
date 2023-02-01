@@ -186,42 +186,19 @@
         $scope.hideTags         = Settings.hideTags;
         $scope.budgetBy         = Yaba.filters.budgetBy;
 
-        const getAvgTxns = (tags) => {
-            return (txns => {
-                let result = {};
-                result.sum = txns.sum();
-                result.avg = txns.avg();
-                result.monthly = txns.monthly();
-                return result;
-            })(accounts.getTransactions(
+        const handyGetByTag = tags => accounts.getTransactions(
             undefined,
             undefined,
             undefined,
             undefined,
             tags,
             -1
-          ));
-        };
-        const calculateLeftover = (income, expense) => {
-            let result = [];
-            for ( let inDate_ in income ) {
-                let inDate = new Date(inDate_);
-                let inAmount = income[inDate_].sum();
-                for ( let exDate_ in expense ) {
-                    let exDate = new Date(exDate_);
-                    let exAmount = Math.abs(expense[exDate_].sum());
-                    if ( inDate.toISOShortDate() == exDate.toISOShortDate() ) {
-                        console.log(`Match ${inDate.toISOShortDate()}: in=${inAmount}, expense=${exAmount}`);
-                        result.push([inDate, +(inAmount - exAmount).toFixed(4)]);
-                    }
-                }
-            }
-            console.log('leftovers: ', result);
-            return result;
-        };
-        $scope.avgIncome    = getAvgTxns($scope.incomeTags);
-        $scope.avgExpense   = getAvgTxns($scope.expenseTags);
-        $scope.leftovers    = calculateLeftover($scope.avgIncome.monthly, $scope.avgExpense.monthly);
+          );
+        $scope.incomeTxns = handyGetByTag(Settings.incomeTags);
+        $scope.expenseTxns = handyGetByTag(Settings.expenseTags);
+        $scope.income = $scope.incomeTxns.monthly();
+        $scope.expense = $scope.expenseTxns.monthly();
+
         Yaba.$prospect = $scope; //@DEBUG
 
     }
@@ -676,4 +653,5 @@
         $element.bind('drop', drop);
     }
     Links.csvdrop = csvdrop;
+
 })(Yaba);

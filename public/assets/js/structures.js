@@ -338,6 +338,10 @@
             this.tags.push(tag);
             return this;
         }
+
+        YYYYMM() {
+            return this.datePosted.toISOShortDate().split('-', 2).join('-');
+        }
     }
 
     /**
@@ -680,6 +684,11 @@
             super(...items);
         }
 
+        /**
+         * Override of the push() function to ensure that each item added to the array is of type `Transaction`.
+         * @param  {...Transaction|object} items 
+         * @returns Number of items in the current set/array.
+         */
         push(...items) {
             for ( let i in items ) {
                 let item = items[i];
@@ -983,60 +992,30 @@
         }
 
         /**
-         * Take this list of transactions and group them by month.
-         * @returns {Array[Date, Transactions]} An Object mapping of {`YYYY-MM`: Transactions()}
-         * with the key being the year and month and the value being a transaction collection
-         * with subsequent matching year and month.
-         */
-        monthly() {
-            if ( typeof Date.prototype.YYYYMM === 'undefined' ) {
-                Date.prototype.YYYYMM = function() { return this.toISOShortDate().split('-', 2).join('-'); };
-            }
-            const groupByMonth = (dateGroup, txn) => {
-                let dtPost = txn.datePosted.YYYYMM();
-                if ( dateGroup.hasOwnProperty(dtPost) ) {
-                    dateGroup[dtPost].push(txn);
-                } else {
-                    dateGroup[dtPost] = new Transactions(txn);
-                }
-                return dateGroup;
-            };
-            switch (this.length) {
-                case 0:
-                    return {};
-                case 1:
-                    let single = {}, dt = this[0].datePosted.YYYYMM();
-                    single[dt] = this.concat();
-                    return single;
-                default:
-                    let sorted = this.sorted();
-                    let result = sorted.reduce(groupByMonth, {});
-                    for (
-                      let startDate = sorted.pop().datePosted.round(),
-                      endDate = sorted.shift().datePosted.round();
-                      startDate < endDate;
-                      startDate.setUTCMonth(startDate.getUTCMonth() +1)
-                    ) {
-                        console.log(`Checking ${startDate.toISOShortDate()}...`);
-                        if ( result.hasOwnProperty( startDate.YYYYMM() ) ) {
-                            console.log('Has date. Skipping');
-                        } else {
-                            console.log(`Missing ${startDate.toISOShortDate()}, setting to 0...`);
-                            result[ startDate.YYYYMM() ] = new Transactions();
-                        }
-                    }
-                    return result;
-            }
-        }
-
-        /**
          * Sorts the array based on datePosted.
          * @param {boolean} asc TRUE for Ascending; FALSE for Descending.
          * @returns {Transactions} The sorted list of transactions by datePosted.
          */
         sorted(asc=true) {
-            console.log('sorting...');
             return this.concat().sort((a, b) => asc ? b.datePosted - a.datePosted: a.datePosted - b.datePosted);
+        }
+
+        /**
+         * Take this list of transactions and group them by month.
+         * @returns {Object[Date, Transactions]} An Object mapping of {`YYYY-MM`: Transactions()}
+         * with the key being the year and month and the value being a transaction collection
+         * with subsequent matching year and month.
+         * @returns {TransactionGroup} A new grouping of Transactions we can use for munging data.
+         */
+        monthly() {
+            switch( this.length ) {
+                case 0:
+                    return {};
+                case 1:
+                    return new TransactionGroup(this);
+                default:
+                    return this.sorted().reduce((monthGroups, txn) => monthGroups.append(txn), new TransactionGroup());
+            }
         }
 
         /**
@@ -1315,6 +1294,185 @@
     } // class Transactions() {}
 
     /**
+     * When working on the Transactions() collection, it occurred to me that I was building a different
+     * type of collection object. This is a wrapper around the Transactions() so they can be grouped by
+     * date.
+     * This is an extension of the Transactions class because it is a multiplex of transactions.
+     * To be able to reference by index will get you a Transaction() as if it were part of a natural collection.
+     * If you reference a key by a YYYY-MM format, you will access a Transactions() collection of ${this}
+     * set of transactions that fall within that date range (ex. referencing "2022-11" will get you all
+     * of NOV transactions in 2022.)
+     * This only works for the YYYY-MM format which is great from the Prospect()ing page perspective.
+     * In this case, it works because we are working with a multiplex of transactions that we want to
+     * group by some factor, but still be able to reference transactions as a collection.
+     */
+    class TransactionGroup {
+        constructor(...args) {
+            if ( args.length > 0 && typeof args[0] != 'number' ) {
+                args.forEach((txns, i) => {
+                    if ( false === txns instanceof Transactions && false === txns instanceof Transaction) {
+                        throw new TypeError(`Argument ${i} must be Transaction() or Transactions(). Got ${txns.constructor.name}`);
+                    }
+                    if ( txns instanceof Transaction ) {
+                        txns = new Transactions(txns);
+                    }
+                    this.append(...txns);
+                });
+            }
+        }
+
+        /**
+         * Append another transaction to the list but categorize accordingly upon assignment.
+         * @param  {...any} txns Transactions to attempt to append to this object.
+         * @returns {TransactionGroup} This object for chaining.
+         */
+        append(...txns) {
+            for ( let txn of txns ) {
+                if ( false === txn instanceof Transaction ) {
+                    console.error(txns);
+                    throw new TypeError(`txn must be Transaction(), got ${txn.constructor.name}`);
+                }
+                let yyyymm = txn.YYYYMM();
+                if ( ! this.hasOwnProperty(yyyymm) ) {
+                    this[yyyymm] = new Transactions();
+                }
+                this[yyyymm].push(txn);
+            }
+            return this;
+        }
+
+        /**
+         * Get me a list of these transactions with 0 collections where there are no transactions.
+         * @param {Object<Date: Transactions>} monthGroups Result from `this.monthly()`
+         * @returns The input with each month filled in so there are no holes from start
+         * date to end date.
+         */
+        monthlyInFull(monthGroups=undefined) {
+            if ( monthGroups === undefined ) {
+                monthGroups = this.monthly();
+            }
+            for (
+                let sorted = this.sorted(),
+                  startDate = sorted.pop().datePosted.round(),
+                  endDate = sorted.shift().datePosted.round();
+                startDate < endDate;
+                startDate.setUTCMonth(startDate.getUTCMonth() +1)
+              ) {
+                  let YYYYMM = startDate.toISOShortDate().split('-', 2).join('-');
+                  if ( monthGroups.hasOwnProperty( YYYYMM ) ) {
+                    //   console.log('Has date. Skipping');
+                  } else {
+                      console.log(`Missing ${startDate.toISOShortDate()}, setting to 0...`);
+                      monthGroups[ YYYYMM ] = new Transactions();
+                  }
+            }
+            return monthGroups;
+
+        }
+
+        /**
+         * Give me another instance of myself and I will provide you a difference/subtraction
+         * between the two as a new instance of myself.
+         */
+        subtract(txnGroup) {
+            let result = new TransactionGroup();
+            return this.map((thisDate, thisTxns) => {
+                return txnGroup.map((thatDate, thatTxns) => {
+                    if ( thisDate != thatDate ) return false;
+                    let amount = thisTxns.sum() - thatTxns.sum();
+                    let txn = new Transaction({amount, datePosted: new Date(thisDate + '-01')});
+                    //#@TODO: WTF am I doing here?! D:
+                }).filter(x => x !== false) || false;
+            }).flat().filter(x => x !== false);
+            for ( let inDate_ in txnGroup ) {
+                let inDate = new Date(inDate_ + '-01');
+                let inAmount = txnGroup[inDate_].sum();
+                for ( let exDate_ in this ) {
+                    let exDate = new Date(exDate_ + '-01');
+                    let exAmount = Math.abs(this[exDate_].sum());
+                    if ( inDate.toISOShortDate() == exDate.toISOShortDate() ) {
+                        // console.log(`Match ${inDate.toISOShortDate()}: in=${inAmount}, expense=${exAmount}`);
+                        result.push([inDate, +(inAmount - exAmount).toFixed(4)]);
+                    }
+                }
+            }
+            // console.log('leftovers: ', result);
+            return result;
+        }
+
+        length() {
+            return Object.keys(this).length;
+        }
+
+        /**
+         * Pythonic way of getting dict.items().
+         * @returns {Array} The list of this set of items.
+         */
+        items() {
+            return Object.entries(this);
+        }
+
+        /**
+         * Map over each of the collections of transactions we have.
+         * @param {Function} callbackFn Callback Function to iterate over.
+         * @returns Make [].map() available to `this`.
+         */
+        map(callbackFn) {
+            const overrideCallbackFn = (value, index, arr) => {
+                let [ date, txns ] = value;
+                return callbackFn(date, txns, index, arr);
+            }
+            return this.items().map(overrideCallbackFn, this);
+        }
+
+        /**
+         * Give me a full sum of all the transactions in this collection of collections.
+         * @returns {Number}
+         */
+        sum() {
+            return this.sums().reduce((a, b) => a + Object.values(b).shift(), 0);
+        }
+
+        /**
+         * Returns a list of sum() values from each of this collection of collections of transactions.
+         * READ: Monthly summaries!
+         * @returns {Array<Number>} List of numbers for the set of monthly summaries.
+         */
+        sums() {
+            const objDescriptor = txns => ({enumerable: true, writeable: true, value: txns.sum()});
+            return this.map((date, txns) => Object.defineProperty({}, date, objDescriptor(txns) ));
+        }
+
+        /**
+         * Give me a full sum of all the transactions in this collection of collections.
+         * @returns {Number}
+         */
+        average() {
+            return this.averages().reduce((a, b) => a + Object.values(b).shift(), 0) / this.length();
+        }
+
+        /**
+         * Provides a list of averages across all the transactions in this collection.
+         * HINT: This is local averaging.
+         */
+        averages() {
+            const objDescriptor = txns => ({enumerable: true, writeable: true, value: txns.avg()});
+            return this.map((date, txns) => Object.defineProperty({}, date, objDescriptor(txns) ));
+        }
+
+        /**
+         * This is where the magic happens. We PROJECT ourselves into the future and assume that our current
+         * trajectory will remain the same for the forecasted future. As we iterate over the future,
+         * we include the purchases we want to make in order to see how it will impact our paycheque.
+         * Here, we count into the future until we want to see and include those transactions in our calculations.
+         * Provide me with a matrix of what comes back.
+         */
+        project(wishlist) {
+            //
+        }
+    }
+
+    /**
      * This is a transaction list for all intent and purposes, but I need it stored under a different name.
      * An easy way to do this is to extend the class, but override nothing.
      */
@@ -1336,6 +1494,7 @@
     Yaba.models.Institutions        = Institutions;
     Yaba.models.Accounts            = Accounts;
     Yaba.models.Transactions        = Transactions;
+    Yaba.models.TransactionGroup    = TransactionGroup;
     Yaba.models.Prospects           = Prospects;
 
     return Yaba;

@@ -1,10 +1,12 @@
 <transaction-list-wrapper ng-class="editable">
     <table class="data item-list" ng-class="editable">
         <thead ng-show="withHeader">
-            <th ng-click="sortBy('datePosted');">Date Posted</th>
-            <th ng-click="sortBy('amount');">Amount</th>
-            <th ng-click="sortBy('description');">Description</th>
-            <th ng-show="includeTags">Budgets</th>
+            <tr>
+                <th ng-click="sortBy('datePosted');">Date Posted</th>
+                <th ng-click="sortBy('amount');">Amount</th>
+                <th ng-click="sortBy('description');">Description</th>
+                <th ng-show="includeTags">Budgets</th>
+            </tr>
         </thead>
         <tbody>
             <tr ng-repeat="txn in transactions | orderBy:sort.column:sort.asc | limitTo:itemsPerPage:offset track by txn.id">

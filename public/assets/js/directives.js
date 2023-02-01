@@ -159,6 +159,20 @@
     });
 
     /**
+     * Wishlist widget to let us control items on our wishlist to buy stuff.
+     */
+    Yaba.app.directive('yabaTxnStats', () => {
+        return {
+            require: 'ngModel',
+            templateUrl: '/assets/views/prospect/txn-stats.htm',
+            scope: {
+                transactions: '='
+            },
+            restrict: 'E'
+        };
+    });
+
+    /**
      * Makes elements available to accept CSV files for drag-and-drop operations.
      */
     Yaba.app.directive('csvdrop', () => {

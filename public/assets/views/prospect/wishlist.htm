@@ -20,12 +20,7 @@
 <form>
     I want to buy <input type="text" ng-model="description" />
     which costs $<input type="number" ng-model="amount" /> by
-    <md-datepicker ng-model="datePurchase"
-        md-placeholder="Desired purchase date"
-        display-date="1970-01-01"
-        input-aria-describedby="datepicker-description"
-        input-aria-labelledby="datepicker-header ">
-    </md-datepicker>
+    <input type="date" ng-model="datePurchase" />
     <input type="hidden" ng-model="index" />
     <controls ng-switch on="mode">
         <add ng-switch-when="add" ng-click="add();" class="right"></add>
