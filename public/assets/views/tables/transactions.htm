@@ -22,7 +22,7 @@
                     </div>
                 </td>
                 <td txn-edit="true" ng-model="txn.amount" ng-switch on="!!edit['txn-amount']">
-                    <span ng-switch-when="false" ng-bind="txn.amount | currency"></span>
+                    <span ng-switch-when="false" ng-bind="txn.amount | currency" ng-class="{'negative': txn.amount < 0}"></span>
                     <span ng-switch-when="true">
                         <input
                         type="number"

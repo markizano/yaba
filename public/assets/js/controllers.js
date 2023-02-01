@@ -188,16 +188,24 @@
 
         const handyGetByTag = tags => accounts.getTransactions(
             undefined,
-            undefined,
-            undefined,
+            new Date( new Date() - Yaba.models.Settings.TransactionDeltas.days365 ), // @TODO: This may be revisited...
+            new Date(),
             undefined,
             tags,
             -1
           );
         $scope.incomeTxns = handyGetByTag(Settings.incomeTags);
         $scope.expenseTxns = handyGetByTag(Settings.expenseTags);
-        $scope.income = $scope.incomeTxns.monthly();
-        $scope.expense = $scope.expenseTxns.monthly();
+        let income = $scope.incomeTxns.monthly();
+        let expense = $scope.expenseTxns.monthly();
+        $scope.income = income.items();
+        $scope.expense = expense.items();
+
+        $scope.leftovers = expense.subtract(income);
+        $scope.leftoverItems = $scope.leftovers.items();
+
+        $scope.projections = $scope.leftovers.project(prospects);
+        $scope.projectionItems = $scope.projections.items();
 
         Yaba.$prospect = $scope; //@DEBUG
 

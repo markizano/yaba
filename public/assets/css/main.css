@@ -498,3 +498,6 @@ yaba-budget {
     display: block;
     float: right;
 }
+.negative {
+    color: #b21717;
+}

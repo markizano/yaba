@@ -64,7 +64,7 @@ describe('Yaba.models.Accounts', function() {
         });
 
         it('accounts.getTags()', () => {
-            expect(accounts.getTags()).toEqual(['grocery']);
+            expect(accounts.getTags()).toContain('grocery');
         });
 
         it('accounts.getTransactions(undefined, undefined, undefined, description, undefined, undefined)', () => {

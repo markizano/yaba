@@ -507,7 +507,7 @@
             if ( items.length > 0 && typeof items[0] !== 'number' ) {
                 for ( let i in items ) {
                     let item = items[i];
-                    if ( ! ( item instanceof Account ) ) {
+                    if ( false === item instanceof Account ) {
                         items[i] = new Account(item);
                     }
                 }
@@ -577,7 +577,7 @@
          * @returns {Array<String>} The list of tags from the transactions in this list.
          */
         getTags() {
-            return [... new Set( [].concat(...this.map(a => a.transactions.getTags())).sort() )];
+            return Array.from(new Set( this.map(a => a.transactions.getTags()).flat().sort() ));
         }
 
         /**
@@ -762,7 +762,7 @@
          * @returns {Array<String>} List of tags associated with this collection of transactions.
          */
         getTags() {
-            return [... new Set([].concat(...this.filter(t => t.tags.length).map(t => t.tags)).sort())];
+            return Array.from(new Set(this.filter(t => t.tags.length).map(t => t.tags).flat().sort()));
         }
 
         /**
@@ -1249,9 +1249,11 @@
 
         static dataChart($scope, $element, $attr) {
             const budgets = () => {
-                return [ ['Date'].concat($scope.txnTags) ].concat($scope.transactions.byTags($scope.txnTags).sorted().map(txn => {
-                    return [txn.datePosted].concat($scope.txnTags.map(tag => txn.tags.includes(tag)? txn.amount: 0.0 ));
-                }));
+                // Collect all the data points as [$date, $txnTags[0], $txnTags[1], ...];
+                const dataPoints = (txn) => [ txn.datePosted ].concat($scope.txnTags.map(tag => txn.tags.includes(tag)? txn.amount: 0.0 ));
+                // Iterate the full list of transactions to get the data points we need to plot.
+                const dataMap = $scope.transactions.byTags($scope.txnTags).sorted().map(txn => dataPoints(txn));
+                return [ ['Date'].concat($scope.txnTags) ].concat(dataMap);
             };
             $scope.$on('controls.change', () => $scope.rebalance());
 
@@ -1343,60 +1345,113 @@
 
         /**
          * Get me a list of these transactions with 0 collections where there are no transactions.
-         * @param {Object<Date: Transactions>} monthGroups Result from `this.monthly()`
+         * e.g. `{2022-06: ..., 2022-08: ..., 2022-09: ...}`
+         * will make: `{2022-06: ..., 2022-07: new Transactions(0), 2022-08: ..., 2022-09: ...}`
+         * So we don't end up with skipping a month. Prepares us for Grid operations.
+         * @param {Object<Date: Transactions>} txnGroups Result from `Transactions().monthly()`
          * @returns The input with each month filled in so there are no holes from start
-         * date to end date.
+         * date to end date. Please note that this is a self-mutating function. Use `this.slice()`
+         * or `this.concat()` to get a copy first if you don't want to modify this in-place.
          */
-        monthlyInFull(monthGroups=undefined) {
-            if ( monthGroups === undefined ) {
-                monthGroups = this.monthly();
-            }
+        normalize() {
             for (
-                let sorted = this.sorted(),
-                  startDate = sorted.pop().datePosted.round(),
-                  endDate = sorted.shift().datePosted.round();
+                let startDate = this.oldest(),
+                  endDate = this.newest();
                 startDate < endDate;
                 startDate.setUTCMonth(startDate.getUTCMonth() +1)
               ) {
-                  let YYYYMM = startDate.toISOShortDate().split('-', 2).join('-');
-                  if ( monthGroups.hasOwnProperty( YYYYMM ) ) {
-                    //   console.log('Has date. Skipping');
-                  } else {
-                      console.log(`Missing ${startDate.toISOShortDate()}, setting to 0...`);
-                      monthGroups[ YYYYMM ] = new Transactions();
-                  }
+                if ( !this.hasOwnProperty( startDate.toISOShortDate().split('-', 2).join('-') ) ) {
+                    console.log(`Missing ${startDate.toISOShortDate()}, adding a 0...`);
+                    this.append(new Transaction({
+                        datePosted: startDate.round(),
+                        amount: 0.0,
+                        description: 'TransactionGroup auto-record. Normalized 0-amount entry.',
+                        merchant: this.constructor.name,
+                        tags: ['hidden']
+                    }));
+                }
             }
-            return monthGroups;
-
+            return this;
         }
 
         /**
          * Give me another instance of myself and I will provide you a difference/subtraction
          * between the two as a new instance of myself.
+         * @param {TransactionGroup} that The other transaction group to use for subtraction from ${this}.
+         * @returns {TransactionGroup} New Group of Transactions that are summaries of the input groups.
          */
-        subtract(txnGroup) {
+        subtract(that) {
             let result = new TransactionGroup();
-            return this.map((thisDate, thisTxns) => {
-                return txnGroup.map((thatDate, thatTxns) => {
-                    if ( thisDate != thatDate ) return false;
-                    let amount = thisTxns.sum() - thatTxns.sum();
-                    let txn = new Transaction({amount, datePosted: new Date(thisDate + '-01')});
-                    //#@TODO: WTF am I doing here?! D:
-                }).filter(x => x !== false) || false;
-            }).flat().filter(x => x !== false);
-            for ( let inDate_ in txnGroup ) {
-                let inDate = new Date(inDate_ + '-01');
-                let inAmount = txnGroup[inDate_].sum();
-                for ( let exDate_ in this ) {
-                    let exDate = new Date(exDate_ + '-01');
-                    let exAmount = Math.abs(this[exDate_].sum());
-                    if ( inDate.toISOShortDate() == exDate.toISOShortDate() ) {
-                        // console.log(`Match ${inDate.toISOShortDate()}: in=${inAmount}, expense=${exAmount}`);
-                        result.push([inDate, +(inAmount - exAmount).toFixed(4)]);
-                    }
+            // console.log('(this != that).oldest(): ', {income: this.oldest().toISOShortDate(), expense: that.oldest().toISOShortDate()});
+            if ( this.oldest().toISOShortDate() != that.oldest().toISOShortDate() ) {
+                if ( this.oldest() < that.oldest() ) {
+                    that.append(new Transaction({
+                        datePosted: this.oldest(),
+                        amount: 0.0,
+                        description: 'TransactionGroup auto-record. txnGroup.oldest() was newer than ${this}.',
+                        merchant: this.constructor.name,
+                        tags: ['hidden']
+                    }));
+                }
+                if ( that.oldest() < this.oldest() ) {
+                    this.append(new Transaction({
+                        datePosted: that.oldest(),
+                        amount: 0.0,
+                        description: 'TransactionGroup auto-record. txnGroup.oldest() was newer than ${this}.',
+                        merchant: that.constructor.name,
+                        tags: ['hidden']
+                    }));
                 }
             }
-            // console.log('leftovers: ', result);
+            // console.log('(this != that).newest(): ', {income: this.newest().toISOShortDate(), expense: that.newest().toISOShortDate()});
+            if ( this.newest().toISOShortDate() != that.newest().toISOShortDate() ) {
+                if ( this.newest() < that.newest() ) {
+                    that.append(new Transaction({
+                        datePosted: this.newest(),
+                        amount: 0.0,
+                        description: 'TransactionGroup auto-record. txnGroup.newest() was newer than ${this}.',
+                        merchant: this.constructor.name,
+                        tags: ['hidden']
+                    }));
+                }
+                if ( that.newest() < this.newest() ) {
+                    this.append(new Transaction({
+                        datePosted: that.newest(),
+                        amount: 0.0,
+                        description: 'TransactionGroup auto-record. txnGroup.newest() was newer than ${this}.',
+                        merchant: that.constructor.name,
+                        tags: ['hidden']
+                    }));
+                }
+            }
+            this.normalize();
+            that.normalize();
+            /*console.log('DEBUG: AFTER WORK: (this vs that).oldest(): ', {
+                income: {
+                    oldest: this.oldest().toISOShortDate(),
+                    newest: this.newest().toISOShortDate()
+                }, expense: {
+                    oldest: that.oldest().toISOShortDate(),
+                    newest: this.newest().toISOShortDate()
+                }
+            }); //*/
+            for ( let incomes = this.items(), expenses = that.items();
+              incomes.length > 0 && expenses.length > 0;
+              null
+            ) {
+                let [ iDate, income ] = incomes.shift(), [eDate, expense] = expenses.shift();
+                if ( iDate != eDate ) { console.warn("Dates don't match?!", iDate, eDate); }
+                let amount = Math.abs(expense.sum()) - Math.abs(income.sum());
+                let txn = new Transaction({
+                    datePosted: new Date(iDate + '-01'),
+                    amount,
+                    description: 'TransactionGroup auto-record. Placeholder summary of calculated transaction deltas.',
+                    merchant: that.constructor.name,
+                    tags: ['auto']
+                });
+                // console.log(txn); //@DEBUG
+                result.append(txn);
+            }
             return result;
         }
 
@@ -1405,11 +1460,11 @@
         }
 
         /**
-         * Pythonic way of getting dict.items().
+         * Pythonic way of getting dict.items(). Sorting by date instead of strings seems to be more reliable.
          * @returns {Array} The list of this set of items.
          */
         items() {
-            return Object.entries(this);
+            return Object.entries(this).concat().sort((a, b) => new Date(b[0] + '-01') - new Date(a[0] + '-01'));
         }
 
         /**
@@ -1423,6 +1478,22 @@
                 return callbackFn(date, txns, index, arr);
             }
             return this.items().map(overrideCallbackFn, this);
+        }
+
+        /**
+         * Get the oldest transaction of this group collection.
+         * @returns {Date} The date of the oldest transaction of this collection, `round()`ed.
+         */
+        oldest() {
+            return this.items().pop().pop().sorted().pop().datePosted.round();
+        }
+
+        /**
+         * Get the latest or most recent transaction of this group collection.
+         * @returns {Date} The date of the newest/latest transaction of this collection, round()ed.
+         */
+        newest() {
+            return this.items().shift().pop().sorted().shift().datePosted.round();
         }
 
         /**
@@ -1466,9 +1537,33 @@
          * we include the purchases we want to make in order to see how it will impact our paycheque.
          * Here, we count into the future until we want to see and include those transactions in our calculations.
          * Provide me with a matrix of what comes back.
+         * @returns {TransactionGroup} New instance of this class for Projecting calculations/views.
          */
         project(wishlist) {
-            //
+            if ( wishlist instanceof Transactions ) {
+                wishlist = new TransactionGroup(...wishlist);
+            }
+            let result = new TransactionGroup();
+            let avgBalance = this.average();
+            let startDate = this.newest();
+            let endDate = new Date(startDate * 1 + Settings.TransactionDeltas.days365);
+            console.log('wishlist', wishlist);
+            console.log('start/end', startDate.toISOShortDate(), endDate.toISOShortDate());
+
+            while ( startDate < endDate ) {
+                let txn = new Transaction({
+                    datePosted: startDate,
+                    amount: avgBalance,
+                    merchant: this.constructor.name,
+                    tags: ['auto', 'future']
+                });
+                if ( wishlist.hasOwnProperty(txn.YYYYMM()) ) {
+                    result.append(...wishlist[txn.YYYYMM()]);
+                }
+                result.append(txn);
+                startDate.setUTCMonth(startDate.getUTCMonth() + 1)
+            }
+            return result;
         }
     }
 
