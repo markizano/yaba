@@ -92,7 +92,7 @@
     /**
      * Angular Accounts controller.
      */
-    function accounts($scope, institutions, accounts) {
+    function accounts($rootScope, $scope, institutions, accounts) {
         console.info('Yaba.controllers.accounts()');
         $scope.accountTypes = Yaba.models.Account.Types;
         $scope.institutions = institutions;
@@ -118,20 +118,20 @@
             accounts.save($scope);
         };
         $scope.$on('popup.close', () => { $scope.seeForm = false; $scope.$apply(); });
-        $scope.$on('csvParsed', Yaba.models.Transactions.csvHandler($scope, institutions, accounts));
+        $scope.$on('csvParsed', Yaba.models.Transactions.csvHandler($rootScope, $scope, institutions, accounts));
     }
-    accounts.$inject = ['$scope', 'institutions', 'accounts'];
+    accounts.$inject = ['$rootScope', '$scope', 'institutions', 'accounts'];
     Yaba.app.controller('accounts', Ctrl.accounts = accounts);
 
     /**
      * Account detail page.
      */
-    function account($scope, $routeParams, institutions, accounts) {
+    function account($rootScope, $scope, $routeParams, institutions, accounts) {
         console.info('account-details()');
         $scope.account = accounts.byId($routeParams.accountId);
-        $scope.$on('csvParsed', Yaba.models.Transactions.csvHandler($scope, institutions, accounts));
+        $scope.$on('csvParsed', Yaba.models.Transactions.csvHandler($rootScope, $scope, institutions, accounts));
     }
-    account.$inject = ['$scope', '$routeParams', 'institutions', 'accounts'];
+    account.$inject = ['$rootScope', '$scope', '$routeParams', 'institutions', 'accounts'];
     Yaba.app.controller('account', Ctrl.account = account);
 
     /**
@@ -544,7 +544,7 @@
              * Instead of iterating all the transactions every time, let's optimize by only iterating
              * the account if there is one set.
              */
-            const update = () => {
+            const update = ($event, options={}) => {
                 if ( $scope.accountId ) {
                     $scope.transactions = accounts.byId($scope.accountId).transactions.getTransactions(
                         $scope.fromDate,
@@ -562,6 +562,10 @@
                         $scope.txnTags,
                         $scope.limit
                     );
+                }
+                // Calling this on every single update without condition will cause "$scope.$digest() already in progress" error.
+                if ( options.update ) {
+                    $scope.$apply();
                 }
             };
             update();

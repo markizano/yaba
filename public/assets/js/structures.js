@@ -1146,7 +1146,7 @@
          * @param {Yaba.models.Institutions} institutions Institutions Model Service.
          * @param {Yaba.models.accounts} accounts Accounts Model Service
          */
-        static csvHandler($scope, institutions, accounts) {
+        static csvHandler($rootScope, $scope, institutions, accounts) {
             return (event, results) => {
                 // Get all the transactions back and fill up the table.
                 let transactions = Transactions.digest(
@@ -1155,12 +1155,9 @@
                     results.parsedCSV.data
                 );
                 let account = accounts.byId(results.accountId);
-                account.transactions.unshift(...transactions);
-                if ( $scope.transactions ) {
-                    $scope.transactions.push(...transactions);
-                }
-                $scope.$apply();
+                account.transactions.push(...transactions);
                 accounts.save($scope);
+                $rootScope.$broadcast('yaba.txn-change', {update: true});
             };
         }
 

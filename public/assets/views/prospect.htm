@@ -20,11 +20,11 @@
         ></yaba-transaction-list>
         <yaba-txn-stats transactions="expense"></yaba-txn-stats>
     </div>
-    <div class="item-list-wrapper">
+    <div class="item-column-wrapper">
         <h2>Available After Expenses ({{ leftovers.sum()|currency }})</h2>
         <yaba-txn-stats transactions="leftoverItems"></yaba-txn-stats>
     </div>
-    <div class="item-list-wrapper">
+    <div class="item-column-wrapper">
         <h2>Projected Balances ({{ projections.sum()|currency }})</h2>
         <yaba-txn-stats transactions="projectionItems"></yaba-txn-stats>
     </div>
