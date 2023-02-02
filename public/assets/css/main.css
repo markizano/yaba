@@ -328,9 +328,9 @@ code {
     width: 90%;
     padding: 3px;
     margin: 5px 10px;
-    display: block;
     border: 1px solid gray;
-    background-color: #AFAFAF;
+    background-color: #bec7deaa;
+    color: #212215;
     font-family: Monospace, Sans-serif, "Courier New";
     font-size: 14px;
 }
