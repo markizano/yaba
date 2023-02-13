@@ -109,14 +109,7 @@
             $scope.seeForm = true;
             $scope.mode = 'edit';
         }
-        $scope.remove = (account) => {
-            for ( let i in accounts ) {
-                if ( accounts[i].id == account.id ) {
-                    accounts.splice(i, 1);
-                }
-            }
-            accounts.save($scope);
-        };
+        $scope.remove = (account) => accounts.remove(account.id).save($scope);
         $scope.$on('popup.close', () => { $scope.seeForm = false; $scope.$apply(); });
         $scope.$on('csvParsed', Yaba.models.Transactions.csvHandler($rootScope, $scope, institutions, accounts));
     }
