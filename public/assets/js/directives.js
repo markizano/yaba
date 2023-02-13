@@ -6,7 +6,7 @@
      */
     Yaba.app.directive('yabaInstitutionForm', () => {
         return {
-            templateUrl: '/assets/views/forms/institution.htm',
+            templateUrl: 'assets/views/forms/institution.htm',
             controller: 'yabaInstitutionCtrl',
             scope: {
                 institution: '=',
@@ -22,7 +22,7 @@
      */
     Yaba.app.directive('yabaAccountForm', (() => {
         return {
-            templateUrl: '/assets/views/forms/account.htm',
+            templateUrl: 'assets/views/forms/account.htm',
             controller: 'yabaAccountCtrl',
             scope: {
                 account: '=',
@@ -38,7 +38,7 @@
      */
     Yaba.app.directive('yabaBudget', (accounts) => {
         return {
-            templateUrl: '/assets/views/tables/budget.htm',
+            templateUrl: 'assets/views/tables/budget.htm',
             scope: {
                 budget: '=',
                 transactions: '=',
@@ -56,7 +56,7 @@
      */
     Yaba.app.directive('yabaDaterange', () => {
         return {
-            templateUrl: '/assets/views/daterange.htm',
+            templateUrl: 'assets/views/daterange.htm',
             restrict: 'E',
             scope: {
                 fromDate: '=',
@@ -71,7 +71,7 @@
     Yaba.app.directive('yabaControls', () => {
         return {
             require: ['yabDaterange'],
-            templateUrl: '/assets/views/controls.htm',
+            templateUrl: 'assets/views/controls.htm',
             restrict: 'E',
             controller: 'yabaControlsCtrl',
             scope: {
@@ -94,7 +94,7 @@
      */
     Yaba.app.directive('yabaPagination', () => {
         return {
-            templateUrl: '/assets/views/pagination.htm',
+            templateUrl: 'assets/views/pagination.htm',
             restrict: 'E',
             controller: 'yabaPagination',
             scope: {
@@ -128,7 +128,7 @@
     Yaba.app.directive('yabaTransactionList', (accounts) => {
         return {
             // require: ['yabaControls', 'yabaPagination', 'txnEdit'],
-            templateUrl: '/assets/views/tables/transactions.htm',
+            templateUrl: 'assets/views/tables/transactions.htm',
             controller: 'yabaTransactionListCtrl',
             link: Yaba.Links.transactionList(accounts),
             scope: {
@@ -149,7 +149,7 @@
      */
     Yaba.app.directive('yabaWishlist', () => {
         return {
-            templateUrl: '/assets/views/prospect/wishlist.htm',
+            templateUrl: 'assets/views/prospect/wishlist.htm',
             controller: 'yabaWishlist',
             scope: {
                 wishlist: '='
@@ -164,7 +164,7 @@
     Yaba.app.directive('yabaTxnStats', () => {
         return {
             require: 'ngModel',
-            templateUrl: '/assets/views/prospect/txn-stats.htm',
+            templateUrl: 'assets/views/prospect/txn-stats.htm',
             scope: {
                 transactions: '='
             },

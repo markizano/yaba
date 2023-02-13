@@ -69,10 +69,12 @@ var Yaba = (function(Yaba) {
         $locationProvider.html5Mode(true);
         pages.forEach((page) => {
             var whence = page == 'account'? `/${page}/:accountId`: `/${page}`;
-            $routeProvider.when(whence, { templateUrl: `/assets/views/${page}.htm` });
+            $routeProvider.when(whence, { templateUrl: `assets/views/${page}.htm` });
         })
-        $routeProvider.when('/', { templateUrl: `/assets/views/home.htm` });
-        $routeProvider.otherwise({ template: '<h1>404</h1><p>Page not found!</p><br />Route: {{ $route }}' });
+        $routeProvider.when('/', { templateUrl: `assets/views/home.htm` });
+        $routeProvider.otherwise({
+            template: '<h1>404</h1><p>Page not found!</p><br />CurrentPage: {{ $id }}',
+        });
         $mdDateLocaleProvider.dateFormat = (d) => {
             if ( typeof d == 'string' ) {
                 d = new Date(d);
@@ -89,9 +91,9 @@ var Yaba = (function(Yaba) {
      * for us since we can't access $location from inside the directive:link() function.
      */
     function navCtrl($rootScope, $scope, $location) {
-        $rootScope.$on('$locationChangeSuccess', (e) => {
+        $rootScope.$on('$locationChangeSuccess', function() {
             $scope.currentPage = $location.path().split('/').filter(x => x).shift();
-        })
+        });
     }
     navCtrl.$inject = ['$rootScope', '$scope', '$location'];
 
@@ -105,7 +107,7 @@ var Yaba = (function(Yaba) {
                 var ul = $(this);
                 ul.children().each(function() {
                     var li = $(this);
-                    var navPage = $(li.children()[0]).attr('href').split('/').filter(x => x).shift();
+                    var navPage = $(li.children()[0]).attr('data-page');
                     if ( $scope.currentPage == navPage ) {
                         li.addClass('nav-active');
                     } else {
