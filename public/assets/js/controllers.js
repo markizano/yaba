@@ -544,7 +544,8 @@
                         $scope.toDate,
                         $scope.description,
                         $scope.txnTags,
-                        $scope.limit
+                        $scope.limit,
+                        true
                     );
                 } else {
                     $scope.transactions = accounts.getTransactions(
