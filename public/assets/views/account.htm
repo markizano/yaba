@@ -1,6 +1,6 @@
 <div id="account-detail" ng-controller="account" class="controller">
     <h2 class="title">{{ account.name }}</h2>
-    <p>Balance: <span>{{ account.balance | currency }}</span></p>
+    <p>Balance: <span>{{ account.balance() | currency }}</span></p>
     <p>Account Type: <span>{{ account.accountType }}</span></p>
     <p>Number: <span>{{ account.number }}</span></p>
     <p>Routing: <span>{{ account.routing }}</span></p>
