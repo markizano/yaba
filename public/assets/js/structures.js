@@ -5,10 +5,13 @@
     'use strict';
 
     /**
-     * Object we can use for NULL but also instanceof Date().
+     * @param {Date} NULLDATE Object we can use for NULL but also instanceof Date().
      */
     const NULLDATE = new Date('1970-01-01T00:00:');
 
+    /**
+     * @class Exception to make it clear this is a Yaba exception we are raising.
+     */
     class InstitutionMappingException extends Error {
         constructor(fromField, toField) {
             super(`Institution Mapping should contain one of` +
@@ -256,6 +259,8 @@
      * Data model object to represent a transaction.
      * Coerces a Hash/Object into something we can use as institution to at least typecast the
      * structure as we need it here.
+     * Also performs typecasting to ensure we have Date() object for date related fields and
+     * Number() types for numeric fields, etc.
      */
     class Transaction extends JSONable {
         static Types = {
@@ -502,6 +507,11 @@
         }
     }
 
+    /**
+     * Representation of an Account collection that you can render as JSON when converted to string.
+     * Allows for operations on a per-account basis.
+     * Also allows for defining handy functions that we'd use as filters.
+     */
     class Accounts extends JSONables {
         constructor(...items) {
             if ( items.length > 0 && typeof items[0] !== 'number' ) {
@@ -515,6 +525,11 @@
             super(...items);
         }
 
+        /**
+         * Override to Array.push().
+         * @param  {...Account} items New Account(s) to add to this collection.
+         * @returns {Number} Current number of items after adding.
+         */
         push(...items) {
             for ( let i in items ) {
                 let item = items[i];
@@ -523,6 +538,11 @@
             return super.push(...items);
         }
 
+        /**
+         * Override to Array.unshift().
+         * @param  {...Account} items New Account(s) to add to this collection.
+         * @returns {Number} Current number of items after adding.
+         */
         unshift(...items) {
             for (let i in items) {
                 let item = items[i];
@@ -541,7 +561,7 @@
             for ( let i=0; i < this.length; i++ ) {
                 let item = this[i];
                 if (item.id == ID) {
-                    return this.splice(i, 1);
+                    this.splice(i, 1);
                 }
             }
             return this;
@@ -585,27 +605,19 @@
          * @returns {Transactions} New list of transactions that match the search criteria.
          */
         getTransactions(selectedAccounts, fromDate, toDate, description=undefined, tags=undefined, limit=-1) {
-                /*
-                console.log([
-                    {selectedAccounts},
-                    {fromDate, toDate},
-                    {description},
-                    {tags},
-                    {limit},
-                ]); //*/
-            const result = (new Transactions()).concat(...this.selected(selectedAccounts).map(
+            const result = new Transactions();
+            let searchResults = this.selected(selectedAccounts).map(
                 a => a.transactions.getTransactions(
                     fromDate,
                     toDate,
                     description,
                     tags,
                 )
-            ));
-            if ( limit && limit > 0 ) {
-                return result.slice(0, limit);
-            } else {
-                return result;
+            ).flat(); // Returns Accounts(x)[...Transactions]
+            if ( searchResults.length ) {
+                result.push( ...Transactions.prototype.sorted.call(searchResults) );
             }
+            return limit && limit > 0? result.slice(0, limit): result;
         }
 
         /**
@@ -931,6 +943,14 @@
         }
 
         /**
+         * Get me a copy of transactions that have a tag, any tag set.
+         * @returns {Transactions} new list of transactions that have a tag set.
+         */
+        haveTags() {
+            return this.filter(t => t.tags.length > 0);
+        }
+
+        /**
          * Reduce this set of transactions down to get the list of budgets in alpha order with
          * transaction amounts associated with them.
          * @returns {Array<{tag: String, amount: Number}>} List of budgets to render in the widget.
@@ -938,34 +958,36 @@
          * and result as a single {"Groceries": $amount} object in the resulting Array().
          */
         getBudgets() {
-            // Filter for tags.
-            const hasTags = t => t.tags.length;
             // Map each transaction to a {tag, amount} object.
             const tag2amount = t => t.tags.map(tag => ({tag, amount: t.amount}) );
             // Sort by tag near the end of this operation.
-            const sortTags = (a, b) => a.tag > b.tag? 1: -1;
+            const sortByTags = (a, b) => a.tag.toLowerCase() > b.tag.toLowerCase()? 1: -1;
             // Reducer method for filtering out duplicates into a unique
             // list of budgets with the amounts aggregated.
-            const sumTags = (accumulator, currentValue) => {
-                currentValue.forEach(cv => {
-                    let a = accumulator.filter(x => x.tag == cv.tag);
+            const sumTags = (budgets, txn) => {
+                txn.forEach(cv => {
+                    let a = budgets.filter(x => x.tag == cv.tag);
                     if ( a.length ) {
                         a[0].amount += cv.amount;
                     } else {
-                        accumulator.push(cv);
+                        budgets.push(cv);
                     }
                 });
-                return accumulator;
+                return budgets;
             };
             // Run this rube-goldberg and haphazardly return the result.
-            let txns = this.filter(hasTags).map(tag2amount);
-            switch ( txns.length ) {
+            switch ( this.length ) {
                 case 0:
                     return [];
                 case 1:
-                    return [txns[0].amount];
+                    return (txn => {
+                        if ( txn.tags.length ) {
+                            return txn.tags.map(tag => ({tag, amount: txn.amount}));
+                        }
+                        return [];
+                    })(this[0])
                 default:
-                    return txns.reduce(sumTags).sort(sortTags);
+                    return this.haveTags().map(tag2amount).reduce(sumTags, []).sort(sortByTags);
             }
         }
 
