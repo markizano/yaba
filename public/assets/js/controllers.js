@@ -619,7 +619,7 @@
                 console.error(`Papa.parse() error from ${file} in ${element}: ${err}`);
                 console.error(reason);
                 // @TODO: Find a way to notify the end-user of a failure.
-                $scope.emit('csvError', {
+                $scope.$emit('csvError', {
                     err,
                     file,
                     element,
