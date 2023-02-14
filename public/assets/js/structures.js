@@ -611,7 +611,7 @@
                     fromDate,
                     toDate,
                     description,
-                    tags,
+                    tags
                 )
             ).flat(); // Returns Accounts(x)[...Transactions]
             if ( searchResults.length ) {
@@ -1065,7 +1065,7 @@
          * @param {Array<String>|undefined} tags List of tags transaction must match.
          * @returns {Transactions} List of transactions after filtering and limiting.
          */
-        getTransactions(fromDate=undefined, toDate=undefined, description=undefined, tags=undefined, limit=-1) {
+        getTransactions(fromDate=undefined, toDate=undefined, description=undefined, tags=undefined, limit=-1, sort=false) {
             let result = this.filter(txn => {
                 let tests = {
                     date: true,
@@ -1107,9 +1107,15 @@
 
                 return truthy.every(x => x);
             });
+
+            if ( sort ) {
+                result = result.sorted();
+            }
+
             if ( limit && limit > 0 ) {
                 result = result.slice(0, limit);
             }
+
             return result;
         }
 
