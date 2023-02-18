@@ -257,8 +257,30 @@
         };
 
         $scope.import4zip = () => {
-            console.warn('To be implemented...');
-        }
+            const doImport = z => {
+                institutions.fromZIP(z);
+                accounts.fromZIP(z);
+                institutions.save($scope);
+                accounts.save($scope);
+                $scope.$emit('notify', 'Imported the ZIP!');
+            };
+            let userFile = angular.element('<input>');
+            userFile.attr('type', 'file');
+            userFile.on('change', e => {
+                // This really should only ever execute once.
+                // @TODO: Find a way to throw exceptions if this executes more than once, or handle loading multiple ZIP files.
+                for ( let filename of userFile.prop('files') ) {
+                    console.info(`Reading ${filename.name} from user`);
+                    let reader = new FileReader();
+                    reader.onload = readerEvent => {
+                        let zipFile = new JSZip();
+                        zipFile.loadAsync(readerEvent.target.result).then(doImport);
+                    };
+                    reader.readAsArrayBuffer(filename);
+                }
+            });
+            userFile.click();
+        };
     }
     settings.$inject = ['$scope', 'institutions', 'accounts', 'Settings'];
     Yaba.app.controller('settings', Ctrl.Settings = settings);

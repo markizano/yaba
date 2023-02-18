@@ -21,6 +21,13 @@
         }
     }
 
+    class InstitutionUnzipException extends Error {
+        constructor() {
+            super(...arguments);
+            this.name = this.constructor.name;
+        }
+    }
+
     /**
      * Base object that will enable us to store and load our informations.
      */
@@ -464,7 +471,7 @@
             if ( this.length == 0 ) {
                 return jszip;
             }
-            let institutionZIP = ['"institutionId","Name","Description"'];
+            let institutionZIP = ['"id","name","description"'];
             let mappingZIP = ['"institutionId","fromField","toField","mapType"'];
             this.map(institution => {
                 let iFields = [institution.id, institution.name, institution.description];
@@ -477,6 +484,41 @@
             jszip.file('institutions.csv', institutionZIP.join("\n"));
             jszip.file('institution-mappings.csv', mappingZIP.join("\n"));
             return jszip;
+        }
+
+        /**
+         * If you don't want in-place changes, please use slice() or concat() before calling this method.
+         * Input CSV file and result in this object being populated with the contents of previous call to
+         * toCSV(JSZip).
+         * @mutates
+         * @param {JSZip} jsz The JSZip instance that has already loaded the ZIP contents from the end-user.
+         * @returns {Institutions}
+         */
+        async fromZIP(jsz) {
+            this.length = 0; // reset the instance to an empty list.
+            const papaOpts = { header: true, skipEmptyLines: true };
+            let institutionsCSV = await jsz.files['institutions.csv'].async('text'),
+              mappingCSV = await jsz.files['institution-mappings.csv'].async('text');
+            let parsedInstitutions = Papa.parse(institutionsCSV, papaOpts);
+            let parsedMappings = Papa.parse(mappingCSV, papaOpts);
+            this.push(...parsedInstitutions.data);
+            parsedMappings.data.forEach(mappings =>
+                this.byId(mappings.institutionId).mappings.push({
+                    fromField: mappings.fromField,
+                    toField: mappings.toField,
+                    mapType: mappings.mapType
+                })
+            );
+            console.info(`Parsed ${this.length} Institutions from CSV file for ${this.map(i => i.mappings.length).reduce((a,b) => a += b, 0)} mappings.`);
+        }
+
+        /**
+         * Get an institution by ID.
+         * @param {String} ID Institution ID to fetch
+         * @returns {Institution}
+         */
+        byId(ID) {
+            return this.filter(i => i.id == ID).shift();
         }
 
         static csvHandler($scope, $timeout) {
@@ -628,9 +670,9 @@
             if ( this.length == 0 ) {
                 return jszip;
             }
-            let accountsZIP = ['"accountId","institutionId","Name","Description"' +
+            let accountsZIP = ['"id","institutionId","name","description"' +
               ',"accountType","number","routing","interestRate","interestStrategy"'];
-            this.map(account => {
+            this.forEach(account => {
                 let aFields = [
                     account.id,
                     account.institutionId,
@@ -647,6 +689,23 @@
             });
             jszip.file('accounts.csv', accountsZIP.join("\n"));
             return jszip;
+        }
+
+        /**
+         * Read a ZIP file and populate this instance with the data from the CSV.
+         * @param {JSZip} jszip Instance of JSZip containing the files we need to operate on this instance.
+         */
+        async fromZIP(jszip) {
+            this.length = 0;
+            const papaOpts = { header: true, skipEmptyLines: true };
+            let accountsCSV = await jszip.files['accounts.csv'].async('text');
+            let parsedAccounts = Papa.parse(accountsCSV, papaOpts);
+            this.push(...parsedAccounts.data);
+            for ( let account of this ) {
+                await account.transactions.fromZIP(account.id, jszip);
+                console.info(`> Parsed out ${account.transactions.length} transactions for account "${account.name}".`);
+            }
+            console.info(`Parsed ${this.length} Accounts from CSV file for ${this.map(a => a.transactions.length).reduce((a,b) => a += b, 0)} transactions.`);
         }
 
         /**
@@ -749,12 +808,13 @@
             if ( this.length == 0 ) {
                 return '';
             }
-            let transactionsZIP = ['"transactionId","accountId","description","datePending","datePosted"' +
+            let transactionsZIP = ['"id","accountId","description","datePending","datePosted"' +
                 ',"transactionType","amount","tax","currency","merchant","tags"'];
             this.map(transaction => {
                 let tFields = [
                     transaction.id,
                     transaction.accountId,
+                    transaction.description,
                     transaction.datePending.toISOShortDate(),
                     transaction.datePosted.toISOShortDate(),
                     transaction.transactionType,
@@ -767,6 +827,21 @@
                 transactionsZIP.push(`"${tFields.join('","')}"`);
             });
             return transactionsZIP.join("\n");
+        }
+
+        /**
+         * From a CSV file, import transactions into this collection.
+         * @param {JSZip} jszip JSZip Instance
+         */
+        async fromZIP(accountId, jszip) {
+            this.clear();
+            const papaOpts = { header: true, skipEmptyLines: true };
+            let transactionCSV = await jszip.files[`transactions_${accountId}.csv`].async('text');
+            let parsedTransactions = Papa.parse(transactionCSV, papaOpts);
+            this.push(...parsedTransactions.data.map(txn => {
+                txn.tags = txn.hasOwnProperty('tags') ? txn.tags.split("|").filter(x => x) : [];
+                return txn;
+            }));
         }
 
         /**
