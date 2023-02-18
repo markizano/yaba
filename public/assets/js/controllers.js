@@ -195,6 +195,8 @@
         let expense = $scope.expenseTxns.monthly();
         $scope.expense = expense.items();
 
+        // @TODO: Document why there are two objects here and why we can't just use one.
+        // what was I thinking with .items() ??
         if ( $scope.incomeTxns.length ) {
             $scope.leftovers = expense.subtract(income);
             $scope.leftoverItems = $scope.leftovers.items();
@@ -208,6 +210,12 @@
             $scope.projections = { sum: () => 0.0 };
             $scope.projectionItems = [];
         }
+
+        $scope.$watchCollection('prospect', () => {
+            $scope.projections = $scope.leftovers.project(prospects);
+            $scope.projectionItems = $scope.projections.items();
+        });
+
         Yaba.$prospect = $scope; //@DEBUG
     }
     Prospect.$inject = ['$scope', 'accounts', 'prospects', 'Settings'];
