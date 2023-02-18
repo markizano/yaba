@@ -221,16 +221,16 @@
         $scope.settings.load();
 
         // I gotta have at least some defaults set. I can't stand looking at a completely blank app...
-        if ( !Settings.incomeTags ) {
+        if ( !Settings.incomeTags || Settings.incomeTags.length == 0 ) {
             Settings.incomeTags = ['income'];
         }
-        if ( !Settings.expenseTags ) {
+        if ( !Settings.expenseTags || Settings.expenseTags.length == 0 ) {
             Settings.expenseTags = ['expense'];
         }
-        if ( !Settings.transferTags ) {
+        if ( !Settings.transferTags || Settings.transferTags.length == 0 ) {
             Settings.transferTags = ['transfer'];
         }
-        if ( !Settings.hideTags ) {
+        if ( !Settings.hideTags || Settings.hideTags.length == 0 ) {
             Settings.hideTags = ['hidden'];
         }
 
