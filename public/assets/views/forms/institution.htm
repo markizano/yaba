@@ -7,7 +7,7 @@
         <label>Mapping: <add tabindex="3" ng-click="addMapping()"></add></label>
         <ul>
             <li ng-repeat="mapping in institution.mappings">
-                <mapping class="slide-down" ng-show="mapping._visible || false">
+                <mapping class="slide-down" ng-show="mapping.visible || false">
                     <trash ng-if="institution.mappings.length > 1" ng-click="remove($index);" tabindex="{{ ($index * 4) + 7 }}" ></trash>
                     <label class="slide-down">
                         From {{ mapping.mapType == 'static'? 'Value': 'Field' }}:

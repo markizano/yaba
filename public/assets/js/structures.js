@@ -15,8 +15,20 @@
     class InstitutionMappingException extends Error {
         constructor(fromField, toField) {
             super(`Institution Mapping should contain one of` +
-              ` "${Yaba.models.TransactionFields.join(", ")}". ` +
+              ` "${TransactionFields.join('", "')}". ` +
               `Got "${toField}" when setting "${fromField}"`);
+            this.name = this.constructor.name;
+        }
+    }
+
+    /**
+     * @class Exception to make it clear this is a Yaba exception we are raising.
+     */
+    class InstitutionMapTypeException extends Error {
+        constructor(fromField, toField, mapType) {
+            super(`Institution Map Type should contain one of` +
+              ` "${InstitutionMapping.MapTypes.join(", ")}". ` +
+              `Got "${mapType}" when setting "${fromField}" to "${toField}"`);
             this.name = this.constructor.name;
         }
     }
@@ -107,6 +119,127 @@
     }
 
     /**
+     * InstitutionMapping objectlet for Institution().mappings. This has been used enough to make it a real
+     * thing we can use for importing/exporting and otherwise managing institution mappings.
+     */
+    class InstitutionMapping {
+        /**
+         * @property {Array} MapTypes Valid mapping types. To later support function() types as well for things
+         * like change the sign and make it negative, perform a regexp replacement on a description or perform
+         * some calculation based on related fields in this transaction.
+         */
+        static MapTypes = Object.freeze([ 'static', 'dynamic' ]);
+
+        constructor(fromField, toField, mapType) {
+            if ( toField !== '' && !TransactionFields.includes(toField) ) {
+                console.warn('fields: ', fromField, toField, mapType);
+                throw new InstitutionMappingException(fromField, toField);
+            }
+            if ( mapType !== null && !InstitutionMapping.MapTypes.includes(mapType) ) {
+                throw new InstitutionMapTypeException(fromField, toField, mapType);
+            }
+            this.fromField = fromField;
+            this.toField = toField;
+            this.mapType = mapType;
+            // @TODO: Find a way to make this work off the DOM. I Don't like including this in the object itself.
+            // This feels too kludgy.
+            Object.defineProperty(this, 'visible', {
+                enumerable: false,
+                writable: true,
+                value: false
+            });
+        }
+
+        hide() {
+            this.visible = false;
+            return this;
+        }
+
+        show() {
+            this.visible = true;
+            return this;
+        }
+
+        /**
+         * Override for this.toString();
+         * @returns {String}
+         */
+        toString() {
+            return JSON.stringify({
+                fromField: this.fromField,
+                toField: this.toField,
+                mapType: this.mapType
+            });
+        }
+    }
+
+    class InstitutionMappings extends Array {
+        constructor(...items) {
+            if ( items.length > 0 && typeof items[0] !== 'number' ) {
+                for ( let i in items ) {
+                    let item = items[i];
+                    if ( item instanceof InstitutionMapping ) {
+                        continue
+                    }
+                    items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType);
+                }
+            }
+            super(...items);
+        }
+
+        /**
+         * Override of the push() function to ensure that each item added to the array is of type `InstitutionMapping`.
+         * @param  {...InstitutionMapping|object} items Items to push onto the array.
+         * @returns Number of items in the current set/array.
+         */
+        push(...items) {
+            for ( let i in items ) {
+                let item = items[i];
+                item instanceof InstitutionMapping || (items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType));
+            }
+            return super.push(...items);
+        }
+
+        /**
+         * Override of unshift() to check if item added is an instance of a InstitutionMapping() or not
+         * to ensure we only ever contain a list of InstitutionMappings.
+         * @param  {...any} items Any list of arguments of items to add as InstitutionMapping()
+         * @returns Number of items unshift()ed.
+         */
+        unshift(...items) {
+            for (let i in items) {
+                let item = items[i];
+                item instanceof InstitutionMapping || (items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType));
+            }
+            return super.unshift(...items);
+        }
+
+        /**
+         * Override for this.toString();
+         * @returns {String}
+         */
+        toString() {
+            return JSON.stringify(this);
+        }
+
+        /**
+         * Handy method to show all in the collection.
+         */
+        show() {
+            this.forEach(i => i.show());
+            return this;
+        }
+
+        /**
+         * Handy method to hide all in the collection.
+         */
+        hide() {
+            this.forEach(i => i.hide());
+            return this;
+        }
+    }
+
+    /**
      * Data model object to represent an institution.
      * Coerces a Hash/Object into something we can use as institution to at least typecast the
      * structure as we need it here.
@@ -117,26 +250,7 @@
             this.id = data.id || uuid.v4();
             this.name = data.name || '';
             this.description = data.description || '';
-            this.mappings = [];
-            if (data.mappings) {
-                data.mappings.forEach(mapping => {
-                    if ( !Yaba.models.TransactionFields.includes(mapping.toField) ) {
-                        throw new InstitutionMappingException(mapping.fromField, mapping.toField);
-                    }
-                    this.mappings.push({
-                        fromField: mapping.fromField || '',
-                        toField: mapping.toField || '',
-                        mapType: mapping.mapType || null
-                    });
-                });
-            } else {
-                this.mappings.push({
-                    fromField: '',
-                    toField: '',
-                    mapType: null,
-                    _visible: false
-                });
-            }
+            this.mappings = data.mappings? new InstitutionMappings(...data.mappings): new InstitutionMappings();
         }
 
         /**
@@ -150,19 +264,7 @@
             data.id && (this.id = data.id);
             data.name && (this.name = data.name);
             data.description && (this.description = data.description);
-            if ( data.mappings ) {
-                this.mappings = [];
-                data.mappings.forEach((mapping) => {
-                    if ( !Yaba.models.TransactionFields.includes(mapping.toField) ) {
-                        throw new InstitutionMappingException(mapping.fromField, mapping.toField);
-                    }
-                    this.mappings.push({
-                        fromField: mapping.fromField || '',
-                        toField: mapping.toField || '',
-                        mapType: mapping.mapType || null
-                    });
-                });
-            }
+            data.mappings && (this.mappings = new InstitutionMappings(...data.mappings));
             return this;
         }
     }
@@ -492,7 +594,7 @@
          * toCSV(JSZip).
          * @mutates
          * @param {JSZip} jsz The JSZip instance that has already loaded the ZIP contents from the end-user.
-         * @returns {Institutions}
+         * @returns {Promise<Institutions>}
          */
         async fromZIP(jsz) {
             this.length = 0; // reset the instance to an empty list.
@@ -534,13 +636,12 @@
                     $scope.institution.mappings.push({
                         fromField: h,
                         toField: '',
-                        mapType: 'dynamic',
-                        _visible: false
+                        mapType: 'dynamic'
                     });
                     // Set a timeout to alter the visibility immediately after the element has been
                     // rendered on the page to enable the animation.
                     $timeout(() => {
-                        $scope.institution.mappings[i]._visible = true;
+                        $scope.institution.mappings[i].show();
                     }, 100);
                 });
                 // Let AngularJS know about this since the papaparser breaks the promise chain.

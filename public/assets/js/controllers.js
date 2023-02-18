@@ -24,12 +24,8 @@
         accounts.push(...accountStorage);
         prospects.push(...prospectStorage);
 
-        $rootScope.$on('save.institution', e => institutions.store(e));
         $rootScope.$on('save.institutions', e => institutions.store(e));
-
-        $rootScope.$on('save.account', e => accounts.store(e));
         $rootScope.$on('save.accounts', e => accounts.store(e));
-
         $rootScope.$on('save.prospects', e => prospects.store(e));
 
         $window.document.addEventListener('keydown', (e) => {
@@ -40,12 +36,12 @@
                     break;
                 case 39: // ArrowRight
                     if ( e.ctrlKey && e.shiftKey ) {
-                        $rootScope.$broadcast('pagination.proximo', e);
+                        // $rootScope.$broadcast('pagination.proximo', e);
                     }
                     break;
                 case 37: // ArrowLeft
                     if ( e.ctrlKey && e.shiftKey ) {
-                        $rootScope.$broadcast('pagination.previous', e);
+                        // $rootScope.$broadcast('pagination.previous', e);
                     }
                     break;
             }
@@ -70,11 +66,7 @@
             $scope.institution = institution;
             $scope.seeForm = true;
             $scope.mode = 'edit';
-            $timeout(() => {
-                institution.mappings.forEach(mapping => {
-                    mapping._visible = true;
-                });
-            }, Yaba.animationDelay);
+            $timeout(() => institution.mappings.show(), Yaba.animationDelay);
         };
         $scope.remove = (institution) => {
             for ( let i in institutions ) {
@@ -317,16 +309,14 @@
         };
 
         $scope.remove = function remove($index) {
-            $scope.institution.mappings[$index]._visible = false;
+            $scope.institution.mappings[$index].hide();
             $timeout(() => {
                 $scope.institution.mappings.splice($index, 1);
             }, Yaba.animationDelay);
         }
 
         $scope.close = function close() {
-            $scope.institution.mappings.forEach(mapping => {
-                mapping._visible = false;
-            });
+            $scope.institution.mappings.forEach(mapping => mapping.hide() );
             $timeout(() => {
                 $scope.seeForm = false;
                 $timeout(() => { $scope.reset(); }, Yaba.animationDelay);
@@ -335,20 +325,21 @@
 
         $scope.reset = function reset() {
             $scope.institution = new Yaba.models.Institution();
-            $scope.institution.mappings[0]._visible = true;
+            $scope.institution.mappings.push({fromField: '', toField: '', mapType: null})
+            $scope.institution.mappings[0].show();
         }
 
         $scope.addMapping = function addMapping() {
             $scope.institution.mappings.push({
                 fromField: '',
                 toField: '',
-                mapType: '',
-                _visible: false,
+                mapType: null
             });
             $timeout(() => {
-                $scope.institution.mappings[$scope.institution.mappings.length-1]._visible = true;
+                $scope.institution.mappings[$scope.institution.mappings.length-1].show();
             }, 10);
         };
+        $scope.addMapping();
 
         $scope.$on('popup.close', () => { $scope.close(); $scope.$apply(); });
         $scope.reset();
