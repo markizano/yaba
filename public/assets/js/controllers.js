@@ -258,11 +258,14 @@
 
         $scope.import4zip = () => {
             const doImport = z => {
-                institutions.fromZIP(z);
-                accounts.fromZIP(z);
-                institutions.save($scope);
-                accounts.save($scope);
-                $scope.$emit('notify', 'Imported the ZIP!');
+                // Wait for the imports to complete because they are async functions, aka Promises.
+                Promise.all([ institutions.fromZIP(z), accounts.fromZIP(z) ]).then(() => {
+                    // Once imports are complete, send the signal to save the results.
+                    institutions.save($scope);
+                    accounts.save($scope);
+                    // Notify the end-user of the results.
+                    $scope.$emit('notify', 'Imported the ZIP!');
+                });
             };
             let userFile = angular.element('<input>');
             userFile.attr('type', 'file');
