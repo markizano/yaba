@@ -112,6 +112,9 @@ detail ul li {
     width: 99%;
     text-decoration: underline;
 }
+.item-list tr td:first-child {
+    max-width: 150px;
+}
 
 .editable {
     width: 99% !important;

@@ -487,11 +487,12 @@
         });
 
         constructor(data={}) {
-            super(['incomeTags', 'expenseTags', 'transferTags', 'hideTags', 'payCycle', 'txnDelta'], 'settings');
+            super(['incomeTags', 'expenseTags', 'transferTags', 'hideTags', 'txShow', 'payCycle', 'txnDelta'], 'settings');
             this.incomeTags = data.incomeTags || [];
             this.expenseTags = data.expenseTags || [];
             this.transferTags = data.transferTags || [];
             this.hideTags = data.hideTags || [];
+            this.txShow = data.txShow || {};
             this.payCycle = data.payCycle || Settings.PayCycle.Weekly;
             this.txnDelta = data.txnDelta || Settings.TransactionDeltas.days30;
         }
@@ -513,6 +514,7 @@
             this.expenseTags = data.expenseTags || [];
             this.transferTags = data.transferTags || [];
             this.hideTags = data.hideTags || [];
+            this.txShow = data.txShow || {};
             this.payCycle = data.payCycle || Settings.PayCycle.Weekly;
             this.txnDelta = data.txnDelta || Settings.TransactionDeltas.days30;
             return this;

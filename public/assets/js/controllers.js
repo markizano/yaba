@@ -397,7 +397,8 @@
      * This TxnList Control will react accordingly to changes in directive updates from the end-user.
      * e.g. $rootScope.$broadcast() events.
      */
-    function TransactionListCtrl($scope, $attrs, accounts) {
+    function TransactionListCtrl($scope, $attrs, accounts, Settings) {
+        $scope.accounts         = accounts;
         $scope.includeTags      = $attrs.hasOwnProperty('includeTags');
         $scope.withHeader       = !$attrs.hasOwnProperty('withoutHeader');
         $scope.editable         = $attrs.hasOwnProperty('editable');
@@ -406,13 +407,14 @@
         $scope.sortBy = Yaba.filters.sortBy($scope.sort || ($scope.sort = { column: 'datePosted', asc: true }));
         $scope.$watch('sort.column', () => $scope.$emit('yaba.txnList.resetScroll'));
         $scope.$watch('sort.asc',    () => $scope.$emit('yaba.txnList.resetScroll'));
+        $scope.txShow = Settings.txShow;
 
         $scope.transactions     = new Yaba.models.Transactions();
         if ($scope.accountId !== undefined) {
             $scope.selectedAccounts = [accounts.byId($scope.accountId)];
         }
     }
-    TransactionListCtrl.$inject = ['$scope', '$attrs', 'accounts'];
+    TransactionListCtrl.$inject = ['$scope', '$attrs', 'accounts', 'Settings'];
     Yaba.app.controller('yabaTransactionListCtrl', Widgets.TransactionList = TransactionListCtrl);
 
     /**

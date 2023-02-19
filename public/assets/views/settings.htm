@@ -50,11 +50,11 @@
                 <md-list-item>
                     <label>What additional Fields do you want to see on transaction lists? </label>
                     <div class="md-secondary additional-fields" layout="column">
-                        <div><md-checkbox ng-model="settings.txShow.id" ng-click="settings.save()">Transaction ID</md-checkbox></div>
-                        <div><md-checkbox ng-model="settings.txShow.datePending" ng-click="settings.save()">Date Pending</md-checkbox></div>
-                        <div><md-checkbox ng-model="settings.txShow.merchant" ng-click="settings.save()">Merchant</md-checkbox></div>
-                        <div><md-checkbox ng-model="settings.txShow.account" ng-click="settings.save()">Account Name</md-checkbox></div>
-                        <div><md-checkbox ng-model="settings.txShow.transactionType" ng-click="settings.save()">Transaction Type</md-checkbox></div>
+                        <div><md-checkbox ng-model="settings.txShow.id" ng-change="settings.save()">Transaction ID</md-checkbox></div>
+                        <div><md-checkbox ng-model="settings.txShow.datePending" ng-change="settings.save()">Date Pending</md-checkbox></div>
+                        <div><md-checkbox ng-model="settings.txShow.merchant" ng-change="settings.save()">Merchant</md-checkbox></div>
+                        <div><md-checkbox ng-model="settings.txShow.account" ng-change="settings.save()">Account Name</md-checkbox></div>
+                        <div><md-checkbox ng-model="settings.txShow.transactionType" ng-change="settings.save()">Transaction Type</md-checkbox></div>
                     </div>
                     <question class="md-secondary" helper="Checking these will include these columns in transaction list displays"></question>
                 </md-list-item>

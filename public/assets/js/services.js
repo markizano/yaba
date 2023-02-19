@@ -5,6 +5,7 @@
     Yaba.app.factory('Settings', () => {
         const settings = new Yaba.models.Settings();
         settings.load();
+        Yaba.Settings = settings;
         return settings;
     });
 
