@@ -306,8 +306,40 @@ edit {
 save {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEUAAAAAAAD///+D3c/SAAAAAXRSTlMAQObYZgAAAIBJREFUOMvl0zEOgCAMhWE69Ajch8Xdgd7/KgKt9NnEhIXExC6ab/gTsKa0ZVjuKQp5whmhRhCDwuNdDosMqP1pEYdcA7AEII04JI0AaARAIwAaAdAIwogg8Dv0wzUgB72wZaB5Xwb+Bb4ONBfkebi2IOtgu8R/AIFZA0Y49/zoF6YJcMkbWlfuAAAAAElFTkSuQmCC');
 }
+question {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAD1BMVEUAAABMTEzh4eHi4uLj4+N3SbafAAAAAXRSTlMAQObYZgAAAQ9JREFUSMeV1esVgyAMBWDYINAJwAmU/XdrtRDIC5BfHvP1hlJrnBuWD89yxqplkwx1VZC6IlhdiF7Puqg341FKudJzDUpALP+VRASt1wwQAUdBwSJ6wJVzRgByB1eDdBcBO6R2QSI8gotGtYgG8PYdMYKAnzt5M2Ag1csPAX4CwhYI4m7fw9OjgZjxl8ZvcQPxpIwncvdQQD8oA/QtbIF5h98u5wEayGOAAvrjYoCDBOggzUCkARKwABWEKWAdBIgb4HwL/By4tyDIV9USuGkddoBfdFgD0uP390qsAwP0HEC8phlwe8CZAOQooIC/6zkAe5qIiWEe8zRCmzhWgBrxcuqt5+Z68q5n93r66+sLE3R/bdcNfTUAAAAASUVORK5CYII=');
+}
+question:hover:after {
+    opacity: 1;
+    transition: all 500ms ease-in-out 500ms;
+    visibility: visible;
+    display: block;
+    position: relative;
+    left: -430px;
+}
+question:after {
+    content: attr(helper);
+    display: block;
+    min-width: 400px;
+    background-color: #f7dc5f;
+    color: #111;
+    font-size: 120%;
+    padding: 1px 5px 2px 10px;
+    margin: 1px 1px 1px 5px;
+    box-shadow: 1px 1px 3px #362112;
+    opacity: 0;
+    border: 1px solid #4e3201;
+    z-index: 9999999;
+    transition: all 500ms ease-in-out 500ms;
+    visibility: hidden;
+    position: relative;
+    left: -400px;
+}
+question {
+    position: relative;
+}
 
-add, edit, save, trash, close {
+add, edit, save, trash, close, question {
     background-size: 32px;
     width: 32px;
     height: 32px;
@@ -316,7 +348,7 @@ add, edit, save, trash, close {
     display: inline-block;
     cursor: pointer;
 }
-add:hover, edit:hover, save:hover, trash:hover, close:hover { cursor: grab; }
+add:hover, edit:hover, save:hover, trash:hover, close:hover, question:hover { cursor: grab; }
 
 .small-icon {
     width: 24px;
@@ -500,4 +532,12 @@ yaba-budget {
 }
 .negative {
     color: #b21717;
+}
+md-chips.setting-chip {
+    display: inline-block;
+    width: 98%;
+    min-width: 400px;
+}
+.additional-fields {
+    min-width: 400px;
 }

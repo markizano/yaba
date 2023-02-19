@@ -2,6 +2,7 @@
     <table class="data item-list" ng-class="editable">
         <thead ng-show="withHeader">
             <tr>
+                <th ng-if="txShow.includes('id')">Transaction ID</th>
                 <th ng-click="sortBy('datePosted');">Date Posted</th>
                 <th ng-click="sortBy('amount');">Amount</th>
                 <th ng-click="sortBy('description');">Description</th>
@@ -10,6 +11,9 @@
         </thead>
         <tbody>
             <tr ng-repeat="txn in transactions | orderBy:sort.column:sort.asc | limitTo:itemsPerPage:offset track by txn.id">
+
+                <td ng-if="txShow.includes('id')"> <span ng-bind="txn.id"></span> </td>
+
                 <td txn-edit="true" ng-model="txn.datePosted" ng-switch on="!!edit['txn-datePosted']">
                     <span ng-switch-when="false" ng-bind="txn.datePosted | date:'yyyy-MM-dd'"></span>
                     <div ng-switch-when="true" ng-blur="$emit('yaba.edit2view-txn-datePosted', $event)">
