@@ -441,6 +441,11 @@
             return this.tags.includes(tag);
         }
 
+        /**
+         * Ensure a tag is set on this transaction.
+         * @param {String} tag Name of the tag to ensure is set.
+         * @returns {Transaction}
+         */
         setTag(tag) {
             if ( ! this.hasTag(tag) ) {
                 this.addTag(tag);
@@ -448,11 +453,32 @@
             return this;
         }
 
+        /**
+         * Blindly add a new tag.
+         * @param {String} tag Name of the tag to add.
+         * @returns {Transaction}
+         */
         addTag(tag) {
             this.tags.push(tag);
             return this;
         }
 
+        /**
+         * Removes a tag from this transaction if it is set.
+         * @param {String} tag The tag in question to ensure is removed.
+         * @returns {Transaction}
+         */
+        removeTag(tag) {
+            if ( this.hasTag(tag) ) {
+                this.tags = this.tags.filter(t => t != tag);
+            }
+            return this;
+        }
+
+        /**
+         * Get the YYYYMM representation of this transaction for date categorization.
+         * @returns {String}
+         */
         YYYYMM() {
             return this.datePosted.toISOShortDate().split('-', 2).join('-');
         }
@@ -1118,6 +1144,14 @@
          */
         setTag(tag) {
             return this.concat().map(txn => txn.setTag(tag));
+        }
+
+        /**
+         * Removes a tag from this transaction if it is set.
+         * @returns {Transaction}
+         */
+        removeTag(tag) {
+            return this.concat().map(txn => txn.removeTag(tag));
         }
 
         /**
