@@ -5,7 +5,7 @@
                 <th ng-if="txShow.id">Transaction ID</th>
                 <th ng-if="txShow.datePending" ng-click="sortBy('datePending');">Date Pending</th>
                 <th ng-click="sortBy('datePosted');">Date Posted</th>
-                <th ng-click="sortBy('account');">Account</th>
+                <th ng-if="txShow.account" ng-click="sortBy('account');">Account</th>
                 <th ng-click="sortBy('amount');">Amount</th>
                 <th ng-click="sortBy('description');">Description</th>
                 <th ng-if="txShow.merchant" ng-click="sortBy('merchant');">Merchant</th>
