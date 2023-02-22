@@ -655,7 +655,7 @@
             return ($event, results) => {
                 // only get back the headers from the CSV file.
                 var headers = Object.keys(results.parsedCSV.data.shift());
-                $scope.institution.mappings = [];
+                $scope.institution.mappings = new InstitutionMappings();
                 headers.forEach((h) => {
                     // Store in variable for later use in function return value.
                     // Also: Assign before appending to the list to ensure we use the index we are
