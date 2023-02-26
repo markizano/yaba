@@ -1,31 +1,25 @@
-<div id="prospect" class="controller" ng-controller="prospect">
-    <h1>Prospecting</h1>
+<div id="prospect" class="controller" ng-controller="prospect" layout="column">
+    <h1>Prospecting</h1><br clear="all" />
     <p>Here is where you come to prospect on future purchases and when you want to make them.</p>
-    <div id="item-column-wrapper">
-        <yaba-wishlist wishlist="prospect"></yaba-wishlist>
-    </div>
-    <div class="item-column-wrapper">
-        <h2>Income Transactions (<span>{{ incomeTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2>
+    <yaba-wishlist wishlist="prospect"></yaba-wishlist>
+    <h2 ng-click="showIncome = !showIncome">Income Transactions (<span>{{ incomeTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2><br clear="all" />
+    <div ng-show="showIncome" layout="row" class="slide-down">
         <yaba-transaction-list
           txn-tags="incomeTags"
           limit="5"
         ></yaba-transaction-list>
         <yaba-txn-stats transactions="income"></yaba-txn-stats>
     </div>
-    <div class="item-column-wrapper">
-        <h2>Expense Transactions (<span>{{ expenseTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2>
+    <h2 ng-click="showExpense = !showExpense">Expense Transactions (<span>{{ expenseTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2><br clear="all" />
+    <div ng-show="showExpense" layout="row" class="slide-down">
         <yaba-transaction-list
           txn-tags="expenseTags"
           limit="5"
         ></yaba-transaction-list>
         <yaba-txn-stats transactions="expense"></yaba-txn-stats>
     </div>
-    <div class="item-column-wrapper">
-        <h2>Available After Expenses ({{ leftovers.sum()|currency }})</h2>
-        <yaba-txn-stats transactions="leftoverItems"></yaba-txn-stats>
-    </div>
-    <div class="item-column-wrapper">
-        <h2>Projected Balances ({{ projections.sum()|currency }})</h2>
-        <yaba-txn-stats transactions="projectionItems"></yaba-txn-stats>
-    </div>
+    <h2>Available After Expenses ({{ leftovers.sum()|currency }})</h2><br clear="all" />
+    <yaba-txn-stats transactions="leftoverItems"></yaba-txn-stats>
+    <h2>Projected Balances ({{ projections.sum()|currency }})</h2><br clear="all" />
+    <yaba-txn-stats transactions="projectionItems"></yaba-txn-stats>
 </div>

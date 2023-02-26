@@ -11,24 +11,24 @@
       show-accounts="true"
       show-description="true"
       show-tags="true"
-  ></yaba-controls>
-  <div class="item-list-wrapper">
-      <yaba-transaction-list
-        from-date="fromDate"
-        to-date="toDate"
-        selected-accounts="selectedAccounts"
-        description="description"
-        txn-tags="txnTags"
-        include-tags="true"
-        show-tags="true"
-        editable="editable"
-      />
-  </div>
-  <yaba-budget
-    budgets="budgets"
-    from-date="fromDate"
-    to-date="toDate"
-    selected-accounts="selectedAccounts"
-  ></yaba-budget>
+    ></yaba-controls>
+    <div layout="row">
+        <yaba-transaction-list
+            from-date="fromDate"
+            to-date="toDate"
+            selected-accounts="selectedAccounts"
+            description="description"
+            txn-tags="txnTags"
+            include-tags="true"
+            show-tags="true"
+            editable="editable"
+        ></yaba-transaction-list>
+        <yaba-budget
+          budgets="budgets"
+          from-date="fromDate"
+          to-date="toDate"
+          selected-accounts="selectedAccounts"
+        ></yaba-budget>
+    </div>
     <div class="errors">{{ error }}</div>
 </div>

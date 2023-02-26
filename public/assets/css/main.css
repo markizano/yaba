@@ -1,3 +1,6 @@
+/**
+ * Replace some of the things stripped form reset.css.
+ */
 b, .bold { font-weight: bold; }
 i, .italic { font-style: italic; }
 u, .underline { text-decoration: underline; }
@@ -5,20 +8,32 @@ body {
     font-family: "Sans", "Arial", "Calibri"
 }
 
-#page {
-    width: 80%;
+/**
+ * Global content styling.
+ */
+ #page {
+    width: 99%;
     height: auto;
     margin: 0 auto 0 auto;
     padding: 20px 0 0 0;
     display: block;
 }
+#content {
+    display: block;
+    margin: 0 auto 0 auto;
+    width: 99%;
+}
 
+/**
+ * Header/Navigation
+ */
 #navbar {
     width: 100%;
     height: 44px;
     margin: 0;
     padding: 0;
-    display: block;
+    display: flex;
+    border: 1px solid red;
 }
 
 #navbar ul {
@@ -28,11 +43,7 @@ body {
     background-color: #333333;
     width: 100%;
     border: 1px chocolate;
-    display: block;
-}
-
-#navbar li {
-    float: left;
+    display: flex;
 }
 
 #navbar li a {
@@ -52,6 +63,8 @@ body {
 #navbar li.nav-active a {
     background-color: #999;
 }
+
+
 detail {
     display: block;
     width: 800px;
@@ -85,32 +98,10 @@ detail ul li {
     width: auto;
     display: inline-block;
     max-width: 1024px;
+    vertical-align: top;
 }
-
-.item-list-wrapper h1 {
-    font-size: 200%;
-    font-weight: bold;
-    margin: 1px 1px 1px 8px;
-    padding: 5px;
-    width: 99%;
-    text-decoration: underline;
-}
-
-.item-list-wrapper h2 {
-    font-size: 150%;
-    font-weight: bold;
-    margin: 1px 1px 1px 5px;
-    padding: 5px;
-    width: 99%;
-    text-decoration: underline;
-}
-.item-list-wrapper h3 {
-    font-size: 130%;
-    font-weight: bold;
-    margin: 1px 1px 1px 4px;
-    padding: 5px;
-    width: 99%;
-    text-decoration: underline;
+.item-list-wrapper md-grid-tile-header {
+    background-color: #191988C0;
 }
 .item-list tr td:first-child {
     max-width: 150px;
@@ -123,32 +114,26 @@ detail ul li {
 
 .controller {
     min-height: 200px;
+    width: 99%;
+}
+.controller h1, .controller h2, .controller h3 {
+    font-weight: bold;
+    text-decoration: underline;
+    padding: 5px;
+    display: inline-block;
+    width: fit-content;
 }
 .controller h1 {
     font-size: 180%;
-    font-weight: bold;
-    text-decoration: underline;
     margin: 20px 5px 5px 5px;
-    padding: 5px;
-    width: 97%;
-    display: block;
 }
 .controller h2 {
     font-size: 150%;
-    font-weight: bold;
     margin: 10px 5px 5px 5px;
-    padding: 5px;
-    width: 97%;
-    display: block;
 }
 .controller h3 {
     font-size: 130%;
-    font-weight: bold;
-    text-decoration: underline;
     margin: 5px 1px 1px 5px;
-    padding: 5px;
-    width: 97%;
-    display: block;
 }
 .controller p {
     font-size: 24px;
@@ -172,6 +157,7 @@ table.data th {
     border-bottom: 1px solid black;
     cursor: pointer;
     margin: 5px auto;
+    background-color: #AC501AA0;
     /* min-width: 100px; */
 }
 /* table.data tbody {
@@ -202,7 +188,6 @@ table.data th:first-child {
     display: block;
     width: 500px;
     height: auto;
-    float: right;
     background: #EEEEEE;
     margin: 5px;
     padding: 10px;
@@ -249,19 +234,18 @@ table.data th:first-child {
     width: 65%;
 }
 .account-balance {
-    display: block;
-    margin: 2px 2px 2px auto;
+    display: inline-block;
+    margin: 10px 2px 2px auto;
     padding: 2px;
     width: 30%;
-    float: right;
     font-style: italic;
     font-size: 20px;
 }
 yaba-transaction-list {
     display: inline-block;
-    margin: 2px;
+    margin: 10px auto;
     padding: 2px;
-    max-width: 800px;
+    width: fit-content;
 }
 .csvdrop.dragging {
   border: 3px solid #11F;
@@ -280,7 +264,7 @@ form span.label input[type=text] {
     margin: 0 0 0 0;
 }
 
-footer { float: left; margin: 5px; }
+footer { margin: 5px; }
 
 button {
     display: block;
@@ -311,18 +295,19 @@ save {
 question {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAD1BMVEUAAABMTEzh4eHi4uLj4+N3SbafAAAAAXRSTlMAQObYZgAAAQ9JREFUSMeV1esVgyAMBWDYINAJwAmU/XdrtRDIC5BfHvP1hlJrnBuWD89yxqplkwx1VZC6IlhdiF7Puqg341FKudJzDUpALP+VRASt1wwQAUdBwSJ6wJVzRgByB1eDdBcBO6R2QSI8gotGtYgG8PYdMYKAnzt5M2Ag1csPAX4CwhYI4m7fw9OjgZjxl8ZvcQPxpIwncvdQQD8oA/QtbIF5h98u5wEayGOAAvrjYoCDBOggzUCkARKwABWEKWAdBIgb4HwL/By4tyDIV9USuGkddoBfdFgD0uP390qsAwP0HEC8phlwe8CZAOQooIC/6zkAe5qIiWEe8zRCmzhWgBrxcuqt5+Z68q5n93r66+sLE3R/bdcNfTUAAAAASUVORK5CYII=');
 }
-question:hover:after {
-    opacity: 1;
-    transition: all 500ms ease-in-out 500ms;
-    visibility: visible;
-    display: block;
-    position: relative;
-    left: -430px;
+inspect {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAQMAAACQp+OdAAAABlBMVEWFY1UAAADJW86pAAAAAXRSTlMAQObYZgAAAJJJREFUKM/FkLsRxCAMROW5QOGV4FIozS7NpagEQgLGeyuYWQLnPgXwBrSrj9mfovR5f4BrwA60AQdw572BcRI8IQhfhKOmGOeGPnLNRnYeBSnq45u+LT0vqqsHlVTXvfHga5Tu/C8TOm3iuJ0eAkzAgmeO5DJUCRVVG2rMErLv1bzG0YAaWUvQWtaitDot8/34AewUoP8HNfvLAAAAAElFTkSuQmCC');
 }
-question:after {
+.helper:hover:after {
+    opacity: 1;
+    transition: all 300ms ease-in-out 500ms;
+    visibility: visible;
+}
+.helper:after {
     content: attr(helper);
     display: block;
-    min-width: 400px;
+    min-width: 200px;
+    max-width: 450px;
     background-color: #f7dc5f;
     color: #111;
     font-size: 120%;
@@ -334,29 +319,40 @@ question:after {
     z-index: 9999999;
     transition: all 500ms ease-in-out 500ms;
     visibility: hidden;
-    position: relative;
-    left: -400px;
-}
-question {
-    position: relative;
+    position: absolute;
+    top: 5px;
+    right: 30px;
 }
 
-add, edit, save, trash, close, question {
+add, edit, save, trash, close, question, inspect {
     background-size: 32px;
     width: 32px;
     height: 32px;
     padding: 0px;
-    margin: 0px;
+    margin: 8px;
     display: inline-block;
     cursor: pointer;
 }
-add:hover, edit:hover, save:hover, trash:hover, close:hover, question:hover { cursor: grab; }
+add:hover, edit:hover, save:hover, trash:hover, close:hover, question:hover, inspect:hover { cursor: grab; }
 
 .small-icon {
     width: 24px;
     height: 24px;
     background-size: 24px;
 }
+
+actions {
+    width: fit-content;
+    margin-right: 0;
+    margin-left: auto;
+    display: inline-block;
+}
+
+figcaption {
+    width: 99%;
+    display: flex;
+}
+
 
 code {
     width: 90%;
@@ -382,7 +378,6 @@ pre {
     color: yellow;
     font-size: 20px;
 }
-.right { display: block; float: right; }
 
 
 mapping {
@@ -461,6 +456,7 @@ data-table {
     font-size: 25px;
 }
 yaba-daterange {
+    margin: 10px auto;
     max-width: 500px;
     display: inline-block;
     overflow: hidden;
@@ -470,6 +466,38 @@ filters {
     width: 99%;
     border: 1px solid #00000050;
 }
+
+date-range {
+    margin: 10px auto;
+    display: flex;
+    position: relative;
+    padding: 5px;
+}
+date-range input {
+    margin: 10px 15px;
+}
+date-range from-date, date-range to-date {
+    position: relative;
+    display: block;
+    margin: 0 auto;
+    padding: 5px;
+}
+date-range from-date:before {
+    content: "From Date: ";
+    position: absolute;
+    font-size: 16px;
+    top: 0px;
+    left: 0px;
+}
+date-range to-date:before {
+    content: "To Date: ";
+    position: absolute;
+    font-size: 16px;
+    top: 0px;
+    left: 0px;
+}
+
+
 debug {
     display: block;
     max-width: 800px;
@@ -503,43 +531,98 @@ debug span {
     overflow-y: auto;
 }
 
-controls {
+yaba-controls {
     display: block;
     width: 99%;
 }
+controls {
+    display: flex;
+    border: 1px solid #191988C0;
+    border-radius: 10px;
+    vertical-align: top;
+    margin: 30px auto 15px auto;
+    position: relative;
+}
+controls:before {
+    content: "Filters: ";
+    color: #0e1871;
+    font-family: sans-serif, monospace;
+    font-weight: bold;
+    font-size: 150%;
+    position: absolute;
+    top: -25px;
+    left: 25px;
+}
 controls accounts {
     display: inline-block;
-    max-width: 500px;
+    width: fit-content;
+    margin: 10px auto;
+    padding: 5px;
 }
 controls description {
     display: inline-block;
     width: 220px;
     height: 40px;
+    margin: 10px auto;
+    padding: 5px;
 }
 controls budgets {
+    margin: 10px auto;
     display: inline-block;
     min-width: 150px;
     min-height: 120px;
     vertical-align: top;
 }
-controls budgets select {
-    min-width:99%;
+controls accounts select, controls budgets select {
+    min-width: 100px;
+    width:99%;
     min-height: 100px;
 }
 
 yaba-budget {
-    max-width: 500px;
     display: block;
-    float: right;
+    margin: 10px auto 10px 10px;
+    position: relative;
 }
+budget-panel {
+    display: block;
+    margin: 25px 10px 10px 10px;
+    position: relative;
+}
+budget-panel:before {
+    content: "Budgets";
+    text-decoration: underline;
+    font-weight: bold;
+    font-size: 150%;
+    position: absolute;
+    top: -26px;
+    left: 0px;
+}
+
+wishlist-item {
+    display: flex;
+    font-size: 20px;
+    padding: 10px;
+    margin: 10px auto;
+}
+
+#prospect div {
+    display: flex;
+}
+
+.additional-fields {
+    min-width: 400px;
+}
+
 .negative {
     color: #b21717;
 }
+
+/* My Angular Customizations/Overrides */
 md-chips.setting-chip {
     display: inline-block;
     width: 98%;
     min-width: 400px;
 }
-.additional-fields {
-    min-width: 400px;
-}
+
+

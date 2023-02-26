@@ -27,25 +27,25 @@
                 <md-list-item>
                     <label for="settings.incomeTags">What are your income tags?: </label>
                     <md-chips ng-model="settings.incomeTags" ng-change="settings.save()" class="setting-chip md-secondary"></md-chips>
-                    <question class="md-secondary" helper="Income tags will tell this app how to treat things you deem as income per defined pay period as defined above.">
+                    <question class="md-secondary helper" helper="Income tags will tell this app how to treat things you deem as income per defined pay period as defined above.">
                     </question>
                 </md-list-item>
                 <md-list-item>
                     <label>What are your expense tags?: </label>
                     <md-chips ng-model="settings.expenseTags" ng-change="settings.save()" class="setting-chip md-secondary"></md-chips>
-                    <question class="md-secondary" helper="Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses.">
+                    <question class="md-secondary helper" helper="Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses.">
                     </question>
                 </md-list-item>
                 <md-list-item>
                     <label>What is your transfer tag?: </label>
                     <md-chips ng-model="settings.transferTags" ng-change="settings.save()" class="setting-chip md-secondary"></md-chips>
-                    <question class="md-secondary" helper="Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions.">
+                    <question class="md-secondary helper" helper="Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions.">
                     </question>
                 </md-list-item>
                 <md-list-item>
                     <label>What is your hide tag?: </label>
                     <md-chips ng-model="settings.hideTags" ng-change="settings.save()" class="setting-chip md-secondary"></md-chips>
-                    <question class="md-secondary" helper="These transactions will be hidden from view and removed from calculations."></question>
+                    <question class="md-secondary helper" helper="These transactions will be hidden from view and removed from calculations."></question>
                 </md-list-item>
                 <md-list-item>
                     <label>What additional Fields do you want to see on transaction lists? </label>
@@ -56,7 +56,7 @@
                         <div><md-checkbox ng-model="settings.txShow.account" ng-change="settings.save()">Account Name</md-checkbox></div>
                         <div><md-checkbox ng-model="settings.txShow.transactionType" ng-change="settings.save()">Transaction Type</md-checkbox></div>
                     </div>
-                    <question class="md-secondary" helper="Checking these will include these columns in transaction list displays"></question>
+                    <question class="md-secondary helper" helper="Checking these will include these columns in transaction list displays"></question>
                 </md-list-item>
                 <md-list-item>
                     <label>Export all data to a set of CSV files in ZIP format: </label>
@@ -68,8 +68,8 @@
                 </md-list-item>
                 <md-list-item>
                     <label>Delete all data: </label>
-                    <button ng-click="deleteAll()" class="md-secondary">DELETE</button><br />
                     <span class="warning md-secondary">NOTE: This will delete ALL the data!!!</span>
+                    <button ng-click="deleteAll()" class="md-secondary">DELETE</button><br />
                 </md-list-item>
             </md-list>
 </md-content>

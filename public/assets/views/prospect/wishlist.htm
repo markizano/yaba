@@ -1,30 +1,32 @@
-<table class="data item-list">
-    <thead>
-        <th ng-click="sortBy('datePosted');">Desired Purchase Date</th>
-        <th ng-click="sortBy('amount');">Amount</th>
-        <th ng-click="sortBy('description');">Description</th>
-        <th>Actions</th>
-    </thead>
-    <tbody>
-        <tr ng-repeat="txn in wishlist | orderBy:sortColumn" class="slide-down">
-            <td> {{ txn.datePosted | date:'yyyy-MM-dd' }}&nbsp;</td>
-            <td> {{ txn.amount | currency }}&nbsp;</td>
-            <td> {{ txn.description }}&nbsp;</td>
-            <td>
-                <edit ng-click="edit($index)" class="small-icon"></edit>&nbsp;
-                <trash ng-click="remove($index)" class="small-icon"></trash>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<form>
-    I want to buy <input type="text" ng-model="description" />
-    which costs $<input type="number" ng-model="amount" /> by
-    <input type="date" ng-model="datePurchase" />
-    <input type="hidden" ng-model="index" />
-    <controls ng-switch on="mode">
-        <add ng-switch-when="add" ng-click="add();" class="right"></add>
-        <close ng-switch-when="edit" ng-click="cancel();" class="right"></close>
-        <save ng-switch-when="edit" ng-click="save();" class="right"></save>
-    </controls>
-</form>
+<wishlist layout="row">
+    <table class="data item-list">
+        <thead>
+            <th>Desired Purchase Date</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </thead>
+        <tbody>
+            <tr ng-repeat="txn in wishlist" class="slide-down">
+                <td> {{ txn.datePosted | date:'yyyy-MM-dd' }}&nbsp;</td>
+                <td> {{ txn.amount | currency }}&nbsp;</td>
+                <td> {{ txn.description }}&nbsp;</td>
+                <td>
+                    <edit ng-click="edit($index)" class="small-icon"></edit>&nbsp;
+                    <trash ng-click="remove($index)" class="small-icon"></trash>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <wishlist-item layout="column">
+        <label for="description">I want to buy </label><input type="text" placeholder="(Product) e.g. PlayStation" ng-model="description" />
+        <label for="amount">which costs $</label><input type="number" placeholder="0.00" ng-model="amount" />
+        <label for="date"> &nbsp; by &nbsp;</label><input type="date" ng-model="datePurchase" />
+        <panel ng-switch on="mode" layout="row">
+            <add ng-switch-when="add" ng-click="add();"></add>
+            <close ng-switch-when="edit" ng-click="cancel();"></close>
+            <save ng-switch-when="edit" ng-click="save();"></save>
+        </panel>
+        <input type="hidden" ng-model="$index" />
+    </wishlist-item>
+</wishlist>

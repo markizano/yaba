@@ -1,16 +1,17 @@
-<h2>Budgets</h2>
-<table id="budget-list" class="item-list-wrapper data">
-    <thead>
-        <th>Budget</th>
-        <th>Spending</th>
-    </thead>
-    <tbody>
-        <tr ng-repeat="b in budgets | orderBy:'budget'">
-            <td>{{ b.tag }}</td>
-            <td>{{ b.amount | currency }}</td>
-        </tr>
-    </tbody>
-</table>
+<budget-panel>
+    <table id="budget-list" class="item-list-wrapper data">
+        <thead>
+            <th>Budget</th>
+            <th>Spending</th>
+        </thead>
+        <tbody>
+            <tr ng-repeat="b in budgets | orderBy:'budget'">
+                <td>{{ b.tag }}</td>
+                <td>{{ b.amount | currency }}</td>
+            </tr>
+        </tbody>
+    </table>
+</budget-panel>
 <debug>
     budgets: <span ng-bind="budgets.length"></span>
 </debug>

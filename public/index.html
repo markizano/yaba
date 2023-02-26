@@ -38,27 +38,33 @@
         <script type="text/javascript" src="assets/js/develop.js"></script>
     </head>
     <body>
-        <div id="page" ng-app="yaba" ng-controller="page">
-            <header>
-                <navigation id="navbar" class="navbar navbar-dark bg-inverse">
-                    <ul>
-                        <li class="nav-item"><a class="nav-link" tabindex="20" href="/home">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" tabindex="21" href="/budget">Budgeting</a></li>
-                        <li class="nav-item"><a class="nav-link" tabindex="22" href="/prospect">Prospecting</a></li>
-                        <li class="nav-item"><a class="nav-link" tabindex="23" href="/charts">Charts and Trends</a></li>
-                        <li class="nav-item"><a class="nav-link" tabindex="24" href="/accounts">Accounts</a></li>
-                        <li class="nav-item"><a class="nav-link" tabindex="25" href="/institutions">Institutions</a></li>
-                        <li class="nav-item"><a class="nav-link" tabindex="26" href="/settings">Settings</a></li>
-                        <li class="nav-item" ng-show="DEBUG"><a class="nav-link" tabindex="27" href="/develop">Developer</a></li>
-                    </ul>
-                </navigation>
-            </header>
-            <div id="content">
-                <ng-view></ng-view>
-            </div>
-            <footer>
-                Powered by AngularJS! A Kizano Foundation Creation. {{ year }}
-            </footer>
+        <div id="page" ng-app="yaba" ng-controller="page" layout="column">
+            <md-list layout="column">
+                <md-list-item>
+                    <header>
+                        <md-nav-bar id="navbar"  md-selected-nav-item="page" class="navbar navbar-dark bg-inverse" aria-label="Navigation">
+                            <md-nav-item class="nav-item" tabindex="20" md-nav-href="/home">Dashboard</md-nav-item>
+                            <md-nav-item class="nav-item" tabindex="21" md-nav-href="/budget">Budgeting</md-nav-item>
+                            <md-nav-item class="nav-item" tabindex="22" md-nav-href="/prospect">Prospecting</md-nav-item>
+                            <md-nav-item class="nav-item" tabindex="23" md-nav-href="/charts">Charts Trends</a></md-nav-item>
+                            <md-nav-item class="nav-item" tabindex="24" md-nav-href="/accounts">Accounts</md-nav-item>
+                            <md-nav-item class="nav-item" tabindex="25" md-nav-href="/institutions">Institutions</md-nav-item>
+                            <md-nav-item class="nav-item" tabindex="26" md-nav-href="/settings">Settings</md-nav-item>
+                            <md-nav-item class="nav-item" ng-show="DEBUG" tabindex="27" md-nav-href="/develop">Developer</md-nav-item>
+                        </md-nav-bar>
+                    </header>
+                </md-list-item>
+                <md-list-item>
+                    <div id="content">
+                        <ng-view></ng-view>
+                    </div>
+                </md-list-item>
+                <md-list-item>
+                    <footer>
+                        Powered by AngularJS! A Kizano Foundation Creation. {{ year }}
+                    </footer>
+                </md-list-item>
+            </md-list>
         </div>
     </body>
 </html>

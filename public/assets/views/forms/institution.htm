@@ -1,5 +1,5 @@
 <div class="new-item-wrapper" ng-show="true">
-    <close ng-click="close()"></close>
+    <close ng-click="close()" class="right"></close>
     <h1>{{ institution.name || 'New' }} Institution</h1>
     <form ng-submit="save()">
         <label>Name: <input type="text" tabindex="1" ng-model="institution.name" /></label>

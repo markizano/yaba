@@ -1,21 +1,19 @@
-<controls ng-show="showDaterange || showAccounts || showDescription || showTags">
-    <h3>Filters</h3>
-
+<controls ng-show="showDaterange || showAccounts || showDescription || showTags" layout="row">
     <yaba-daterange ng-show="showDaterange" from-date="fromDate" to-date="toDate"></yaba-daterange>
 
     <accounts ng-show="showAccounts">
-        Account: <select ng-model="selectedAccounts" multiple="1" ng-options="account.name for account in accounts track by account.id"></select>
+        Account: <br />
+        <select ng-model="selectedAccounts" multiple="1" ng-options="account.name for account in accounts track by account.id"></select>
     </accounts>
 
     <description ng-show="showDescription">
         <input type="text" ng-model="description" placeholder="Search Description" />
-        <input type="checkbox" ng-model="useRegexp" placeholder="Use Regular Expressions?" title="Use Regular Expressions?" />
-        RegExp?
+        <!-- <input type="checkbox" ng-model="useRegexp" placeholder="Use Regular Expressions?" title="Use Regular Expressions?" />
+        RegExp? -->
     </description>
 
     <budgets ng-show="showTags">
         Budgets: <br />
         <select multiple ng-model="txnTags" ng-options="budget for budget in transactionBudgets" class="budget-list"></select>
     </budgets>
-
 </controls>
