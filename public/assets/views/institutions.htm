@@ -8,34 +8,34 @@
     </p>
 
     <add ng-click="add()" class="right"></add><br clear="all" />
-    <md-grid-list md-row-height="4:3" md-cols-xl="4" md-cols-lg="3" md-cols-md="2" md-cols-sm="1" md-cols-xs="1" md-gutter="1">
-        <md-grid-tile class="item-list-wrapper" ng-repeat="institution in institutions">
-            <md-grid-tile-header>
+    <!-- <md-grid-list md-row-height="4:3" md-cols-xl="4" md-cols-lg="3" md-cols-md="2" md-cols-sm="1" md-cols-xs="1" md-gutter="1"> -->
+    <institution-list>
+        <institution ng-repeat="institution in institutions">
+            <figcaption>
                 <h2 ng-bind="institution.name"></h2>
                 <actions>
                     <edit ng-click="edit(institution)" class="helper" helper="Edit Institution &quot;{{ institution.name }}&quot;."></edit>
                     <trash ng-click="remove(institution)" class="helper" helper="Delete Institution &quot;{{ institution.name }}&quot;."></trash>
                 </actions>
-            </md-grid-tile-header>
-            <div>
-                <p ng-bind="institution.description"></p>
-                <table id="{{ institution.id }}" class="institution-mappings data item-list">
-                    <thead>
-                        <th>From Field</th>
-                        <th>To Field</th>
-                        <th>Map Type</th>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="mapping in institution.mappings">
-                            <td>{{ mapping.fromField }}</td>
-                            <td>{{ mapping.toField }}</td>
-                            <td>{{ mapping.mapType }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </md-grid-tile>
-    </md-grid-list>
+            </figcaption>
+            <p ng-bind="institution.description"></p>
+            <table id="{{ institution.id }}" class="institution-mappings data item-list">
+                <thead>
+                    <th>From Field</th>
+                    <th>To Field</th>
+                    <th>Map Type</th>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="mapping in institution.mappings">
+                        <td>{{ mapping.fromField }}</td>
+                        <td>{{ mapping.toField }}</td>
+                        <td>{{ mapping.mapType }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </institution>
+    </institution-list>
+
     <div class="errors">{{ error }}</div>
 
     <yaba-institution-form

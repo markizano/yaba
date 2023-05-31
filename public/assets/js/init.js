@@ -3,6 +3,8 @@
     if ( typeof Object.defineProperty == 'function' ) {
         try{ Object.defineProperty(Date.prototype, 'toISOShortDate', {value: toISOShortDate}); } catch(e){}
         try{ Object.defineProperty(Date.prototype, 'round', {value: round}); } catch(e){}
+        try{ Object.defineProperty(Math.parseCurrency, 'parseCurrency', {value: parseCurrency}); } catch(e){}
+        
     }
     if ( !Date.prototype.toISOShortDate ) Date.prototype.toISOShortDate = toISOShortDate;
     if ( !Date.prototype.round ) Date.prototype.round = round;
@@ -21,7 +23,7 @@
         result.setUTCDate(1);
         return result;
     }
-    Math.parseCurrency = (value) => {
+    function parseCurrency(value) {
         return Number(value.replace(/[^0-9\.-]+/g, '') );
     }
 })();
@@ -84,47 +86,6 @@ var Yaba = (function(Yaba) {
     }
     pageConfig.$inject = ['$locationProvider', '$routeProvider', '$mdDateLocaleProvider'];
     Yaba.app.config(pageConfig);
-
-    /**
-     * Navigation Controller for the directive we create around the navigation.
-     * Simply watches for router location changes and updates the scope variable
-     * for us since we can't access $location from inside the directive:link() function.
-     */
-    function navCtrl($rootScope, $scope, $location) {
-        $rootScope.$on('$locationChangeSuccess', function() {
-            $scope.currentPage = $location.path().split('/').filter(x => x).shift();
-        });
-    }
-    navCtrl.$inject = ['$rootScope', '$scope', '$location'];
-
-    /**
-     * Navigation directive that will update CSS accordingly so we can see which
-     * page we are currently browsing.
-     */
-    function navigation($scope, $element, $attrs) {
-        $scope.$watch('currentPage', () => {
-            $element.children().each(function() {
-                var ul = $(this);
-                ul.children().each(function() {
-                    var li = $(this);
-                    var navPage = $(li.children()[0]).attr('data-page');
-                    if ( $scope.currentPage == navPage ) {
-                        li.addClass('nav-active');
-                    } else {
-                        li.removeClass('nav-active');
-                    }
-                });
-            });
-        });
-    }
-
-    Yaba.app.directive('navigation', () => {
-        return {
-            scope: true, // Inherited scope. Isolated not necessary, but don't want to clutter global/root $scope.
-            controller: navCtrl,
-            link: navigation
-        };
-    });
 
     return Yaba;
 })(Yaba);

@@ -55,7 +55,8 @@
                     </span>
                 </td>
                 <td txn-edit="true" ng-model="txn.description" ng-switch on="!!edit['txn-description']">
-                    <span ng-switch-when="false" ng-bind="txn.description"></span>
+                    <!-- md-truncate has failed me here! :sob: -->
+                    <span ng-switch-when="false" ng-bind="limit == -1 ? txn.description: txn.description.slice(0, 30) + (txn.description.length > 30? '...': '')"></span>
                     <span ng-switch-when="true">
                         <input
                         type="text"
