@@ -1,5 +1,4 @@
 import type { Configuration } from 'webpack';
-import * as path from 'path';
 import { rules } from './webpack.rules';
 
 export const mainConfig: Configuration = {
