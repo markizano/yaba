@@ -1,3 +1,4 @@
+const Yaba = window.Yaba;
 /**
  * Panel Page Controllers
  */

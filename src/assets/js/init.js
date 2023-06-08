@@ -32,7 +32,8 @@
  * App Initialization Models for setting up and configuring AngularJS.
  * This is the first time we use it, so it'll be the first time we define it.
  */
-var Yaba = (function(Yaba) {
+const Yaba = {};
+(function(Yaba) {
     'use strict';
 
     const ngModelList = [
@@ -99,3 +100,8 @@ var Yaba = (function(Yaba) {
         }
     });
 })(Yaba)
+
+if ( typeof exports !== 'undefined' ) {
+    exports = Yaba;
+}
+window.Yaba = Yaba;

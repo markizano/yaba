@@ -1,3 +1,4 @@
+const Yaba = window.Yaba, uuid = window.uuid;
 /**
  * Models around Yaba controllers. Tie HTTP calls and data together.
  */

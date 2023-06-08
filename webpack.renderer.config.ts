@@ -13,6 +13,13 @@ rules.push({
 });
 
 export const rendererConfig: Configuration = {
+  entry: {
+    yaba: './src/yaba.ts',
+    preload: './src/preload.ts'
+  },
+  output: {
+    filename: '[name].js'
+  },
   module: {
     rules,
   },

@@ -1,6 +1,7 @@
+const Yaba = window.Yaba;
 /**
  * Filters not available to AngularJS by default, but we want to include ability here.
- */
+*/
 (function(Yaba) {
     'use strict';
 
@@ -39,6 +40,7 @@
         sortBy: sortBy
     });
 
+    console.log(Yaba)
     Yaba.app.filter('budgetBy', budgetBy);
     return Yaba;
 })(Yaba);

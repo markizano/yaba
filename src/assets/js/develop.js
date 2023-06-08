@@ -1,3 +1,4 @@
+const Yaba = window.Yaba;
 (function(Yaba) {
 
     /**

@@ -18,8 +18,8 @@ if (require('electron-squirrel-startup')) {
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 768,
+    width: 1600,
+    height: 900,
     webPreferences: {
       nodeIntegration: false,
       preload: path.resolve(MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY),
@@ -91,16 +91,3 @@ process.on('SIGTERM', function() {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-// try {
-  // import './assets/css/reset.css';
-  // import './assets/css/main.css';
-// } catch { console.log('Failed to load css :( '); }
-
-// import './assets/js/init.js';
-// import './assets/js/uuid.js';
-// import './assets/js/filters.js';
-// import './assets/js/structures.js';
-// import './assets/js/directives.js';
-// import './assets/js/services.js';
-// import './assets/js/controllers.js';
-// import './assets/js/develop.js';

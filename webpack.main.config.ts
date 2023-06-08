@@ -9,6 +9,10 @@ export const mainConfig: Configuration = {
    */
   entry: './src/index.ts',
   // Put your normal webpack config below here
+  optimization: {
+    concatenateModules: true,
+    emitOnErrors: true,
+  },
   module: {
     rules,
   },
