@@ -42,3 +42,7 @@ export const renderConfig: Configuration = {
 };
 
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
+
+// import './assets/css/reset.css';
+// import './assets/css/main.css';
+// import './yaba.ts';

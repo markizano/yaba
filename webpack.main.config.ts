@@ -6,14 +6,8 @@ export const mainConfig: Configuration = {
    * This is the main entry point for your application, it's the first file
    * that runs in the main process.
    */
-  entry: {
-    index: './src/index.ts',
-    yaba: './src/yaba.ts'
-  },
+  entry: './src/index.ts',
   // Put your normal webpack config below here
-  output: {
-    filename: '[name].js',
-  },
   module: {
     rules,
   },

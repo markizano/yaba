@@ -3,6 +3,8 @@ import type { Configuration } from 'webpack';
 import { rules } from './webpack.rules';
 import { plugins } from './webpack.plugins';
 
+// const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
 rules.push({
   test: /\.css$/,
   use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
@@ -19,6 +21,12 @@ rules.push({
 });
 
 export const rendererConfig: Configuration = {
+  entry: {
+    'yaba': './src/yaba.ts'
+  },
+  output: {
+    filename: '[name].js',
+  },
   module: {
     rules,
   },
