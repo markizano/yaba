@@ -38,11 +38,11 @@ export const renderConfig: Configuration = {
         init: 'assets/js/init.js',
         controllers: 'assets/js/controllers.js',
         directives: 'assets/js/directives.js',
-    }
+    },
 };
 
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
 
-// import './assets/css/reset.css';
-// import './assets/css/main.css';
+import './assets/css/reset.css';
+import './assets/css/main.css';
 // import './yaba.ts';
