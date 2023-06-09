@@ -75,6 +75,8 @@ const Yaba = {};
             $routeProvider.when(whence, { templateUrl: `assets/views/${page}.htm` });
         })
         $routeProvider.when('/', { templateUrl: `assets/views/home.htm` });
+        // ElectronJS entrypoint
+        $routeProvider.when('/main_window', { templateUrl: `assets/views/home.htm` });
         $routeProvider.otherwise({
             template: '<h1>404</h1><p>Page not found!</p><br />CurrentPage: {{ $id }}',
         });

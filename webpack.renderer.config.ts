@@ -24,6 +24,9 @@ export const rendererConfig: Configuration = {
     rules,
   },
   plugins,
+  optimization: {
+    concatenateModules: true
+  },
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
   },

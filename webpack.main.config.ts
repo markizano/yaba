@@ -9,6 +9,7 @@ export const mainConfig: Configuration = {
    */
   entry: './src/index.ts',
   // Put your normal webpack config below here
+  mode: process.env.NODE_ENV == 'production'? 'production': 'development',
   optimization: {
     concatenateModules: true,
     emitOnErrors: true,

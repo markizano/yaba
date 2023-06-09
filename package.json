@@ -11,7 +11,13 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
-  "keywords": ["yaba", "budgeting", "finance", "productivity", "organization"],
+  "keywords": [
+    "yaba",
+    "budgeting",
+    "finance",
+    "productivity",
+    "organization"
+  ],
   "author": {
     "name": "Markizano Draconus",
     "email": "markizano@markizano.net"
@@ -39,6 +45,7 @@
     "typescript": "~4.5.4"
   },
   "dependencies": {
+    "copy-webpack-plugin": "^11.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "mini-css-extract-plugin": "^2.7.6"
   }
