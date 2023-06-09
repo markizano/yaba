@@ -17,6 +17,9 @@ export const mainConfig: Configuration = {
   module: {
     rules,
   },
+  devServer: {
+    historyApiFallback: true,
+  },
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
   },

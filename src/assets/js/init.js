@@ -46,7 +46,7 @@ const Yaba = {};
     Yaba.hasOwnProperty('app') || (Yaba.app = angular.module('yaba', ngModelList));
 
     // Whether to actively render debugging informations, details and other infos.
-    Yaba.DEBUG = window.location.hostname != 'yaba.markizano.net';
+    Yaba.DEBUG = window.hasOwnProperty('DEBUG') && !!window.DEBUG;
     // Feature check to see if developer-friendly options should be available.
     Yaba.mode = Yaba.DEBUG? 'dev': 'prod';
 
