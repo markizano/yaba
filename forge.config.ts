@@ -20,13 +20,20 @@ const config: ForgeConfig = {
         entryPoints: [
           {
             html: './dist/index.html',
-            js: './src/renderer.ts',
+            js: './window/renderer.ts',
             name: 'main_window',
             preload: {
-              js: './src/preload.ts',
+              js: './window/preload.ts',
             },
           },
         ],
+      },
+      port: 3001,
+      // devContentSecurityPolicy: '',
+      devServer: {
+        historyApiFallback: {
+          index: 'index.html'
+        },
       },
     }),
   ],

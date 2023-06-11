@@ -1,14 +1,14 @@
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
-  "extends": "./src/tsconfig.json",
+  "extends": "./web/tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
     "types": []
   },
   "files": [
-    "src/main.ts"
+    "web/main.ts"
   ],
   "include": [
-    "src/**/*.d.ts"
+    "web/**/*.d.ts"
   ]
 }

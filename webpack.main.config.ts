@@ -7,7 +7,7 @@ export const mainConfig: Configuration = {
    * This is the main entry point for your application, it's the first file
    * that runs in the main process.
    */
-  entry: './src/index.ts',
+  entry: './window/index.ts',
   // Put your normal webpack config below here
   mode: process.env.NODE_ENV == 'production'? 'production': 'development',
   optimization: {
@@ -17,16 +17,9 @@ export const mainConfig: Configuration = {
   module: {
     rules,
   },
-  devServer: {
-    static: true,
-    port: 3001,
-    historyApiFallback: {
-      index: 'index.html'
-    },
-  },
   node: {
-    __dirname: false,
-    __filename: false
+    __dirname: true,
+    __filename: true
   },
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],

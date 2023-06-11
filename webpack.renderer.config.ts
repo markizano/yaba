@@ -9,7 +9,7 @@ rules.push({
 });
 
 export const rendererConfig: Configuration = {
-  entry: './src/index.ts',
+  entry: './window/index.ts',
   module: {
     rules,
   },
