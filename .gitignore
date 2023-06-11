@@ -1,13 +1,8 @@
 synxtax: glob
 
-*.pyc
-*.egg-info
-
 MANIFEST
 build
 dist
-.coverage
-.pytest_cache
 
 xactions.csv
 bills.ods
@@ -28,6 +23,8 @@ bills.ods
 # JS/Node/npm stuff
 node_modules/
 bower_components/
+npm-debug.log
+yarn-error.log
 
 .idea/
 .vscode/
@@ -37,3 +34,8 @@ bower_components/
 dist/
 .webpack/
 out/
+.angular/
+
+# System files
+.DS_Store
+Thumbs.db
