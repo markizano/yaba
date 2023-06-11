@@ -13,19 +13,19 @@ rules.push({
 });
 
 export const rendererConfig: Configuration = {
-  entry: {
-    yaba: './src/yaba.ts',
-    preload: './src/preload.ts'
-  },
-  output: {
-    filename: '[name].js'
-  },
+  entry: './dist/index.ts',
   module: {
     rules,
   },
   plugins,
   optimization: {
     concatenateModules: true
+  },
+  devServer: {
+    port: 4200,
+    historyApiFallback: {
+      index: 'index.html'
+    },
   },
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],

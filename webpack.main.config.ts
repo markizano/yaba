@@ -18,7 +18,15 @@ export const mainConfig: Configuration = {
     rules,
   },
   devServer: {
-    historyApiFallback: true,
+    static: true,
+    port: 3001,
+    historyApiFallback: {
+      index: 'index.html'
+    },
+  },
+  node: {
+    __dirname: false,
+    __filename: false
   },
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],

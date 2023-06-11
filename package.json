@@ -1,8 +1,8 @@
 {
   "name": "yaba",
   "productName": "yaba",
-  "version": "1.0.0",
-  "description": "My Electron application description",
+  "version": "1.0.2",
+  "description": "Yaba: Yet Another Budgeting App lets you budget with your finances with tags instead of categories.",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
@@ -22,7 +22,15 @@
     "name": "Markizano Draconus",
     "email": "markizano@markizano.net"
   },
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markizano/yaba.git"
+  },
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/markizano/yaba/issues"
+  },
+  "homepage": "https://github.com/markizano/yaba#readme",
   "devDependencies": {
     "@electron-forge/cli": "^6.1.1",
     "@electron-forge/maker-deb": "^6.1.1",
@@ -42,11 +50,25 @@
     "style-loader": "^3.3.3",
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
-    "typescript": "~4.5.4"
+    "typescript": "~4.5.4",
+    "webpack-stream": "^7.0.0"
   },
   "dependencies": {
+    "@angular/cli": "^16.0.5",
+    "angular": "^1.8.2",
+    "angular-animate": "^1.8.2",
+    "angular-aria": "^1.8.2",
+    "angular-material": "^1.2.5",
+    "angular-messages": "^1.8.2",
+    "angular-route": "^1.8.2",
     "copy-webpack-plugin": "^11.0.0",
     "electron-squirrel-startup": "^1.0.0",
-    "mini-css-extract-plugin": "^2.7.6"
+    "jquery": "^3.6.3",
+    "jquery-ui": "^1.13.2",
+    "jszip": "^3.10.1",
+    "mini-css-extract-plugin": "^2.7.6",
+    "papaparse": "^5.4.1",
+    "path-browserify": "^1.0.1",
+    "stream-browserify": "^3.0.0"
   }
 }
