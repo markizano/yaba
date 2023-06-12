@@ -1,0 +1,151 @@
+
+declare global {
+    interface Date {
+        toISOShortDate(): string;
+        round(): Date;
+    }
+}
+
+/**
+ * Returns a YYYY-MM-DD formatted string of the date.
+ * @returns {string} YYYY-MM-DD formatted string of the date.
+ */
+(function(){
+    function toISOShortDate(): string {
+        const yyyy = this.getFullYear(),
+        mm = ('0' + (this.getUTCMonth()+1)).slice(-2),
+        dd = ( '0' + this.getUTCDate()).slice(-2);
+        return [yyyy, mm, dd] .join('-')
+    }
+    
+    function round(): Date {
+        const result = new Date(this);
+        result.setUTCMilliseconds(0);
+        result.setUTCSeconds(0);
+        result.setUTCMinutes(0);
+        result.setUTCHours(0);
+        result.setUTCDate(1);
+        return result;
+    }
+
+    Date.prototype.toISOShortDate = toISOShortDate;
+    Date.prototype.round = round;
+})();
+
+export function parseCurrency(value: string): number {
+    return Number(value.replace(/[^0-9.-]+/g, '') );
+}
+
+/**
+ * @param {Date} NULLDATE Object we can use for NULL but also instanceof Date().
+ */
+export const NULLDATE = new Date('1970-01-01T00:00:00');
+
+/**
+ * enum(PayCycle). Set of key-value pairs of pay cycles.
+ */
+export enum PayCycle {
+    Weekly = 'weekly',
+    BiWeekly = 'bi-weekly',
+    BiMonthly = 'bi-monthly',
+    Monthly = 'monthly',
+}
+
+/**
+ * enum(TransactionDeltas). Possible default transaction history values
+ * we'd use when rendering transaction history.
+ */
+export enum TransactionDeltas {
+    days30 =  2592000000,
+    days60 =  5184000000,
+    days90 =  7776000000,
+    days180 = 15552000000,
+    days365 = 31104000000,
+    days730 = 62208000000,
+}
+
+interface ShowTransactions {
+    id: boolean;
+    datePending: boolean;
+    merchant: boolean;
+    account: boolean;
+    transactionType: boolean;
+}
+
+export interface UserPreferences {
+    incomeTags: string[];
+    expenseTags: string[];
+    transferTags: string[];
+    hideTags: string[];
+    txShow: ShowTransactions;
+    payCycle: PayCycle;
+    txnDelta: TransactionDeltas;
+}
+
+/**
+ * Object to store settings and interfaces with the localStorage in order to accomplish this.
+ */
+export class Settings implements UserPreferences {
+    public incomeTags: string[];
+    public expenseTags: string[];
+    public transferTags: string[];
+    public hideTags: string[];
+    public txShow: ShowTransactions;
+    public payCycle: PayCycle;
+    public txnDelta: TransactionDeltas;
+
+    constructor(incomeTags: string[], expenseTags: string[], transferTags: string[], hideTags: string[], txShow: ShowTransactions, payCycle: PayCycle, txnDelta: TransactionDeltas) {
+        this.incomeTags = incomeTags || [];
+        this.expenseTags = expenseTags || [];
+        this.transferTags = transferTags || [];
+        this.hideTags = hideTags || [];
+        this.txShow = txShow || {};
+        this.payCycle = payCycle || PayCycle.Weekly;
+        this.txnDelta = txnDelta || TransactionDeltas.days30;
+    }
+
+    /**
+     * Read the local storage for our settings.
+     * This should not override any existing settings.
+     * @param {Settings} data Settings object to load.
+     * @return {Settings} "this" Settings object for easy chaining.
+     */
+    public load(data: UserPreferences): Settings {
+        if ( data.incomeTags )      this.incomeTags = data.incomeTags;
+        if ( data.expenseTags )     this.expenseTags = data.expenseTags;
+        if ( data.transferTags )    this.transferTags = data.transferTags;
+        if ( data.hideTags )        this.hideTags = data.hideTags;
+        if ( data.txShow )          this.txShow = data.txShow;
+        if ( data.payCycle )        this.payCycle = data.payCycle;
+        if ( data.txnDelta )        this.txnDelta = data.txnDelta;
+        return this;
+    }
+
+    /**
+     * Convert a pay cycle to milliseconds.
+     * @param {PayCycle} cycle Pay cycle to convert.
+     * @returns {number} Milliseconds in the pay cycle.
+     */
+    public payCycle2ms(cycle: PayCycle): number {
+        let next1st: Date, next15th: Date;
+        switch (cycle) {
+            case PayCycle.Weekly:
+                return 7 * 24 * 60 * 60 * 1000;
+            case PayCycle.BiWeekly:
+                return 14 * 24 * 60 * 60 * 1000;
+            case PayCycle.BiMonthly:
+                next1st = new Date();
+                next1st.setDate(1);
+                next1st.setMonth(next1st.getMonth() + 1);
+                next15th = new Date();
+                next15th.setDate(15);
+                next15th.setMonth(next15th.getMonth() + 1);
+                return ( next15th.getTime() - next1st.getTime() ) * 1000;
+            case PayCycle.Monthly:
+                next1st = new Date();
+                next1st.setDate(1);
+                next1st.setMonth(next1st.getMonth() + 1);
+                return (next1st.getTime() - new Date().getTime()) * 1000;
+        }
+    }
+}
