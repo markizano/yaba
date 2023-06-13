@@ -1,7 +1,7 @@
+import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
 import { TransactionFields } from './transactions';
-import { v4 } from 'uuid';
 
 /**
  * @class Exception to make it clear this is a Yaba exception we are raising.
@@ -10,9 +10,10 @@ import { v4 } from 'uuid';
  * match the fields in the CSV file.
  */
 export class InstitutionMappingException extends Error {
-    constructor(fromField: string, toField: string) {
+    constructor(fromField: TransactionFields, toField: TransactionFields) {
+        const txFields = Object.values(TransactionFields);
         super(`Institution Mapping should contain one of` +
-            ` "${TransactionFields.join('", "')}". ` +
+            ` "${txFields.join('", "')}". ` +
             `Got "${toField}" when setting "${fromField}"`);
         this.name = this.constructor.name;
     }

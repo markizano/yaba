@@ -10,27 +10,27 @@ declare global {
  * Returns a YYYY-MM-DD formatted string of the date.
  * @returns {string} YYYY-MM-DD formatted string of the date.
  */
-(function(){
-    function toISOShortDate(): string {
-        const yyyy = this.getFullYear(),
-        mm = ('0' + (this.getUTCMonth()+1)).slice(-2),
-        dd = ( '0' + this.getUTCDate()).slice(-2);
-        return [yyyy, mm, dd] .join('-')
+Object.defineProperties(Date.prototype, {
+    'toISOShortDate': {
+        value: function toISOShortDate(): string {
+            const yyyy = this.getFullYear(),
+            mm = ('0' + (this.getUTCMonth()+1)).slice(-2),
+            dd = ( '0' + this.getUTCDate()).slice(-2);
+            return [yyyy, mm, dd] .join('-')
+        }
+    },
+    'round': {
+        value: function round(): Date {
+            const result = new Date(this);
+            result.setUTCMilliseconds(0);
+            result.setUTCSeconds(0);
+            result.setUTCMinutes(0);
+            result.setUTCHours(0);
+            result.setUTCDate(1);
+            return result;
+        }
     }
-    
-    function round(): Date {
-        const result = new Date(this);
-        result.setUTCMilliseconds(0);
-        result.setUTCSeconds(0);
-        result.setUTCMinutes(0);
-        result.setUTCHours(0);
-        result.setUTCDate(1);
-        return result;
-    }
-
-    Date.prototype.toISOShortDate = toISOShortDate;
-    Date.prototype.round = round;
-})();
+});
 
 export function parseCurrency(value: string): number {
     return Number(value.replace(/[^0-9.-]+/g, '') );
@@ -40,6 +40,12 @@ export function parseCurrency(value: string): number {
  * @param {Date} NULLDATE Object we can use for NULL but also instanceof Date().
  */
 export const NULLDATE = new Date('1970-01-01T00:00:00');
+
+/**
+ * Special string array that represents a list of tags.
+ * If we later want to expand on this, we can use this stub.
+ */
+export class Tags extends Array<string> {}
 
 /**
  * enum(PayCycle). Set of key-value pairs of pay cycles.
@@ -71,6 +77,41 @@ interface ShowTransactions {
     account: boolean;
     transactionType: boolean;
 }
+
+export enum CurrencyType {
+    USD = 'USD',
+    CAD = 'CAD',
+    EUR = 'EUR',
+    GBP = 'GBP',
+    JPY = 'JPY',
+    AUD = 'AUD',
+    NZD = 'NZD',
+    CHF = 'CHF',
+    HKD = 'HKD',
+    SGD = 'SGD',
+    SEK = 'SEK',
+    DKK = 'DKK',
+    PLN = 'PLN',
+    NOK = 'NOK',
+    HUF = 'HUF',
+    CZK = 'CZK',
+    ILS = 'ILS',
+    MXN = 'MXN',
+    PHP = 'PHP',
+    THB = 'THB',
+    TWD = 'TWD',
+    TRY = 'TRY',
+    RUB = 'RUB',
+    BRL = 'BRL',
+    ZAR = 'ZAR',
+    INR = 'INR',
+    MYR = 'MYR',
+    IDR = 'IDR',
+    KRW = 'KRW',
+    KWD = 'KWD',
+    SAR = 'SAR',
+}
+
 
 export interface UserPreferences {
     incomeTags: string[];

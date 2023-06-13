@@ -2,9 +2,9 @@
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
-import { NULLDATE } from './structures';
+import { NULLDATE, Tags, TransactionDeltas, CurrencyType } from './structures';
 import { IAccount, Account, Accounts } from './accounts';
-import { Institution } from './institutions';
+import { IInstitution, InstitutionMappings, MapTypes, IMapping } from './institutions';
 
 Array.prototype.filter;
 
@@ -20,6 +20,23 @@ export enum TransactionType {
 }
 
 /**
+ * @enum List of top-level member fields that represent a transaction.
+ */
+export enum TransactionFields {
+    id = 'id',
+    accountId = 'accountId',
+    description = 'description',
+    datePending = 'datePending',
+    datePosted = 'datePosted',
+    transactionType = 'transactionType',
+    amount = 'amount',
+    tax = 'tax',
+    currency = 'currency',
+    merchant = 'merchant',
+    tags = 'tags',
+}
+
+/**
  * Transaction interface to define a transaction.
  */
 export interface ITransaction {
@@ -31,9 +48,9 @@ export interface ITransaction {
     transactionType: TransactionType;
     amount: number;
     tax: number;
-    currency: string;
+    currency: CurrencyType;
     merchant: string;
-    tags: string[];
+    tags: Tags;
     update(data: ITransaction): Transaction;
     hasTag(tag: string): boolean;
     setTag(tag: string): Transaction;
@@ -66,21 +83,21 @@ export class Transaction implements ITransaction {
     public transactionType: TransactionType;
     public amount: number;
     public tax: number;
-    public currency: string;
+    public currency: CurrencyType;
     public merchant: string;
-    public tags: string[];
+    public tags: Tags;
 
-    constructor(id = '',
-      accountId = '',
-      description = '',
-      datePending: Date = NULLDATE,
-      datePosted: Date = NULLDATE,
-      transactionType: TransactionType = TransactionType.UNKNOWN,
+    constructor(id?: string,
+      accountId?: string,
+      description?: string,
+      datePending?: Date,
+      datePosted?: Date,
+      transactionType?: TransactionType,
       amount = 0.0,
       tax = 0.0,
-      currency = '',
-      merchant = '',
-      tags: string[] = []) {
+      currency?: CurrencyType,
+      merchant?: string,
+      tags?: Tags) {
         this.id = id || v4();
         this.accountId = accountId || '';
         this.description = description || '';
@@ -89,7 +106,7 @@ export class Transaction implements ITransaction {
         this.transactionType = transactionType || TransactionType.UNKNOWN;
         this.amount = amount || 0.0;
         this.tax = tax || 0.0;
-        this.currency = currency || '';
+        this.currency = currency || CurrencyType.USD;
         this.merchant = merchant || '';
         this.tags = tags || [];
     }
@@ -178,7 +195,7 @@ export class Transaction implements ITransaction {
  * @param {ITransaction[]} items Items to initialize the array with.
  * @returns {Transactions} Array of transactions.
  */
-class Transactions extends Array<ITransaction> {
+export class Transactions extends Array<Transaction> {
 
     constructor(...items: ITransaction[]) {
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
@@ -201,8 +218,8 @@ class Transactions extends Array<ITransaction> {
      */
     public override push(...items: ITransaction[]): number {
         for ( const i in items ) {
-            const item = items[i];
-            item instanceof Transaction || (items[i] = new Transaction(...item));
+            const item = new Transaction();
+            items[i] instanceof Transaction || (items[i] = item.update(items[i]));
         }
         return super.push(...items);
     }
@@ -215,8 +232,8 @@ class Transactions extends Array<ITransaction> {
      */
     public override unshift(...items: Transaction[]): number {
         for (const i in items) {
-            const item = items[i];
-            item instanceof Transaction || (items[i] = new Transaction(item));
+            const item = new Transaction();
+            items[i] instanceof Transaction || (items[i] = item.update(items[i]));
         }
         return super.unshift(...items);
     }
@@ -269,10 +286,10 @@ class Transactions extends Array<ITransaction> {
         return this;
     }
 
-
     /**
      * Produce a CSV result of the contents of this object.
-     * @returns {String}
+     * @returns {String} CSV string of the contents of this object.
+     * @todo Figure out how to stream results rather than buffering in-memory.
      */
     public toCSV(): string {
         if ( this.length == 0 ) {
@@ -353,8 +370,7 @@ class Transactions extends Array<ITransaction> {
      * @returns {boolean} TRUE|FALSE if we find this in the description.
      */
     public filterAccountIds(txn: ITransaction, accountIds: string[]|Accounts): boolean {
-        return accountIds instanceof Accounts? accountIds.includes(txn.accountId):
-            (new Accounts(accountIds)).includes(txn.accountId);
+        return accountIds.includes(txn.accountId);
     }
 
     /**
@@ -591,7 +607,7 @@ class Transactions extends Array<ITransaction> {
             case 0:
                 return new TransactionGroup();
             case 1:
-                return new TransactionGroup(this);
+                return new TransactionGroup(...this);
             default:
                 return <TransactionGroup>this.sorted().reduce((monthGroups, txn) => monthGroups.append(txn), new TransactionGroup());
         }
@@ -614,7 +630,7 @@ class Transactions extends Array<ITransaction> {
      * @param tags List of tags transaction must match.
      * @returns {Transactions} List of transactions after filtering and limiting.
      */
-    getTransactions(fromDate: Date | string | undefined=undefined,
+    public getTransactions(fromDate: Date | string | undefined=undefined,
       toDate: Date | string | undefined=undefined,
       description: string | undefined=undefined,
       tags: Array<string> | undefined=undefined,
@@ -689,30 +705,31 @@ class Transactions extends Array<ITransaction> {
      * @todo Have the ability to accept or reject the changes as a result of dropping the CSV file on this account.
      *   Here is where we can implement some sort of "undo" function.
      */
-    static digest(institution: Institution, accountId: string, transactions: Transactions): Transactions {
-        const results = new Transactions(), mappings = institution.mappings.concat();
+    static digest(institution: IInstitution, accountId: TransactionFields, transactions: Transactions): Transactions {
+        const results = new Transactions(), mappings: InstitutionMappings = institution.mappings.concat();
         mappings.unshift({
-            mapType: 'static',
-            toField: 'accountId',
+            mapType: MapTypes.static,
+            toField: TransactionFields.accountId,
             fromField: accountId
         });
         transactions.map((transaction) => {
-            const cannonical = {};
-            mappings.map((mapping) => {
+            const cannonical: ITransaction = new Transaction();
+            mappings.map((mapping: IMapping) => {
                 switch(mapping.mapType) {
-                    case 'static':
-                        cannonical[mapping.toField] = mapping.fromField;
+                    case MapTypes.static:
+                        Object.assign(cannonical, mapping.toField, mapping.fromField);
                         break;
-                    case 'dynamic':
+                    case MapTypes.dynamic:
                         if ( mapping.toField == 'amount' ) {
-                            if ( cannonical.hasOwnProperty('amount') ) {
-                                cannonical[mapping.toField] += transaction[mapping.fromField];
+                            if ( Object.hasOwn(cannonical, 'amount') ) {
+                                Object.assign(cannonical, 'amount', cannonical.amount + Number(transaction[mapping.fromField]));
                             } else {
-                                cannonical[mapping.toField] = transaction[mapping.fromField];
+                                Object.assign(cannonical, mapping.toField, transaction[mapping.fromField]);
                             }
                             break;
                         }
-                        cannonical[mapping.toField] = transaction[mapping.fromField];
+                        Object.assign(cannonical, mapping.toField, transaction[mapping.fromField]);
+                        // cannonical[mapping.toField] = transaction[mapping.fromField];
                         break;
                     default:
                         throw new Error(`Invalid mapType(${mapping.mapType}) for institution "${institution.name}" ` +
@@ -730,157 +747,157 @@ class Transactions extends Array<ITransaction> {
      * @param {Yaba.models.Institutions} institutions Institutions Model Service.
      * @param {Yaba.models.accounts} accounts Accounts Model Service
      */
-    static csvHandler($rootScope, $scope, institutions: Yaba.models.Institutions, accounts: Yaba.models.accounts) {
-        return (event, results) => {
-            // Get all the transactions back and fill up the table.
-            const transactions = Transactions.digest(
-                institutions.byId(results.institutionId),
-                results.accountId,
-                results.parsedCSV.data
-            );
-            const account = accounts.byId(results.accountId);
-            account.transactions.push(...transactions);
-            accounts.save($scope);
-            $rootScope.$broadcast('yaba.txn-change', {update: true});
-        };
-    }
+    // static csvHandler($rootScope, $scope, institutions: Yaba.models.Institutions, accounts: Yaba.models.accounts) {
+    //     return (event, results) => {
+    //         // Get all the transactions back and fill up the table.
+    //         const transactions = Transactions.digest(
+    //             institutions.byId(results.institutionId),
+    //             results.accountId,
+    //             results.parsedCSV.data
+    //         );
+    //         const account = accounts.byId(results.accountId);
+    //         account.transactions.push(...transactions);
+    //         accounts.save($scope);
+    //         $rootScope.$broadcast('yaba.txn-change', {update: true});
+    //     };
+    // }
 
     /**
      * Linker function to join a transaction to the edit boxes we embed in a transaction listing.
      */
-    static txnTable($rootScope, $timeout) {
-        return function($scope, $element, $attr, ngModel) {
-            // Store the name of the element we will use later in distinguishing events.
-            const fieldName = $attr.ngModel.replace('.', '-');
-            const events = {};
-            $scope.edit = {};
-            const clickEvent = ($event) => {
-                if ( !$element.hasClass('active-editing') ) {
-                    const eventName = `yaba.edit2view-${fieldName}`;
-                    /**
-                     * For the onblur, onkeypress(Enter|Esc|Shift+Enter|Tab|Shift+Tab) events. This will let us
-                     * leave editing context and return to view context.
-                     * @param {Event} $$event JS Event object provided by AngularJS.
-                     * @param {jQuery.element} input Input element that will hold the value we will extract.
-                     * @param {Boolean} toSave TRUE if we should invoke the save event. FALSE if we are cancelling the edit.
-                     */
-                    events[eventName] = $scope.$on(eventName, ($$event, jqEvent, oldFieldValue=false) => {
-                        if ( $element.hasClass('active-editing') ) {
-                            $$event && $$event.preventDefault();
-                            jqEvent && jqEvent.preventDefault();
-                            $element.removeClass('active-editing');
-                            if ( eventName in events ) {
-                                events[eventName]();
-                                delete events[eventName];
-                            }
+    // static txnTable($rootScope, $timeout) {
+    //     return function($scope, $element, $attr, ngModel) {
+    //         // Store the name of the element we will use later in distinguishing events.
+    //         const fieldName = $attr.ngModel.replace('.', '-');
+    //         const events = {};
+    //         $scope.edit = {};
+    //         const clickEvent = ($event) => {
+    //             if ( !$element.hasClass('active-editing') ) {
+    //                 const eventName = `yaba.edit2view-${fieldName}`;
+    //                 /**
+    //                  * For the onblur, onkeypress(Enter|Esc|Shift+Enter|Tab|Shift+Tab) events. This will let us
+    //                  * leave editing context and return to view context.
+    //                  * @param {Event} $$event JS Event object provided by AngularJS.
+    //                  * @param {jQuery.element} input Input element that will hold the value we will extract.
+    //                  * @param {Boolean} toSave TRUE if we should invoke the save event. FALSE if we are cancelling the edit.
+    //                  */
+    //                 events[eventName] = $scope.$on(eventName, ($$event, jqEvent, oldFieldValue=false) => {
+    //                     if ( $element.hasClass('active-editing') ) {
+    //                         $$event && $$event.preventDefault();
+    //                         jqEvent && jqEvent.preventDefault();
+    //                         $element.removeClass('active-editing');
+    //                         if ( eventName in events ) {
+    //                             events[eventName]();
+    //                             delete events[eventName];
+    //                         }
 
-                            // If we are saving, then we are taking the value from the textbox as our input.
-                            // If we are not saving, meaning we are cancelling the edit, then we revert to the
-                            // ng-model="" value instead. We just use this method to ensure that it's decorated
-                            // the same no matter how we return to "view-mode".
-                            if ( oldFieldValue !== false ) {
-                                ngModel.$$ngModelSet($scope, oldFieldValue);
-                            }
-                            $scope.edit[fieldName] = false;
-                            $scope.$emit('save.accounts', this);
-                            $rootScope.$broadcast('yaba.txn-change');
-                            if ( jqEvent.type && ['keydown'].includes(jqEvent.type) ) {
-                                try{ $scope.$apply(); } catch(e) { console.error(e); }
-                            }
-                        } else {
-                            console.warn(`${eventName} called, but we are not actively-editing.`);
-                        }
-                    });
+    //                         // If we are saving, then we are taking the value from the textbox as our input.
+    //                         // If we are not saving, meaning we are cancelling the edit, then we revert to the
+    //                         // ng-model="" value instead. We just use this method to ensure that it's decorated
+    //                         // the same no matter how we return to "view-mode".
+    //                         if ( oldFieldValue !== false ) {
+    //                             ngModel.$$ngModelSet($scope, oldFieldValue);
+    //                         }
+    //                         $scope.edit[fieldName] = false;
+    //                         $scope.$emit('save.accounts', this);
+    //                         $rootScope.$broadcast('yaba.txn-change');
+    //                         if ( jqEvent.type && ['keydown'].includes(jqEvent.type) ) {
+    //                             try{ $scope.$apply(); } catch(e) { console.error(e); }
+    //                         }
+    //                     } else {
+    //                         console.warn(`${eventName} called, but we are not actively-editing.`);
+    //                     }
+    //                 });
 
-                    const attachEvents = () => {
-                        const childInput = $($element).find('input');
-                        // const childSpan = $($element.children()[0]); // Get the containing <span /> element.
-                        // const childInput = $(childSpan.children()[0]); // Get the actual <input /> as jQuery element.
-                        childInput.on('keydown', $$event => {
-                            $$event.element = childInput;
-                            $$event.keypress = true;
-                            switch($$event.which) {
-                                case 27: // [ESC]
-                                    console.info(`fire keypress(key.Esc, ${eventName})`);
-                                    $scope.$emit(eventName, $$event, fieldValue)
-                                    return;
-                                case 13: // [Enter]
-                                    if ( !$$event.ctrlKey ) return;
-                                    console.info(`fire keypress(key.Enter, ${eventName})`);
-                                    $scope.$emit(eventName, $$event)
-                                    return;
-                            }
-                        // }).on('blur', ($$event) => {
-                        //     console.log(`fire blur(${eventName})`);
-                        //     $scope.$emit(eventName, $$event);
-                        }).focus();
-                    };
+    //                 const attachEvents = () => {
+    //                     const childInput = $($element).find('input');
+    //                     // const childSpan = $($element.children()[0]); // Get the containing <span /> element.
+    //                     // const childInput = $(childSpan.children()[0]); // Get the actual <input /> as jQuery element.
+    //                     childInput.on('keydown', $$event => {
+    //                         $$event.element = childInput;
+    //                         $$event.keypress = true;
+    //                         switch($$event.which) {
+    //                             case 27: // [ESC]
+    //                                 console.info(`fire keypress(key.Esc, ${eventName})`);
+    //                                 $scope.$emit(eventName, $$event, fieldValue)
+    //                                 return;
+    //                             case 13: // [Enter]
+    //                                 if ( !$$event.ctrlKey ) return;
+    //                                 console.info(`fire keypress(key.Enter, ${eventName})`);
+    //                                 $scope.$emit(eventName, $$event)
+    //                                 return;
+    //                         }
+    //                     // }).on('blur', ($$event) => {
+    //                     //     console.log(`fire blur(${eventName})`);
+    //                     //     $scope.$emit(eventName, $$event);
+    //                     }).focus();
+    //                 };
 
-                    const fieldValue = ngModel.$viewValue;
-                    $event && $event.preventDefault();
-                    $scope.edit[fieldName] = true;
-                    $element.addClass('active-editing');
+    //                 const fieldValue = ngModel.$viewValue;
+    //                 $event && $event.preventDefault();
+    //                 $scope.edit[fieldName] = true;
+    //                 $element.addClass('active-editing');
 
-                    /**
-                     * We have to call $timeout() here to ensure we've given the animations
-                     * enough time to render the next components we are going to edit here.
-                     */
-                        $timeout(attachEvents, 10);
+    //                 /**
+    //                  * We have to call $timeout() here to ensure we've given the animations
+    //                  * enough time to render the next components we are going to edit here.
+    //                  */
+    //                     $timeout(attachEvents, 10);
 
-                    $scope.$apply();
-                } else { // if ( !$element.hasClass('active-editing') )
-                    console.warn('click() called but we already hasClass(active-editing)');
-                }
-            }; // clickEvent($event){}
-            $scope.$parent.editable && $element.on('click', clickEvent);
-        } // link($scope, $element, $attr, ngModel);
-    } // static txnTable();
+    //                 $scope.$apply();
+    //             } else { // if ( !$element.hasClass('active-editing') )
+    //                 console.warn('click() called but we already hasClass(active-editing)');
+    //             }
+    //         }; // clickEvent($event){}
+    //         $scope.$parent.editable && $element.on('click', clickEvent);
+    //     } // link($scope, $element, $attr, ngModel);
+    // } // static txnTable();
 
-    static dataChart($scope, $element, $attr) {
-        const budgets = () => {
-            // Collect all the data points as [$date, $txnTags[0], $txnTags[1], ...];
-            const dataPoints = (txn) => [ txn.datePosted ].concat($scope.txnTags.map(tag => txn.tags.includes(tag)? txn.amount: 0.0 ));
-            // Iterate the full list of transactions to get the data points we need to plot.
-            const dataMap = $scope.transactions.byTags($scope.txnTags).sorted().map(txn => dataPoints(txn));
-            return [ ['Date'].concat($scope.txnTags) ].concat(dataMap);
-        };
-        $scope.$on('controls.change', () => $scope.rebalance());
+    // static dataChart($scope, $element, $attr) {
+    //     const budgets = () => {
+    //         // Collect all the data points as [$date, $txnTags[0], $txnTags[1], ...];
+    //         const dataPoints = (txn) => [ txn.datePosted ].concat($scope.txnTags.map(tag => txn.tags.includes(tag)? txn.amount: 0.0 ));
+    //         // Iterate the full list of transactions to get the data points we need to plot.
+    //         const dataMap = $scope.transactions.byTags($scope.txnTags).sorted().map(txn => dataPoints(txn));
+    //         return [ ['Date'].concat($scope.txnTags) ].concat(dataMap);
+    //     };
+    //     $scope.$on('controls.change', () => $scope.rebalance());
 
-        const redrawCharts = () => {
-            const dataTable = new google.visualization.DataTable();
-            const zeroTags = $scope.txnTags.map(x => 0.0);
-            dataTable.addColumn({type: 'date', label: 'Date', pattern: 'yyyy-MM-dd'});
-            $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
-            $scope.myBudgets = budgets(); // DEBUG
-            if ( $scope.myBudgets.length <= 1 ) {
-                console.warn('No budgets.');
-                return;
-            }
-            // Insert a 0 metric for all tags to give them a starting point for the graph.
-            $scope.myBudgets.splice(1, 0, [$scope.toDate].concat(zeroTags));
-            // Append a 0 metric to the end as well to give the graphs something to render for the present.
-            $scope.myBudgets.push([$scope.fromDate].concat(zeroTags));
-            dataTable.addRows($scope.myBudgets.slice(1));
-            const options = {
-                title: 'Budget Spending',
-                lineStyle: 'connected',
-                legend: { position: 'bottom' }
-            };
-            const chart = new google.visualization.LineChart($element[0]);
-            chart.draw(dataTable, options);
-        };
+    //     const redrawCharts = () => {
+    //         const dataTable = new google.visualization.DataTable();
+    //         const zeroTags = $scope.txnTags.map(x => 0.0);
+    //         dataTable.addColumn({type: 'date', label: 'Date', pattern: 'yyyy-MM-dd'});
+    //         $scope.txnTags.forEach(txnTag => dataTable.addColumn({ type: 'number', label: txnTag }));
+    //         $scope.myBudgets = budgets(); // DEBUG
+    //         if ( $scope.myBudgets.length <= 1 ) {
+    //             console.warn('No budgets.');
+    //             return;
+    //         }
+    //         // Insert a 0 metric for all tags to give them a starting point for the graph.
+    //         $scope.myBudgets.splice(1, 0, [$scope.toDate].concat(zeroTags));
+    //         // Append a 0 metric to the end as well to give the graphs something to render for the present.
+    //         $scope.myBudgets.push([$scope.fromDate].concat(zeroTags));
+    //         dataTable.addRows($scope.myBudgets.slice(1));
+    //         const options = {
+    //             title: 'Budget Spending',
+    //             lineStyle: 'connected',
+    //             legend: { position: 'bottom' }
+    //         };
+    //         const chart = new google.visualization.LineChart($element[0]);
+    //         chart.draw(dataTable, options);
+    //     };
 
-        if ( Yaba.gCharts ) {
-            // just do/listen
-            return $scope.$watchCollection('transactions', redrawCharts);
-        } else {
-            // wait
-            return $scope.$on('google-charts-ready', () => {
-                console.info('Match google-charts-ready! Registering watcher...');
-                return $scope.$watchCollection('transactions', redrawCharts);
-            });
-        }
-    }
+    //     if ( Yaba.gCharts ) {
+    //         // just do/listen
+    //         return $scope.$watchCollection('transactions', redrawCharts);
+    //     } else {
+    //         // wait
+    //         return $scope.$on('google-charts-ready', () => {
+    //             console.info('Match google-charts-ready! Registering watcher...');
+    //             return $scope.$watchCollection('transactions', redrawCharts);
+    //         });
+    //     }
+    // }
 
 } // class Transactions() {}
 
@@ -898,16 +915,20 @@ class Transactions extends Array<ITransaction> {
  * group by some factor, but still be able to reference transactions as a collection.
  */
 class TransactionGroup {
-    constructor(...args) {
+
+    /**
+     * Orgnize the set of transactions by month as they are allocated.
+     */
+    constructor(...args: ITransaction[]) {
         if ( args.length > 0 && typeof args[0] != 'number' ) {
-            args.forEach((txns, i) => {
+            args.forEach((txns: ITransaction|ITransaction[], i: number) => {
                 if ( false === txns instanceof Transactions && false === txns instanceof Transaction) {
                     throw new TypeError(`Argument ${i} must be Transaction() or Transactions(). Got ${txns.constructor.name}`);
                 }
                 if ( txns instanceof Transaction ) {
                     txns = new Transactions(txns);
                 }
-                this.append(...txns);
+                this.append(...<Transactions>txns);
             });
         }
     }
@@ -917,17 +938,17 @@ class TransactionGroup {
      * @param  {...any} txns Transactions to attempt to append to this object.
      * @returns {TransactionGroup} This object for chaining.
      */
-    append(...txns: any[]): TransactionGroup {
+    append(...txns: Transaction[]): TransactionGroup {
         for ( const txn of txns ) {
             if ( false === txn instanceof Transaction ) {
                 console.error(txns);
                 throw new TypeError(`txn must be Transaction(), got ${txn.constructor.name}`);
             }
-            const yyyymm = txn.YYYYMM();
-            if ( ! this.hasOwnProperty(yyyymm) ) {
-                this[yyyymm] = new Transactions();
+            const yyyymm: string = txn.YYYYMM();
+            if ( ! Object.hasOwn(this, yyyymm) ) {
+                Object.defineProperty(this, yyyymm, { value: new Transactions(), enumerable: true });
             }
-            this[yyyymm].push(txn);
+            (<PropertyDescriptor>Object.getOwnPropertyDescriptor(this, yyyymm)).value.push(txn);
         }
         return this;
     }
@@ -937,7 +958,7 @@ class TransactionGroup {
      * e.g. `{2022-06: ..., 2022-08: ..., 2022-09: ...}`
      * will make: `{2022-06: ..., 2022-07: new Transactions(0), 2022-08: ..., 2022-09: ...}`
      * So we don't end up with skipping a month. Prepares us for Grid operations.
-     * @param {Object<Date: Transactions>} txnGroups Result from `Transactions().monthly()`
+     * @param {Object{Date: Transactions }} txnGroups Result from `Transactions().monthly()`
      * @returns The input with each month filled in so there are no holes from start
      * date to end date. Please note that this is a self-mutating function. Use `this.slice()`
      * or `this.concat()` to get a copy first if you don't want to modify this in-place.
@@ -949,15 +970,16 @@ class TransactionGroup {
             startDate < endDate;
             startDate.setUTCMonth(startDate.getUTCMonth() +1)
             ) {
-            if ( !this.hasOwnProperty( startDate.toISOShortDate().split('-', 2).join('-') ) ) {
+            const shdt = startDate.toISOShortDate();
+            if ( ! Object.hasOwn( this, shdt ) ) {
                 console.log(`Missing ${startDate.toISOShortDate()}, adding a 0...`);
-                this.append(new Transaction(
-                    datePosted=datePosted,
-                    amount=0.0,
-                    description='TransactionGroup auto-record. Normalized 0-amount entry.',
-                    merchant=this.constructor.name,
-                    tags=['hidden']
-                ));
+                const tx = new Transaction();
+                tx.datePosted = startDate;
+                tx.amount = 0.0;
+                tx.description = 'TransactionGroup auto-record. Normalized 0-amount entry.';
+                tx.merchant = this.constructor.name;
+                tx.tags = ['hidden'];
+                this.append(tx);
             }
         }
         return this;
@@ -974,43 +996,40 @@ class TransactionGroup {
         // console.log('(this != that).oldest(): ', {income: this.oldest().toISOShortDate(), expense: that.oldest().toISOShortDate()});
         if ( this.oldest().toISOShortDate() != that.oldest().toISOShortDate() ) {
             if ( this.oldest() < that.oldest() ) {
-                that.append(new Transaction({
-                    datePosted: this.oldest(),
-                    amount: 0.0,
-                    description: 'TransactionGroup auto-record. txnGroup.oldest() was newer than ${this}.',
-                    merchant: this.constructor.name,
-                    tags: ['hidden']
-                }));
+                const tx = new Transaction();
+                tx.datePosted = this.oldest();
+                tx.amount = 0.0;
+                tx.description = 'TransactionGroup auto-record. txnGroup.oldest() was newer than ${this}.';
+                tx.merchant = this.constructor.name;
+                tx.tags = ['hidden'];
+                that.append(tx);
             }
             if ( that.oldest() < this.oldest() ) {
-                this.append(new Transaction({
-                    datePosted: that.oldest(),
-                    amount: 0.0,
-                    description: 'TransactionGroup auto-record. txnGroup.oldest() was newer than ${this}.',
-                    merchant: that.constructor.name,
-                    tags: ['hidden']
-                }));
+                const tx = new Transaction();
+                tx.amount = 0.0;
+                tx.description = 'TransactionGroup auto-record. txnGroup.oldest() was newer than ${this}.';
+                tx.merchant = this.constructor.name;
+                tx.tags = ['hidden'];
+                this.append(tx);
             }
         }
         // console.log('(this != that).newest(): ', {income: this.newest().toISOShortDate(), expense: that.newest().toISOShortDate()});
         if ( this.newest().toISOShortDate() != that.newest().toISOShortDate() ) {
             if ( this.newest() < that.newest() ) {
-                that.append(new Transaction({
-                    datePosted: this.newest(),
-                    amount: 0.0,
-                    description: 'TransactionGroup auto-record. txnGroup.newest() was newer than ${this}.',
-                    merchant: this.constructor.name,
-                    tags: ['hidden']
-                }));
+                const tx = new Transaction();
+                tx.amount = 0.0;
+                tx.description = 'TransactionGroup auto-record. txnGroup.newest() was newer than ${this}.';
+                tx.merchant = this.constructor.name;
+                tx.tags = ['hidden'];
+                that.append(tx);
             }
             if ( that.newest() < this.newest() ) {
-                this.append(new Transaction({
-                    datePosted: that.newest(),
-                    amount: 0.0,
-                    description: 'TransactionGroup auto-record. txnGroup.newest() was newer than ${this}.',
-                    merchant: that.constructor.name,
-                    tags: ['hidden']
-                }));
+                const tx = new Transaction();
+                tx.amount = 0.0;
+                tx.description = 'TransactionGroup auto-record. txnGroup.newest() was newer than ${this}.';
+                tx.merchant = this.constructor.name;
+                tx.tags = ['hidden'];
+                this.append(tx);
             }
         }
         this.normalize();
@@ -1028,10 +1047,12 @@ class TransactionGroup {
             incomes.length > 0 && expenses.length > 0;
             null
         ) {
-            const [ iDate, income ] = incomes.shift(), [eDate, expense] = expenses.shift();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const [ iDate, income ] = <[string, any]>incomes.shift(), [eDate, expense] = <[string, any]>expenses.shift();
             if ( iDate != eDate ) { console.warn("Dates don't match?!", iDate, eDate); }
             const amount = Math.abs(expense.sum()) - Math.abs(income.sum());
-            const txn = new Transaction({
+            const txn = new Transaction();
+            Object.assign(txn, {
                 datePosted: new Date(iDate + '-01'),
                 amount,
                 description: 'TransactionGroup auto-record. Placeholder summary of calculated transaction deltas.',
@@ -1044,7 +1065,7 @@ class TransactionGroup {
         return result;
     }
 
-    length() {
+    public length(): number {
         return Object.keys(this).length;
     }
 
@@ -1052,8 +1073,9 @@ class TransactionGroup {
      * Pythonic way of getting dict.items(). Sorting by date instead of strings seems to be more reliable.
      * @returns {Array} The list of this set of items.
      */
-    items(): Array<any> {
-        return Object.entries(this).concat().sort((a, b) => new Date(b[0] + '-01') - new Date(a[0] + '-01'));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    items(): [string, any][] {
+        return Object.entries(this).concat().sort((a, b) => new Date(b[0] + '-01').getTime() - new Date(a[0] + '-01').getTime());
     }
 
     /**
@@ -1061,8 +1083,10 @@ class TransactionGroup {
      * @param {Function} callbackFn Callback Function to iterate over.
      * @returns Make [].map() available to `this`.
      */
+    // eslint-disable-next-line @typescript-eslint/ban-types
     map(callbackFn: Function) {
-        const overrideCallbackFn = (value, index, arr) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const overrideCallbackFn = (value: [string, Transactions][], index: number, arr: [string, Transactions][]): any => {
             const [ date, txns ] = value;
             return callbackFn(date, txns, index, arr);
         }
@@ -1075,10 +1099,11 @@ class TransactionGroup {
      */
     oldest(): Date {
         try {
-            return this.items().pop().pop().sorted().pop().datePosted.round();
+            // tslint:disable-next-line: no-unsafe-any
+            return this.items().pop()?.pop().sorted().pop().datePosted.round();
         } catch (e) {
             console.error(`Failed getting oldest(): ${e}`);
-            return Yaba.models.DATENULL;
+            return NULLDATE;
         }
     }
 
@@ -1088,10 +1113,10 @@ class TransactionGroup {
      */
     newest(): Date {
         try {
-            return this.items().shift().pop().sorted().shift().datePosted.round();
+            return this.items().shift()?.pop().sorted().shift().datePosted.round();
         } catch (e) {
             console.error(`Failed getting newest(): ${e}`);
-            return Yaba.models.DATENULL;
+            return NULLDATE;
         }
     }
 
@@ -1109,8 +1134,8 @@ class TransactionGroup {
      * @returns {Array<Number>} List of numbers for the set of monthly summaries.
      */
     sums(): Array<number> {
-        const objDescriptor = txns => ({enumerable: true, writeable: true, value: txns.sum()});
-        return this.map((date, txns) => Object.defineProperty({}, date, objDescriptor(txns) ));
+        const objDescriptor = (txns: Transactions) => ({enumerable: true, writeable: true, value: txns.sum()});
+        return this.map((date: string, txns: Transactions) => Object.defineProperty({}, date, objDescriptor(txns) ));
     }
 
     /**
@@ -1125,9 +1150,9 @@ class TransactionGroup {
      * Provides a list of averages across all the transactions in this collection.
      * HINT: This is local averaging.
      */
-    averages() {
-        const objDescriptor = txns => ({enumerable: true, writeable: true, value: txns.avg()});
-        return this.map((date, txns) => Object.defineProperty({}, date, objDescriptor(txns) ));
+    averages(): Array<number> {
+        const objDescriptor = (txns: Transactions) => ({enumerable: true, writeable: true, value: txns.avg()});
+        return this.map((date: string, txns: Transactions) => Object.defineProperty({}, date, objDescriptor(txns) ));
     }
 
     /**
@@ -1136,28 +1161,30 @@ class TransactionGroup {
      * we include the purchases we want to make in order to see how it will impact our paycheque.
      * Here, we count into the future until we want to see and include those transactions in our calculations.
      * Provide me with a matrix of what comes back.
+     * @param {TransactionGroup} wishlist A list of transactions we want to make in the future.
      * @returns {TransactionGroup} New instance of this class for Projecting calculations/views.
      */
-    project(wishlist): TransactionGroup {
+    project(wishlist: TransactionGroup|Transactions): TransactionGroup {
         if ( wishlist instanceof Transactions ) {
             wishlist = new TransactionGroup(...wishlist);
         }
         const result = new TransactionGroup();
         const avgBalance = this.average();
         const startDate = this.newest();
-        const endDate = new Date(startDate * 1 + Settings.TransactionDeltas.days365);
+        const endDate = new Date(startDate.getTime() + TransactionDeltas.days365);
         console.log('wishlist', wishlist);
         console.log('start/end', startDate.toISOShortDate(), endDate.toISOShortDate());
 
         while ( startDate < endDate ) {
-            const txn = new Transaction({
-                datePosted: startDate,
-                amount: avgBalance,
-                merchant: this.constructor.name,
-                tags: ['auto', 'future']
-            });
-            if ( wishlist.hasOwnProperty(txn.YYYYMM()) ) {
-                result.append(...wishlist[txn.YYYYMM()]);
+            const txn = new Transaction();
+            txn.datePosted = startDate;
+            txn.amount = avgBalance;
+            txn.merchant = this.constructor.name;
+            txn.tags = ['auto', 'future'];
+            txn.description = 'TransactionGroup auto-record. Future wishlist item.';
+            if ( Object.hasOwn(wishlist, txn.YYYYMM()) ) {
+                const yymm: Transactions = (<PropertyDescriptor>Object.getOwnPropertyDescriptor(wishlist, txn.YYYYMM())).value;
+                result.append(...yymm);
             }
             result.append(txn);
             startDate.setUTCMonth(startDate.getUTCMonth() + 1)
@@ -1171,10 +1198,3 @@ class TransactionGroup {
  * An easy way to do this is to extend the class, but override nothing.
  */
 export class Prospects extends Transactions {}
-
-/**
- * @property {string} TransactionFields
- * Constant. List of top-level member fields that represent a transaction.
- */
-export const TransactionFields = Object.freeze( Object.keys( new Transaction() ).filter(x => x[0] != '_') );
-

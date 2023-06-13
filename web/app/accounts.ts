@@ -1,7 +1,8 @@
 import { v4 } from 'uuid';
-import { ITransaction, Transactions } from './transactions';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
+import { ITransaction, Transactions } from './transactions';
+import { Tags } from './structures';
 
 /**
  * @enum {String} AccountTypes - Types of accounts for tracking.
@@ -231,7 +232,7 @@ export class Accounts extends Array<Account> {
      * @param limit The maximum number of transactions to return. If not provided, all transactions are returned.
      * @returns New list of transactions that match the search criteria.
      */
-    public getTransactions(selectedAccounts?: Accounts, fromDate?: Date, toDate?: Date, description?: string, tags?: string[], limit=-1): Transactions {
+    public getTransactions(selectedAccounts?: Accounts, fromDate?: Date, toDate?: Date, description?: string, tags?: Tags, limit=-1): Transactions {
         const result = new Transactions();
         const searchResults: Transactions = <Transactions>this.selected(selectedAccounts).map(
             (a: IAccount) => a.transactions.getTransactions(
