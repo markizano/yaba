@@ -1,6 +1,7 @@
 import { v4 } from 'uuid';
-import { Institution } from './institutions';
 import { ITransaction, Transactions } from './transactions';
+import * as JSZip from 'jszip';
+import * as Papa from 'papaparse';
 
 /**
  * @enum {String} AccountTypes - Types of accounts for tracking.
@@ -22,6 +23,14 @@ export enum AccountTypes {
 }
 
 /**
+ * @enum {String} InterestStrategy - Strategies for calculating interest.
+ */
+export enum InterestStrategy {
+    Simple = 'simple',
+    Compound = 'compound',
+}
+
+/**
  * @interface IAccount - Data model object to represent an account.
  */
 export interface IAccount {
@@ -36,14 +45,7 @@ export interface IAccount {
     interestRate: number;
     interestStrategy: InterestStrategy;
     transactions: Transactions;
-}
-
-/**
- * @enum {String} InterestStrategy - Strategies for calculating interest.
- */
-export enum InterestStrategy {
-    Simple = 'simple',
-    Compound = 'compound',
+    update: (data: IAccount) => Account;
 }
 
 /**
@@ -121,13 +123,13 @@ export class Account implements IAccount {
  * Allows for operations on a per-account basis.
  * Also allows for defining handy functions that we'd use as filters.
  */
-export class Accounts {
-    constructor(...items: string[][]) {
+export class Accounts extends Array<Account> {
+    constructor(...items: IAccount[]) {
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
-                const item = items[i];
+                const item = new Account();
                 if ( false === item instanceof Account ) {
-                    items[i] = new Account(item);
+                    items[i] = item.update(items[i]);
                 }
             }
         }
@@ -139,10 +141,10 @@ export class Accounts {
      * @param  {...Account} items New Account(s) to add to this collection.
      * @returns {Number} Current number of items after adding.
      */
-    push(...items: unknown[]) {
+    public override push(...items: IAccount[]): number {
         for ( const i in items ) {
-            const item = items[i];
-            item instanceof Account || (items[i] = new Account(item));
+            const item = new Account();
+            items[i] instanceof Account || (items[i] = item.update(items[i]));
         }
         return super.push(...items);
     }
@@ -152,10 +154,10 @@ export class Accounts {
      * @param  {...Account} items New Account(s) to add to this collection.
      * @returns {Number} Current number of items after adding.
      */
-    unshift(...items: any[]) {
+    public override unshift(...items: IAccount[]): number {
         for (const i in items) {
-            const item = items[i];
-            item instanceof Account || (items[i] = new Account(item));
+            const item = new Account();
+            items[i] instanceof Account || (items[i] = item.update(items[i]));
         }
         return super.unshift(...items);
     }
@@ -166,8 +168,9 @@ export class Accounts {
      * @param {String} ID The ID field to remove.
      * @returns {Accounts} New Mutated array no longer containing the account.
      */
-    remove(ID: any) {
-        for ( let i=0; i < this.length; i++ ) {
+    public remove(ID: string): Accounts {
+        for ( const i in this ) {
+            if ( typeof i !== 'number' ) continue; // eslint-disable-line no-continue
             const item = this[i];
             if (item.id == ID) {
                 this.splice(i, 1);
@@ -180,10 +183,10 @@ export class Accounts {
      * Gimmie this account by ID.
      * Since the ID is unique, this will only ever return 1 element.
      * @param {String} ID The account.id we want to find.
-     * @returns {Account} The Account object by reference.
+     * @returns {Account} The Account object by reference removed from the list.
      */
-    byId(ID: any) {
-        return this.filter((acct: { id: any; }) => acct.id == ID).shift();
+    public byId(ID: string): Account|undefined {
+        return this.filter((acct: IAccount) => acct.id == ID).shift();
     }
 
     /**
@@ -191,32 +194,47 @@ export class Accounts {
      * @param {String|Account} item Item to check against inclusion.
      * @returns {Boolean}
      */
-    includes(item: string) {
+    public override includes(item: Account|string, fromIndex?: number|undefined): boolean {
         let itemId: string;
         if ( item instanceof Account ) {
             itemId = item.id;
         } else {
             itemId = item;
         }
-        return !!this.filter((x: { id: any; }) => x instanceof Account? x.id: x == itemId).length;
+        for ( const i in this ) {
+            if ( typeof i !== 'number' ) continue; // eslint-disable-line no-continue
+            if ( Number.isInteger(fromIndex) && i < Number(fromIndex) ) continue; // eslint-disable-line no-continue
+            const acct = this[i];
+            if ( acct instanceof Account && acct.id == itemId ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Gets the unique set of tags from the transactions of this account.
      * @returns {Array<String>} The list of tags from the transactions in this list.
      */
-    getTags() {
-        return Array.from(new Set( this.map((a: { transactions: { getTags: () => any; }; }) => a.transactions.getTags()).flat().sort() ));
+    public getTags(): string[] {
+        const txnWithTags = this.map((acct: Account) => acct.transactions.getTags()).flat().sort();
+        return Array.from(new Set( txnWithTags ));
     }
 
     /**
      * Get the list of transactions that match the filters.
-     * @returns {Transactions} New list of transactions that match the search criteria.
+     * @param selectedAccounts List of accounts to search. If not provided, all accounts are searched.
+     * @param fromDate The earliest date to search for. If not provided, all transactions are searched and returned regardless of source date.
+     * @param toDate The latest date to search for. If not provided, all transactions are searched and returned regardless of target date.
+     * @param description The description to search for. If not provided, all transactions are searched regardless of description contents.
+     * @param tags The list of tags to search for. If not provided, all transactions are searched regardless of tags.
+     * @param limit The maximum number of transactions to return. If not provided, all transactions are returned.
+     * @returns New list of transactions that match the search criteria.
      */
-    getTransactions(selectedAccounts: any, fromDate: any, toDate: any, description=undefined, tags=undefined, limit=-1) {
+    public getTransactions(selectedAccounts?: Accounts, fromDate?: Date, toDate?: Date, description?: string, tags?: string[], limit=-1): Transactions {
         const result = new Transactions();
-        const searchResults = this.selected(selectedAccounts).map(
-            (            a: { transactions: { getTransactions: (arg0: any, arg1: any, arg2: undefined, arg3: undefined) => any; }; }) => a.transactions.getTransactions(
+        const searchResults: Transactions = <Transactions>this.selected(selectedAccounts).map(
+            (a: IAccount) => a.transactions.getTransactions(
                 fromDate,
                 toDate,
                 description,
@@ -224,22 +242,23 @@ export class Accounts {
             )
         ).flat(); // Returns Accounts(x)[...Transactions]
         if ( searchResults.length ) {
-            result.push( ...Transactions.prototype.sorted.call(searchResults) );
+            result.push( ...searchResults.sorted() );
         }
-        return limit && limit > 0? result.slice(0, limit): result;
+        return limit && limit > 0? <Transactions>result.slice(0, limit): result;
     }
 
     /**
      * Produce a CSV result of the contents of this object.
-     * @returns {String}
+     * @returns {JSZip} The JSZip object with the CSV files.
+     * @todo Figure out how to stream results rather than buffering in-memory.
      */
-    toCSV(jszip: { file: (arg0: string, arg1: string) => void; }) {
+    public toCSV(jszip: JSZip): JSZip {
         if ( this.length == 0 ) {
             return jszip;
         }
         const accountsZIP = ['"id","institutionId","name","description"' +
             ',"accountType","number","routing","interestRate","interestStrategy"'];
-        this.forEach((account: { id: any; institutionId: any; name: any; description: any; accountType: any; number: any; routing: any; interestRate: any; interestStrategy: any; transactions: { toCSV: () => any; }; }) => {
+        this.forEach((account: Account) => {
             const aFields = [
                 account.id,
                 account.institutionId,
@@ -262,17 +281,18 @@ export class Accounts {
      * Read a ZIP file and populate this instance with the data from the CSV.
      * @param {JSZip} jszip Instance of JSZip containing the files we need to operate on this instance.
      */
-    async fromZIP(jszip: { files: { [x: string]: { async: (arg0: string) => any; }; }; }) {
+    public async fromZIP(jszip: JSZip): Promise<Accounts> {
         this.length = 0;
         const papaOpts = { header: true, skipEmptyLines: true };
         const accountsCSV = await jszip.files['accounts.csv'].async('text');
-        const parsedAccounts = Papa.parse(accountsCSV, papaOpts);
+        const parsedAccounts: Papa.ParseResult<IAccount> = Papa.parse(accountsCSV, papaOpts);
         this.push(...parsedAccounts.data);
         for ( const account of this ) {
             await account.transactions.fromZIP(account.id, jszip);
             console.info(`> Parsed out ${account.transactions.length} transactions for account "${account.name}".`);
         }
-        console.info(`Parsed ${this.length} Accounts from CSV file for ${this.map((a: { transactions: string | any[]; }) => a.transactions.length).reduce((a: any,b: any) => a += b, 0)} transactions.`);
+        console.info(`Parsed ${this.length} Accounts from CSV file for ${this.map((a: Account) => a.transactions.length).reduce((a: number, b: number) => a += b, 0)} transactions.`);
+        return this;
     }
 
     /**
@@ -280,7 +300,7 @@ export class Accounts {
      * @param {String|Account|Array<String>|Array<Account>|Accounts} selectedAccounts The selected accounts to filter against.
      * @returns The accounts that match what was listed in the provided item or collection.
      */
-    filterSelected(account: { id: any; }, selectedAccounts: { some: (arg0: (selectedAccount: any) => boolean) => any; id: any; } | undefined) {
+    public filterSelected(account: Account|string, selectedAccounts: Accounts | Account[] | Account | undefined) {
         if ( selectedAccounts === undefined ) {
             return true;
         }
@@ -303,9 +323,7 @@ export class Accounts {
      * @param {Array|Accounts} selectedAccounts The list of accounts to check for includes. Match ANY accounts listed.
      * @returns {Accounts}
      */
-    selected(selectedAccounts: any) {
-        return this.filter((a: any) => this.filterSelected(a, selectedAccounts));
+    public selected(selectedAccounts: Accounts | Account[] | undefined): Accounts {
+        return <Accounts>this.filter((a: Account) => this.filterSelected(a, selectedAccounts));
     }
-
 }
-

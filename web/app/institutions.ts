@@ -182,7 +182,8 @@ export class Institutions extends Array<Institution> {
 
     /**
      * Produce a CSV result of the contents of this object.
-     * @returns {String}
+     * @returns {String} CSV string of the contents of this object.
+     * @todo Figure out how to stream results rather than buffering in-memory.
      */
     public toCSV(jszip: JSZip): JSZip {
         if ( this.length == 0 ) {
