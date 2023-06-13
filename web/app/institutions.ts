@@ -1,31 +1,19 @@
+import * as JSZip from 'jszip';
+import * as Papa from 'papaparse';
+import { TransactionFields } from './transactions';
+import { v4 } from 'uuid';
 
 /**
  * @class Exception to make it clear this is a Yaba exception we are raising.
+ * Business logic error for when an institution mapping doesn't add up. Typically
+ * this happens when the user uploads a CSV file and the institution mapping doesn't
+ * match the fields in the CSV file.
  */
 export class InstitutionMappingException extends Error {
     constructor(fromField: string, toField: string) {
         super(`Institution Mapping should contain one of` +
             ` "${TransactionFields.join('", "')}". ` +
             `Got "${toField}" when setting "${fromField}"`);
-        this.name = this.constructor.name;
-    }
-}
-
-/**
- * @class Exception to make it clear this is a Yaba exception we are raising.
- */
-export class InstitutionMapTypeException extends Error {
-    constructor(fromField: string, toField: string, mapType: string) {
-        super(`Institution Map Type should contain one of` +
-            ` "${InstitutionMapping.MapTypes.join(", ")}". ` +
-            `Got "${mapType}" when setting "${fromField}" to "${toField}"`);
-        this.name = this.constructor.name;
-    }
-}
-
-export class InstitutionUnzipException extends Error {
-    constructor(...args: Array<string>) {
-        super(...args);
         this.name = this.constructor.name;
     }
 }
@@ -38,26 +26,26 @@ export class InstitutionUnzipException extends Error {
 export enum MapTypes {
     static = 'static',
     dynamic = 'dynamic',
-    function = 'function' // @TODO: Support this
+    // function = 'function' // @TODO: Support this
+}
+
+export interface IMapping {
+    fromField: TransactionFields;
+    toField: TransactionFields;
+    mapType: MapTypes;
+    toString(): string;
 }
 
 /**
  * InstitutionMapping objectlet for Institution().mappings. This has been used enough to make it a real
  * thing we can use for importing/exporting and otherwise managing institution mappings.
  */
-export class InstitutionMapping {
-    public fromField: string;
-    public toField: string;
+export class InstitutionMapping implements IMapping {
+    public fromField: TransactionFields;
+    public toField: TransactionFields;
     public mapType: MapTypes;
 
-    constructor(fromField: string, toField: string, mapType: MapTypes) {
-        if ( toField !== '' && !TransactionFields.includes(toField) ) {
-            console.warn('fields: ', fromField, toField, mapType);
-            throw new InstitutionMappingException(fromField, toField);
-        }
-        if ( mapType !== null && !InstitutionMapping.MapTypes.includes(mapType) ) {
-            throw new InstitutionMapTypeException(fromField, toField, mapType);
-        }
+    constructor(fromField: TransactionFields, toField: TransactionFields, mapType: MapTypes) {
         this.fromField = fromField;
         this.toField = toField;
         this.mapType = mapType;
@@ -76,18 +64,18 @@ export class InstitutionMapping {
     }
 }
 
-export class InstitutionMappings extends Array {
-    constructor(...items: Array<InstitutionMapping|number>) {
+export class InstitutionMappings extends Array<IMapping> {
+    constructor(...items: IMapping[]|InstitutionMappings|number[]) {
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
-                const item: InstitutionMapping = items[i] as InstitutionMapping;
-                if ( item instanceof InstitutionMapping ) {
+                const item: IMapping = items[i] as IMapping;
+                if ( true === item instanceof InstitutionMapping ) {
                     continue
                 }
                 items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType);
             }
         }
-        super(...items);
+        super(...<IMapping[]>items);
     }
 
     /**
@@ -95,7 +83,7 @@ export class InstitutionMappings extends Array {
      * @param  {...InstitutionMapping|object} items Items to push onto the array.
      * @returns Number of items in the current set/array.
      */
-    public override push(...items: InstitutionMapping[] ): number {
+    public override push(...items: IMapping[]|InstitutionMappings ): number {
         for ( const i in items ) {
             const item = items[i];
             item instanceof InstitutionMapping || (items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType));
@@ -121,24 +109,8 @@ export class InstitutionMappings extends Array {
      * Override for this.toString();
      * @returns {String}
      */
-    toString() {
+    public override toString(): string {
         return JSON.stringify(this);
-    }
-
-    /**
-     * Handy method to show all in the collection.
-     */
-    show() {
-        this.forEach(i => i.show());
-        return this;
-    }
-
-    /**
-     * Handy method to hide all in the collection.
-     */
-    hide() {
-        this.forEach(i => i.hide());
-        return this;
     }
 }
 
@@ -147,6 +119,7 @@ export interface IInstitution {
     name: string;
     description: string;
     mappings: InstitutionMappings;
+    update(data: IInstitution): Institution;
 }
 
 /**
@@ -154,13 +127,17 @@ export interface IInstitution {
  * Coerces a Hash/Object into something we can use as institution to at least typecast the
  * structure as we need it here.
  */
-export class Institution {
-    constructor(data={}) {
-        super(['id', 'name', 'description', 'mappings'], 'institution');
-        this.id = data.id || uuid.v4();
-        this.name = data.name || '';
-        this.description = data.description || '';
-        this.mappings = data.mappings? new InstitutionMappings(...data.mappings): new InstitutionMappings();
+export class Institution implements IInstitution {
+    public id: string;
+    public name: string;
+    public description: string;
+    public mappings: InstitutionMappings;
+
+    constructor(id: string, name: string, description: string, mappings: InstitutionMappings) {
+        this.id          = id || v4();
+        this.name        = name || '';
+        this.description = description || '';
+        this.mappings    = mappings? new InstitutionMappings(...mappings): new InstitutionMappings();
     }
 
     /**
@@ -170,7 +147,7 @@ export class Institution {
      * @param {Object} data Data to use to update this object.
      * @returns Institution
      */
-    update(data) {
+    public update(data: IInstitution): Institution {
         data.id && (this.id = data.id);
         data.name && (this.name = data.name);
         data.description && (this.description = data.description);
@@ -185,20 +162,20 @@ export class Institution {
  * Ability to find objects by ID and Name.
  * More may come as we find additional use cases for a list/collection.
  */
-export class Institutions {
+export class Institutions extends Array<Institution> {
 
-    push(...items) {
-        for ( let i in items ) {
-            let item = items[i];
-            item instanceof Institution || (items[i] = new Institution(item));
+    public override push(...items: Institution[]): number {
+        for ( const i in items ) {
+            const item: Institution = <IInstitution>items[i];
+            items[i] instanceof Institution || (items[i] = new Institution(item.id, item.name, item.description, item.mappings));
         }
         return super.push(...items);
     }
 
-    unshift(...items) {
-        for (let i in items) {
-            let item = items[i];
-            item instanceof Institution || (items[i] = new Institution(item));
+    public override unshift(...items: IInstitution[]): number {
+        for (const i in items) {
+            const item = <IInstitution>items[i];
+            item instanceof Institution || (items[i] = new Institution(item.id, item.name, item.description, item.mappings));
         }
         return super.unshift(...items);
     }
@@ -207,17 +184,17 @@ export class Institutions {
      * Produce a CSV result of the contents of this object.
      * @returns {String}
      */
-    toCSV(jszip) {
+    public toCSV(jszip: JSZip): JSZip {
         if ( this.length == 0 ) {
             return jszip;
         }
-        let institutionZIP = ['"id","name","description"'];
-        let mappingZIP = ['"institutionId","fromField","toField","mapType"'];
+        const institutionZIP = ['"id","name","description"'];
+        const mappingZIP = ['"institutionId","fromField","toField","mapType"'];
         this.map(institution => {
-            let iFields = [institution.id, institution.name, institution.description];
+            const iFields = [institution.id, institution.name, institution.description];
             institutionZIP.push(`"${iFields.join('","')}"`);
             institution.mappings.map(mapping => {
-                let mFields = [institution.id, mapping.fromField, mapping.toField, mapping.mapType];
+                const mFields = [institution.id, mapping.fromField, mapping.toField, mapping.mapType];
                 mappingZIP.push(`"${mFields.join('","')}"`);
             });
         });
@@ -234,22 +211,26 @@ export class Institutions {
      * @param {JSZip} jsz The JSZip instance that has already loaded the ZIP contents from the end-user.
      * @returns {Promise<Institutions>}
      */
-    async fromZIP(jsz) {
+    public async fromZIP(jsz: JSZip): Promise<Institutions> {
+        interface CsvIMapping extends IMapping {
+            institutionId: string;
+        }
         this.length = 0; // reset the instance to an empty list.
         const papaOpts = { header: true, skipEmptyLines: true };
-        let institutionsCSV = await jsz.files['institutions.csv'].async('text'),
+        const institutionsCSV = await jsz.files['institutions.csv'].async('text'),
             mappingCSV = await jsz.files['institution-mappings.csv'].async('text');
-        let parsedInstitutions = Papa.parse(institutionsCSV, papaOpts);
-        let parsedMappings = Papa.parse(mappingCSV, papaOpts);
+        const parsedInstitutions: Papa.ParseResult<IInstitution> = Papa.parse(institutionsCSV, papaOpts);
+        const parsedMappings: Papa.ParseResult<CsvIMapping> = Papa.parse(mappingCSV, papaOpts);
         this.push(...parsedInstitutions.data);
         parsedMappings.data.forEach(mappings =>
-            this.byId(mappings.institutionId).mappings.push({
+            (<IInstitution>this.byId(mappings.institutionId)).mappings.push({
                 fromField: mappings.fromField,
                 toField: mappings.toField,
                 mapType: mappings.mapType
             })
         );
         console.info(`Parsed ${this.length} Institutions from CSV file for ${this.map(i => i.mappings.length).reduce((a,b) => a += b, 0)} mappings.`);
+        return this;
     }
 
     /**
@@ -257,34 +238,33 @@ export class Institutions {
      * @param {String} ID Institution ID to fetch
      * @returns {Institution}
      */
-    byId(ID) {
+    public byId(ID: string): Institution|undefined {
         return this.filter(i => i.id == ID).shift();
     }
 
-    static csvHandler($scope, $timeout) {
-        return ($event, results) => {
-            // only get back the headers from the CSV file.
-            var headers = Object.keys(results.parsedCSV.data.shift());
-            $scope.institution.mappings = new InstitutionMappings();
-            headers.forEach((h) => {
-                // Store in variable for later use in function return value.
-                // Also: Assign before appending to the list to ensure we use the index we are
-                //   setting. (avoids out of index error)
-                let i = $scope.institution.mappings.length;
-                $scope.institution.mappings.push({
-                    fromField: h,
-                    toField: '',
-                    mapType: 'dynamic'
-                });
-                // Set a timeout to alter the visibility immediately after the element has been
-                // rendered on the page to enable the animation.
-                $timeout(() => {
-                    $scope.institution.mappings[i].show();
-                }, 100);
-            });
-            // Let AngularJS know about this since the papaparser breaks the promise chain.
-            $scope.$apply();
-        };
-    }
+    // static csvHandler($scope, $timeout) {
+    //     return ($event, results) => {
+    //         // only get back the headers from the CSV file.
+    //         var headers = Object.keys(results.parsedCSV.data.shift());
+    //         $scope.institution.mappings = new InstitutionMappings();
+    //         headers.forEach((h) => {
+    //             // Store in variable for later use in function return value.
+    //             // Also: Assign before appending to the list to ensure we use the index we are
+    //             //   setting. (avoids out of index error)
+    //             let i = $scope.institution.mappings.length;
+    //             $scope.institution.mappings.push({
+    //                 fromField: h,
+    //                 toField: '',
+    //                 mapType: 'dynamic'
+    //             });
+    //             // Set a timeout to alter the visibility immediately after the element has been
+    //             // rendered on the page to enable the animation.
+    //             $timeout(() => {
+    //                 $scope.institution.mappings[i].show();
+    //             }, 100);
+    //         });
+    //         // Let AngularJS know about this since the papaparser breaks the promise chain.
+    //         $scope.$apply();
+    //     };
+    // }
 }
-
