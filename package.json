@@ -48,7 +48,6 @@
     "copy-webpack-plugin": "^11.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "jszip": "^3.10.1",
-    "mini-css-extract-plugin": "^2.7.6",
     "papaparse": "^5.4.1",
     "rxjs": "^7.8.1",
     "tslib": "^2.5.3",

@@ -6,6 +6,11 @@ import { AppComponent } from './app.component';
 import { InstitutionsComponent } from './institutions/institutions.component';
 import { AccountsComponent } from './accounts/accounts.component';
 
+import { Account } from './accounts';
+import { Institution } from './institutions';
+import { Transaction } from './transactions';
+
+
 @NgModule({
   declarations: [
     AppComponent,
