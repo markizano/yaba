@@ -3,11 +3,11 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  templateUrl: './yaba.component.html',
+  styleUrls: ['./yaba.component.css'],
   exportAs: 'basicNavbar',
   // imports: [ MdbCollapseModule ]
 })
-export class AppComponent {
+export class YabaComponent {
   title = 'yaba';
 }

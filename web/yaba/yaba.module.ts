@@ -1,27 +1,23 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
+import { YabaRoutingModule } from './routing';
+import { YabaComponent } from './yaba.component';
+
 import { InstitutionsComponent } from './institutions/institutions.component';
 import { AccountsComponent } from './accounts/accounts.component';
 
-import { Account } from './accounts';
-import { Institution } from './institutions';
-import { Transaction } from './transactions';
-
-
 @NgModule({
   declarations: [
-    AppComponent,
+    YabaComponent,
     InstitutionsComponent,
     AccountsComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    YabaRoutingModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [YabaComponent]
 })
-export class AppModule { }
+export class YabaModule { }
