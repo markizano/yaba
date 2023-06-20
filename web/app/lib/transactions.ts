@@ -23,6 +23,7 @@ export enum TransactionType {
  * @enum List of top-level member fields that represent a transaction.
  */
 export enum TransactionFields {
+    UNKNOWN = '',
     id = 'id',
     accountId = 'accountId',
     description = 'description',
@@ -272,14 +273,16 @@ export class Transactions extends Array<Transaction> {
     /**
      * Removes an item from this collection. Easier to understand than [].splice() since
      * we are using the ID field.
-     * @param {String} ID The ID field to remove.
-     * @returns {Transactions} New Mutated array no longer containing the transaction.
-     *   returns itself if no action was taken.
+     * @param ID The ID field to remove.
+     * @returns New Mutated array no longer containing the transaction.
      */
-    public remove(ID: string): Transactions {
-        for ( let i=0; i < this.length; i++ ) {
+    public remove(ID: ITransaction|string): Transactions {
+        for ( const i in this ) {
+            if ( typeof i !== 'number' ) continue;
             const item = this[i];
-            if (item.id == ID) {
+            if ( ID instanceof Transaction && item.id == ID.id ) {
+                this.splice(i, 1);
+            } else if (typeof ID === 'string' && item.id == ID) {
                 this.splice(i, 1);
             }
         }
@@ -712,7 +715,7 @@ export class Transactions extends Array<Transaction> {
             toField: TransactionFields.accountId,
             fromField: accountId
         });
-        transactions.map((transaction) => {
+        transactions.map((transaction: ITransaction) => {
             const cannonical: ITransaction = new Transaction();
             mappings.map((mapping: IMapping) => {
                 switch(mapping.mapType) {
@@ -720,16 +723,18 @@ export class Transactions extends Array<Transaction> {
                         Object.assign(cannonical, mapping.toField, mapping.fromField);
                         break;
                     case MapTypes.dynamic:
-                        if ( mapping.toField == 'amount' ) {
-                            if ( Object.hasOwn(cannonical, 'amount') ) {
-                                Object.assign(cannonical, 'amount', cannonical.amount + Number(transaction[mapping.fromField]));
-                            } else {
-                                Object.assign(cannonical, mapping.toField, transaction[mapping.fromField]);
+                        { // Braces here just to make TypeScript happy.
+                            const value = (<PropertyDescriptor>Object.getOwnPropertyDescriptor(transaction, mapping.fromField)).value;
+                            if ( mapping.toField == 'amount' ) {
+                                if ( Object.hasOwn(cannonical, 'amount') ) {
+                                    Object.assign(cannonical, 'amount', cannonical.amount + Number(value));
+                                } else {
+                                    Object.assign(cannonical, mapping.toField, value);
+                                }
+                                break;
                             }
-                            break;
+                            Object.assign(cannonical, mapping.toField, value);
                         }
-                        Object.assign(cannonical, mapping.toField, transaction[mapping.fromField]);
-                        // cannonical[mapping.toField] = transaction[mapping.fromField];
                         break;
                     default:
                         throw new Error(`Invalid mapType(${mapping.mapType}) for institution "${institution.name}" ` +

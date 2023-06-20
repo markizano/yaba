@@ -31,7 +31,7 @@ export enum MapTypes {
 }
 
 export interface IMapping {
-    fromField: TransactionFields;
+    fromField: string;
     toField: TransactionFields;
     mapType: MapTypes;
     toString(): string;
@@ -42,11 +42,11 @@ export interface IMapping {
  * thing we can use for importing/exporting and otherwise managing institution mappings.
  */
 export class InstitutionMapping implements IMapping {
-    public fromField: TransactionFields;
+    public fromField: string;
     public toField: TransactionFields;
     public mapType: MapTypes;
 
-    constructor(fromField: TransactionFields, toField: TransactionFields, mapType: MapTypes) {
+    constructor(fromField: string, toField: TransactionFields, mapType: MapTypes) {
         this.fromField = fromField;
         this.toField = toField;
         this.mapType = mapType;
@@ -121,6 +121,7 @@ export interface IInstitution {
     description: string;
     mappings: InstitutionMappings;
     update(data: IInstitution): Institution;
+    addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): IInstitution;
 }
 
 /**
@@ -155,6 +156,15 @@ export class Institution implements IInstitution {
         data.mappings && (this.mappings = new InstitutionMappings(...data.mappings));
         return this;
     }
+
+    /**
+     * Add a mapping to this institution.
+     * @returns {Institution} Returns this object for chaining.
+     */
+    public addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): IInstitution {
+        this.mappings.push(new InstitutionMapping(fromField, toField, mapType));
+        return this;
+    }
 }
 
 /**
@@ -179,6 +189,26 @@ export class Institutions extends Array<Institution> {
             item instanceof Institution || (items[i] = new Institution(item.id, item.name, item.description, item.mappings));
         }
         return super.unshift(...items);
+    }
+
+    /**
+     * Removes an item from this collection. Easier to understand than [].splice() since
+     * we are using the ID field.
+     * @param ID The ID field to remove.
+     * @returns New Mutated array no longer containing the transaction.
+     *   returns itself if no action was taken.
+     */
+    public remove(ID: IInstitution|string): Institutions {
+        for ( const i in this ) {
+            if ( typeof i !== 'number' ) continue;
+            const item = this[i];
+            if ( ID instanceof Institution && item.id == ID.id ) {
+                this.splice(i, 1);
+            } else if (typeof ID === 'string' && item.id == ID) {
+                this.splice(i, 1);
+            }
+        }
+        return this;
     }
 
     /**

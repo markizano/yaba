@@ -169,11 +169,13 @@ export class Accounts extends Array<Account> {
      * @param {String} ID The ID field to remove.
      * @returns {Accounts} New Mutated array no longer containing the account.
      */
-    public remove(ID: string): Accounts {
+    public remove(ID: IAccount|string): Accounts {
         for ( const i in this ) {
-            if ( typeof i !== 'number' ) continue; // eslint-disable-line no-continue
+            if ( typeof i !== 'number' ) continue;
             const item = this[i];
-            if (item.id == ID) {
+            if ( ID instanceof Account && item.id == ID.id ) {
+                this.splice(i, 1);
+            } else if (typeof ID === 'string' && item.id == ID) {
                 this.splice(i, 1);
             }
         }

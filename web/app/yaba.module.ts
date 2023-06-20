@@ -10,12 +10,12 @@ import { AccountsComponent } from './accounts/accounts.component';
 @NgModule({
   declarations: [
     YabaComponent,
-    InstitutionsComponent,
-    AccountsComponent
+    AccountsComponent,
   ],
   imports: [
     BrowserModule,
-    YabaRoutingModule
+    YabaRoutingModule,
+    InstitutionsComponent,
   ],
   providers: [],
   bootstrap: [YabaComponent]
