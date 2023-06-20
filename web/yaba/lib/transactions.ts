@@ -93,8 +93,8 @@ export class Transaction implements ITransaction {
       datePending?: Date,
       datePosted?: Date,
       transactionType?: TransactionType,
-      amount = 0.0,
-      tax = 0.0,
+      amount?: number,
+      tax?: number,
       currency?: CurrencyType,
       merchant?: string,
       tags?: Tags) {
@@ -108,7 +108,7 @@ export class Transaction implements ITransaction {
         this.tax = tax || 0.0;
         this.currency = currency || CurrencyType.USD;
         this.merchant = merchant || '';
-        this.tags = tags || [];
+        this.tags = tags || new Tags();
     }
 
     /**

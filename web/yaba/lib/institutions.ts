@@ -134,7 +134,7 @@ export class Institution implements IInstitution {
     public description: string;
     public mappings: InstitutionMappings;
 
-    constructor(id: string, name: string, description: string, mappings: InstitutionMappings) {
+    constructor(id?: string, name?: string, description?: string, mappings?: InstitutionMappings) {
         this.id          = id || v4();
         this.name        = name || '';
         this.description = description || '';

@@ -58,6 +58,15 @@ export enum PayCycle {
 }
 
 /**
+ * enum(FormMode). Set of key-value pairs of form modes.
+ * Used to determine whether we're creating or editing a form.
+ */
+export enum FormMode {
+    Create = 'create',
+    Edit = 'edit',
+}
+
+/**
  * enum(TransactionDeltas). Possible default transaction history values
  * we'd use when rendering transaction history.
  */

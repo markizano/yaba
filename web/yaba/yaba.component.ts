@@ -8,6 +8,7 @@ import { Component } from '@angular/core';
   exportAs: 'basicNavbar',
   // imports: [ MdbCollapseModule ]
 })
+
 export class YabaComponent {
   title = 'yaba';
 }

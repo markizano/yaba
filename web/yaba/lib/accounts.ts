@@ -67,27 +67,27 @@ export class Account implements IAccount {
     public interestStrategy: InterestStrategy;
     public transactions: Transactions;
 
-    constructor(id = '',
-      institutionId = '',
-      name = '',
-      description = '',
-      accountType: AccountTypes = AccountTypes.UNKNOWN,
-      number = '',
-      routing = '',
-      interestRate = 0.0,
-      interestStrategy: InterestStrategy = InterestStrategy.Simple,
-      transactions: Transactions = new Transactions()
+    constructor(id?: string,
+      institutionId?: string,
+      name?: string,
+      description?: string,
+      accountType?: AccountTypes,
+      number?: string,
+      routing?: string,
+      interestRate?: number,
+      interestStrategy?: InterestStrategy,
+      transactions?: Transactions
       ) {
         this.id = id || v4();
         this.institutionId = institutionId || '';
         this.name = name || '';
         this.description = description || '';
-        this.accountType = accountType || null;
+        this.accountType = accountType || AccountTypes.UNKNOWN;
         this.number = number || '';
         this.routing = routing || '';
         this.interestRate = interestRate || 0.0;
-        this.interestStrategy = interestStrategy || null;
-        this.transactions = transactions;
+        this.interestStrategy = interestStrategy || InterestStrategy.Simple;
+        this.transactions = transactions || new Transactions();
     }
 
     /**
