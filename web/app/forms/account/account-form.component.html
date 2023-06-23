@@ -1,1 +1,35 @@
-<p>account-form works!</p>
+<div class="new-item-wrapper">
+    <close (click)="close()"></close>
+    <h1>{{ account?.name || "New" }} Account:</h1>
+    <form (ngSubmit)="save()">
+      <label>Name: <input type="text" (ngModel)="account?.name" tabindex="1" /></label>
+      <label>Description: <input type="text" (ngModel)="account?.description" tabindex="2" /></label>
+      <label>
+        Institution:
+        <select
+          (ngModel)="account?.institutionId"
+          (ngOptions)="institutions"
+          tabindex="3"
+        ></select>
+      </label>
+      <label>
+        Account Type:
+        <select
+          (ngModel)="account?.accountType"
+          (ngOptions)="AccountTypes"
+          tabindex="4"
+        ></select>
+      </label>
+      <label>
+        Account Number: <input type="text" (ngModel)="account?.number"  tabindex="5" />
+      </label>
+      <label>Routing Number: <input type="number" (ngModel)="account?.routing" tabindex="6" /></label>
+      <label>Interest Rate: <input type="number" (ngModel)="account?.interestRate" tabindex="7" /></label>
+      <label>Interest Strategy <select (ngModel)="account?.interestStrategy" tabindex="8">
+                <option default="true" value="simple">Simple</option>
+                <option value="compound">Compound</option>
+            </select>
+      </label>
+      <input type="submit" value="Save Account" (click)="save()"  tabindex="9" />
+  </form>
+</div>

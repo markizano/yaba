@@ -1,7 +1,7 @@
 <div class="new-item-wrapper">
     <close (click)="close()"></close>
     <h1>{{ institution.name || 'New' }} Institution</h1>
-    <form (submit)="save()">
+    <form (ngSubmit)="save()">
         <label>Name: <input type="text" tabindex="1" (ngModel)="institution.name" /></label>
         <label>Description: <input type="text" tabindex="2" (ngModel)="institution.description" /></label>
         <label>Mapping: <add tabindex="3" (click)="addMapping()"></add></label>
