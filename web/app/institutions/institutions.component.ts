@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, NO_ERRORS_SCHEMA, Output } from '@angular/core';
 import { InstitutionFormComponent } from 'app/forms/institution/institution-form.component';
 import { IInstitution, Institutions, Institution } from 'app/lib/institutions';
+import { FormMode } from 'app/lib/structures';
 
 @Component({
   selector: 'yaba-institutions',
@@ -14,7 +15,7 @@ import { IInstitution, Institutions, Institution } from 'app/lib/institutions';
 export class InstitutionsComponent {
   @Input() institutions: Institutions;
   @Output() institution: IInstitution;
-  mode = 'add';
+  mode: FormMode = FormMode.Create;
   error?: string;
 
   constructor() {
@@ -37,7 +38,7 @@ export class InstitutionsComponent {
   }
 
   public edit(institution: IInstitution) {
-    this.mode = 'edit';
+    this.mode = FormMode.Edit;
     this.institution = institution;
   }
 }

@@ -5,13 +5,14 @@ import { AccountsComponent } from './accounts/accounts.component';
 import { InstitutionsComponent } from './institutions/institutions.component';
 
 const routes: Routes = [
-  { path: '', component: YabaComponent },
-  { path: 'institutions', component: InstitutionsComponent },
-  { path: 'accounts', component: AccountsComponent },
+  { path: '/', component: YabaComponent },
+  { path: '/institutions', component: InstitutionsComponent },
+  { path: '/accounts', component: AccountsComponent },
+  { path: '**', redirectTo: '/' }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
+  imports: [ RouterModule.forRoot(routes) ],
+  exports: [ RouterModule ],
 })
 export class YabaRoutingModule { }

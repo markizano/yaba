@@ -1,4 +1,4 @@
-<div class="new-item-wrapper">
+<yaba-account-form>
     <close (click)="close()"></close>
     <h1>{{ account?.name || "New" }} Account:</h1>
     <form (ngSubmit)="save()">
@@ -32,4 +32,4 @@
       </label>
       <input type="submit" value="Save Account" (click)="save()"  tabindex="9" />
   </form>
-</div>
+</yaba-account-form>

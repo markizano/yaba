@@ -37,11 +37,9 @@
     <div class="errors">{{ error | join("<br />") }}</div>
     
     <yaba-institution-form
-        institution="institution"
+        [institution]="institution"
         class="ng-fade ng-hide csvdrop"
-        headers="1"
-        mode="mode"
-        see-form="seeForm"
-        ng-show="seeForm"
+        [headers]="1"
+        [mode]="mode"
         />
 </yaba-institutions>

@@ -28,7 +28,10 @@
               "web/assets/css/reset.css",
               "web/assets/css/main.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "papaparse"
+            ]
           },
           "configurations": {
             "production": {
