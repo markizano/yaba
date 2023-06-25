@@ -4,7 +4,7 @@ import { YabaComponent } from './yaba.component';
 import { AccountsComponent } from './accounts/accounts.component';
 import { InstitutionsComponent } from './institutions/institutions.component';
 
-const routes: Routes = [
+export const routeConfig: Routes = [
   { path: '/', component: YabaComponent },
   { path: '/institutions', component: InstitutionsComponent },
   { path: '/accounts', component: AccountsComponent },
@@ -12,7 +12,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [ RouterModule.forRoot(routes) ],
+  imports: [ RouterModule.forRoot(routeConfig) ],
   exports: [ RouterModule ],
 })
 export class YabaRoutingModule { }

@@ -8,7 +8,7 @@
         <ul>
             <li *ngFor="let mapping of institution.mappings; let i = index">
                 <mapping class="slide-down">
-                    <trash *ngIf="institution.mappings.length > 1" (click)="remove(institution);" tabindex="{{ (i * 4) + 7 }}" ></trash>
+                    <trash *ngIf="institution.mappings.length > 1" (click)="removeMapping(mapping)" tabindex="{{ (i * 4) + 7 }}" ></trash>
                     <label class="slide-down">
                         From {{ mapping.mapType == MapTypes.static ? 'Value': 'Field' }}:
                         <input type="text" tabindex="{{ (i * 4) + 4 }}" (ngModel)="mapping.fromField" />
@@ -18,7 +18,7 @@
                           tabindex="{{ (i * 4) + 5 }}"
                           (ngModel)="mapping.toField"
                         >
-                            <option *[ngFor]="let txnField for txnField in transactionFields" (ngModel)="txnField">{{ txnField }}</option>
+                            <option *[ngFor]="let txnField for txnField in TransactionFields" (ngModel)="txnField">{{ txnField }}</option>
                         </select>
                     </label>
                     <label class="slide-down">Mapping Type: <select tabindex="{{ (i * 4) + 6 }}" (ngModel)="mapping.mapType">

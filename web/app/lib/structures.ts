@@ -121,6 +121,10 @@ export enum CurrencyType {
     SAR = 'SAR',
 }
 
+export interface Storables {
+    save(): void;
+    load(): void;
+}
 
 export interface UserPreferences {
     incomeTags: string[];
@@ -144,12 +148,12 @@ export class Settings implements UserPreferences {
     public payCycle: PayCycle;
     public txnDelta: TransactionDeltas;
 
-    constructor(incomeTags: string[], expenseTags: string[], transferTags: string[], hideTags: string[], txShow: ShowTransactions, payCycle: PayCycle, txnDelta: TransactionDeltas) {
+    constructor(incomeTags?: string[], expenseTags?: string[], transferTags?: string[], hideTags?: string[], txShow?: ShowTransactions, payCycle?: PayCycle, txnDelta?: TransactionDeltas) {
         this.incomeTags = incomeTags || [];
         this.expenseTags = expenseTags || [];
         this.transferTags = transferTags || [];
         this.hideTags = hideTags || [];
-        this.txShow = txShow || {};
+        this.txShow = txShow || <ShowTransactions>{};
         this.payCycle = payCycle || PayCycle.Weekly;
         this.txnDelta = txnDelta || TransactionDeltas.days30;
     }

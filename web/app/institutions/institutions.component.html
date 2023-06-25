@@ -38,8 +38,8 @@
     
     <yaba-institution-form
         [institution]="institution"
+        (save)="save($event)"
+        (cancel)="cancel($event)"
         class="ng-fade ng-hide csvdrop"
-        [headers]="1"
-        [mode]="mode"
         />
 </yaba-institutions>

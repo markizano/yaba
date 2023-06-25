@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   selector: 'app-root',
   templateUrl: './yaba.component.html',
   styleUrls: ['./yaba.component.css'],
-  exportAs: 'basicNavbar',
+  exportAs: 'app',
   // imports: [ MdbCollapseModule ]
 })
 export class YabaComponent {

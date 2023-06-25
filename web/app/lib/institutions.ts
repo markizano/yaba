@@ -10,7 +10,7 @@ import { TransactionFields } from './transactions';
  * match the fields in the CSV file.
  */
 export class InstitutionMappingException extends Error {
-    constructor(fromField: TransactionFields, toField: TransactionFields) {
+    constructor(fromField: string, toField: TransactionFields) {
         const txFields = Object.values(TransactionFields);
         super(`Institution Mapping should contain one of` +
             ` "${txFields.join('", "')}". ` +
@@ -112,6 +112,21 @@ export class InstitutionMappings extends Array<IMapping> {
      */
     public override toString(): string {
         return JSON.stringify(this);
+    }
+
+    /**
+     * Remove a mapping from this collection
+     * @param {String} fromField Field to remove from the mapping.
+     * @returns {InstitutionMappings} Returns this object for chaining..
+     * @throws {InstitutionMappingException} If the mapping doesn't exist.
+     */
+    public removeMapping(mapping: IMapping): InstitutionMappings {
+        const index = this.findIndex((item: IMapping) => item.fromField === mapping.fromField && item.toField === mapping.toField);
+        if (index < 0) {
+            throw new InstitutionMappingException(mapping.fromField, mapping.toField);
+        }
+        this.splice(index, 1);
+        return this;
     }
 }
 
