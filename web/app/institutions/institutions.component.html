@@ -1,19 +1,18 @@
-<yaba-institutions>
+<div id="institutions">
     <h1>Institutions</h1>
     <p>
         This is where you configure your Banks and
         institutions for the associations between
         their CSV/Excel formats and Yaba representation of transactions.
     </p>
-
     <add (click)="add()" class="right"></add><br clear="all" />
     <institution-list>
-        <institution *ngFor="let institution of institutions">
+        <institution *ngFor="let institution of institutions.getInstitutions()">
             <figcaption>
                 <h2>{{ institution.name }}</h2>
                 <actions>
-                    <edit (click)="edit(institution)" class="helper" helper="Edit Institution &quot;{{ institution.name }}&quot;."></edit>
-                    <trash (click)="remove(institution)" class="helper" helper="Delete Institution &quot;{{ institution.name }}&quot;."></trash>
+                    <edit (click)="edit(institution)" class="helper" attr.helper="Edit Institution &quot;{{ institution.name }}&quot;."></edit>
+                    <trash (click)="remove(institution)" class="helper" attr.helper="Delete Institution &quot;{{ institution.name }}&quot;."></trash>
                 </actions>
             </figcaption>
             <p> {{ institution.description }} </p>
@@ -36,10 +35,10 @@
     
     <div class="errors">{{ error | join("<br />") }}</div>
     
-    <yaba-institution-form
+    <!-- <yaba-institution-form
         [institution]="institution"
         (save)="save($event)"
         (cancel)="cancel($event)"
         class="ng-fade ng-hide csvdrop"
-        />
-</yaba-institutions>
+    ></yaba-institution-form> -->
+</div>

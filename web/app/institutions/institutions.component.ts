@@ -4,20 +4,42 @@ import { InstitutionFormComponent } from 'app/forms/institution/institution-form
 import { IInstitution, Institution } from 'app/lib/institutions';
 import { FormMode } from 'app/lib/structures';
 import { InstitutionsService } from 'app/storables/institutions.service';
+import { ControlsModule } from "app/controls/controls.component";
 
 @Component({
-  selector: 'yaba-institutions',
-  templateUrl: './institutions.component.html',
+  selector: 'institution-list',
+  template: '<institution-list></institution-list>',
   styleUrls: ['./institutions.component.css'],
   standalone: true,
-  imports: [ CommonModule, InstitutionFormComponent ],
-  providers: [ InstitutionsService ],
+  imports: [ CommonModule ]
+})
+export class InstitutionListComponent { }
+
+@Component({
+  selector: 'institution',
+  template: '<institution></institution>',
+  styleUrls: ['./institutions.component.css'],
+  standalone: true,
+})
+export class InstitutionComponent { }
+
+export const localComponents = [ InstitutionListComponent, InstitutionComponent ];
+
+@Component({
+    selector: 'yaba-institutions',
+    templateUrl: './institutions.component.html',
+    styleUrls: ['./institutions.component.css'],
+    standalone: true,
+    providers: [InstitutionsService],
+    imports: [CommonModule, InstitutionFormComponent, ControlsModule, ...localComponents]
 })
 export class InstitutionsComponent {
+  protected institution: IInstitution;
   public form: InstitutionFormComponent;
 
-  constructor( private institutions: InstitutionsService ) {
+  constructor( protected institutions: InstitutionsService ) {
     this.institutions = institutions;
+    this.institution = new Institution();
     this.form = new InstitutionFormComponent();
   }
 
@@ -54,5 +76,9 @@ export class InstitutionsComponent {
     this.form.visible = true;
     this.form.mode = FormMode.Edit;
     this.form.institution = institution;
+  }
+
+  public cancel(event?: Event): void {
+    this.form.cancel(event);
   }
 }

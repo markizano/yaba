@@ -22,6 +22,10 @@ export class InstitutionsService implements Storables {
     }
   }
 
+  public getInstitutions(): Institutions {
+    return this.institutions || new Institutions();
+  }
+
   public add(institution: IInstitution): void {
     this.institutions?.push(institution);
   }

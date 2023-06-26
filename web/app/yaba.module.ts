@@ -4,8 +4,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { YabaRoutingModule } from './routing';
 
 import { YabaComponent } from './yaba.component';
-import { InstitutionsComponent } from './institutions/institutions.component';
-import { AccountsComponent } from './accounts/accounts.component';
+import { MenuComponent } from './menu/menu.component';
+import { AccountComponent } from './account/account.component';
+import { ChartsComponent } from './charts/charts.component';
+import { SettingsComponent } from './settings/settings.component';
+import { BudgetingComponent } from './budgeting/budgeting.component';
 
 @NgModule({
   declarations: [
@@ -14,8 +17,11 @@ import { AccountsComponent } from './accounts/accounts.component';
   imports: [
     BrowserModule,
     YabaRoutingModule,
-    InstitutionsComponent,
-    AccountsComponent,
+    MenuComponent,
+    AccountComponent,
+    ChartsComponent,
+    SettingsComponent,
+    BudgetingComponent,
   ],
   providers: [],
   bootstrap: [ YabaComponent ]

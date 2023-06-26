@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
 
+import { ControlsModule } from 'app/controls/controls.component';
 import { FormMode } from 'app/lib/structures';
 import { IInstitution, Institution, MapTypes, IMapping } from 'app/lib/institutions';
 import { TransactionFields } from 'app/lib/transactions';
@@ -10,7 +11,7 @@ import { TransactionFields } from 'app/lib/transactions';
   selector: 'yaba-institution-form',
   templateUrl: './institution-form.component.html',
   styleUrls: ['./institution-form.component.css'],
-  imports: [ CommonModule ],
+  imports: [ CommonModule, ControlsModule ],
   standalone: true,
 })
 export class InstitutionFormComponent {
@@ -21,20 +22,21 @@ export class InstitutionFormComponent {
   public errors: string[] = []; // List of array messages to render to end-user.
   public readonly MapTypes = MapTypes;
   public readonly TransactionFields = TransactionFields;
-  public forms: FormGroup = new FormGroup({
-    name: new FormControl('', Validators.required),
-    description: new FormControl(''),
-    mappings: new FormArray([
-      new FormGroup({
-        fromField: new FormControl('', Validators.required),
-        toField: new FormControl(TransactionFields.UNKNOWN, Validators.required),
-        mapType: new FormControl(MapTypes.static, Validators.required),
-      }),
-    ]),
-  });
+  public forms?: FormGroup;
 
   constructor() {
     this.institution = new Institution();
+    this.forms = new FormGroup({
+      name: new FormControl('', Validators.required),
+      description: new FormControl(''),
+      mappings: new FormArray([
+        new FormGroup({
+          fromField: new FormControl('', Validators.required),
+          toField: new FormControl(TransactionFields.UNKNOWN, Validators.required),
+          mapType: new FormControl(MapTypes.static, Validators.required),
+        }),
+      ]),
+    });
   }
 
   /**
@@ -66,7 +68,8 @@ export class InstitutionFormComponent {
     this.newInstitution.emit(this.institution);
   }
 
-  public cancel(): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public cancel(event?: Event): void {
     this.close();
     this.reset();
   }

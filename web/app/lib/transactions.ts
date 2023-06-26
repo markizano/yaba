@@ -709,7 +709,7 @@ export class Transactions extends Array<Transaction> {
      *   Here is where we can implement some sort of "undo" function.
      */
     static digest(institution: IInstitution, accountId: TransactionFields, transactions: Transactions): Transactions {
-        const results = new Transactions(), mappings: InstitutionMappings = institution.mappings.concat();
+        const results = new Transactions(), mappings: InstitutionMappings = <InstitutionMappings>institution.mappings.concat();
         mappings.unshift({
             mapType: MapTypes.static,
             toField: TransactionFields.accountId,
