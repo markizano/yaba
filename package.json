@@ -5,7 +5,7 @@
   "description": "Yaba: Yet Another Budgeting App lets you budget with your finances with tags instead of categories.",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "npm run build && electron-forge start",
     "build": "tsc && ng build",
     "package": "npm run build && electron-forge package",
     "make": "electron-forge make",
@@ -41,6 +41,7 @@
     "@angular/compiler": "^16.0.5",
     "@angular/core": "^16.0.5",
     "@angular/forms": "^16.0.5",
+    "@angular/material": "^16.1.2",
     "@angular/platform-browser": "^16.0.5",
     "@angular/platform-browser-dynamic": "^16.0.5",
     "@angular/router": "^16.0.5",
