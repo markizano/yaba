@@ -5,10 +5,11 @@ import { YabaRoutingModule } from './routing';
 
 import { YabaComponent } from './yaba.component';
 import { MenuComponent } from './menu/menu.component';
-import { AccountComponent } from './account/account.component';
-import { ChartsComponent } from './charts/charts.component';
-import { SettingsComponent } from './settings/settings.component';
-import { BudgetingComponent } from './budgeting/budgeting.component';
+import { InstitutionsModule } from './institutions/institutions.module';
+// import { AccountComponent } from './account/account.component';
+// import { ChartsComponent } from './charts/charts.component';
+// import { SettingsComponent } from './settings/settings.component';
+// import { BudgetingComponent } from './budgeting/budgeting.component';
 
 @NgModule({
   declarations: [
@@ -18,10 +19,11 @@ import { BudgetingComponent } from './budgeting/budgeting.component';
     BrowserModule,
     YabaRoutingModule,
     MenuComponent,
-    AccountComponent,
-    ChartsComponent,
-    SettingsComponent,
-    BudgetingComponent,
+    InstitutionsModule,
+    // AccountComponent,
+    // ChartsComponent,
+    // SettingsComponent,
+    // BudgetingComponent,
   ],
   providers: [],
   bootstrap: [ YabaComponent ]

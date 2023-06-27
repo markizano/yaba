@@ -1,4 +1,4 @@
-<yaba-institution-form>
+<div class="yaba-institution-form">
     <close (click)="close()"></close>
     <h1>{{ institution?.name || 'New' }} Institution</h1>
     <form (ngSubmit)="save()">
@@ -30,4 +30,4 @@
         </ul>
         <input type="submit" tabindex="{{ 3 + ((institution?.mappings?.length || 0)*4) +1 }}" value="Save Institution" />
     </form>
-</yaba-institution-form>
+</div>

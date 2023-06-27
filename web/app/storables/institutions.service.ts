@@ -6,35 +6,35 @@ import { Storables } from 'app/lib/structures';
   providedIn: 'root'
 })
 export class InstitutionsService implements Storables {
-  protected institutions?: Institutions;
+  protected _instance?: Institutions;
   constructor() {
-    this.institutions = new Institutions();
+    this._instance = new Institutions();
   }
 
   public save(): void {
-    localStorage.setItem('institutions', JSON.stringify(this.institutions));
+    localStorage.setItem('institutions', JSON.stringify(this._instance));
   }
 
   public load(): void {
     const userInstitutions = localStorage.getItem('institutions');
     if ( userInstitutions ) {
-      this.institutions?.push(...<Institutions>JSON.parse(userInstitutions));
+      this._instance?.push(...<Institutions>JSON.parse(userInstitutions));
     }
   }
 
   public getInstitutions(): Institutions {
-    return this.institutions || new Institutions();
+    return this._instance || new Institutions();
   }
 
   public add(institution: IInstitution): void {
-    this.institutions?.push(institution);
+    this._instance?.push(institution);
   }
 
   public remove(institution: IInstitution): void {
-    this.institutions?.remove(institution);
+    this._instance?.remove(institution);
   }
 
   public update(institution: IInstitution): void {
-    this.institutions?.byId(institution.id)?.update(institution);
+    this._instance?.byId(institution.id)?.update(institution);
   }
 }

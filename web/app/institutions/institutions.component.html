@@ -6,8 +6,8 @@
         their CSV/Excel formats and Yaba representation of transactions.
     </p>
     <add (click)="add()" class="right"></add><br clear="all" />
-    <institution-list>
-        <institution *ngFor="let institution of institutions.getInstitutions()">
+    <div class="institution-list">
+        <div class="institution" *ngFor="let institution of collection">
             <figcaption>
                 <h2>{{ institution.name }}</h2>
                 <actions>
@@ -30,15 +30,15 @@
                     </tr>
                 </tbody>
             </table>
-        </institution>
-    </institution-list>
+        </div>
+    </div>
     
-    <div class="errors">{{ error | join("<br />") }}</div>
+    <div class="errors"><p *ngFor="let error of errors">{{ error }}</p></div>
     
-    <!-- <yaba-institution-form
+    <yaba-institution-form
         [institution]="institution"
         (save)="save($event)"
         (cancel)="cancel($event)"
         class="ng-fade ng-hide csvdrop"
-    ></yaba-institution-form> -->
+    ></yaba-institution-form>
 </div>

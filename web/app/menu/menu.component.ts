@@ -6,13 +6,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ControlsModule } from 'app/controls/controls.module';
 
 @Component({
   selector: 'yaba-menu',
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css'],
   standalone: true,
-  imports: [ CommonModule, RouterModule, MatIconModule, MatButtonModule, MatMenuModule, BrowserAnimationsModule ],
+  imports: [ CommonModule, RouterModule, MatIconModule, MatButtonModule, MatMenuModule, BrowserAnimationsModule, ControlsModule ],
 })
 export class MenuComponent {
   public routes = routeConfig;

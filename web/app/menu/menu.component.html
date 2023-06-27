@@ -12,28 +12,19 @@
         >
         <!-- Left links -->
         <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Navigate the site">
-          <menu></menu>
+          <settings></settings>
         </button>
         <mat-menu #menu="matMenu">
-          <button mat-menu-item>
-            <mat-icon>dialpad</mat-icon>
-            <span>Redial</span>
-          </button>
-          <button mat-menu-item disabled>
-            <mat-icon>voicemail</mat-icon>
-            <span>Check voice mail</span>
-          </button>
-          <button mat-menu-item>
-            <mat-icon>notifications_off</mat-icon>
-            <span>Disable alerts</span>
+          <button mat-menu-item  *ngFor="let route of routes">
+            <a routerLink="{{ route.path }}">{{ route.title }}</a>
           </button>
         </mat-menu>
         
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0" *ngFor="let route of routes">
+        <!-- <ul class="navbar-nav me-auto mb-2 mb-lg-0" *ngFor="let route of routes">
           <li class="nav-item">
             <h1><a class="nav-link active" aria-current="page" routerLink="{{ route.path }}">{{ route.title }}</a></h1>
           </li>
-        </ul>
+        </ul> -->
         <!-- Left links -->
       </div>
       <!-- Collapsible wrapper -->

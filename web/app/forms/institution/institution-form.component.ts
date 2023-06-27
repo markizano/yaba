@@ -1,8 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
 
-import { ControlsModule } from 'app/controls/controls.component';
 import { FormMode } from 'app/lib/structures';
 import { IInstitution, Institution, MapTypes, IMapping } from 'app/lib/institutions';
 import { TransactionFields } from 'app/lib/transactions';
@@ -11,8 +9,6 @@ import { TransactionFields } from 'app/lib/transactions';
   selector: 'yaba-institution-form',
   templateUrl: './institution-form.component.html',
   styleUrls: ['./institution-form.component.css'],
-  imports: [ CommonModule, ControlsModule ],
-  standalone: true,
 })
 export class InstitutionFormComponent {
   @Input() institution?: IInstitution;
