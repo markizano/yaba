@@ -37,6 +37,7 @@
     
     <yaba-institution-form
         [institution]="institution"
+        [hidden]="seeForm"
         (save)="save($event)"
         (cancel)="cancel($event)"
         class="ng-fade ng-hide csvdrop"

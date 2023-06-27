@@ -11,17 +11,23 @@ import { TransactionFields } from 'app/lib/transactions';
   styleUrls: ['./institution-form.component.css'],
 })
 export class InstitutionFormComponent {
-  @Input() institution?: IInstitution;
+  @Input() public institution?: IInstitution;
+  @Input() public visible?: boolean;
   @Output() newInstitution: EventEmitter<IInstitution> = new EventEmitter<IInstitution>();
-  public visible?: boolean;
   public mode: FormMode = FormMode.Create;
   public errors: string[] = []; // List of array messages to render to end-user.
-  public readonly MapTypes = MapTypes;
-  public readonly TransactionFields = TransactionFields;
   public forms?: FormGroup;
 
+  public readonly MapTypes = MapTypes;
+  public readonly TransactionFields = TransactionFields;
+
   constructor() {
-    this.institution = new Institution();
+    if ( ! this.institution ) {
+      this.institution = new Institution();
+    }
+    if ( typeof this.visible === "undefined") {
+      this.visible = false;
+    }
     this.forms = new FormGroup({
       name: new FormControl('', Validators.required),
       description: new FormControl(''),

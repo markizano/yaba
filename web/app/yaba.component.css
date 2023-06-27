@@ -1,0 +1,28 @@
+b, .bold { font-weight: bold; }
+i, .italic { font-style: italic; }
+u, .underline { text-decoration: underline; }
+body {
+    font-family: "Sans", "Arial", "Calibri"
+}
+
+:root {
+    --black: #000200;
+    --spanish-orange: #E36C04;
+    --middle-yellow-red: #F08677;
+    --rich-black: #00020C;
+    --topaz: #F4CB89;
+    --liberty: #5B539E;
+    --sky-blue: #53a9e4;
+}
+
+a {
+    color: var(--spanish-orange);
+    text-decoration: none;
+}
+a:visited {
+    color: var(--spanish-orange);
+}
+a:hover {
+    color: var(--middle-yellow-red);
+    text-decoration: underline;
+}

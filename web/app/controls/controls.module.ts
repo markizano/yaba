@@ -9,21 +9,27 @@ import {
   SaveComponent,
   ActionsComponent,
   SettingsComponent,
+  QuestionComponent,
+  InspectComponent,
 } from 'app/controls/controls.component';
 
+const components = [
+  ActionsComponent,
+  AddComponent,
+  CloseComponent,
+  EditComponent,
+  InspectComponent,
+  MappingComponent,
+  QuestionComponent,
+  SaveComponent,
+  SettingsComponent,
+  TrashComponent,
+];
+
 @NgModule({
-  declarations: [
-    TrashComponent,
-    AddComponent,
-    CloseComponent,
-    MappingComponent,
-    EditComponent,
-    SaveComponent,
-    ActionsComponent,
-    SettingsComponent,
-  ],
+  declarations: components,
   imports: [ CommonModule ],
   providers: [ ],
-  exports: [ TrashComponent, AddComponent, CloseComponent, MappingComponent, EditComponent, SaveComponent, ActionsComponent, SettingsComponent ],
+  exports: components,
 })
 export class ControlsModule { }
