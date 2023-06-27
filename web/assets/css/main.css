@@ -18,6 +18,18 @@ body {
     --sky-blue: #53a9e4;
 }
 
+a {
+    color: var(--spanish-orange);
+    text-decoration: none;
+}
+a:visited {
+    color: var(--spanish-orange);
+}
+a:hover {
+    color: var(--middle-yellow-red);
+    text-decoration: underline;
+}
+
 /**
  * Global content styling.
  */
@@ -324,6 +336,11 @@ inspect {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAQMAAACQp+OdAAAABlBMVEWFY1UAAADJW86pAAAAAXRSTlMAQObYZgAAAJJJREFUKM/FkLsRxCAMROW5QOGV4FIozS7NpagEQgLGeyuYWQLnPgXwBrSrj9mfovR5f4BrwA60AQdw572BcRI8IQhfhKOmGOeGPnLNRnYeBSnq45u+LT0vqqsHlVTXvfHga5Tu/C8TOm3iuJ0eAkzAgmeO5DJUCRVVG2rMErLv1bzG0YAaWUvQWtaitDot8/34AewUoP8HNfvLAAAAAElFTkSuQmCC');
     filter: invert(100%);
 }
+settings {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAARklEQVRIx+2TMQoAMAgDE+n/v2z3Cu1g3S6jQ46A58zUZELDAfDMqifbncbja+Jve22IO7+/wHiAB3iAB3iAB3gAAIAkaQOM6Sc3a6WnTQAAAABJRU5ErkJggg==');
+    border: 1px solid black;
+}
+
 .helper:hover:after {
     opacity: 1;
     transition: all 300ms ease-in-out 500ms;
@@ -350,7 +367,7 @@ inspect {
     right: 30px;
 }
 
-add, edit, save, trash, close, question, inspect {
+add, edit, save, trash, close, question, inspect, settings {
     background-size: 32px;
     width: 32px;
     height: 32px;
@@ -359,7 +376,7 @@ add, edit, save, trash, close, question, inspect {
     display: inline-block;
     cursor: pointer;
 }
-add:hover, edit:hover, save:hover, trash:hover, close:hover, question:hover, inspect:hover { cursor: grab; }
+add:hover, edit:hover, save:hover, trash:hover, close:hover, question:hover, inspect:hover, settings:hover { cursor: grab; }
 
 .small-icon {
     width: 24px;
@@ -668,3 +685,16 @@ md-content {
     background-color: #00000000;
 }
 
+yaba-menu {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    background-color: #0f3079;
+    color: #ffffff;
+    padding: 5px 10px;
+    font-size: 20px;
+    font-weight: bold;
+    border-bottom: 1px solid #ffffff;
+}
