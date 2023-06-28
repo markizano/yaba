@@ -1,8 +1,37 @@
-institution-form {
+:host, yaba-institution-form {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     margin-top: 20px;
     margin-bottom: 20px;
+    border: 1px solid var(--topaz);
+}
+
+institution-list, .institution-list {
+    display: inline-flex;
+    flex-wrap: wrap;
+}
+
+institution, .institution {
+    display: inline-block;
+    margin:  5px auto 5px 5px;
+    padding:  0 0 10px 0;
+    background-color: var(--sky-blue);
+}
+
+mapping {
+    border: 1px solid #999;
+    display: block;
+    padding: 5px;
+    margin: 5px 5px 5px 20px;
+    line-height: 20px;
+    height: 135px;
+}
+
+figcaption {
+    width: 100%;
+    display: flex;
+    background-color: var(--liberty);
+    color: var(--topaz);
 }

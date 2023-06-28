@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 import { FormMode } from 'app/lib/structures';
 import { IInstitution, Institution, MapTypes, IMapping } from 'app/lib/institutions';
@@ -9,6 +10,14 @@ import { TransactionFields } from 'app/lib/transactions';
   selector: 'yaba-institution-form',
   templateUrl: './institution-form.component.html',
   styleUrls: ['./institution-form.component.css'],
+  animations: [
+    trigger('fade', [
+      transition('void => *', [
+        style({ opacity: 0 }),
+        animate(600, style({opacity: 1}))
+      ])
+    ])
+  ]
 })
 export class InstitutionFormComponent {
   @Input() public institution?: IInstitution;

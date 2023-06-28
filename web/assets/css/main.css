@@ -313,25 +313,6 @@ actions {
     display: inline-block;
 }
 
-institution-list {
-    display: inline-flex;
-    flex-wrap: wrap;
-}
-institution {
-    display: inline-block;
-    margin:  5px auto 5px 5px;
-    padding:  0 0 10px 0;
-    background-color: var(--sky-blue);
-}
-
-figcaption {
-    width: 100%;
-    display: flex;
-    background-color: var(--liberty);
-    color: var(--topaz);
-}
-
-
 code {
     width: 90%;
     padding: 3px;
@@ -357,15 +338,6 @@ pre {
     font-size: 20px;
 }
 
-
-mapping {
-    border: 1px solid #999;
-    display: block;
-    padding: 5px;
-    margin: 5px 5px 5px 20px;
-    line-height: 20px;
-    height: 135px;
-}
 
 .ng-fade { transition: all ease-in-out 400ms; }
 .ng-fade.ng-hide { opacity: 0; }
@@ -607,16 +579,3 @@ md-content {
     background-color: #00000000;
 }
 
-yaba-menu {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: row;
-    align-items: center;
-    background-color: #0f3079;
-    color: #ffffff;
-    padding: 5px 10px;
-    font-size: 20px;
-    font-weight: bold;
-    border-bottom: 1px solid #ffffff;
-}

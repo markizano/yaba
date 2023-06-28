@@ -8,6 +8,8 @@ margin: 8px;
 display: inline-block;
 cursor: pointer;`;
 
+const hover = `:host:hover { cursor: grab }`;
+
 @Component({
   selector: 'actions',
   template: '',
@@ -21,7 +23,7 @@ export class ActionsComponent { }
   styles: [ `:host {
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAGFBMVEVhcABT3kdk3mFt3mlu32p44nWA4338//u9xAiZAAAAAXRSTlMAQObYZgAAAM1JREFUSMe91s0NgzAMBWB7A78TZ0boCB2hI3SEnLI+KkjNjx07ohRf88UKEfhBVBf2olHhW9G6KRhNibvf6gH4gjWQYL0VMMtqsOScjBb1es5v1aI0+KwbLTqQFcAIQD1jD2QOYAzQ36ICcgmABzAB2AdyByjvQV+v45TVzr4KWE6CNQLP/4PHz4eMLipVYPBl7YB9IHcA8gFNAPaAXALIA+YASdGEUYDG4OScNGZxO4qNac72tJf5OIgDJYykONTiWIyDNYzmiXC3fw82l6MakgvgjQcAAAAASUVORK5CYII=');
       ${boxDimensionsCss} }`,
-    `:host:hover { cursor: grab }`,
+    hover,
  ],
 })
 export class AddComponent { }
@@ -36,7 +38,7 @@ export class AddComponent { }
       right: 10px;
       ${boxDimensionsCss}
     }`,
-    `:host:hover{ cursor: grab }`
+    hover
   ],
 })
 export class CloseComponent { }
@@ -51,7 +53,7 @@ export class CloseComponent { }
       border: 1px solid black;
       ${boxDimensionsCss}
     }`,
-    `:host:hover { cursor: grab }`
+    hover
   ],
 })
 export class EditComponent { }
@@ -66,12 +68,6 @@ export class EditComponent { }
   }`]
 })
 export class InspectComponent { }
-
-@Component({
-  selector: 'mapping',
-  template: '',
-})
-export class MappingComponent { }
 
 @Component({
   selector: 'question',
@@ -90,7 +86,7 @@ export class QuestionComponent { }
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEUAAAAAAAD///+D3c/SAAAAAXRSTlMAQObYZgAAAIBJREFUOMvl0zEOgCAMhWE69Ajch8Xdgd7/KgKt9NnEhIXExC6ab/gTsKa0ZVjuKQp5whmhRhCDwuNdDosMqP1pEYdcA7AEII04JI0AaARAIwAaAdAIwogg8Dv0wzUgB72wZaB5Xwb+Bb4ONBfkebi2IOtgu8R/AIFZA0Y49/zoF6YJcMkbWlfuAAAAAElFTkSuQmCC');
       ${boxDimensionsCss}
     }`,
-    `:host:hover { cursor: grab }`
+    hover
   ],
 })
 export class SaveComponent { }
@@ -103,7 +99,7 @@ export class SaveComponent { }
     filter: invert(100%);
     border: 1px solid black; /* Filter impacts the border too somehow... */
     ${boxDimensionsCss} }`,
-  `:host:hover { cursor: grab }`
+  hover
   ],
 })
 export class TrashComponent { }
@@ -116,7 +112,7 @@ export class TrashComponent { }
       border: 1px solid black;
       ${boxDimensionsCss}
     }`,
-    `:host:hover { cursor: grab }`
+    hover
   ],
 })
 export class SettingsComponent { }

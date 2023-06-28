@@ -37,9 +37,9 @@
     
     <yaba-institution-form
         [institution]="institution"
-        [hidden]="seeForm"
         (save)="save($event)"
         (cancel)="cancel($event)"
-        class="ng-fade ng-hide csvdrop"
+        class="ng-fade csvdrop"
+        (ngClass)="{'ng-hide': !showForm}"
     ></yaba-institution-form>
 </div>

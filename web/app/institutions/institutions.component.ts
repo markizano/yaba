@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output } from '@angular/core';
 
 import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
 import { InstitutionsService } from 'app/storables/institutions.service';
@@ -11,23 +11,23 @@ import { InstitutionsService } from 'app/storables/institutions.service';
 })
 export class InstitutionsComponent {
   public collection: Institutions;
-  protected institution: IInstitution;
+  @Output() public institution: IInstitution;
   public errors?: string[];
-  protected seeForm: boolean;
+  protected showForm: boolean;
 
   // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
   constructor( protected institutions: InstitutionsService ) {
     this.collection = institutions.getInstitutions();
     this.institution = new Institution();
     this.errors = [];
-    this.seeForm = false;
+    this.showForm = false;
   }
 
   public add(): void {
     // Perform form validation to ensure fields are not empty.
     // If they are, display a message to the user.
-    this.seeForm = true;
     console.log('adding institution, set seeForm = true');
+    this.showForm = true;
   }
 
   public remove(institutuion: IInstitution): void {
@@ -45,6 +45,6 @@ export class InstitutionsComponent {
 
   public cancel(event?: Event): void {
     // User clicked cancel button.
-    this.seeForm = false;
+    this.showForm = false;
   }
 }
