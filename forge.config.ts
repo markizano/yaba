@@ -8,6 +8,14 @@ import { WebpackPlugin } from '@electron-forge/plugin-webpack';
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
 
+const csp = "default-src 'self' https://www.gstatic.com; " +
+  "style-src 'self' 'unsafe-inline' data: https://www.gstatic.com https://fonts.googleapis.com; " +
+  "font-src https://fonts.gstatic.com; " +
+  "script-src 'self' 'unsafe-eval' 'unsafe-inline' data: https://www.gstatic.com/; " +
+  "img-src 'self' data: https://www.gstatic.com";
+
+// https://stevenklambert.com/writing/comprehensive-guide-building-packaging-electron-app/
+
 const config: ForgeConfig = {
   packagerConfig: {},
   rebuildConfig: {},
@@ -29,7 +37,7 @@ const config: ForgeConfig = {
         ],
       },
       port: 3001,
-      // devContentSecurityPolicy: '',
+      devContentSecurityPolicy: csp,
       devServer: {
         historyApiFallback: {
           index: 'index.html'

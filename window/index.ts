@@ -17,10 +17,11 @@ if (require('electron-squirrel-startup')) {
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1600,
-    height: 900,
+    width: 1280,
+    height: 768,
     webPreferences: {
-      nodeIntegration: false,
+      nodeIntegration: false, // is default value after Electron v5
+      contextIsolation: true, // protect against prototype pollution
       preload: path.resolve(MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY),
     },
   });
