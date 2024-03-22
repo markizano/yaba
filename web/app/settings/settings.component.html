@@ -1,1 +1,95 @@
-<p>settings works!</p>
+<content class="controller">
+    <h1>Settings</h1>
+    <p>Where you control the app behaviours.</p>
+    <mat-list layout="column" flex="">
+        <mat-list-item>
+            <label for="settings.payCycle">What is your pay cycle?</label>
+            <select ng-model="settings.payCycle" ng-change="settings.save()" class="md-secondary">
+                <option value="weekly">Weekly</option>
+                <option value="bi-weekly">Bi-Weekly</option>
+                <option value="bi-monthly">Bi-Monthly</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="annually">Annually</option>
+            </select>
+        </mat-list-item>
+        <mat-list-item>
+            <label for="settings.txnDelta">How many months do you want in a transaction view by default?</label>
+            <select ng-model="settings.txnDelta" ng-change="settings.save()" class="md-secondary">
+                <option value="2592000000">30 days</option>
+                <option value="5184000000">60 days</option>
+                <option value="7776000000">90 days</option>
+                <option value="15552000000">6 months</option>
+                <option value="31104000000">1 year</option>
+                <option value="62208000000">2 years</option>
+            </select>
+        </mat-list-item>
+        <mat-list-item>
+            <label for="settings.incomeTags">What are your income tags?: </label>
+            <mat-chip-grid #chipGrid aria-label="Enter income tags">
+                @for (tag of settings.incomeTags; track tag) {
+                  <mat-chip-row
+                    (removed)="remove(tag)"
+                    [editable]="true"
+                    (edited)="edit(tag, $event)"
+                    (changed)="save(tag, $event)"
+                    [aria-description]="'press enter to edit ' + tag">
+                    {{tag}}
+                    <button matChipRemove [attr.aria-label]="'remove ' + tag">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip-row>
+                }
+                <input placeholder="New tag..."
+                       [matChipInputFor]="chipGrid"
+                       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                       [matChipInputAddOnBlur]="addOnBlur"
+                       (matChipInputTokenEnd)="add($event)"/>
+              </mat-chip-grid>
+            <question class="md-secondary helper" helper="Income tags will tell this app how to treat things you deem as income per defined pay period as defined above.">
+            </question>
+        </mat-list-item>
+        <mat-list-item>
+            <label>What are your expense tags?: </label>
+            <mat-chips ng-model="settings.expenseTags" ng-change="settings.save()" class="setting-chip md-secondary"></mat-chips>
+            <question class="md-secondary helper" helper="Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses.">
+            </question>
+        </mat-list-item>
+        <mat-list-item>
+            <label>What is your transfer tag?: </label>
+            <mat-chips ng-model="settings.transferTags" ng-change="settings.save()" class="setting-chip md-secondary"></mat-chips>
+            <question class="md-secondary helper" helper="Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions.">
+            </question>
+        </mat-list-item>
+        <mat-list-item>
+            <label>What is your hide tag?: </label>
+            <mat-chips ng-model="settings.hideTags" ng-change="settings.save()" class="setting-chip md-secondary"></mat-chips>
+            <question class="md-secondary helper" helper="These transactions will be hidden from view and removed from calculations."></question>
+        </mat-list-item>
+        <mat-list-item>
+            <label>What additional Fields do you want to see on transaction lists? </label>
+            <div class="md-secondary additional-fields" layout="column">
+                <div><mat-checkbox ng-model="settings.txShow.id" ng-change="settings.save()">Transaction ID</mat-checkbox></div>
+                <div><mat-checkbox ng-model="settings.txShow.datePending" ng-change="settings.save()">Date Pending</mat-checkbox></div>
+                <div><mat-checkbox ng-model="settings.txShow.merchant" ng-change="settings.save()">Merchant</mat-checkbox></div>
+                <div><mat-checkbox ng-model="settings.txShow.account" ng-change="settings.save()">Account Name</mat-checkbox></div>
+                <div><mat-checkbox ng-model="settings.txShow.transactionType" ng-change="settings.save()">Transaction Type</mat-checkbox></div>
+            </div>
+            <question class="md-secondary helper" helper="Checking these will include these columns in transaction list displays"></question>
+        </mat-list-item>
+        <mat-list-item>
+            <label>Export all data to a set of CSV files in ZIP format: </label>
+            <button ng-click="export2zip()" class="md-secondary">[Export]</button>
+        </mat-list-item>
+        <mat-list-item>
+            <label>Import a previous export: </label>
+            <button ng-click="import4zip()" class="md-secondary">[IMPORT]</button>
+        </mat-list-item>
+        <mat-list-item>
+            <label>Delete all data: </label>
+            <span class="warning md-secondary">NOTE: This will delete ALL the data!!!</span>
+            <button ng-click="deleteAll()" class="md-secondary">DELETE</button><br />
+        </mat-list-item>
+    </mat-list>
+</content>
+<br clear="all" />
