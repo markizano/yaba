@@ -1,17 +1,17 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChartsComponent } from 'app/charts/charts.component';
+import { BudgetingComponent } from './budgeting.component';
 
 
 @NgModule({
   declarations: [
-    ChartsComponent,
+    BudgetingComponent,
   ],
   imports: [
     CommonModule
   ],
   exports: [
-    ChartsComponent,
+    BudgetingComponent,
   ]
 })
-export class ChartsModule { }
+export class BudgetingModule { }

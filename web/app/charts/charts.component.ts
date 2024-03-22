@@ -4,8 +4,5 @@ import { Component } from '@angular/core';
   selector: 'yaba-charts',
   templateUrl: './charts.component.html',
   styleUrls: ['./charts.component.css'],
-  standalone: true,
 })
-export class ChartsComponent {
-
-}
+export class ChartsComponent { }

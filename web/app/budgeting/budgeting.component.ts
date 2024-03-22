@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
   selector: 'yaba-budgeting',
   templateUrl: './budgeting.component.html',
   styleUrls: ['./budgeting.component.css'],
-  standalone: true,
 })
 export class BudgetingComponent {
 

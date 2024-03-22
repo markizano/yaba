@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, NO_ERRORS_SCHEMA, Output } from '@angular/core';
+import { Component, Input, Output } from '@angular/core';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { AccountTypes, Accounts, IAccount } from 'app/lib/accounts';
 import { Institutions } from 'app/lib/institutions';
 import { FormMode } from 'app/lib/structures';
@@ -8,9 +8,14 @@ import { FormMode } from 'app/lib/structures';
   selector: 'yaba-account-form',
   templateUrl: './account-form.component.html',
   styleUrls: ['./account-form.component.css'],
-  imports: [ CommonModule ],
-  standalone: true,
-  schemas: [ NO_ERRORS_SCHEMA ],
+  animations: [
+    trigger('fade', [
+      transition('void => *', [
+        style({ opacity: 0 }),
+        animate(600, style({opacity: 1}))
+      ])
+    ])
+  ]
 })
 export class AccountFormComponent {
   @Input() public account?: IAccount;
@@ -24,6 +29,7 @@ export class AccountFormComponent {
     this.reset();
     //@TODO: Read institutions from database.
   }
+
   public save() {
     // Perform form validation to ensure fields are not empty.
     // If they are, display a message to the user.

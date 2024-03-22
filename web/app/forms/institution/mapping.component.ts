@@ -5,7 +5,6 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { MapTypes, IMapping } from 'app/lib/institutions';
 import { TransactionFields } from 'app/lib/transactions';
 
-
 @Component({
     selector: 'mapping',
     templateUrl: './mapping.component.html',

@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
-import { YabaRoutingModule } from './routing';
+import { YabaRoutingModule } from 'app/routing';
 
-import { YabaComponent } from './yaba.component';
-import { MenuComponent } from './menu/menu.component';
-import { InstitutionsModule } from './institutions/institutions.module';
-// import { AccountComponent } from './account/account.component';
-// import { ChartsComponent } from './charts/charts.component';
-// import { SettingsComponent } from './settings/settings.component';
-// import { BudgetingComponent } from './budgeting/budgeting.component';
+import { YabaComponent } from 'app/yaba.component';
+import { MenuComponent } from 'app/menu/menu.component';
+import { InstitutionsModule } from 'app/institutions/institutions.module';
+import { AccountsModule } from 'app/accounts/accounts.module';
+import { ChartsModule } from 'app/charts/charts.module';
+import { BudgetingModule } from 'app/budgeting/budgeting.module';
+import { SettingsModule } from 'app/settings/settings.module';
 
 @NgModule({
   declarations: [
@@ -20,10 +20,10 @@ import { InstitutionsModule } from './institutions/institutions.module';
     YabaRoutingModule,
     MenuComponent,
     InstitutionsModule,
-    // AccountComponent,
-    // ChartsComponent,
-    // SettingsComponent,
-    // BudgetingComponent,
+    AccountsModule,
+    ChartsModule,
+    BudgetingModule,
+    SettingsModule,
   ],
   providers: [],
   bootstrap: [ YabaComponent ]
