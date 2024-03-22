@@ -10,6 +10,7 @@ import {
   SettingsComponent,
   QuestionComponent,
   InspectComponent,
+  PaginationComponent,
 } from 'app/controls/controls.component';
 
 const components = [
@@ -22,6 +23,7 @@ const components = [
   SaveComponent,
   SettingsComponent,
   TrashComponent,
+  PaginationComponent
 ];
 
 @NgModule({

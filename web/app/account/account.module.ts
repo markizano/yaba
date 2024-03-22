@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlsModule } from 'app/controls/controls.module';
-import { AccountsComponent } from 'app/accounts/accounts.component';
+import { AccountComponent } from 'app/account/account.component';
 import { AccountFormComponent } from 'app/forms/account/account-form.component';
 
 @NgModule({
   declarations: [
     AccountFormComponent,
-    AccountsComponent,
+    AccountComponent,
   ],
   imports: [
     CommonModule,
@@ -15,7 +15,7 @@ import { AccountFormComponent } from 'app/forms/account/account-form.component';
   ],
   exports: [
     AccountFormComponent,
-    AccountsComponent,
+    AccountComponent,
   ]
 })
 export class AccountsModule { }
