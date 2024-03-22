@@ -79,7 +79,7 @@ export enum TransactionDeltas {
     days730 = 62208000000,
 }
 
-interface ShowTransactions {
+export interface ShowTransactions {
     id: boolean;
     datePending: boolean;
     merchant: boolean;

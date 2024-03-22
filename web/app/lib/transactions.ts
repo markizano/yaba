@@ -943,12 +943,8 @@ class TransactionGroup {
      * @param  {...any} txns Transactions to attempt to append to this object.
      * @returns {TransactionGroup} This object for chaining.
      */
-    append(...txns: Transaction[]): TransactionGroup {
+    append(...txns: Transaction[]|Transactions): TransactionGroup {
         for ( const txn of txns ) {
-            if ( false === txn instanceof Transaction ) {
-                console.error(txns);
-                throw new TypeError(`txn must be Transaction(), got ${txn.constructor.name}`);
-            }
             const yyyymm: string = txn.YYYYMM();
             if ( ! Object.hasOwn(this, yyyymm) ) {
                 Object.defineProperty(this, yyyymm, { value: new Transactions(), enumerable: true });
