@@ -1,24 +1,12 @@
 import { Component } from '@angular/core';
-import { MatListModule } from '@angular/material/list';
-import { MatChipsModule, MatChipInputEvent, MatChipEvent, MatChipEditedEvent } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipInputEvent, MatChipEvent, MatChipEditedEvent } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { PayCycle, TransactionDeltas, ShowTransactions } from 'app/lib/structures';
-import { ControlsModule } from 'app/controls/controls.module';
 
 @Component({
   selector: 'yaba-settings',
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css'],
-  imports: [
-    MatListModule,
-    MatChipsModule,
-    MatIconModule,
-    MatCheckboxModule,
-    ControlsModule,
-  ],
-  standalone: true,
 })
 export class SettingsComponent {
   title = 'Settings';

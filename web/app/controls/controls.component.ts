@@ -116,3 +116,55 @@ export class TrashComponent { }
   ],
 })
 export class SettingsComponent { }
+
+@Component({
+    selector: 'yaba-pagination',
+    templateUrl: './pagination.component.htm',
+    styleUrls: [ './pagination.component.css' ],
+})
+export class PaginationComponent {
+    title = 'Pagination';
+    itemsPerPage = 0;
+    offset = 0;
+    page = 0;
+    pageCount = 1;
+
+    setPage($page: number) {
+        if ( $page < 0 || $page > this.pageCount -1 ) return;
+        this.page = $page;
+        this.offset = $page * this.itemsPerPage;
+    }
+
+/*
+    $scope.previous = () => $scope.setPage($scope.page -1);
+    $scope.proximo = () => $scope.setPage($scope.page +1);
+    $scope.refresh = () => {
+        $scope.pageCount = Math.round( $scope.itemCount / $scope.itemsPerPage );
+        if ( $scope.itemCount >= $scope.itemsPerPage ) {
+            $scope.pageCount += 1;
+        }
+        $scope.setPage(0);
+    }
+    $scope.keyNavigate = ($event) => {
+        // Right
+        if ( $event.which == 39 ) {
+            $event.preventDefault();
+            $scope.proximo();
+        // Left
+        } else if ( $event.which == 37 ) {
+            $event.preventDefault();
+            $scope.previous();
+        }
+    };
+    $scope.refresh();
+    $scope.$watch('itemCount', () => $scope.refresh() );
+    $scope.$on('pagination.previous', ($event, jqEvent) => {
+        $scope.previous();
+        $scope.$apply();
+    });
+    $scope.$on('pagination.proximo', ($event, jqEvent) => {
+        $scope.proximo();
+        $scope.$apply();
+    });
+ */
+}
