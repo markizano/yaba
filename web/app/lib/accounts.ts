@@ -128,8 +128,8 @@ export class Accounts extends Array<Account> {
     constructor(...items: IAccount[]) {
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
-                const item = new Account();
-                if ( false === item instanceof Account ) {
+                const item: Account = new Account();
+                if ( false === items[i] instanceof Account ) {
                     items[i] = item.update(items[i]);
                 }
             }
