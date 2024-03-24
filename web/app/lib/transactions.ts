@@ -69,6 +69,19 @@ export interface IBudget {
 }
 
 /**
+ * Placeholders for editing transactions.
+ */
+export interface EditPlaceholder {
+    datePending: boolean;
+    datePosted: boolean;
+    amount: boolean;
+    description: boolean;
+    merchant: boolean;
+    transactionType: boolean;
+    tags: boolean;
+}
+
+/**
  * Data model object to represent a transaction.
  * Coerces a Hash/Object into something we can use as institution to at least typecast the
  * structure as we need it here.

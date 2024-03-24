@@ -26,8 +26,7 @@
         </mat-list-item>
         <mat-list-item>
             <label for="incomeTags">What are your income tags?: </label>
-            <mat-chip-grid #chipGrid aria-label="Enter income tags">
-                @for (tag of incomeTags; track tag) {
+            <mat-chip-grid #chipGrid aria-label="Enter income tags" *ngFor="let tag of incomeTags; track tag">
                   <mat-chip-row
                     (removed)="remove($event)"
                     [editable]="true"
@@ -39,7 +38,6 @@
                       <mat-icon>cancel</mat-icon>
                     </button>
                   </mat-chip-row>
-                }
                 <input placeholder="New tag..."
                        [matChipInputFor]="chipGrid"
                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
@@ -51,8 +49,7 @@
         </mat-list-item>
         <mat-list-item>
             <label>What are your expense tags?: </label>
-            <mat-chip-grid #chipGrid aria-label="Enter expense tags">
-                @for (tag of expenseTags; track tag) {
+            <mat-chip-grid #chipGrid aria-label="Enter expense tags" *ngFor="let tag of expenseTags; track tag">
                   <mat-chip-row
                     (removed)="remove($event)"
                     [editable]="true"
@@ -64,7 +61,6 @@
                       <mat-icon>cancel</mat-icon>
                     </button>
                   </mat-chip-row>
-                }
                 <input placeholder="New tag..."
                        [matChipInputFor]="chipGrid"
                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
@@ -76,8 +72,7 @@
         </mat-list-item>
         <mat-list-item>
             <label>What is your transfer tag?: </label>
-            <mat-chip-grid #chipGrid aria-label="Enter transfer tags">
-                @for (tag of transferTags; track tag) {
+            <mat-chip-grid #chipGrid aria-label="Enter transfer tags" *ngFor="let tag of transferTags; track tag">
                   <mat-chip-row
                     (removed)="remove($event)"
                     [editable]="true"
@@ -89,7 +84,6 @@
                       <mat-icon>cancel</mat-icon>
                     </button>
                   </mat-chip-row>
-                }
                 <input placeholder="New tag..."
                        [matChipInputFor]="chipGrid"
                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
@@ -101,8 +95,7 @@
         </mat-list-item>
         <mat-list-item>
             <label>What is your hide tag?: </label>
-            <mat-chip-grid #chipGrid aria-label="Enter hidden tags">
-                @for (tag of hideTags; track tag) {
+            <mat-chip-grid #chipGrid aria-label="Enter hidden tags" *ngFor="let tag of hideTags; track tag">
                   <mat-chip-row
                     (removed)="remove($event)"
                     [editable]="true"
@@ -114,7 +107,6 @@
                       <mat-icon>cancel</mat-icon>
                     </button>
                   </mat-chip-row>
-                }
                 <input placeholder="New tag..."
                        [matChipInputFor]="chipGrid"
                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"

@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { YabaRoutingModule } from 'app/routing';
-
 import { YabaComponent } from 'app/yaba.component';
 import { MenuComponent } from 'app/menu/menu.component';
 import { InstitutionsModule } from 'app/institutions/institutions.module';
