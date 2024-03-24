@@ -2,16 +2,16 @@
     <div id="accounts" ng-controller="accounts" class="controller">
       <h1>Accounts</h1>
       <p>This is where you view and manage accounts associated with each institution.</p>
-      <add ng-click="add()" class="right"></add><br clear="all" />
+      <add (ngClick)="add()" class="right"></add><br clear="all" />
       <mat-grid-list md-row-height="7:4" md-cols-xl="3" md-cols-lg="2" md-cols-md="1" md-cols-sm="1" md-cols-xs="1" md-gutter="1">
         <mat-grid-tile class="item-list-wrapper" ng-repeat="account in accounts">
-            <mat-grid-tile-header>
-                <h2 class="title md-truncate" ng-bind="account.name"></h2>
+            <mat-grid-tile-header *ngForOf="let account as Account of accounts">
+                <h2 class="title md-truncate" *ngModel="account"></h2>
                 <div class="account-balance">{{ account.balance() | currency }}</div>
                 <actions>
-                  <inspect ng-click="view(account)" class="helper" helper="View &quot;{{ account.name }}&quot; details &amp; Transactions."></inspect>
-                  <edit ng-click="edit(account)" class="helper" helper="Edit Account &quot;{{ account.name }}&quot;."></edit>
-                  <trash ng-click="remove(account)" class="helper" helper="Delete Account &quot;{{ account.name }}&quot;."></trash>
+                    <inspect (ngClick)="view(account)" class="helper" title="View &quot;{{ account.name }}&quot; details &amp; Transactions."></inspect>
+                    <edit (ngClick)="edit(account)" class="helper" title="Edit Account &quot;{{ account.name }}&quot;."></edit>
+                    <trash (ngClick)="remove(account)" class="helper" title="Delete Account &quot;{{ account.name }}&quot;."></trash>
                 </actions>
             </mat-grid-tile-header>
             <yaba-transaction-list
@@ -23,11 +23,9 @@
       </mat-grid-list>
       <div class="errors">{{ error }}</div>
       <yaba-account-form
-        account="account"
-        ng-show="seeForm"
+        [account]="account"
+        *ngIf="visible"
         mode="mode"
-        see-form="seeForm"
         class="ng-fade ng-hide" />
     </div>
-  </content>
-  
+</content>

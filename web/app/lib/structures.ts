@@ -79,7 +79,7 @@ export enum TransactionDeltas {
     days730 = 62208000000,
 }
 
-export interface ShowTransactions {
+export interface TransactionHeaders {
     id: boolean;
     datePending: boolean;
     merchant: boolean;
@@ -131,7 +131,7 @@ export interface UserPreferences {
     expenseTags: string[];
     transferTags: string[];
     hideTags: string[];
-    txShow: ShowTransactions;
+    txShow: TransactionHeaders;
     payCycle: PayCycle;
     txnDelta: TransactionDeltas;
 }
@@ -144,16 +144,16 @@ export class Settings implements UserPreferences {
     public expenseTags: string[];
     public transferTags: string[];
     public hideTags: string[];
-    public txShow: ShowTransactions;
+    public txShow: TransactionHeaders;
     public payCycle: PayCycle;
     public txnDelta: TransactionDeltas;
 
-    constructor(incomeTags?: string[], expenseTags?: string[], transferTags?: string[], hideTags?: string[], txShow?: ShowTransactions, payCycle?: PayCycle, txnDelta?: TransactionDeltas) {
+    constructor(incomeTags?: string[], expenseTags?: string[], transferTags?: string[], hideTags?: string[], txShow?: TransactionHeaders, payCycle?: PayCycle, txnDelta?: TransactionDeltas) {
         this.incomeTags = incomeTags || [];
         this.expenseTags = expenseTags || [];
         this.transferTags = transferTags || [];
         this.hideTags = hideTags || [];
-        this.txShow = txShow || <ShowTransactions>{};
+        this.txShow = txShow || <TransactionHeaders>{};
         this.payCycle = payCycle || PayCycle.Weekly;
         this.txnDelta = txnDelta || TransactionDeltas.days30;
     }
