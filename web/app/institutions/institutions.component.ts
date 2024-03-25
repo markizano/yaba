@@ -1,4 +1,4 @@
-import { Component, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
 import { InstitutionsService } from 'app/storables/institutions.service';
@@ -10,10 +10,11 @@ import { InstitutionsService } from 'app/storables/institutions.service';
     providers: [ InstitutionsService ],
 })
 export class InstitutionsComponent {
-  public collection: Institutions;
-  @Output() public institution: IInstitution;
-  public errors?: string[];
-  protected showForm: boolean;
+  collection: Institutions;
+  institution: IInstitution;
+  @Output() institutionChange = new EventEmitter<IInstitution>();
+  errors?: string[];
+  showForm: boolean;
 
   // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
   constructor( protected institutions: InstitutionsService ) {
@@ -34,17 +35,21 @@ export class InstitutionsComponent {
     this.collection.remove(institutuion);
   }
 
-  public save(event: Event): void {
+  public save(): void {
     // this.session.save();
     console.log('saving institutions.');
+    this.institutions.save();
   }
 
   public edit(institution: IInstitution): void {
     // edits a form.
+    this.showForm = true;
+    this.institution = institution;
   }
 
-  public cancel(event?: Event): void {
+  public cancel(): void {
     // User clicked cancel button.
     this.showForm = false;
+    this.institution = new Institution();
   }
 }

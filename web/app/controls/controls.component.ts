@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Account, Accounts } from 'app/lib/accounts';
-import { BudgetStruct } from 'app/lib/structures';
 import { Transactions } from 'app/lib/transactions';
 
 @Component({
@@ -151,7 +150,7 @@ export class YabaFilterDescriptionComponent {
 })
 export class YabaFilterBudgetsComponent {
     title = 'Budgets';
-    @Input() budgets: BudgetStruct[] = [];
+    @Input() budgets: string[] = [];
     @Output() selectedBudgets = new EventEmitter<string[]>();
 
     changed(budget: string[]) {
@@ -183,7 +182,7 @@ export class TransactionFilterComponent {
     @Input() fromDate: Date;
     @Input() toDate: Date;
     @Input() description: string|RegExp;
-    @Input() budgets: BudgetStruct[];
+    @Input() budgets: string[];
     @Output() fromDateChange = new EventEmitter<Date>();
     @Output() toDateChange = new EventEmitter<Date>();
     @Output() descriptionChange = new EventEmitter<string|RegExp>();
@@ -210,6 +209,4 @@ export class TransactionFilterComponent {
     useBudgets(budgets: string[]) {
         this.selectedBudgets.emit(budgets);
     }
-
-
 }

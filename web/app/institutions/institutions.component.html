@@ -36,10 +36,8 @@
     <div class="errors"><p *ngFor="let error of errors">{{ error }}</p></div>
     
     <yaba-institution-form
-        [institution]="institution"
-        (save)="save($event)"
-        (cancel)="cancel($event)"
+        [(institution)]="institution"
+        [visible]="showForm"
         class="ng-fade csvdrop"
-        (ngClass)="{'ng-hide': !showForm}"
     ></yaba-institution-form>
 </div>
