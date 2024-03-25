@@ -1,1 +1,21 @@
-<p>budgeting works!</p>
+<div id="budget" class="controller">
+    <h1>Budgeting</h1>
+    <p>Budgeting helps ensure we stay on track for spending.</p>
+    <div layout="row">
+        <yaba-transaction-list
+            [showFilters]="true"
+            [showDaterange]="true"
+            [showAccounts]="true"
+            [showDescription]="true"
+            [showTags]="true"
+            [editable]="true"
+            [txns]="txns"
+            [(fromDate)]="fromDate"
+            [(toDate)]="toDate"
+            [(description)]="description"
+            (selectedAccounts)="selectedAccounts"
+        ></yaba-transaction-list>
+        <yaba-budgets-table [budgets]="budgets" />
+    </div>
+    <div class="errors">{{ error }}</div>
+</div>
