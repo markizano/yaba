@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { FormsModule } from '@angular/forms';
@@ -44,10 +44,8 @@ export class TransactionsListComponent {
   @Input() showTags: boolean;
   @Input() fromDate: Date;
   @Input() toDate: Date;
-  @Input() selectedAccounts: Account[];
   @Input() description: string|RegExp;
   @Input() useRegexp: boolean;
-  @Input() selectedBudgets: string[];
   // Decorators
   @Input() showPaginate: boolean;
   @Input() txShow?: TransactionHeaders;
@@ -58,6 +56,12 @@ export class TransactionsListComponent {
   // Sorting and Ordering
   @Input() sort: SortAgent;
   @Input() limit: number;
+
+  @Output() fromDateChange = new EventEmitter<Date>();
+  @Output() toDateChange = new EventEmitter<Date>();
+  @Output() descriptionChange = new EventEmitter<string|RegExp>();
+  @Output() selectedBudgets = new EventEmitter<string[]>();
+  @Output() selectedAccounts = new EventEmitter<Account[]|Accounts>();
 
   constructor() {
     this.accountId = '';
@@ -70,10 +74,8 @@ export class TransactionsListComponent {
     this.showTags = true;
     this.fromDate = new Date(new Date().getTime() - 86400);
     this.toDate = new Date();
-    this.selectedAccounts = [];
     this.description = '';
     this.useRegexp = false;
-    this.selectedBudgets = [];
     this.showPaginate = true;
     this.withHeader = true;
     this.withTags = true;
@@ -109,10 +111,10 @@ export class TransactionsListComponent {
   }
 
   useAccounts(accounts: Account[]|Accounts) {
-    this.selectedAccounts = <Accounts>accounts;
+    this.selectedAccounts.emit(<Accounts>accounts);
   }
 
   useBudgets(budgets: string[]) {
-    this.selectedBudgets = budgets;
+    this.selectedBudgets.emit(budgets);
   }
 }

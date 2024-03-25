@@ -1,6 +1,6 @@
 Budgets: <br />
 <select multiple [(ngModel)]="selectedBudgets" class="budget-list" (ngModelChange)="changed($event.target.value)">
-  <option *ngFor="let budget of budgets" [value]="budget.tag">
-    {{budget.tag}}
+  <option *ngFor="let budget of budgets" [value]="budget">
+    {{budget}}
     </option>
 </select>

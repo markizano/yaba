@@ -1,0 +1,17 @@
+<div>
+    <table id="budget-list" class="item-list-wrapper data">
+        <thead>
+            <th>Budget</th>
+            <th>Spending</th>
+        </thead>
+        <tbody>
+            <tr *ngForOf="let b in getBudgets()">
+                <td>{{ b.tag }}</td>
+                <td>{{ b.amount | currency }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<debug>
+    budgets: {{budgets.length}}
+</debug>
