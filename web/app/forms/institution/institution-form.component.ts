@@ -20,23 +20,20 @@ import { TransactionFields } from 'app/lib/transactions';
   ]
 })
 export class InstitutionFormComponent {
-  @Input() public institution?: IInstitution;
-  @Input() public visible?: boolean;
-  @Output() newInstitution: EventEmitter<IInstitution> = new EventEmitter<IInstitution>();
-  public mode: FormMode = FormMode.Create;
-  public errors: string[] = []; // List of array messages to render to end-user.
-  public forms?: FormGroup;
+  @Input() institution?: IInstitution;
+  @Input() visible?: boolean;
+  @Output() visibleChange = new EventEmitter<boolean>();
+  @Output() institutionChange: EventEmitter<IInstitution> = new EventEmitter<IInstitution>();
+  mode: FormMode = FormMode.Create;
+  errors: string[] = []; // List of array messages to render to end-user.
+  forms?: FormGroup;
 
-  public readonly MapTypes = MapTypes;
-  public readonly TransactionFields = TransactionFields;
+  readonly MapTypes = MapTypes;
+  readonly TransactionFields = TransactionFields;
 
   constructor() {
-    if ( ! this.institution ) {
-      this.institution = new Institution();
-    }
-    if ( typeof this.visible === "undefined") {
-      this.visible = false;
-    }
+    this.institution = new Institution();
+    this.visible = false;
     this.forms = new FormGroup({
       name: new FormControl('', Validators.required),
       description: new FormControl(''),
@@ -54,7 +51,7 @@ export class InstitutionFormComponent {
    * Validates the form to ensure we have a named institution with a reasonable description.
    * @returns boolean
    */
-  public validate(): boolean {
+  validate(): boolean {
     this.errors = [];
     if ( ! this.institution ) return false;
     if ( ! this.institution.name ) {
@@ -76,7 +73,7 @@ export class InstitutionFormComponent {
    */
   public save(): void {
     if ( ! this.validate() ) return;
-    this.newInstitution.emit(this.institution);
+    this.institutionChange.emit(this.institution);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -107,6 +104,7 @@ export class InstitutionFormComponent {
    */
   protected close() {
     this.visible = false;
+    this.visibleChange.emit(false);
   }
 
   /**

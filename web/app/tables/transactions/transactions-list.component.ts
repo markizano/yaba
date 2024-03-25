@@ -1,4 +1,4 @@
-import { Component, Input, input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { FormsModule } from '@angular/forms';
@@ -33,10 +33,11 @@ export class TransactionsListComponent {
   addOnBlur = true;
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
   // Data
-  txns: Transactions;
-  accounts: Accounts;
-  // Filtering
+  @Input() txns: Transactions;
+  @Input() accounts: Accounts;
   @Input() accountId: string;
+  // Filtering
+  @Input() showFilters: boolean;
   @Input() showDaterange: boolean;
   @Input() showAccounts: boolean;
   @Input() showDescription: boolean;
@@ -48,7 +49,7 @@ export class TransactionsListComponent {
   @Input() useRegexp: boolean;
   @Input() selectedBudgets: string[];
   // Decorators
-  @Input() paginate: boolean;
+  @Input() showPaginate: boolean;
   @Input() txShow?: TransactionHeaders;
   currentlyEditing: EditPlaceholder;
   @Input() editable: boolean;
@@ -62,6 +63,7 @@ export class TransactionsListComponent {
     this.accountId = '';
     this.txns = new Transactions();
     this.sort = { column: 'datePosted', asc: true };
+    this.showFilters = true;
     this.showDaterange = true;
     this.showAccounts = true;
     this.showDescription = true;
@@ -72,7 +74,7 @@ export class TransactionsListComponent {
     this.description = '';
     this.useRegexp = false;
     this.selectedBudgets = [];
-    this.paginate = true;
+    this.showPaginate = true;
     this.withHeader = true;
     this.withTags = true;
     this.limit = 1000;
