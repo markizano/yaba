@@ -53,7 +53,6 @@ export class AccountsComponent {
     // Navigate to the account route.
     const accountId = typeof account === 'object' ? account.id : account;
     location.href = `accounts/${accountId}`;
-    
   }
 
   /**

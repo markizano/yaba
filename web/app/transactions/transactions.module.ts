@@ -9,11 +9,11 @@ import { TransactionsComponent } from 'app/transactions/transactions.component';
 import { TransactionsListComponent } from 'app/tables/transactions/transactions-list.component';
 
 import { SortByTxnHeaderPipe } from 'app/sort-by-txn-header.pipe';
+import { YabaTxnPaginationComponent } from 'app/controls/controls.component';
 
 @NgModule({
   declarations: [
     TransactionsComponent,
-    TransactionsListComponent,
   ],
   imports: [
     CommonModule,
@@ -22,6 +22,8 @@ import { SortByTxnHeaderPipe } from 'app/sort-by-txn-header.pipe';
     FormsModule,
     ControlsModule,
     SortByTxnHeaderPipe,
+    YabaTxnPaginationComponent,
+    TransactionsListComponent,
   ],
   exports: [
     TransactionsComponent,

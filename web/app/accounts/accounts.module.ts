@@ -10,13 +10,13 @@ import { TransactionsModule } from 'app/transactions/transactions.module';
 @NgModule({
   declarations: [
     AccountsComponent,
-    AccountFormComponent,
   ],
   imports: [
     CommonModule,
     MatGridListModule,
     ControlsModule,
     TransactionsModule,
+    AccountFormComponent,
   ],
   exports: [
     AccountsComponent,
