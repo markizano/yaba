@@ -11,12 +11,12 @@
       <li [ngClass]="{'disabled': page > pageCount -1}" (ngClick)="proximo()">&gt;&gt;</li>
     </ul>
     <label>Items per Page:</label>
-    <select ng-model="itemsPerPage" ng-change="refresh()">
-      <option ng-value="10" selected>10</option>
-      <option ng-value="25">25</option>
-      <option ng-value="50">50</option>
-      <option ng-value="100">100</option>
+    <select [(ngModel)]="itemsPerPage" (ngChange)="refresh()">
+      <option value="10" selected>10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
     </select>
-    <label>Results: {{itemCount}}</label>
+    <label>Results: {{ itemCount }}</label>
   </nav>
   

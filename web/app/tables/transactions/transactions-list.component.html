@@ -1,5 +1,14 @@
 <div class="transaction-list-wrapper" [ngClass]="editable ? 'editable': ''">
-    <table class="data item-list" [ngClass]="editable ? 'editable': ''">
+    <transaction-filters
+        [accounts]="accounts"
+        [txns]="txns"
+        [(fromDate)]="fromDate"
+        [(toDate)]="toDate"
+        [(description)]="description"
+        (selectedAccounts)="useAccounts($event)"
+        (selectedBudgets)="useBudgets($event)"
+    ></transaction-filters>
+    <table class="data item-list" [ngClass]="editable ? 'editable': ''" *ngIf="txns.length > 0">
         <thead *ngIf="withHeader">
             <tr>
                 <th *ngIf="txShow?.id">Transaction ID</th>
@@ -119,7 +128,7 @@
             </tr>
         </tbody>
     </table>
-    <yaba-pagination [itemCount]="txns.length"></yaba-pagination><br />
+    <yaba-pagination *ngIf="paginate && txns.length > 10" [itemCount]="txns.length"></yaba-pagination><br />
     <debug>
         txn.length: <span [textContent]="txns.length"></span>
         limit: <span [textContent]="limit"></span>

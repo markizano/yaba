@@ -1,0 +1,21 @@
+<date-range layout="row" layout-padding ng-cloak>
+    <from-date>
+        <input
+          type="date"
+          [(ngModel)]="fromDate"
+          (ngChange)="changed($event)"
+          placeholder="From Date"
+          class="from-date"
+        />
+    </from-date>
+    &nbsp;
+    <to-date>
+        <input
+            type="date"
+            [(ngModel)]="toDate"
+            (ngChange)="changed($event)"
+            placeholder="To Date"
+            class="to-date"
+        />
+    </to-date>
+</date-range>

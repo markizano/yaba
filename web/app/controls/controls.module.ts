@@ -1,17 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  TrashComponent,
+  ActionsComponent,
   AddComponent,
   CloseComponent,
   DebugComponent,
   EditComponent,
-  SaveComponent,
-  ActionsComponent,
-  SettingsComponent,
-  QuestionComponent,
   InspectComponent,
-  PaginationComponent,
+  QuestionComponent,
+  SaveComponent,
+  SettingsComponent,
+  TrashComponent,
+} from 'app/controls/icons.component';
+import {
+  YabaTxnPaginationComponent,
+  TransactionFilterComponent,
 } from 'app/controls/controls.component';
 
 const components = [
@@ -25,13 +28,16 @@ const components = [
   SaveComponent,
   SettingsComponent,
   TrashComponent,
-  PaginationComponent
 ];
 
 @NgModule({
   declarations: components,
-  imports: [ CommonModule ],
+  imports: [
+    CommonModule,
+    YabaTxnPaginationComponent,
+    TransactionFilterComponent,
+  ],
   providers: [ ],
-  exports: components,
+  exports: [...components, TransactionFilterComponent],
 })
 export class ControlsModule { }

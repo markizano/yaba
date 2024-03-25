@@ -1,0 +1,4 @@
+Account: <br />
+<select [(ngModel)]="selectedAccounts" multiple="1" (ngModelChange)="changed($event)">
+    <option *ngFor="let account for account in accounts" [(ngModel)]="account.id">{{account.name}}</option>
+</select>

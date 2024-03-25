@@ -3,9 +3,9 @@
       <h1>Accounts</h1>
       <p>This is where you view and manage accounts associated with each institution.</p>
       <add (ngClick)="add()" class="right"></add><br clear="all" />
-      <mat-grid-list md-row-height="7:4" md-cols-xl="3" md-cols-lg="2" md-cols-md="1" md-cols-sm="1" md-cols-xs="1" md-gutter="1">
+      <mat-grid-list *ngIf="accounts.length > 0" md-row-height="7:4" md-cols-xl="3" md-cols-lg="2" md-cols-md="1" md-cols-sm="1" md-cols-xs="1" md-gutter="1">
         <mat-grid-tile class="item-list-wrapper" ng-repeat="account in accounts">
-            <mat-grid-tile-header *ngForOf="let account as Account of accounts">
+            <mat-grid-tile-header *ngForOf="let account of accounts">
                 <h2 class="title md-truncate" *ngModel="account"></h2>
                 <div class="account-balance">{{ account.balance() | currency }}</div>
                 <actions>
@@ -15,8 +15,9 @@
                 </actions>
             </mat-grid-tile-header>
             <yaba-transaction-list
-              account-id="account.id"
-              limit="5"
+              [accountId]="account.id"
+              [limit]="5"
+              [paginate]="false"
               class="csvdrop"
             ></yaba-transaction-list>
         </mat-grid-tile>
@@ -25,7 +26,8 @@
       <yaba-account-form
         [account]="account"
         *ngIf="visible"
-        mode="mode"
+        [mode]="mode"
+        [visible]="visible"
         class="ng-fade ng-hide" />
     </div>
 </content>

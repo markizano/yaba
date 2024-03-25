@@ -42,6 +42,31 @@ export function parseCurrency(value: string): number {
 export const NULLDATE = new Date('1970-01-01T00:00:00');
 
 /**
+ * @param {DateRange} DateRange Object to represent a range of dates.
+ */
+export interface DateRange {
+    fromDate: Date;
+    toDate: Date;
+
+}
+
+/**
+ * Description + Regexp Struct for sending description update change events.
+ */
+export interface DescriptionChange {
+    description: string|RegExp;
+    useRegexp: boolean;
+}
+
+/**
+ * Budget Struct for reading budgets.
+ */
+export interface BudgetStruct {
+    tag: string;
+    amount: number;
+}
+
+/**
  * Special string array that represents a list of tags.
  * If we later want to expand on this, we can use this stub.
  */

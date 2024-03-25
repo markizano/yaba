@@ -1,0 +1,9 @@
+<div *ngIf="showDaterange || showAccounts || showDescription || showTags" layout="row">
+    <yaba-daterange *ngIf="showDaterange" [(fromDate)]="fromDate" [(toDate)]="toDate"></yaba-daterange>
+
+    <yaba-accounts *ngIf="showAccounts" [accounts]="accounts" (selectedAccounts)="useAccounts($event)"></yaba-accounts>
+
+    <yaba-description *ngIf="showDescription" [(description)]="description"></yaba-description>
+
+    <yaba-budgets *ngIf="showTags" (selectedBudgets)="useBudgets($event)" ></yaba-budgets>
+</div>
