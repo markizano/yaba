@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 
 import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
+import { FormMode } from 'app/lib/structures';
 import { InstitutionsService } from 'app/storables/institutions.service';
 
 @Component({
@@ -13,43 +14,53 @@ export class InstitutionsComponent {
   collection: Institutions;
   institution: IInstitution;
   @Output() institutionChange = new EventEmitter<IInstitution>();
-  errors?: string[];
-  showForm: boolean;
+  errors: string[];
+  formVisible: boolean;
+  formMode: FormMode;
 
   // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
   constructor( protected institutions: InstitutionsService ) {
     this.collection = institutions.getInstitutions();
     this.institution = new Institution();
     this.errors = [];
-    this.showForm = false;
+    this.formVisible = false;
+    this.formMode = FormMode.Create;
   }
 
-  public add(): void {
-    // Perform form validation to ensure fields are not empty.
-    // If they are, display a message to the user.
-    console.log('adding institution, set seeForm = true');
-    this.showForm = true;
+  // user-clickable add button
+  add(): void {
+    this.institution = new Institution();
+    this.formMode = FormMode.Create;
+    this.formVisible = true;
   }
 
-  public remove(institutuion: IInstitution): void {
+  remove(institutuion: IInstitution): void {
     this.collection.remove(institutuion);
   }
 
-  public save(): void {
-    // this.session.save();
-    console.log('saving institutions.');
-    this.institutions.save();
-  }
-
-  public edit(institution: IInstitution): void {
-    // edits a form.
-    this.showForm = true;
+  save(institution: IInstitution): void {
     this.institution = institution;
+    this.institutionChange.emit(institution);
+    this.close()
   }
 
-  public cancel(): void {
-    // User clicked cancel button.
-    this.showForm = false;
+  edit(institution: IInstitution): void {
+    this.institution = institution;
+    this.formMode = FormMode.Edit;
+    this.formVisible = true;
+  }
+
+  // User clicked cancel button.
+  cancel(): void {
+    this.close();
+    this.reset();
+  }
+
+  close(): void {
+    this.formVisible = false;
+  }
+
+  reset(): void {
     this.institution = new Institution();
   }
 }

@@ -32,12 +32,13 @@
             </table>
         </div>
     </div>
-    
     <div class="errors"><p *ngFor="let error of errors">{{ error }}</p></div>
-    
     <yaba-institution-form
+        *ngIf="formVisible"
         [(institution)]="institution"
-        [visible]="showForm"
+        [(mode)]="formMode"
+        (save)="save($event)"
+        (cancel)="cancel()"
         class="ng-fade csvdrop"
     ></yaba-institution-form>
 </div>

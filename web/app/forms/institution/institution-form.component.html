@@ -1,12 +1,12 @@
-<div class="yaba-institution-form">
-    <close (click)="close()"></close>
-    <h1>{{ institution?.name || 'New' }} Institution</h1>
-    <form (ngSubmit)="save()">
-        <label>Name: <input type="text" tabindex="1" (ngModel)="institution?.name" /></label>
-        <label>Description: <input type="text" tabindex="2" (ngModel)="institution?.description" /></label>
+<div class="yaba-institution-form yaba-form">
+    <close (click)="cancel.emit()"></close>
+    <h1>{{ institution.name || 'New' }} Institution</h1>
+    <form (ngSubmit)="saveChanges()">
+        <label>Name: <input type="text" tabindex="1" (ngModel)="institution.name" /></label>
+        <label>Description: <input type="text" tabindex="2" (ngModel)="institution.description" /></label>
         <label>Mapping: <add tabindex="3" (click)="addMapping()"></add></label>
         <ul>
-            <li *ngFor="let mapping of institution?.mappings; let i = index">
+            <li *ngFor="let mapping of institution.mappings; let i = index">
                 <mapping class="slide-down"
                     [mapping]="mapping"
                     [index]="i"
@@ -14,6 +14,7 @@
                 </mapping>
             </li>
         </ul>
-        <input type="submit" tabindex="{{ 3 + ((institution?.mappings?.length || 0)*4) +1 }}" value="Save Institution" />
+        <input type="button" tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +1 }}" value="Cancel" (click)="cancel.emit()" />
+        <input type="submit" tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +2 }}" value="Save Institution" />
     </form>
 </div>

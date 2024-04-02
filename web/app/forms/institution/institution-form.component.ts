@@ -20,20 +20,23 @@ import { TransactionFields } from 'app/lib/transactions';
   ]
 })
 export class InstitutionFormComponent {
-  @Input() institution?: IInstitution;
-  @Input() visible?: boolean;
-  @Output() visibleChange = new EventEmitter<boolean>();
+  @Input() institution: IInstitution;
   @Output() institutionChange: EventEmitter<IInstitution> = new EventEmitter<IInstitution>();
-  mode: FormMode = FormMode.Create;
+
+  @Input() mode: FormMode = FormMode.Create;
+  @Output() modeChange = new EventEmitter<FormMode>();
+
+  @Output() save = new EventEmitter<IInstitution>();
+  @Output() cancel = new EventEmitter<void>();
+
   errors: string[] = []; // List of array messages to render to end-user.
-  forms?: FormGroup;
+  forms: FormGroup;
 
   readonly MapTypes = MapTypes;
   readonly TransactionFields = TransactionFields;
 
   constructor() {
     this.institution = new Institution();
-    this.visible = false;
     this.forms = new FormGroup({
       name: new FormControl('', Validators.required),
       description: new FormControl(''),
@@ -71,48 +74,40 @@ export class InstitutionFormComponent {
    * Performs additional validation and checks to make sure all fields are entered accordingly.
    * Renders errors for the user until validation passes, then send the information to the database.
    */
-  public save(): void {
+  saveChanges(): void {
     if ( ! this.validate() ) return;
     this.institutionChange.emit(this.institution);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public cancel(event?: Event): void {
-    this.close();
+    this.save.emit(this.institution);
     this.reset();
   }
 
-  public edit(institution: IInstitution): void {
-    this.mode = FormMode.Edit;
-    this.institution = institution;
+  edit(institution: IInstitution): void {
+    this.institutionChange.emit( this.institution = institution );
+    this.modeChange.emit( this.mode = FormMode.Edit );
   }
 
-  public addMapping(): void {
+  addMapping(): void {
     if ( ! this.institution ) return;
     this.institution.addMapping('', TransactionFields.UNKNOWN, MapTypes.static);
+    this.institutionChange.emit(this.institution);
   }
 
   /**
    * Remove a mapping from the list of mappings.
    */
-  public removeMapping(mapping: IMapping): void {
-    this.institution?.mappings.removeMapping(mapping);
-  }
-
-  /**
-   * Close out the form and hide from view.
-   */
-  protected close() {
-    this.visible = false;
-    this.visibleChange.emit(false);
+  removeMapping(mapping: IMapping): void {
+    this.institution.mappings.removeMapping(mapping);
+    this.institutionChange.emit(this.institution);
   }
 
   /**
    * Reset the form to its initial state behind the scenes.
    */
-  protected reset() {
+  reset() {
     this.institution = new Institution();
     this.mode = FormMode.Create;
     this.errors = [];
+    this.institutionChange.emit(this.institution);
+    this.modeChange.emit(this.mode);
   }
 }

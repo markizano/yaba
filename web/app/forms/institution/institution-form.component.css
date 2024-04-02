@@ -1,12 +1,20 @@
-:host, .yaba-institution-form {
+:host {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     margin-top: 20px;
     margin-bottom: 20px;
-    border: 1px solid var(--topaz);
-}
+    border: 2px solid var(--topaz);
+
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 800px;
+    height: 300px;
+    box-shadow: 8px 8px #1c1c1c;
+    background: #EEE;}
+
 
 institution-list, .institution-list {
     display: inline-flex;
