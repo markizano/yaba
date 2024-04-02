@@ -31,7 +31,7 @@ export class AccountFormComponent {
   @Input() account: Account;
   @Input() visible: boolean;
   @Input() mode: FormMode = FormMode.Create;
-  @Output() accountResult = new EventEmitter<Account>();
+  @Output() accountChange = new EventEmitter<Account>();
   institutions: Institutions = new Institutions();
   AccountTypes = AccountTypes;
 
@@ -45,7 +45,7 @@ export class AccountFormComponent {
   public save() {
     // Perform form validation to ensure fields are not empty.
     // If they are, display a message to the user.
-    this.accountResult.emit(this.account);
+    this.accountChange.emit(this.account);
   }
 
   public cancel() {
