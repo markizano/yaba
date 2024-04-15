@@ -5,8 +5,7 @@ const boxDimensionsCss = `background-size: 32px;
 width: 32px;
 height: 32px;
 padding: 0px;
-margin: 8px;
-display: inline-block;
+display: inline-flex;
 cursor: pointer;`;
 
 const hover = `:host:hover { cursor: grab }`;
@@ -104,7 +103,6 @@ export class SaveComponent { }
   template: '',
   styles: [`:host {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEUAAAAAAAD///+D3c/SAAAAAXRSTlMAQObYZgAAAJ1JREFUOMu909ENxCAIAFD8YAT2cQQ+YP9VDmyJEK+NaS9H/HohiAYARpCqQIqmFj0BOnACcpBbsHQsYAXbNowWZvQVsAKvGVBhVJ23jQc+BGvHzgmg3jWy938kq7/cgfehB7SAKPpbUAcNoAnyGDgAXwAcANuAE/gaOp5XfQcJoH+CfRw5yBj5C0CfMU6QtqTMpe5DXo4tgLI+C3wAPtZ/2wH5BkcAAAAASUVORK5CYII=');
-    filter: invert(100%);
     border: 1px solid black; /* Filter impacts the border too somehow... */
     ${boxDimensionsCss} }`,
   hover

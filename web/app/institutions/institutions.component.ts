@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { YabaAnimations } from 'app/lib/animations';
 
 import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
 import { FormMode } from 'app/lib/structures';
@@ -9,6 +10,9 @@ import { InstitutionsService } from 'app/storables/institutions.service';
     templateUrl: './institutions.component.html',
     styleUrls: ['./institutions.component.css'],
     providers: [ InstitutionsService ],
+    animations: [
+      YabaAnimations.fade()
+    ]
 })
 export class InstitutionsComponent {
   collection: Institutions;
