@@ -6,8 +6,6 @@ import { NULLDATE, Tags, TransactionDeltas, CurrencyType } from './structures';
 import { IAccount, Account, Accounts } from './accounts';
 import { IInstitution, InstitutionMappings, MapTypes, IMapping } from './institutions';
 
-Array.prototype.filter;
-
 /**
  * Annotation type for a transaction type.
  */

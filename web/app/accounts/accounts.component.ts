@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { trigger, transition, style, animate } from '@angular/animations';
 import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
 
 import { Accounts, Account } from 'app/lib/accounts';
 import { FormMode } from 'app/lib/structures';
+import { YabaAnimations } from 'app/lib/animations';
 
 @Component({
   selector: 'app-accounts',
@@ -11,12 +11,7 @@ import { FormMode } from 'app/lib/structures';
   styleUrls: [ './accounts.component.css' ],
   providers: [ Location, { provide: LocationStrategy, useClass: PathLocationStrategy } ],
   animations: [
-    trigger('fade', [
-      transition('void => *', [
-        style({ opacity: 0 }),
-        animate(600, style({opacity: 1}))
-      ])
-    ])
+    YabaAnimations.fade()
   ]
 })
 export class AccountsComponent {

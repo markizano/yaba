@@ -1,65 +1,6 @@
 <p>Home page.</p><br />
 <div>
     <div id="detail">
-        <p>
-            Hello and welcome to Yaba: Yet Another Budgeting App.<br />
-            This application was constructed using AngularJS, and a little bit of Google Charts to render your transactions
-            to you in a way that makes sense. The idea is that you should be able to access the app, download your CSV files
-            from your bank, unplug the ethernet cable and be able to do your budgeting. No big brother, no tracking, no logins,
-            no excessive security requirements, no MFA: just you and your data.
-        </p>
-        <p>
-            This app is still very much under construction, but enough of it has been built that a demonstration of some pages
-            can be rendered for folks to checkout and preview. Please understand that this has not passed a security audit or check.
-            This application is for demonstration and experimentation purposes only.
-        </p>
-        <p>
-            All pages are currently "Functional". I use this term loosely because technically, you can navigate the flows and do
-            what the app was intended to accomplish: Balance your budgets. There is still a ton of work to be done to further
-            enhance the aesthetics [1]. However, the base functionality is something I have been driving to completion for about
-            three months now (as of 2023-02-01).
-        </p>
-        <p>
-            You may notice the app doesn't make web requests to the Internet other than the HTML, CSS and JS that is required
-            to make this app function. The security policy on the page should be only permissive enough for the app to behave
-            as required (for running scripts and styles where expected). It will also use <code>localStorage</code> to store
-            all data locally rather than sending it to some server. I have done some testing and can estimate that might be
-            roughly 9999 transactions, but your mileage may vary. This was a long 256 character description and details filled
-            out for every field. This was also strictly transactions and didn't include institutions and accounts.
-            The real limit is the 5 Megabytes of storage your browser will allow this app to store in <code>localStorage</code>.
-            The information is JSON encoded and stored with your browser.
-        </p>
-        <p>
-            With that said, there are some things that need to be mentioned: While this app does not talk to the Internet, I
-            haven't thought out all the ways to keep the Internet from talking to this app. Data stored with this app is not
-            encrypted. These are all wishlist items that I plan on rolling out if this explodes into interest that would
-            require me to think about these things. In the meantime, I am focusing on a product that is useful to me and
-            does what I need. I am simply providing a copy of this tool to you to learn for yourself if it's helpful to you.
-        </p>
-        <p>
-            Just don't be dumb and use this app on a public computer or visit strange websites pretending to be this app or
-            give money to anyone trying to impersonate me thinking that you'll win a quick buck because I wrote a budgeting
-            app. I'll never reach out to you for any money games and you can always find my official links on my blog at
-            <a href="https://blog.markizano.net/" target="_blank">blog.markizano.net</a>.
-        </p>
-        <p>
-            If you want to try this yourself and not use it on a public system, then simply clone or download the repository
-            at <a href="https://github.com/markizano/yaba/" target="_blank">github.com/markizano/yaba</a> and visit the
-            <code>public/index.html</code> in your browser. It should still work the same visiting the file directly.
-        </p>
-        <p>
-            This software is provided without warranty, liability or support other than myself and whoever else wants to
-            contribute to this idea and is provided AS-IS. I release this software to the public under the GPLv3 License
-            and ask that if you make any improvements that you submit a pull request to help keep this a place where we
-            can collect the functionality different versions and implementations of this app could provide.
-        </p>
-        <blockquote>
-            <span>
-                [1]: such as form validation, data integrity checks (do transactions actually balance out; what
-                if you have holes in your data? what if malformed data is submitted? ), ZIP file parsing to take the exported
-                ZIP file back into the application, more places where you can click on stuff that expects keyboards or drag
-                events. That's a lot of words to say: There's a lovely laundry list of things to be done further on this app!!
-            </span>
-        </blockquote>
+        
     </div>
 </div>
