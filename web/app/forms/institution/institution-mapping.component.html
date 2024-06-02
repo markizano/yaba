@@ -1,0 +1,28 @@
+<div class="mapping">
+    <trash (click)="_remove()" tabindex="{{ (index * 4) + 7 }}" ></trash>
+    <label>
+        From {{ mapping.mapType == MapTypes.csv ? 'Field': 'Value' }}:
+        <input type="text" [(ngModel)]="mapping.fromField" tabindex="{{ (index * 4) + 4 }}" />
+    </label>
+    <label>
+        To Field: 
+        <ng-select
+            [items]="fields"
+            bindLabel="label"
+            bindValue="value"
+            placeholder="Select Field: "
+            [(ngModel)]="mapping.toField"
+            (change)="onToField($event)"
+            tabindex="{{ (index * 4) + 5 }}"
+        ></ng-select>
+    </label>
+    <label>Mapping Type:
+        <ng-select
+            placeholder="Select Mapping Type: "
+            [(ngModel)]="mapping.mapType"
+            tabindex="{{ (index * 4) + 6 }}">
+            <ng-option value="static">Static</ng-option>
+            <ng-option value="dynamic">Dynamic</ng-option>
+        </ng-select>
+    </label>
+</div>

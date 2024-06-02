@@ -722,7 +722,7 @@ export class Transactions extends Array<Transaction> {
     static digest(institution: IInstitution, accountId: TransactionFields, transactions: Transactions): Transactions {
         const results = new Transactions(), mappings: InstitutionMappings = <InstitutionMappings>institution.mappings.concat();
         mappings.unshift({
-            mapType: MapTypes.static,
+            mapType: MapTypes.csv,
             toField: TransactionFields.accountId,
             fromField: accountId
         });
@@ -730,7 +730,7 @@ export class Transactions extends Array<Transaction> {
             const cannonical: ITransaction = new Transaction();
             mappings.map((mapping: IMapping) => {
                 switch(mapping.mapType) {
-                    case MapTypes.static:
+                    case MapTypes.csv:
                         Object.assign(cannonical, mapping.toField, mapping.fromField);
                         break;
                     case MapTypes.dynamic:

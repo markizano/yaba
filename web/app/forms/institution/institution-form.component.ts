@@ -1,152 +1,147 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { FormGroup, FormControl, Validators, FormArray, FormsModule } from '@angular/forms';
+import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
 
 import { YabaAnimations } from 'app/lib/animations';
 import { FormMode } from 'app/lib/structures';
-import { IInstitution, Institution, MapTypes, IMapping } from 'app/lib/institutions';
+import { IInstitution, Institution, InstitutionMappings, MapTypes } from 'app/lib/institutions';
 import { TransactionFields } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 
+import { InstitutionMappingComponent } from 'app/forms/institution/institution-mapping.component';
+
 @Component({
-  selector: 'yaba-institution-form',
-  templateUrl: './institution-form.component.html',
-  styleUrls: ['./institution-form.component.css'],
-  animations: [
-    YabaAnimations.fadeSlideDown()
-  ],
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ControlsModule,
-  ],
+    selector: 'yaba-institution-form',
+    templateUrl: './institution-form.component.html',
+    styleUrls: ['./institution-form.component.css'],
+    animations: [
+        YabaAnimations.fadeSlideDown()
+    ],
+    standalone: true,
+    imports: [
+        BrowserAnimationsModule,
+        CommonModule,
+        FormsModule,
+        ControlsModule,
+        InstitutionMappingComponent,
+    ],
 })
 export class InstitutionFormComponent {
-  @Input() institution: IInstitution;
-  @Output() institutionChange: EventEmitter<IInstitution> = new EventEmitter<IInstitution>();
+    @Input() institution: IInstitution;
+    @Output() institutionChange: EventEmitter<IInstitution> = new EventEmitter<IInstitution>();
 
-  @Input() mode: FormMode = FormMode.Create;
-  @Output() modeChange = new EventEmitter<FormMode>();
+    @Input() mode: FormMode = FormMode.Create;
+    @Output() modeChange = new EventEmitter<FormMode>();
 
-  @Output() save = new EventEmitter<IInstitution>();
-  @Output() cancel = new EventEmitter<void>();
+    @Output() save = new EventEmitter<IInstitution>();
+    @Output() cancel = new EventEmitter<void>();
 
-  errors: string[] = []; // List of array messages to render to end-user.
-  forms: FormGroup; // Form group for the institution form.
-  maps: boolean[]; // List of boolean values for rendering to end-user.
+    errors: string[] = []; // List of array messages to render to end-user.
+    fields: {label: string, value: TransactionFields}[] = [];
 
-  readonly MapTypes = MapTypes;
-  readonly TransactionFields = TransactionFields;
+    readonly MapTypes = MapTypes;
+    readonly TransactionFields = TransactionFields;
 
-  constructor() {
-    this.institution = new Institution();
-    this.forms = new FormGroup({
-      name: new FormControl('', Validators.required),
-      description: new FormControl(''),
-      mappings: new FormArray([
-        new FormGroup({
-          fromField: new FormControl('', Validators.required),
-          toField: new FormControl(TransactionFields.UNKNOWN, Validators.required),
-          mapType: new FormControl(MapTypes.static, Validators.required),
-        }),
-      ]),
-    });
-    this.maps = [];
-  }
-
-  /**
-   * Validates the form to ensure we have a named institution with a reasonable description.
-   * @returns boolean
-   */
-  validate(): boolean {
-    this.errors = [];
-    if ( ! this.institution ) return false;
-    if ( ! this.institution.name ) {
-      this.errors.push('Name is required.');
+    constructor() {
+        this.institution = new Institution(undefined, '', '', new InstitutionMappings({fromField: '', toField: TransactionFields.UNKNOWN, mapType: MapTypes.csv}));
+        this.getTransactionFields();
     }
-    if ( this.institution.name.length > 255 ) {
-      this.errors.push('Name must be less than 255 characters.');
+
+    /**
+     * Validates the form to ensure we have a named institution with a reasonable description.
+     * @returns boolean
+     */
+    validate(): boolean {
+        this.errors = [];
+        if ( ! this.institution ) {
+            this.errors.push('Institution is not set? This is a bug, please report it to the developers at support@markizano.net');
+            return false;
+        }
+        if ( ! this.institution.name ) {
+            this.errors.push('Name is required.');
+        }
+        if ( this.institution.name.length > 255 ) {
+            this.errors.push('Name must be less than 255 characters.');
+        }
+        if ( this.institution.description.length > 255 ) {
+            this.errors.push('Description must be less than 255 characters.');
+        }
+        return this.errors.length === 0;
     }
-    if ( this.institution.description.length > 255 ) {
-      this.errors.push('Description must be less than 255 characters.');
+
+    /**
+     * Checks to see if ESC was pressed in this key event.
+     * If so, we cancel and close the form.
+     */
+    @HostListener('document:keydown', ['$event'])
+    escKey($event: KeyboardEvent): void {
+        if ( $event.key === 'Escape' ) {
+            this.cancelForm();
+        }
+        // If Ctrl+Enter is pressed, submit the form.
+        if ( $event.ctrlKey && $event.key === 'Enter' ) {
+            this.saveChanges();
+        }
     }
-    return this.errors.length === 0;
-  }
 
-  /**
-   * Get the list of transaction field types from the enum into a list of pairs for the name:value.
-   */
-  getTransactionFields() {
-    return Object.keys(TransactionFields).filter(x => typeof x === 'string').map((key: string) => ({ name: key, value: TransactionFields[key as keyof typeof TransactionFields] }));
-  }
-
-  /**
-   * Checks to see if ESC was pressed in this key event.
-   * If so, we cancel and close the form.
-   */
-  keyEvent($event: KeyboardEvent): void {
-    if ( $event.key === 'Escape' ) {
-      this.cancelForm();
+    /**
+     * Get the list of transaction field types from the enum into a list of pairs for the name:value.
+     */
+    getTransactionFields() {
+        this.fields = Object.keys(TransactionFields)
+          .filter((x) => typeof x === 'string' && !this.institution.mappings.hasToField(x as TransactionFields))
+          .map((key: string) => ({ label: key, value: TransactionFields[key as keyof typeof TransactionFields] as TransactionFields }));
+          return this.fields;
     }
-  }
 
-  /**
-   * Handles the click event to save the institution to the database.
-   * Performs additional validation and checks to make sure all fields are entered accordingly.
-   * Renders errors for the user until validation passes, then send the information to the database.
-   */
-  saveChanges(): void {
-    if ( ! this.validate() ) return;
-    this.institutionChange.emit(this.institution);
-    this.save.emit(this.institution);
-    this.reset();
-  }
+    /**
+     * Handles the click event to save the institution to the database.
+     * Performs additional validation and checks to make sure all fields are entered accordingly.
+     * Renders errors for the user until validation passes, then send the information to the database.
+     */
+    saveChanges(): void {
+        if ( ! this.validate() ) return;
+        this.institutionChange.emit(this.institution);
+        this.save.emit(this.institution);
+        this.reset();
+    }
 
-  edit(institution: IInstitution): void {
-    this.institutionChange.emit( this.institution = institution );
-    this.modeChange.emit( this.mode = FormMode.Edit );
-  }
+    edit(institution: IInstitution): void {
+        this.institutionChange.emit( this.institution = institution );
+        this.modeChange.emit( this.mode = FormMode.Edit );
+    }
 
-  addMapping(): void {
-    if ( ! this.institution ) return;
-    let visible = false;
-    this.maps.push(visible);
-    this.institution.addMapping('', TransactionFields.UNKNOWN, MapTypes.static);
-    this.institutionChange.emit(this.institution);
-    setTimeout(() => {
-      visible = true;
-    }, 10);
-  }
+    addMapping(): void {
+        if ( this.fields.length -1 > this.institution.mappings.length ) {
+            this.institution.addMapping('', TransactionFields.UNKNOWN, MapTypes.csv);
+        }
+        this.getTransactionFields();
+    }
 
-  /**
-   * Remove a mapping from the list of mappings.
-   */
-  removeMapping(mapping: IMapping): void {
-    this.maps[this.maps.length - 1] = false;
-    setTimeout(() => {
-      this.institution.mappings.removeMapping(mapping);
-      this.institutionChange.emit(this.institution);
-      this.maps.splice(this.institution.mappings.indexOf(mapping), 1);
-    }, YabaAnimations.ANIMATE_MS);
-  }
+    /**
+     * Remove a mapping from the list of mappings.
+     */
+    removeMapping(i: number): void {
+        const removed = this.institution.mappings.splice(i, 1);
+        console.log(`InstitutionFormComponent().removeMapping(): Removed mapping ${removed} from the list of mappings.`);
+        this.institutionChange.emit(this.institution);
+    }
 
-  /**
-   * Reset the form to its initial state behind the scenes.
-   */
-  reset() {
-    this.institution = new Institution();
-    this.mode = FormMode.Create;
-    this.errors = [];
-    this.institutionChange.emit(this.institution);
-    this.modeChange.emit(this.mode);
-  }
+    /**
+     * Reset the form to its initial state behind the scenes.
+     */
+    reset() {
+        this.institution = new Institution();
+        this.mode = FormMode.Create;
+        this.errors = [];
+    }
 
-  /**
-   * Cancel the form and close it.
-   */
-  cancelForm() {
-    this.cancel.emit();
-    this.reset();
-  }
+    /**
+     * Cancel the form and close it.
+     */
+    cancelForm() {
+        this.cancel.emit();
+        this.reset();
+    }
 }

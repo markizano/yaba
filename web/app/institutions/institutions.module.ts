@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ControlsModule } from 'app/controls/controls.module';
 import { InstitutionsComponent } from 'app/institutions/institutions.component';
 import { InstitutionFormComponent } from 'app/forms/institution/institution-form.component';
+import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -12,6 +13,7 @@ import { InstitutionFormComponent } from 'app/forms/institution/institution-form
   imports: [
     CommonModule,
     ControlsModule,
+    FormsModule,
     InstitutionFormComponent,
   ],
   exports: [

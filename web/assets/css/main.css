@@ -81,7 +81,7 @@ button, input[type="submit"], input[type="button"] {
     margin: 5px;
 }
 
-input[type="text"], select {
+input[type="text"], input[type=number], select {
     font-size: 1.2rem;
     border: 2px solid #000000AA;
     border-radius: 1rem;
@@ -92,7 +92,7 @@ input[type="text"], select {
     width: 85%;
 }
 
-input[type="text"]:focus, select:focus {
+input[type="text"]:focus, input[type=number]:focus, select:focus {
     border: 2px solid #091222;
     box-shadow: #cdcdcd 7px 7px;
 }
@@ -408,6 +408,7 @@ wishlist-item {
     box-shadow: 1rem 1rem #1c1c1c90;
     background: #EEE;
     border-radius: 1.5rem;
+    transition: all 400ms ease-in-out;
 }
 
 .yaba-form close {
@@ -429,8 +430,20 @@ wishlist-item {
     margin: 5px 5px 5px 20px;
     line-height: 20px;
     height: auto;
+    transition: all 400ms ease-in-out;
 }
 
+cancel, .cancel {
+    background-color: #f00;
+    color: #fff;
+    font-size: 20px;
+    border-radius: 1rem;
+    padding: 0.3rem 0.8rem;
+    box-shadow: #bcbcbc 5px 5px;
+    display: inline-flex;
+    line-height: 1.2rem;
+    margin: 5px;
+}
 
 /* My Angular Customizations/Overrides */
 .ng-fade, .fade { transition: all 400ms ease-in-out; }

@@ -1,70 +1,74 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { YabaAnimations } from 'app/lib/animations';
 
 import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
 import { FormMode } from 'app/lib/structures';
-import { InstitutionsService } from 'app/storables/institutions.service';
+// import { InstitutionsService } from 'app/storables/institutions.service';
 
 @Component({
-    selector: 'yaba-institutions',
-    templateUrl: './institutions.component.html',
-    styleUrls: ['./institutions.component.css'],
-    providers: [ InstitutionsService ],
-    animations: [
-      YabaAnimations.fade()
-    ]
+        selector: 'yaba-institutions',
+        templateUrl: './institutions.component.html',
+        styleUrls: ['./institutions.component.css'],
+        // providers: [ InstitutionsService ],
+        animations: [
+            YabaAnimations.fade()
+        ]
 })
 export class InstitutionsComponent {
-  collection: Institutions;
-  institution: IInstitution;
-  @Output() institutionChange = new EventEmitter<IInstitution>();
-  errors: string[];
-  formVisible: boolean;
-  formMode: FormMode;
+    @Input() institutions: Institutions;
+    @Output() institutionsChange = new EventEmitter<Institutions>();
 
-  // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
-  constructor( protected institutions: InstitutionsService ) {
-    this.collection = institutions.getInstitutions();
-    this.institution = new Institution();
-    this.errors = [];
-    this.formVisible = false;
-    this.formMode = FormMode.Create;
-  }
+    institution: IInstitution;
 
-  // user-clickable add button
-  add(): void {
-    this.institution = new Institution();
-    this.formMode = FormMode.Create;
-    this.formVisible = true;
-  }
+    // Form controls
+    formVisible = false;
+    formMode: FormMode = FormMode.Create;
 
-  remove(institutuion: IInstitution): void {
-    this.collection.remove(institutuion);
-  }
+    // User feedback
+    errors: string[] = [];
+    
+    // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
+    constructor( ) {
+        this.institutions = new Institutions();
+        this.institution = new Institution();
+    }
 
-  save(institution: IInstitution): void {
-    this.institution = institution;
-    this.institutionChange.emit(institution);
-    this.close()
-  }
+    // user-clickable add button
+    add(): void {
+        this.institution = new Institution();
+        this.formMode = FormMode.Create;
+        this.formVisible = true;
+    }
 
-  edit(institution: IInstitution): void {
-    this.institution = institution;
-    this.formMode = FormMode.Edit;
-    this.formVisible = true;
-  }
+    remove(institutuion: IInstitution): void {
+        this.institutions.remove(institutuion);
+    }
 
-  // User clicked cancel button.
-  cancel(): void {
-    this.close();
-    this.reset();
-  }
+    // User clicked save button.
+    save(institution: IInstitution): void {
+        this.institutions.push(institution);
+        this.institutionsChange.emit(this.institutions);
+        this.close()
+    }
 
-  close(): void {
-    this.formVisible = false;
-  }
+    // User wants to edit an institution.
+    edit(institution: IInstitution): void {
+        this.institution = institution;
+        this.formMode = FormMode.Edit;
+        this.formVisible = true;
+    }
 
-  reset(): void {
-    this.institution = new Institution();
-  }
+    // User clicked cancel button.
+    cancel(): void {
+        this.close();
+        this.reset();
+    }
+
+    close(): void {
+        this.formVisible = false;
+    }
+
+    reset(): void {
+        this.institution = new Institution();
+    }
 }

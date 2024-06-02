@@ -1,5 +1,5 @@
 
-import { Component } from '@angular/core';
+import { Component, HostListener, Injectable } from '@angular/core';
 
 const boxDimensionsCss = `background-size: 32px;
 width: 32px;
@@ -9,6 +9,23 @@ display: inline-flex;
 cursor: pointer;`;
 
 const hover = `:host:hover { cursor: grab }`;
+
+@Injectable()
+abstract class IconBaseComponent {
+  /**
+   * Make it possible to use [Space] or [Enter] on these components to trigger a "click" event so we only have to listen for the click event.
+   * @param $event 
+   */
+    @HostListener('keypress')
+    onKeyPress($event: KeyboardEvent) {
+      if ( ['Enter', ' '].includes($event.key) ) {
+        $event.target?.dispatchEvent(new MouseEvent('click'));
+      } else {
+        $event.preventDefault();
+        $event.stopPropagation();
+      }
+    }
+}
 
 @Component({
   selector: 'actions',
@@ -26,7 +43,7 @@ export class ActionsComponent { }
     hover,
  ],
 })
-export class AddComponent { }
+export class AddComponent extends IconBaseComponent { }
 
 @Component({
   selector: 'close',
@@ -41,7 +58,7 @@ export class AddComponent { }
     hover
   ],
 })
-export class CloseComponent { }
+export class CloseComponent extends IconBaseComponent { }
 
 @Component({
   selector: 'debug',
@@ -63,7 +80,7 @@ export class DebugComponent { }
     hover
   ],
 })
-export class EditComponent { }
+export class EditComponent extends IconBaseComponent { }
 
 @Component({
   selector: 'inspect',
@@ -74,7 +91,7 @@ export class EditComponent { }
     ${boxDimensionsCss}
   }`]
 })
-export class InspectComponent { }
+export class InspectComponent extends IconBaseComponent { }
 
 @Component({
   selector: 'question',
@@ -96,7 +113,7 @@ export class QuestionComponent { }
     hover
   ],
 })
-export class SaveComponent { }
+export class SaveComponent extends IconBaseComponent { }
 
 @Component({
   selector: 'trash',
@@ -108,7 +125,7 @@ export class SaveComponent { }
   hover
   ],
 })
-export class TrashComponent { }
+export class TrashComponent extends IconBaseComponent { }
 
 @Component({
   selector: 'settings',
@@ -121,4 +138,4 @@ export class TrashComponent { }
     hover
   ],
 })
-export class SettingsComponent { }
+export class SettingsComponent extends IconBaseComponent { }

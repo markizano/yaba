@@ -7,7 +7,7 @@
     </p>
     <add (click)="add()" class="right"></add><br clear="all" />
     <div class="institution-list">
-        <div class="institution" *ngFor="let institution of collection">
+        <div class="institution" *ngFor="let institution of institutions">
             <figcaption>
                 <h2>{{ institution.name }}</h2>
                 <actions>
@@ -34,7 +34,7 @@
     </div>
     <div class="errors"><p *ngFor="let error of errors">{{ error }}</p></div>
     <yaba-institution-form
-        [(institution)]="institution"
+        [institution]="institution"
         [(mode)]="formMode"
         (save)="save($event)"
         (cancel)="cancel()"
