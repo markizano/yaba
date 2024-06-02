@@ -45,6 +45,7 @@
     "@angular/platform-browser": "^17.3.1",
     "@angular/platform-browser-dynamic": "^17.3.1",
     "@angular/router": "^17.3.1",
+    "@ng-select/ng-select": "^12.0.7",
     "@types/uuid": "^9.0.2",
     "child_process": "^1.0.2",
     "copy-webpack-plugin": "^11.0.0",
