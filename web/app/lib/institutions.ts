@@ -25,9 +25,9 @@ export class InstitutionMappingException extends Error {
  * some calculation based on related fields in this transaction.
  */
 export enum MapTypes {
-    static = 'static',
+    csv = 'static',
     dynamic = 'dynamic',
-    // function = 'function' // @TODO: Support this
+    function = 'function', // @TODO: Support this
 }
 
 export interface IMapping {
@@ -121,12 +121,16 @@ export class InstitutionMappings extends Array<IMapping> {
      * @throws {InstitutionMappingException} If the mapping doesn't exist.
      */
     public removeMapping(mapping: IMapping): InstitutionMappings {
-        const index = this.findIndex((item: IMapping) => item.fromField === mapping.fromField && item.toField === mapping.toField);
+        const index = this.findIndex((item: IMapping) => item.fromField === mapping.fromField && item.toField === mapping.toField && item.mapType === mapping.mapType);
         if (index < 0) {
             throw new InstitutionMappingException(mapping.fromField, mapping.toField);
         }
         this.splice(index, 1);
         return this;
+    }
+
+    public hasToField(toField: TransactionFields): boolean {
+        return this.some(mapping => mapping.toField === toField);
     }
 }
 
@@ -150,11 +154,11 @@ export class Institution implements IInstitution {
     public description: string;
     public mappings: InstitutionMappings;
 
-    constructor(id?: string, name?: string, description?: string, mappings?: InstitutionMappings) {
+    constructor(id?: string, name?: string, description?: string, mappings?: IMapping[]) {
         this.id          = id || v4();
         this.name        = name || '';
         this.description = description || '';
-        this.mappings    = mappings? new InstitutionMappings(...mappings): new InstitutionMappings();
+        this.mappings    = mappings? new InstitutionMappings(...mappings): new InstitutionMappings({fromField: '', toField: TransactionFields.UNKNOWN, mapType: MapTypes.csv});
     }
 
     /**

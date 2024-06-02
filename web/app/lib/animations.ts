@@ -1,5 +1,9 @@
 import { trigger, transition, style, animate } from '@angular/animations';
 
+/**
+ * I got tired of copy and pasting the same animations into every component that needed them.
+ * Let's just call static functions so we can reuse the animations.
+ */
 export class YabaAnimations {
     static ANIMATE_MS = 400;
 
@@ -11,9 +15,10 @@ export class YabaAnimations {
                 animate(YabaAnimations.ANIMATE_MS, style({opacity: 1, height: '*'}))
             ]),
             transition(
-              ':leave',
-              animate(400, style({ opacity: 0, height: 0 }))
-            ),
+              '* => void', [
+                style({ opacity: 1, height: '*' }),
+                animate(YabaAnimations.ANIMATE_MS, style({ opacity: 0, height: 0 }))
+            ]),
           ]);  
     }
 
@@ -25,10 +30,10 @@ export class YabaAnimations {
                 animate(YabaAnimations.ANIMATE_MS, style({opacity: 1}))
             ]),
             transition(
-              ':leave',
+              '* => void', [
+              style({ opacity: 1 }),
               animate(YabaAnimations.ANIMATE_MS, style({ opacity: 0 }))
-            ),
+            ]),
           ]);
     }
-
 }

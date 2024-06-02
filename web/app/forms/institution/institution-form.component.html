@@ -1,36 +1,32 @@
-<div class="yaba-institution-form yaba-form" (keypress)="keyEvent($event)">
+<div class="yaba-institution-form yaba-form">
     <close (click)="cancel.emit()"></close>
     <h1>{{ institution.name || 'New' }} Institution</h1>
-    <form>
-        <label>Name: <input type="text" tabindex="1" (change)="institutionChange.emit(institution)" (ngModel)="institution.name" /></label>
-        <label>Description: <input type="text" tabindex="2" (change)="institutionChange.emit(institution)" (ngModel)="institution.description" /></label>
-        <label>Mapping: <add tabindex="3" (click)="addMapping()"></add></label>
+    <form (ngSubmit)="saveChanges()">
+        <label>Name: <input type="text" tabindex="1" [(ngModel)]="institution.name" required maxlength="255" /></label>
+        <label>Description: <input type="text" tabindex="2" [(ngModel)]="institution.description" required maxlength="255" /></label>
+        <label>Mapping ( {{ institution.mappings.length }} ): <add tabindex="3" (click)="addMapping()"></add></label>
         <ul>
-            <li *ngFor="let mapping of institution.mappings; let index = index">
-                <div class="mapping" [ngClass]="{'ng-hide': maps[index]}">
-                    <trash (click)="removeMapping(mapping)" tabindex="{{ (index * 4) + 7 }}" ></trash>
-                    <label>
-                        From {{ mapping.mapType == MapTypes.static ? 'Value': 'Field' }}:
-                        <input type="text" tabindex="{{ (index * 4) + 4 }}" [(ngModel)]="mapping.fromField" />
-                    </label>
-                    <label>
-                        To Field: <select
-                        tabindex="{{ (index * 4) + 5 }}"
-                        [(ngModel)]="mapping.toField"
-                        >
-                            @for( txnField of getTransactionFields(); let i = $index; track txnField ) {
-                                <option>{{ txnField }}</option>
-                            }
-                        </select>
-                    </label>
-                    <label>Mapping Type: <select tabindex="{{ (index * 4) + 6 }}" [(ngModel)]="mapping.mapType">
-                        <option value="static">Static</option>
-                        <option value="dynamic">Dynamic</option>
-                    </select></label>
-                </div>
+            <li *ngFor="let mapping of institution.mappings; let index = index; trackby: institution.mappings[index]">
+                <institution-mapping
+                  [index]="index"
+                  [(mapping)]="institution.mappings[index]"
+                  [(fields)]="fields"
+                  (fieldsChange)="getTransactionFields()"
+                  (remove)="removeMapping(index)"
+                  @fade-slide-down></institution-mapping>
             </li>
         </ul>
-        <input type="button" tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +1 }}" value="Cancel" (click)="cancel.emit()" class="cancel" />
-        <input type="button" tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +2 }}" value="Save Institution" (click)="saveChanges()" class="submit" />
+        <div class="errors"><p *ngFor="let error of errors">{{ error }}</p></div>
+        <input type="button"
+          tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +1 }}"
+          name="cancelBtn"
+          value="Cancel" (click)="cancelForm()"
+          class="cancel" />
+        <input type="button"
+          name="saveBtn"
+          tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +2 }}"
+          value="Save Institution"
+          (click)="saveChanges()"
+          class="submit" />
     </form>
 </div>
