@@ -1,19 +1,21 @@
-<div class="yaba-institution-form yaba-form">
-    <close (click)="cancel.emit()"></close>
-    <h1>{{ institution.name || 'New' }} Institution</h1>
+<div class="yaba-institution-form yaba-form" id="frmInstitution">
+    <div class="titlebar">
+        <close (click)="cancel.emit()"></close>
+        <h1>{{ institution.name || 'New' }} Institution</h1>
+    </div>
     <form (ngSubmit)="saveChanges()">
         <label>Name: <input type="text" tabindex="1" [(ngModel)]="institution.name" required maxlength="255" /></label>
         <label>Description: <input type="text" tabindex="2" [(ngModel)]="institution.description" required maxlength="255" /></label>
         <label>Mapping ( {{ institution.mappings.length }} ): <add tabindex="3" (click)="addMapping()"></add></label>
         <ul>
-            <li *ngFor="let mapping of institution.mappings; let index = index; trackby: institution.mappings[index]">
+            <li *ngFor="let mapping of institution.mappings; let index = index; trackby: institution.mappings[index]" @fade-slide-down>
                 <institution-mapping
                   [index]="index"
                   [(mapping)]="institution.mappings[index]"
                   [(fields)]="fields"
                   (fieldsChange)="getTransactionFields()"
                   (remove)="removeMapping(index)"
-                  @fade-slide-down></institution-mapping>
+                  ></institution-mapping>
             </li>
         </ul>
         <div class="errors"><p *ngFor="let error of errors">{{ error }}</p></div>
