@@ -1,20 +1,22 @@
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+/* Angular Definitions */
+import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 
+/* YABA Definitions */
 import { YabaAnimations } from 'app/lib/animations';
 import { FormMode } from 'app/lib/structures';
 import { IInstitution, Institution, InstitutionMappings, MapTypes } from 'app/lib/institutions';
 import { TransactionFields } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 
+/* SubComponents */
 import { InstitutionMappingComponent } from 'app/forms/institution/institution-mapping.component';
 
 @Component({
     selector: 'yaba-institution-form',
     templateUrl: './institution-form.component.html',
-    styleUrls: ['./institution-form.component.css'],
     animations: [
         YabaAnimations.fadeSlideDown()
     ],
@@ -36,14 +38,21 @@ export class InstitutionFormComponent {
 
     @Output() save = new EventEmitter<IInstitution>();
     @Output() cancel = new EventEmitter<void>();
+    @Output() drop = new EventEmitter<Array<File>>();
 
     errors: string[] = []; // List of array messages to render to end-user.
     fields: {label: string, value: TransactionFields}[] = [];
 
+    // Disable dropping on the body of the document. 
+    // This prevents the browser from loading the dropped files
+    // using it's default behaviour if the user misses the drop zone.
+    // Set this input to false if you want the browser default behaviour.
+    preventBodyDrop = true;
+
     readonly MapTypes = MapTypes;
     readonly TransactionFields = TransactionFields;
 
-    constructor() {
+    constructor(protected $element: ElementRef) {
         this.institution = new Institution(undefined, '', '', new InstitutionMappings({fromField: '', toField: TransactionFields.UNKNOWN, mapType: MapTypes.csv}));
         this.getTransactionFields();
     }
