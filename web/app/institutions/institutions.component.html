@@ -38,7 +38,8 @@
         [(mode)]="formMode"
         (save)="save($event)"
         (cancel)="cancel()"
+        (drop)="parseCSVFiles($event)"
         [ngClass]="{ 'ng-hide': !formVisible }"
-        class="fade csvdrop"
+        class="fade dropfile"
     ></yaba-institution-form>
 </div>

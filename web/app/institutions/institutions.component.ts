@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { YabaAnimations } from 'app/lib/animations';
 
+import { YabaAnimations } from 'app/lib/animations';
 import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
 import { FormMode } from 'app/lib/structures';
 // import { InstitutionsService } from 'app/storables/institutions.service';
@@ -56,6 +56,12 @@ export class InstitutionsComponent {
         this.institution = institution;
         this.formMode = FormMode.Edit;
         this.formVisible = true;
+    }
+
+    // User dropped a file on the form.
+    parseCSVFiles($event: File[]): void {
+        const files = $event;
+        console.log('institution:drop', files);
     }
 
     // User clicked cancel button.
