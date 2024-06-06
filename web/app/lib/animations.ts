@@ -15,7 +15,7 @@ export class YabaAnimations {
                 animate(YabaAnimations.ANIMATE_MS, style({opacity: 1, height: '*'}))
             ]),
             transition(
-              '* => void', [
+              ':leave', [
                 style({ opacity: 1, height: '*' }),
                 animate(YabaAnimations.ANIMATE_MS, style({ opacity: 0, height: 0 }))
             ]),
@@ -30,7 +30,7 @@ export class YabaAnimations {
                 animate(YabaAnimations.ANIMATE_MS, style({opacity: 1}))
             ]),
             transition(
-              '* => void', [
+              ':leave', [
               style({ opacity: 1 }),
               animate(YabaAnimations.ANIMATE_MS, style({ opacity: 0 }))
             ]),

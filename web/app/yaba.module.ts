@@ -9,6 +9,7 @@ import { AccountsModule } from 'app/accounts/accounts.module';
 import { ChartsModule } from 'app/charts/charts.module';
 import { BudgetingModule } from 'app/budgeting/budgeting.module';
 import { SettingsModule } from 'app/settings/settings.module';
+import { YabaDropFileDirective } from './dropfile.directive';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { SettingsModule } from 'app/settings/settings.module';
     ChartsModule,
     BudgetingModule,
     SettingsModule,
+    YabaDropFileDirective,
   ],
   providers: [],
   bootstrap: [ YabaComponent ]
