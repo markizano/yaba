@@ -1,6 +1,6 @@
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
-import * as Papa from 'papaparse';
+import { Papa, ParseConfig, ParseResult } from 'ngx-papaparse';
 import { TransactionFields } from './transactions';
 
 /**
@@ -267,21 +267,42 @@ export class Institutions extends Array<Institution> {
             institutionId: string;
         }
         this.length = 0; // reset the instance to an empty list.
-        const papaOpts = { header: true, skipEmptyLines: true };
         const institutionsCSV = await jsz.files['institutions.csv'].async('text'),
             mappingCSV = await jsz.files['institution-mappings.csv'].async('text');
-        const parsedInstitutions: Papa.ParseResult<IInstitution> = Papa.parse(institutionsCSV, papaOpts);
-        const parsedMappings: Papa.ParseResult<CsvIMapping> = Papa.parse(mappingCSV, papaOpts);
-        this.push(...parsedInstitutions.data);
-        parsedMappings.data.forEach(mappings =>
-            (<IInstitution>this.byId(mappings.institutionId)).mappings.push({
-                fromField: mappings.fromField,
-                toField: mappings.toField,
-                mapType: mappings.mapType
-            })
-        );
-        console.info(`Parsed ${this.length} Institutions from CSV file for ${this.map(i => i.mappings.length).reduce((a,b) => a += b, 0)} mappings.`);
-        return this;
+        return new Promise((resolve, reject) => {
+            const papaOpts = {
+                header: true,
+                skipEmptyLines: true
+            };
+            new Papa().parse(institutionsCSV, {...papaOpts,
+                complete: (parsedInstitutions: ParseResult, file?: File|undefined): void => {
+                    if (parsedInstitutions.errors.length > 0) {
+                        console.error('Failed to parse Institutions CSV file.', file, parsedInstitutions.errors);
+                        reject(parsedInstitutions.errors);
+                        return;
+                    }
+                    new Papa().parse(mappingCSV, {...papaOpts,
+                        complete: (parsedMappings: ParseResult, file?: File|undefined): void => {
+                            if (parsedMappings.errors.length > 0) {
+                                console.error('Failed to parse Institution Mappings CSV file.', file, parsedMappings.errors);
+                                reject(parsedMappings.errors);
+                                return;
+                            }
+                            this.push(...parsedInstitutions.data);
+                            parsedMappings.data.forEach((mappings: CsvIMapping) =>
+                                (<IInstitution>this.byId(mappings.institutionId)).mappings.push({
+                                    fromField: mappings.fromField,
+                                    toField: mappings.toField,
+                                    mapType: mappings.mapType
+                                })
+                            );
+                            console.info(`Parsed ${this.length} Institutions from ZIP file for ${this.reduce((a,b) => a += b.mappings.length, 0)} mappings.`);
+                            resolve(this);
+                        }
+                    });
+                }
+            });
+        });
     }
 
     /**
@@ -293,29 +314,42 @@ export class Institutions extends Array<Institution> {
         return this.filter(i => i.id == ID).shift();
     }
 
-    // static csvHandler($scope, $timeout) {
-    //     return ($event, results) => {
-    //         // only get back the headers from the CSV file.
-    //         var headers = Object.keys(results.parsedCSV.data.shift());
-    //         $scope.institution.mappings = new InstitutionMappings();
-    //         headers.forEach((h) => {
-    //             // Store in variable for later use in function return value.
-    //             // Also: Assign before appending to the list to ensure we use the index we are
-    //             //   setting. (avoids out of index error)
-    //             let i = $scope.institution.mappings.length;
-    //             $scope.institution.mappings.push({
-    //                 fromField: h,
-    //                 toField: '',
-    //                 mapType: 'dynamic'
-    //             });
-    //             // Set a timeout to alter the visibility immediately after the element has been
-    //             // rendered on the page to enable the animation.
-    //             $timeout(() => {
-    //                 $scope.institution.mappings[i].show();
-    //             }, 100);
-    //         });
-    //         // Let AngularJS know about this since the papaparser breaks the promise chain.
-    //         $scope.$apply();
-    //     };
-    // }
+    /**
+     * Load up institutions from a stringified JSON object.
+     * @param {String} loadString Institutions to load.
+     * @returns {Institutions}
+     */
+    static fromString(loadString: string): Institutions {
+        return new Institutions(...JSON.parse(loadString));
+    }
+
+    /**
+     * Input the File[] set to parse out. From the first file, parse as CSV. Dump the rest.
+     * Find the headers from the CSV file and create a mapping for each of them.
+     * Return the results as a IMapping[] list.
+     * @param {File[]} files Files to parse.
+     * @returns {Promise<InstitutionMappings>} Function to handle the results of the CSV file.
+     */
+    static async csvHandler(files: File[]): Promise<InstitutionMappings> {
+        const csvFile = files.shift();
+        if ( !csvFile ) {
+            return new InstitutionMappings();
+        }
+        return new Promise((resolve, reject) => {
+            const papaOpts: ParseConfig = {
+                header: true,
+                skipEmptyLines: true,
+                complete: (parsedCSV: ParseResult, file?: File|undefined): void => {
+                    if (parsedCSV.errors.length > 0) {
+                        console.error('Failed to parse CSV file.', file, parsedCSV.errors);
+                        reject(parsedCSV.errors);
+                    }
+                    const headers = Object.keys(parsedCSV.data.shift());
+                    const imaps = new InstitutionMappings(...headers.map(h => new InstitutionMapping(h, TransactionFields.UNKNOWN, MapTypes.csv)));
+                    resolve(imaps);
+                },
+            };
+            new Papa().parse(csvFile, papaOpts);
+        });
+    }
 }

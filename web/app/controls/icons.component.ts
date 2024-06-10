@@ -1,5 +1,5 @@
 
-import { Component, HostListener, Injectable } from '@angular/core';
+import { Component, Directive, HostListener, Injectable } from '@angular/core';
 
 const boxDimensionsCss = `background-size: 32px;
 width: 32px;
@@ -27,10 +27,8 @@ abstract class IconBaseComponent {
     }
 }
 
-@Component({
+@Directive({
   selector: 'actions',
-  template: '',
-  styles: [ ],
 })
 export class ActionsComponent { }
 
@@ -72,7 +70,6 @@ export class DebugComponent { }
   template: '',
   styles: [`:host {
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEUAAAAAAAD///+D3c/SAAAAAXRSTlMAQObYZgAAAN5JREFUOMvNk7sBBCEIBTGwg6OfTS4ngP5bOeEh4lZwJurIDn5Yoj9s9tzzabpXzLxjdL6CkRHjG0bkUJoAO1BpBBgCwJbDjCPj5wJDpwBwKmQoHAlWSkPwh3YuRr7axdphA1MAC/iupzRgCTeI6DyDvhQATQHQFAG6IkBXBOgK0pfCwaVwcCkcXAoHl2KBUuzj+8UEPOCBosCahWIDXvFGHZBhFwfwV24wUU0HjP4iut5u9hf5eHH1F+FddERSAPOspVnHzNG5iKqlKu1XXysrK5rQKe1oZc8Q/adf9Qd5Bzj5jcKSOAAAAABJRU5ErkJggg==');
-      filter: invert(100%);
       /* Filter impacts the border too somehow... */
       border: 1px solid black;
       ${boxDimensionsCss}

@@ -60,8 +60,10 @@ export class InstitutionsComponent {
 
     // User dropped a file on the form.
     parseCSVFiles($event: File[]): void {
-        const files = $event;
-        console.log('institution:drop', files);
+        Institutions.csvHandler($event).then(mappings => {
+            this.institution.mappings = mappings;
+            this.institutionsChange.emit(this.institutions);
+        });
     }
 
     // User clicked cancel button.

@@ -348,6 +348,15 @@ export class Transactions extends Array<Transaction> {
     }
 
     /**
+     * From a JSON stringified object load them into a new instance of this collection.
+     * @param {String} loadString JSON string to load.
+     * @returns {Transactions} New instance of Transactions.
+     */
+    static fromString(loadString: string): Transactions {
+        return new Transactions(...JSON.parse(loadString));
+    }
+
+    /**
      * Get the list of tags we have for this transaction collection.
      * @returns {Array<String>} List of tags associated with this collection of transactions.
      */

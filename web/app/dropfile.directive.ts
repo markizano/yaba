@@ -23,7 +23,7 @@ export class YabaDropFileDirective {
     // The directive emits a `drop` event
     // with the list of files dropped on the element
     // as an JS array of `File` objects.
-    @Output() drop = new EventEmitter<File[]>();
+    @Output() fileDrop = new EventEmitter<File[]>();
 
     // Disable dropping on the body of the document. 
     // This prevents the browser from loading the dropped files
@@ -64,7 +64,7 @@ export class YabaDropFileDirective {
                 files.push(...Array.from(dataTransfer.files));
                 dataTransfer.clearData();
             }
-            this.drop.emit(files);
+            this.fileDrop.emit(files);
         }
     }
 
@@ -73,7 +73,6 @@ export class YabaDropFileDirective {
         if ( typeof event.preventDefault !== 'undefined')
             event.preventDefault();
         this.active = true;
-        // console.log('dragover', event);
     }
 
     @HostListener('dragleave', ['$event'])
@@ -81,22 +80,18 @@ export class YabaDropFileDirective {
         if ( typeof event.preventDefault !== 'undefined')
             event.preventDefault();
         this.active = false;
-        // console.log('dragleave', event);
     }
 
     @HostListener('body:dragover', ['$event'])
     onBodyDragOver(event: DragEvent) {
-        // console.log('body:dragover(stub)', event);
         if (this.preventBodyDrop) {
             if ( typeof event.preventDefault !== 'undefined')
                 event.preventDefault();
-                // event.stopPropagation();
         }
     }
 
     @HostListener('body:drop', ['$event'])
     onBodyDrop(event: DragEvent) {
-        // console.log('body:drop(stub)', event);
         if (this.preventBodyDrop) {
             if ( typeof event.preventDefault !== 'undefined')
                 event.preventDefault();
