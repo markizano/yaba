@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatGridListModule } from '@angular/material/grid-list';
 
 import { ControlsModule } from 'app/controls/controls.module';
-import { AccountsComponent } from 'app/accounts/accounts.component';
+import { AccountsComponent } from 'app/pages/accounts/accounts.component';
 import { AccountFormComponent } from 'app/forms/account/account-form.component';
 import { TransactionsModule } from 'app/transactions/transactions.module';
 

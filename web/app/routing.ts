@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+
 import { HomeComponent } from 'app/home/home.component';
-import { BudgetingComponent } from 'app/budgeting/budgeting.component';
-import { AccountsComponent } from 'app/accounts/accounts.component';
-import { AccountComponent } from 'app/account/account.component';
-import { InstitutionsComponent } from 'app/institutions/institutions.component';
-import { SettingsComponent } from 'app/settings/settings.component';
-import { ChartsComponent } from 'app/charts/charts.component';
+import { BudgetingComponent } from 'app/pages/budgeting/budgeting.component';
+import { AccountsComponent } from 'app/pages/accounts/accounts.component';
+import { AccountComponent } from 'app/pages/account/account.component';
+import { InstitutionsComponent } from 'app/pages/institutions/institutions.component';
+import { SettingsComponent } from 'app/pages/settings/settings.component';
+import { ChartsComponent } from 'app/pages/charts/charts.component';
 
 export const routeConfig: Routes = [
   {
