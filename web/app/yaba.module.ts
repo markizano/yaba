@@ -18,16 +18,21 @@ import { ControlsModule } from 'app/controls/controls.module';
     YabaComponent,
   ],
   imports: [
+    // Angular Modules and needs.
     BrowserModule,
+
+    // Yaba Modules and global standalone components.
     YabaRoutingModule,
-    MenuComponent,
+    HttpClientModule,
     ControlsModule,
+    MenuComponent,
+
+    // Pages as NgModule's.
     InstitutionsModule,
     AccountsModule,
     ChartsModule,
     BudgetingModule,
     SettingsModule,
-    HttpClientModule,
   ],
 //   providers: [
 //     SessionManagementService,
@@ -35,7 +40,6 @@ import { ControlsModule } from 'app/controls/controls.module';
   bootstrap: [ YabaComponent ],
   exports: [
     YabaComponent,
-    ControlsModule,
   ],
 })
 export class YabaModule { }
