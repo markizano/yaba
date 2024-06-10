@@ -15,9 +15,11 @@
           <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-          <button mat-menu-item  *ngFor="let route of routes">
-            <a routerLink="{{ route.path }}">{{ route.title }}</a>
-          </button>
+@for(route of routes; track route.path) {
+            <button mat-menu-item>
+                <a routerLink="{{ route.path }}">{{ route.title }}</a>
+            </button>
+}
         </mat-menu>
         <!-- Left links -->
       </div>
