@@ -1,9 +1,9 @@
 <div class="yaba-account-form yaba-form">
     <close (click)="closeForm()"></close>
     <h1>{{ account.name || "New" }} Account:</h1>
-    <form>
-      <label>Name: <input type="text" maxlength="64" [(ngModel)]="account.name" tabindex="1" /></label>
-      <label>Description: <input type="text" maxlength="255" [(ngModel)]="account.description" tabindex="2" /></label>
+    <form (ngSubmit)="saveChanges()">
+      <label>Name: <input type="text" maxlength="64" name="name" [(ngModel)]="account.name" tabindex="1" /></label>
+      <label>Description: <input type="text" maxlength="255" name="description" [(ngModel)]="account.description" tabindex="2" /></label>
       <label>
         Institution:
         <select
@@ -15,29 +15,31 @@
       </label>
       <label>
         Account Type:
-        <select
-          [(ngModel)]="account.accountType"
-          tabindex="4"
-        >
-        <option *ngFor="let accountType in AccountTypes" [ngValue]="accountType.value"> {{ accountType.label }} </option>
-      </select>
+        <ng-select
+            [items]="getAccountTypes()"
+            bindLabel="label"
+            bindValue="value"
+            placeholder="Select Account Type: "
+            [(ngModel)]="account.accountType"
+            tabindex="4"
+        ></ng-select>
       </label>
       <label>
-        Account Number: <input type="text" [(ngModel)]="account.number"  tabindex="5" />
+        Account Number: <input type="text" name="account" [(ngModel)]="account.number"  tabindex="5" />
       </label>
-      <label>Routing Number: <input type="text" [(ngModel)]="account.routing" tabindex="6" /></label>
-      <label>Interest Rate: <input type="number" step="0.01" [(ngModel)]="account.interestRate" tabindex="7" /></label>
-      <label>Interest Strategy <select [(ngModel)]="account.interestStrategy" tabindex="8">
-                <option default="true" value="simple">Simple</option>
-                <option value="compound">Compound</option>
-            </select>
+      <label>Routing Number: <input type="text" name="routing" [(ngModel)]="account.routing" tabindex="6" /></label>
+      <label>Interest Rate: <input type="number" name="interestRate" step="0.01" [(ngModel)]="account.interestRate" tabindex="7" /></label>
+      <label>Interest Strategy: <ng-select
+            [items]="getInterestStrategies()"
+            bindLabel="label"
+            bindValue="value"
+            placeholder="Select Interest Strategy: "
+            [(ngModel)]="account.interestStrategy"
+            tabindex="8"
+            ></ng-select>
       </label><br />
-      <input type="button" value="Cancel" (click)="cancel()"  tabindex="9" class="cancel" />
-      <input type="button" value="Save Account" (click)="saveForm()"  tabindex="10" class="save" />
+      <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
+      <input type="button" name="cancel" value="Cancel" (click)="cancel()"  tabindex="9" class="cancel" />
+      <input type="button" name="save" value="Save Account" (click)="saveChanges()"  tabindex="10" class="save" />
   </form>
-  <div class="errors">
-    <ul>
-      <li *ngFor="let error of errors">{{ error }}</li>
-    </ul>
-  </div>
 </div>

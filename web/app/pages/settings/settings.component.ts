@@ -6,7 +6,6 @@ import { PayCycle, TransactionDeltas, TransactionHeaders } from 'app/lib/structu
 @Component({
   selector: 'yaba-settings',
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.css'],
 })
 export class SettingsComponent {
   title = 'Settings';

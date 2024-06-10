@@ -21,7 +21,7 @@
     
 }
         </ul>
-        <div class="errors"><p *ngFor="let error of errors">{{ error }}</p></div>
+        <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
         <input type="button"
           tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +1 }}"
           name="cancelBtn"

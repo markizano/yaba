@@ -13,7 +13,24 @@
     --sky-blue: #53a9e4;
 }
 
+b, .bold { font-weight: bold; }
+i, .italic { font-style: italic; }
+u, .underline { text-decoration: underline; }
+
+a {
+    color: var(--spanish-orange);
+    text-decoration: none;
+}
+a:visited {
+    color: var(--spanish-orange);
+}
+a:hover {
+    color: var(--middle-yellow-red);
+    text-decoration: underline;
+}
+
 body {
+    font-family: "Sans", "Arial", "Calibri";
     padding: 2px;
 }
 

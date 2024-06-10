@@ -15,8 +15,6 @@ import { YabaAnimations } from 'app/lib/animations';
 })
 export class AccountsComponent {
   // User feedback
-  title = 'Accounts';
-  description = 'This is where you view and manage accounts associated with each institution.';
   error?: string;
   location: Location;
 

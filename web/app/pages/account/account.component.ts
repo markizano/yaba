@@ -5,7 +5,6 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'yaba-account',
   templateUrl: './account.component.html',
-  styleUrls: ['./account.component.css'],
 })
 export class AccountComponent {
   @Input() public id?: string;

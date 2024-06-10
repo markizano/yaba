@@ -7,7 +7,6 @@ import { Transactions } from 'app/lib/transactions';
 @Component({
     selector: 'yaba-pagination',
     templateUrl: './pagination.component.html',
-    styleUrls: [ './pagination.component.css' ],
     standalone: true,
     imports: [ CommonModule, FormsModule ],
 })
@@ -61,7 +60,6 @@ export class YabaTxnPaginationComponent {
 @Component({
     selector: 'yaba-daterange',
     templateUrl: './daterange.component.html',
-    styleUrls: [ './daterange.component.css' ],
     standalone: true,
     imports: [ CommonModule, FormsModule ],
     schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
@@ -161,7 +159,6 @@ export class YabaFilterBudgetsComponent {
 @Component({
     selector: 'transaction-filters',
     templateUrl: './txn-filter.component.html',
-    styleUrls: [ './txn-filter.component.css' ],
     standalone: true,
     imports: [
         CommonModule,
