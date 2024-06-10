@@ -11,12 +11,11 @@ import { TransactionHeaders } from 'app/lib/structures';
 import { Transactions, EditPlaceholder, Transaction } from 'app/lib/transactions';
 import { Account, Accounts } from 'app/lib/accounts';
 import { ControlsModule } from 'app/controls/controls.module';
-import { SortByTxnHeaderPipe } from 'app/sort-by-txn-header.pipe';
+import { SortByTxnHeaderPipe } from 'app/tables/transactions/sort-by-txn-header.pipe';
 
 @Component({
   selector: 'yaba-transaction-list',
   templateUrl: './transactions-list.component.html',
-  styleUrl: './transactions-list.component.css',
   standalone: true,
   imports: [
     CommonModule,
