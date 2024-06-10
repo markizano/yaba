@@ -412,7 +412,7 @@ wishlist-item {
     box-shadow: 1rem 1rem #1c1c1c90;
     background: #EEE;
     border-radius: 1.5rem;
-    transition: all 800ms ease-in-out;
+    transition: all 400ms ease-in-out;
 }
 
 .yaba-form close {
