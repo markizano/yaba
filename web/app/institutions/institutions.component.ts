@@ -6,13 +6,13 @@ import { FormMode } from 'app/lib/structures';
 // import { InstitutionsService } from 'app/storables/institutions.service';
 
 @Component({
-        selector: 'yaba-institutions',
-        templateUrl: './institutions.component.html',
-        styleUrls: ['./institutions.component.css'],
-        // providers: [ InstitutionsService ],
-        animations: [
-            YabaAnimations.fade()
-        ]
+    selector: 'yaba-institutions',
+    templateUrl: './institutions.component.html',
+    styleUrls: ['./institutions.component.css'],
+    // providers: [ InstitutionsService ],
+    animations: [
+        YabaAnimations.fade()
+    ]
 })
 export class InstitutionsComponent {
     @Input() institutions: Institutions;
