@@ -1,8 +1,5 @@
 /* Angular Definitions */
 import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
 
 /* YABA Definitions */
 import { YabaAnimations } from 'app/lib/animations';
@@ -22,9 +19,6 @@ import { InstitutionMappingComponent } from 'app/forms/institution/institution-m
     ],
     standalone: true,
     imports: [
-        BrowserAnimationsModule,
-        CommonModule,
-        FormsModule,
         ControlsModule,
         InstitutionMappingComponent,
     ],

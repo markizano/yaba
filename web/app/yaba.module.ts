@@ -9,9 +9,9 @@ import { AccountsModule } from 'app/accounts/accounts.module';
 import { ChartsModule } from 'app/charts/charts.module';
 import { BudgetingModule } from 'app/budgeting/budgeting.module';
 import { SettingsModule } from 'app/settings/settings.module';
-import { YabaDropFileDirective } from './dropfile.directive';
 // import { SessionManagementService } from './session.service';
 import { HttpClientModule } from '@angular/common/http';
+import { ControlsModule } from 'app/controls/controls.module';
 
 @NgModule({
   declarations: [
@@ -21,17 +21,21 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserModule,
     YabaRoutingModule,
     MenuComponent,
+    ControlsModule,
     InstitutionsModule,
     AccountsModule,
     ChartsModule,
     BudgetingModule,
     SettingsModule,
-    YabaDropFileDirective,
     HttpClientModule,
   ],
 //   providers: [
 //     SessionManagementService,
 //   ],
-  bootstrap: [ YabaComponent ]
+  bootstrap: [ YabaComponent ],
+  exports: [
+    YabaComponent,
+    ControlsModule,
+  ],
 })
 export class YabaModule { }

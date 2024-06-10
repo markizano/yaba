@@ -15,7 +15,6 @@ import { Directive, EventEmitter, HostBinding, HostListener, Input, Output } fro
 //
 
 @Directive({
-    standalone: true,
     selector: '.dropfile',
 })
 export class YabaDropFileDirective {
