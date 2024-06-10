@@ -11,8 +11,8 @@
             <figcaption>
                 <h2>{{ institution.name }}</h2>
                 <actions>
-                    <edit (click)="edit(institution)" class="helper" attr.helper="Edit Institution &quot;{{ institution.name }}&quot;."></edit>
-                    <trash (click)="remove(institution)" class="helper" attr.helper="Delete Institution &quot;{{ institution.name }}&quot;."></trash>
+                    <edit (click)="edit(institution)" class="helper" attr.helper="Edit Institution &quot;{{ institution.name }}&quot;."> Edit </edit>
+                    <trash (click)="remove(institution)" class="helper" attr.helper="Delete Institution &quot;{{ institution.name }}&quot;."> Trash </trash>
                 </actions>
             </figcaption>
             <p> {{ institution.description }} </p>
@@ -38,7 +38,7 @@
         [(mode)]="formMode"
         (save)="save($event)"
         (cancel)="cancel()"
-        (drop)="parseCSVFiles($event)"
+        (fileDrop)="parseCSVFiles($event)"
         [ngClass]="{ 'ng-hide': !formVisible }"
         class="fade dropfile"
     ></yaba-institution-form>

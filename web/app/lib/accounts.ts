@@ -329,4 +329,13 @@ export class Accounts extends Array<Account> {
     public selected(selectedAccounts: Accounts | Account[] | undefined): Accounts {
         return <Accounts>this.filter((a: Account) => this.filterSelected(a, selectedAccounts));
     }
+
+    /**
+     * Load accounts from a given JSON stringified object.
+     * @param {string} loadString The JSON string to parse and load into this object.
+     * @returns {Accounts}
+     */
+    static fromString(loadString: string): Accounts {
+        return new Accounts(...JSON.parse(loadString));
+    }
 }

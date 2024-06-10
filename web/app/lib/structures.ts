@@ -189,7 +189,7 @@ export class Settings implements UserPreferences {
      * @param {Settings} data Settings object to load.
      * @return {Settings} "this" Settings object for easy chaining.
      */
-    public load(data: UserPreferences): Settings {
+    load(data: UserPreferences): Settings {
         if ( data.incomeTags )      this.incomeTags = data.incomeTags;
         if ( data.expenseTags )     this.expenseTags = data.expenseTags;
         if ( data.transferTags )    this.transferTags = data.transferTags;
@@ -201,11 +201,20 @@ export class Settings implements UserPreferences {
     }
 
     /**
+     * Load the settings from a JSON stringified object.
+     * @param {string} loadString JSON stringified object to load.
+     * @return {Settings}
+     */
+    static fromString(loadString: string): Settings {
+        return new Settings().load(JSON.parse(loadString));
+    }
+
+    /**
      * Convert a pay cycle to milliseconds.
      * @param {PayCycle} cycle Pay cycle to convert.
      * @returns {number} Milliseconds in the pay cycle.
      */
-    public payCycle2ms(cycle: PayCycle): number {
+    payCycle2ms(cycle: PayCycle): number {
         let next1st: Date, next15th: Date;
         switch (cycle) {
             case PayCycle.Weekly:
