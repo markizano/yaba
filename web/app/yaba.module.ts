@@ -10,6 +10,8 @@ import { ChartsModule } from 'app/charts/charts.module';
 import { BudgetingModule } from 'app/budgeting/budgeting.module';
 import { SettingsModule } from 'app/settings/settings.module';
 import { YabaDropFileDirective } from './dropfile.directive';
+// import { SessionManagementService } from './session.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -25,8 +27,11 @@ import { YabaDropFileDirective } from './dropfile.directive';
     BudgetingModule,
     SettingsModule,
     YabaDropFileDirective,
+    HttpClientModule,
   ],
-  providers: [],
+//   providers: [
+//     SessionManagementService,
+//   ],
   bootstrap: [ YabaComponent ]
 })
 export class YabaModule { }
