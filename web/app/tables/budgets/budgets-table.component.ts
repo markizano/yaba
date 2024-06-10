@@ -7,7 +7,6 @@ import { BudgetStruct } from 'app/lib/structures';
 @Component({
     selector: 'yaba-budgets-table',
     templateUrl: './budgets-table.component.html',
-    styleUrls: ['./budgets-table.component.css'],
     imports: [
         CommonModule,
         FormsModule,

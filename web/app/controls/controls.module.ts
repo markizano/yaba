@@ -1,6 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgSelectModule } from '@ng-select/ng-select';
+
 import {
   ActionsComponent,
   AddComponent,
@@ -13,12 +16,13 @@ import {
   SettingsComponent,
   TrashComponent,
 } from 'app/controls/icons.component';
+
 import {
   YabaTxnPaginationComponent,
   TransactionFilterComponent,
 } from 'app/controls/controls.component';
+
 import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const components = [
   ActionsComponent,
@@ -48,7 +52,8 @@ const components = [
     FormsModule,
     ReactiveFormsModule,
     ...components,
-    TransactionFilterComponent
+    TransactionFilterComponent,
+    NgSelectModule,
 ],
 })
 export class ControlsModule { }

@@ -110,11 +110,18 @@ export class InstitutionFormComponent {
         this.reset();
     }
 
+    /**
+     * Edit the institution.
+     */
     edit(institution: IInstitution): void {
         this.institutionChange.emit( this.institution = institution );
         this.modeChange.emit( this.mode = FormMode.Edit );
     }
 
+    /**
+     * Add a mapping to the list of mappings.
+     * Trigger target events to notify the parent component of the changes.
+     */
     addMapping(): void {
         if ( this.fields.length -1 > this.institution.mappings.length ) {
             this.institution.addMapping('', TransactionFields.UNKNOWN, MapTypes.csv);

@@ -1,30 +1,35 @@
-<h1>{{ title }}</h1>
-<p>{{ description }}</p>
-<add (click)="add()" class="right"></add><br clear="all" />
-<mat-grid-list *ngIf="accounts.length > 0" md-row-height="7:4" md-cols-xl="3" md-cols-lg="2" md-cols-md="1" md-cols-sm="1" md-cols-xs="1" md-gutter="1">
-  <mat-grid-tile class="item-list-wrapper" ng-repeat="account in accounts">
-      <mat-grid-tile-header *ngForOf="let account of accounts">
-          <h2 class="title md-truncate" *ngModel="account"></h2>
-          <div class="account-balance">{{ account.balance() | currency }}</div>
-          <actions>
-              <inspect (click)="view(account)" class="helper" title="View &quot;{{ account.name }}&quot; details &amp; Transactions."></inspect>
-              <edit (click)="edit(account)" class="helper" title="Edit Account &quot;{{ account.name }}&quot;."></edit>
-              <trash (click)="remove(account)" class="helper" title="Delete Account &quot;{{ account.name }}&quot;."></trash>
-          </actions>
-      </mat-grid-tile-header>
-      <yaba-transaction-list
-        [accountId]="account.id"
-        [limit]="5"
-        [showPaginate]="false"
-        class="csvdrop"
-      ></yaba-transaction-list>
-  </mat-grid-tile>
-</mat-grid-list>
-<div class="errors">{{ error }}</div>
-<yaba-account-form
-  [(account)]="account"
-  [formMode]="formMode"
-  (close)="close()"
-  (save)="save(account)"
-  [ngClass]="{ 'ng-hide': !formVisible }"
-  class="fade"></yaba-account-form>
+<div id="accounts">
+    <h1>Accounts</h1>
+    <p>This is where you view and manage accounts associated with each institution.</p>
+    <add (click)="add()" class="right"></add><br clear="all" />
+@if(accounts.length > 0) {
+    <mat-grid-list md-row-height="7:4" md-cols-xl="3" md-cols-lg="2" md-cols-md="1" md-cols-sm="1" md-cols-xs="1" md-gutter="1">
+        <mat-grid-tile class="item-list-wrapper">
+    @for(account of accounts; track account) {
+        <mat-grid-tile-header>
+            <h2 class="title md-truncate">{{account.name}}</h2>
+            <div class="account-balance">{{ account.balance() | currency }}</div>
+            <actions>
+                <inspect (click)="view(account)" class="helper" title="View &quot;{{ account.name }}&quot; details &amp; Transactions."></inspect>
+                <edit (click)="edit(account)" class="helper" title="Edit Account &quot;{{ account.name }}&quot;."></edit>
+                <trash (click)="remove(account)" class="helper" title="Delete Account &quot;{{ account.name }}&quot;."></trash>
+            </actions>
+        </mat-grid-tile-header>
+    }
+            <yaba-transaction-list
+              [accountId]="account.id"
+              [limit]="5"
+              [showPaginate]="false"
+              class="dropfile"
+            ></yaba-transaction-list>
+        </mat-grid-tile>
+      </mat-grid-list>
+}
+    <yaba-account-form
+      [(account)]="account"
+      [(formMode)]="formMode"
+      (close)="close()"
+      (save)="save(account)"
+      [ngClass]="{ 'ng-hide': !formVisible }"
+      class="fade-slide-down"></yaba-account-form>
+</div>

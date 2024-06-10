@@ -1,22 +1,15 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 import { InstitutionMapping, MapTypes } from 'app/lib/institutions';
 import { TransactionFields } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
-
-import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'institution-mapping',
   templateUrl: './institution-mapping.component.html',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
     ControlsModule,
-    NgSelectModule,
   ],
 })
 export class InstitutionMappingComponent {

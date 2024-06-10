@@ -1,13 +1,15 @@
 <div id="institutions">
-    <h1>Institutions</h1>
+    <h1> Institutions </h1>
     <p>
         This is where you configure your Banks and
         institutions for the associations between
         their CSV/Excel formats and Yaba representation of transactions.
+        Your institutions and their CSV associations are listed below.
     </p>
     <add (click)="add()" class="right"></add><br clear="all" />
     <div class="institution-list">
-        <div class="institution" *ngFor="let institution of institutions">
+@for( institution of institutions; track institution ) {
+        <div class="institution">
             <figcaption>
                 <h2>{{ institution.name }}</h2>
                 <actions>
@@ -31,8 +33,8 @@
                 </tbody>
             </table>
         </div>
+}
     </div>
-    <div class="errors"><p *ngFor="let error of errors">{{ error }}</p></div>
     <yaba-institution-form
         [institution]="institution"
         [(mode)]="formMode"

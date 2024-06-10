@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatGridListModule } from '@angular/material/grid-list';
 
 import { ControlsModule } from 'app/controls/controls.module';
@@ -12,7 +11,6 @@ import { TransactionsModule } from 'app/transactions/transactions.module';
     AccountsComponent,
   ],
   imports: [
-    CommonModule,
     MatGridListModule,
     ControlsModule,
     TransactionsModule,

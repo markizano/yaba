@@ -8,7 +8,6 @@ import { FormMode } from 'app/lib/structures';
 @Component({
     selector: 'yaba-institutions',
     templateUrl: './institutions.component.html',
-    styleUrls: ['./institutions.component.css'],
     // providers: [ InstitutionsService ],
     animations: [
         YabaAnimations.fade()
@@ -24,9 +23,6 @@ export class InstitutionsComponent {
     formVisible = false;
     formMode: FormMode = FormMode.Create;
 
-    // User feedback
-    errors: string[] = [];
-    
     // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
     constructor( ) {
         this.institutions = new Institutions();

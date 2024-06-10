@@ -13,7 +13,6 @@ import { Settings } from 'app/lib/structures';
 @Component({
     selector: 'app-root',
     templateUrl: './yaba.component.html',
-    styleUrls: ['./yaba.component.css'],
 })
 export class YabaComponent {
     title = 'yaba';
