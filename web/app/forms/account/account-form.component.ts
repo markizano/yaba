@@ -4,11 +4,10 @@ import { FormsModule } from '@angular/forms';
 
 import { AccountTypes, Account, InterestStrategy } from 'app/lib/accounts';
 import { Institutions } from 'app/lib/institutions';
-import { FormMode } from 'app/lib/structures';
+import { FormMode, NgSelectable } from 'app/lib/structures';
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
 
-export declare type NgSelectable<T> = { label: string, value: T };
 
 @Component({
   selector: 'yaba-account-form',
@@ -34,6 +33,8 @@ export class AccountFormComponent {
     @Output() close = new EventEmitter<void>();
 
     institutions: Institutions = new Institutions();
+    accountTypes: NgSelectable<AccountTypes>[] = [];
+    interestStrategies: NgSelectable<InterestStrategy>[] = [];
 
     // User feedback.
     errors: string[] = [];
@@ -41,6 +42,11 @@ export class AccountFormComponent {
     constructor() {
         this.account = new Account();
         this.reset();
+    }
+
+    ngOnInit(): void {
+        this.accountTypes = this.getAccountTypes();
+        this.interestStrategies = this.getInterestStrategies();
     }
 
     getAccountTypes(): NgSelectable<AccountTypes>[] {

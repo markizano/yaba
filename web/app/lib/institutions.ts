@@ -231,6 +231,14 @@ export class Institutions extends Array<Institution> {
     }
 
     /**
+     * Remove all entries.
+     * @return {void}
+     */
+    clear(): void {
+        this.length = 0;
+    }
+
+    /**
      * Produce a CSV result of the contents of this object.
      * @returns {String} CSV string of the contents of this object.
      * @todo Figure out how to stream results rather than buffering in-memory.

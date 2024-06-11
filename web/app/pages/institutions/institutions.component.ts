@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { YabaAnimations } from 'app/lib/animations';
 import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
 import { FormMode } from 'app/lib/structures';
-// import { InstitutionsService } from 'app/storables/institutions.service';
+import { InstitutionsService } from 'app/services/institutions.service';
 
 @Component({
     selector: 'yaba-institutions',
@@ -24,9 +24,19 @@ export class InstitutionsComponent {
     formMode: FormMode = FormMode.Create;
 
     // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
-    constructor( ) {
+    constructor( protected institutionsService: InstitutionsService ) {
         this.institutions = new Institutions();
         this.institution = new Institution();
+    }
+
+    ngOnInit(): void {
+        //pass
+        this.institutionsService.load().then(institutions => {
+            console.log('Institutions loaded: ', institutions);
+            this.institutions.push(...institutions);
+        }, error => {
+            console.error('Error loading institutions: ', error);
+        });
     }
 
     // user-clickable add button
