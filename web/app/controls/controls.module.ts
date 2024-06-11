@@ -39,21 +39,21 @@ const components = [
 ];
 
 @NgModule({
-  declarations: components,
-  imports: [
-    CommonModule,
-    YabaTxnPaginationComponent,
-    TransactionFilterComponent,
-  ],
-  providers: [ ],
-  exports: [
-    BrowserAnimationsModule,
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ...components,
-    TransactionFilterComponent,
-    NgSelectModule,
-],
+    declarations: components,
+    imports: [
+        CommonModule,
+        YabaTxnPaginationComponent,
+        TransactionFilterComponent,
+    ],
+    providers: [ ],
+    exports: [
+        BrowserAnimationsModule,
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        TransactionFilterComponent,
+        NgSelectModule,
+        ...components,
+    ],
 })
 export class ControlsModule { }

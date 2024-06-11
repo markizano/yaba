@@ -2,24 +2,28 @@
     <close (click)="closeForm()"></close>
     <h1>{{ account.name || "New" }} Account:</h1>
     <form (ngSubmit)="saveChanges()">
-      <label>Name: <input type="text" maxlength="64" name="name" [(ngModel)]="account.name" tabindex="1" /></label>
-      <label>Description: <input type="text" maxlength="255" name="description" [(ngModel)]="account.description" tabindex="2" /></label>
+        <label>Name: <input type="text" maxlength="64" name="name" [(ngModel)]="account.name" tabindex="1" /></label>
+        <label>Description: <input type="text" maxlength="255" name="description" [(ngModel)]="account.description" tabindex="2" /></label>
       <label>
         Institution:
-        <select
-          [(ngModel)]="account.institutionId"
-          tabindex="3"
-        >
-        <option *ngFor="let institution of institutions" [ngValue]="institution.id"> {{ institution.name }} </option>
-      </select>
+        <ng-select
+            [items]="institutions"
+            name="institution"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Select Institution: "
+            [(ngModel)]="account.institutionId"
+            tabindex="3"
+        ></ng-select>
       </label>
       <label>
         Account Type:
         <ng-select
-            [items]="getAccountTypes()"
+            [items]="accountTypes"
             bindLabel="label"
             bindValue="value"
             placeholder="Select Account Type: "
+            name="accountType"
             [(ngModel)]="account.accountType"
             tabindex="4"
         ></ng-select>
@@ -30,11 +34,12 @@
       <label>Routing Number: <input type="text" name="routing" [(ngModel)]="account.routing" tabindex="6" /></label>
       <label>Interest Rate: <input type="number" name="interestRate" step="0.01" [(ngModel)]="account.interestRate" tabindex="7" /></label>
       <label>Interest Strategy: <ng-select
-            [items]="getInterestStrategies()"
+            [items]="interestStrategies"
             bindLabel="label"
             bindValue="value"
             placeholder="Select Interest Strategy: "
             [(ngModel)]="account.interestStrategy"
+            name="interestStrategy"
             tabindex="8"
             ></ng-select>
       </label><br />

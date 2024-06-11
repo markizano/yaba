@@ -42,6 +42,12 @@ export function parseCurrency(value: string): number {
 export const NULLDATE = new Date('1970-01-01T00:00:00');
 
 /**
+ * @param {number} CACHE_EXPIRY_SECONDS Number of seconds before client-store cache expires.
+ */
+export const CACHE_EXPIRY_SECONDS = 120;
+
+
+/**
  * @param {DateRange} DateRange Object to represent a range of dates.
  */
 export interface DateRange {
@@ -71,6 +77,8 @@ export interface BudgetStruct {
  * If we later want to expand on this, we can use this stub.
  */
 export class Tags extends Array<string> {}
+
+export type NgSelectable<T> = { label: string, value: T };
 
 /**
  * enum(PayCycle). Set of key-value pairs of pay cycles.
