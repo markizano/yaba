@@ -11,13 +11,13 @@ export class YabaAnimations {
         return trigger('fade-slide-down', [
             transition(
               ':enter', [
-                style({ opacity: 0, height: 0 }),
-                animate(YabaAnimations.ANIMATE_MS, style({opacity: 1, height: '*'}))
+                style({ opacity: 0, height: 0, visibility: 'hidden' }),
+                animate(YabaAnimations.ANIMATE_MS, style({opacity: 1, height: '*', visibility: 'visible'}))
             ]),
             transition(
               ':leave', [
-                style({ opacity: 1, height: '*' }),
-                animate(YabaAnimations.ANIMATE_MS, style({ opacity: 0, height: 0 }))
+                style({ opacity: 1, height: '*', visibility: 'visible'}),
+                animate(YabaAnimations.ANIMATE_MS, style({ opacity: 0, height: 0, visibility: 'hidden'}))
             ]),
           ]);  
     }

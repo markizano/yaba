@@ -3,7 +3,7 @@ import { HostListener, Injectable } from "@angular/core";
 
 export interface iStorables<T> {
     load(): Promise<T>;
-    save(): void;
+    save(items: T): void;
 }
 
 @Injectable()
@@ -44,48 +44,58 @@ export abstract class BaseHttpService<T, Type extends Array<T>> {
      */
     load(): Promise<Type> {
         const result = [] as unknown as Type;
+        // Loading items returns a promise so we can asynchronously process results.
         return new Promise<Type>((resolve: (value: Type) => void, reject: (error: unknown) => void) => {
             console.debug('BaseHttpService.load(): ', this.isExpired());
-            if ( this.isExpired() ) {
-                const request = this.http.get<Type>(this.getEndpoint(), {headers: this._headers});
-                this._cache.length = 0;
-                const aggregate = (x: Type) => {
-                    result.push(...x);
-                    this._cache.push(...x);
-                }
-                const tryLocalStorage = (e: unknown) => {
-                    console.error('Error fetching from server: ', e);
-                    console.log('Attempting to load from localStorage.');
-                    try {
-                        const cached = localStorage.getItem(this.name) ?? '';
-                        if ( cached ) {
-                            this._cache.length = 0;
-                            (c => {
-                                this._cache.push(...c);
-                                result.push(...c);
-                            })(JSON.parse(cached));
-                        }
-                        console.log('Loaded from localStorage: ', this._cache);
-                        this._cacheExpiry = false;
-                        resolve(result);
-                    } catch (e) {
-                        console.error('Error loading from localStorage: ', e);
-                        reject(e);
-                    }
-                };
-                request.subscribe({next: aggregate, error: tryLocalStorage, complete: () => resolve(result)});
-            } else {
+            if ( !this.isExpired() ) {
+                console.log('cache-hit: ', this._cache);
                 return resolve(this._cache);
             }
+            console.log('cache-miss: ', this._cache);
+            const request = this.http.get<Type>(this.getEndpoint(), {headers: this._headers});
+            this._cache.length = 0;
+            // using an annonymous arrow function to avoid replacing the `this` context.
+            const next = (x: Type) => {
+                result.push(...x);
+                this._cache.push(...x);
+                this._cacheExpiry = false;
+            }
+            const error = (e: unknown) => {
+                console.error('Error fetching from server: ', e);
+                console.log('Attempting to load from localStorage.');
+                try {
+                    const cached = localStorage.getItem(this.name) ?? '';
+                    if ( cached ) {
+                        this._cache.length = 0;
+                        (c => {
+                            this._cache.push(...c);
+                            result.push(...c);
+                        })(JSON.parse(cached));
+                    }
+                    console.log('Loaded from localStorage: ', this._cache);
+                    this._cacheExpiry = false;
+                    resolve(result);
+                } catch (e) {
+                    console.error('Error loading from localStorage: ', e);
+                    reject(e);
+                }
+                sub.unsubscribe();
+            };
+            const complete = () => {
+                console.log('complete:load()');
+                resolve(result);
+                sub.unsubscribe();
+            };
+            const sub = request.subscribe({ next, error, complete });
         });
     }
 
     /**
-     * Save the institutions to the server.
+     * Save the objects to the server.
      * @returns void
      */
-    save(): void {
-        localStorage.setItem(this.name, JSON.stringify(this._cache));
+    save(items: Type): void {
+        localStorage.setItem(this.name, JSON.stringify(this._cache = items));
         this.http.post(this.getEndpoint(), this._cache, {headers: this._headers}).subscribe({
             next: (i: unknown) => console.log('next:saved(): ', i),
             complete: () => console.log('complete:saved()'),

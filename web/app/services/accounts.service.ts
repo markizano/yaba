@@ -13,7 +13,6 @@ export class AccountsService extends BaseHttpService<Account, Accounts> implemen
     constructor(http: HttpClient) {
         super(http);
         console.log('new AccountsService()');
-        this.load();
     }
 
     getEndpoint(): string {
