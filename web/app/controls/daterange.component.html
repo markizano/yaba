@@ -1,21 +1,23 @@
-<date-range layout="row" layout-padding ng-cloak>
-    <from-date>
+<div class="date-range-wrapper">
+    <div class="from-date-wrapper date-input-wrapper">
         <input
           type="date"
           [(ngModel)]="fromDate"
           (ngChange)="changed($event)"
           placeholder="From Date"
           class="from-date"
+          name="fromDate"
         />
-    </from-date>
+    </div>
     &nbsp;
-    <to-date>
+    <div class="to-date-wrapper date-input-wrapper">
         <input
             type="date"
             [(ngModel)]="toDate"
             (ngChange)="changed($event)"
             placeholder="To Date"
             class="to-date"
+            name="toDate"
         />
-    </to-date>
-</date-range>
+    </div>
+</div>
