@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AccountTypes, Account, InterestStrategy } from 'app/lib/accounts';
 import { Institutions } from 'app/lib/institutions';
@@ -35,7 +35,7 @@ export class AccountFormComponent {
     // User feedback.
     errors: string[] = [];
 
-    constructor(protected institutionsService: InstitutionsService) {
+    constructor(protected institutionsService: InstitutionsService, protected chgRef: ChangeDetectorRef) {
         console.log('new AccountFormComponent()');
         this.account = new Account();
         this.reset();
@@ -46,7 +46,11 @@ export class AccountFormComponent {
         this.accountTypes = this.getAccountTypes();
         this.interestStrategies = this.getInterestStrategies();
         this.institutionsService.load().then(
-            (institutions: Institutions) => this.institutions.push(...institutions),
+            (institutions: Institutions) => {
+                this.institutions.push(...institutions);
+                this.chgRef.detectChanges();
+                console.log('AccountFormComponent().ngOnInit(): ', institutions);
+            },
             (error) => console.error('Error loading institutions: ', error)
         );
     }
