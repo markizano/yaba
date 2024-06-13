@@ -13,7 +13,6 @@ export class InstitutionsService extends BaseHttpService<Institution, Institutio
     constructor(http: HttpClient) {
         super(http);
         console.log('new InstitutionsService()');
-        this.load();
     }
 
     getEndpoint(): string {

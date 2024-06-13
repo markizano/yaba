@@ -1,17 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { YabaAnimations } from 'app/lib/animations';
 import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
 import { FormMode } from 'app/lib/structures';
 import { InstitutionsService } from 'app/services/institutions.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'yaba-institutions',
     templateUrl: './institutions.component.html',
-    // providers: [ InstitutionsService ],
-    animations: [
-        YabaAnimations.fade()
-    ]
 })
 export class InstitutionsComponent {
     @Input() institutions: Institutions;
@@ -22,21 +18,29 @@ export class InstitutionsComponent {
     // Form controls
     formVisible = false;
     formMode: FormMode = FormMode.Create;
+    #isub: Subscription;
 
     // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
-    constructor( protected institutionsService: InstitutionsService ) {
+    constructor( protected institutionsService: InstitutionsService, protected changeDet: ChangeDetectorRef ) {
         this.institutions = new Institutions();
         this.institution = new Institution();
+        this.#isub = this.institutionsChange.subscribe((institutions: Institutions) => {
+            this.institutionsService.save(institutions);
+        });
     }
 
     ngOnInit(): void {
-        //pass
         this.institutionsService.load().then(institutions => {
             console.log('Institutions loaded: ', institutions);
             this.institutions.push(...institutions);
+            this.changeDet.detectChanges();
         }, error => {
             console.error('Error loading institutions: ', error);
         });
+    }
+
+    ngOnDestroy(): void {
+        this.#isub.unsubscribe();
     }
 
     // user-clickable add button
@@ -46,22 +50,27 @@ export class InstitutionsComponent {
         this.formVisible = true;
     }
 
-    remove(institutuion: IInstitution): void {
-        this.institutions.remove(institutuion);
+    remove($index: number, institutuion: IInstitution): void {
+        this.institutions.splice($index, 1);
+        this.institutionsChange.emit(this.institutions);
+        console.log('Removed institution: ', institutuion);
     }
 
     // User clicked save button.
     save(institution: IInstitution): void {
-        this.institutions.push(institution);
+        if ( this.formMode === FormMode.Create ) {
+            this.institutions.push(institution);
+        }
         this.institutionsChange.emit(this.institutions);
         this.close()
     }
 
     // User wants to edit an institution.
-    edit(institution: IInstitution): void {
+    edit($index: number, institution: IInstitution): void {
         this.institution = institution;
         this.formMode = FormMode.Edit;
         this.formVisible = true;
+        console.log('Editing institution: ', institution);
     }
 
     // User dropped a file on the form.

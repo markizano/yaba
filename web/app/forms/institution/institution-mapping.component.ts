@@ -3,11 +3,15 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { InstitutionMapping, MapTypes } from 'app/lib/institutions';
 import { TransactionFields } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
+import { YabaAnimations } from 'app/lib/animations';
 
 @Component({
   selector: 'institution-mapping',
   templateUrl: './institution-mapping.component.html',
   standalone: true,
+  animations: [
+    YabaAnimations.fadeSlideDown()
+  ],
   imports: [
     ControlsModule,
   ],

@@ -1,25 +1,21 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 import { AccountTypes, Account, InterestStrategy } from 'app/lib/accounts';
 import { Institutions } from 'app/lib/institutions';
 import { FormMode, NgSelectable } from 'app/lib/structures';
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
-
+import { InstitutionsService } from 'app/services/institutions.service';
 
 @Component({
   selector: 'yaba-account-form',
   templateUrl: './account-form.component.html',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
     ControlsModule,
   ],
   animations: [
-    YabaAnimations.fade(),
+    YabaAnimations.fadeSlideDown(),
   ]
 })
 export class AccountFormComponent {
@@ -39,22 +35,28 @@ export class AccountFormComponent {
     // User feedback.
     errors: string[] = [];
 
-    constructor() {
+    constructor(protected institutionsService: InstitutionsService) {
+        console.log('new AccountFormComponent()');
         this.account = new Account();
         this.reset();
     }
 
     ngOnInit(): void {
+        console.log('AccountFormComponent().ngOnInit()');
         this.accountTypes = this.getAccountTypes();
         this.interestStrategies = this.getInterestStrategies();
+        this.institutionsService.load().then(
+            (institutions: Institutions) => this.institutions.push(...institutions),
+            (error) => console.error('Error loading institutions: ', error)
+        );
     }
 
     getAccountTypes(): NgSelectable<AccountTypes>[] {
-        return Object.keys(AccountTypes).filter((type) => typeof type === 'string').map((type) => ({ label: type, value: AccountTypes[type as keyof typeof AccountTypes] }));
+        return Object.keys(AccountTypes).filter((x) => typeof x === 'string').map((y) => ({ label: y, value: AccountTypes[y as keyof typeof AccountTypes] }));
     }
 
     getInterestStrategies(): NgSelectable<InterestStrategy>[] {
-        return Object.keys(InterestStrategy).filter((type) => typeof type === 'string').map((type) => ({ label: type, value: InterestStrategy[type as keyof typeof InterestStrategy] }));
+        return Object.keys(InterestStrategy).filter((x) => typeof x === 'string').map((y) => ({ label: y, value: InterestStrategy[y as keyof typeof InterestStrategy] }));
     }
 
     validate() {

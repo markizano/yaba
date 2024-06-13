@@ -4,18 +4,19 @@
         <h1>{{ institution.name || 'New' }} Institution</h1>
     </div>
     <form (ngSubmit)="saveChanges()">
-        <label>Name: <input type="text" tabindex="1" name="name" [(ngModel)]="institution.name" required maxlength="255" /></label>
+        <label>Name: <input type="text" tabindex="1" name="name" [(ngModel)]="institution.name" required maxlength="64" /></label>
         <label>Description: <input type="text" tabindex="2" name="description" [(ngModel)]="institution.description" required maxlength="255" /></label>
         <label>Mapping ( {{ institution.mappings.length }} ): <add tabindex="3" (click)="addMapping()"></add></label>
         <ul>
 @for(mapping of institution.mappings; track institution.mappings[index]; let index = $index) {
-            <li @fade-slide-down>
+            <li>
                 <institution-mapping
                     [index]="index"
                     [(mapping)]="institution.mappings[index]"
                     [(fields)]="fields"
                     (fieldsChange)="getTransactionFields()"
                     (remove)="removeMapping(index)"
+                    class="suave"
                     ></institution-mapping>
             </li>
     

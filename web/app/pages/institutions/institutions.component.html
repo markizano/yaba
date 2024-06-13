@@ -7,17 +7,19 @@
         Your institutions and their CSV associations are listed below.
     </p>
     <add (click)="add()" class="right"></add><br clear="all" />
-    <div class="institution-list">
-@for( institution of institutions; track institution ) {
-        <div class="institution">
+    <div class="institution-list yaba-list-wrapper">
+@for( institution of institutions; let i = $index; track institution.id ) {
+        <div class="institution yaba-item">
             <figcaption>
-                <h2>{{ institution.name }}</h2>
+                <div>
+                    <h2>{{ institution.name }}</h2>
+                    <p> {{ institution.description }} </p>
+                </div>
                 <actions>
-                    <edit (click)="edit(institution)" class="helper" attr.helper="Edit Institution &quot;{{ institution.name }}&quot;."> Edit </edit>
-                    <trash (click)="remove(institution)" class="helper" attr.helper="Delete Institution &quot;{{ institution.name }}&quot;."> Trash </trash>
+                    <edit (click)="edit(i, institution)" class="helper" attr.helper="Edit Institution &quot;{{ institution.name }}&quot;."> Edit </edit>
+                    <trash (click)="remove(i, institution)" class="helper" attr.helper="Delete Institution &quot;{{ institution.name }}&quot;."> Trash </trash>
                 </actions>
             </figcaption>
-            <p> {{ institution.description }} </p>
             <table id="{{ institution.id }}" class="institution-mappings data item-list">
                 <thead>
                     <th>From Field</th>
@@ -25,11 +27,13 @@
                     <th>Map Type</th>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let mapping of institution.mappings">
+    @for( mapping of institution.mappings; track mapping ) {
+                    <tr>
                         <td>{{ mapping.fromField }}</td>
                         <td>{{ mapping.toField }}</td>
                         <td>{{ mapping.mapType }}</td>
                     </tr>
+    }
                 </tbody>
             </table>
         </div>
@@ -42,6 +46,6 @@
         (cancel)="cancel()"
         (fileDrop)="parseCSVFiles($event)"
         [ngClass]="{ 'ng-hide': !formVisible }"
-        class="fade dropfile"
+        class="suave dropfile"
     ></yaba-institution-form>
 </div>
