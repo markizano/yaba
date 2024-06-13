@@ -1,6 +1,6 @@
-<div class="transaction-list-wrapper" [ngClass]="editable ? 'editable': ''">
+<div class="transaction-list-wrapper">
+@if ( showFilters ){
     <transaction-filters
-        *ngIf="showFilters"
         [accounts]="accounts"
         [txns]="txns"
         [showDaterange]="showDaterange"
@@ -13,126 +13,134 @@
         (selectedAccounts)="useAccounts($event)"
         (selectedBudgets)="useBudgets($event)"
     ></transaction-filters>
+}
+@if ( txns.length > 0){
     <table class="data item-list" [ngClass]="editable ? 'editable': ''" *ngIf="txns.length > 0">
+    @if (withHeader) {
         <thead *ngIf="withHeader">
             <tr>
-                <th *ngIf="txShow?.id">Transaction ID</th>
-                <th *ngIf="txShow?.datePending" (ngClick)="sortBy('datePending');">Date Pending</th>
-                <th (ngClick)="sortBy('datePosted');">Date Posted</th>
-                <th *ngIf="txShow?.account" (ngClick)="sortBy('account');">Account</th>
-                <th (ngClick)="sortBy('amount');">Amount</th>
-                <th (ngClick)="sortBy('description');">Description</th>
-                <th *ngIf="txShow?.merchant" (ngClick)="sortBy('merchant');">Merchant</th>
-                <th *ngIf="txShow?.transactionType">Transaction Type</th>
-                <th *ngIf="withTags">Budgets</th>
+        @if ( txShow?.id )              {<th>Transaction ID</th>}
+        @if ( txShow?.datePending )     {<th (click)="sortBy('datePending');">Date Pending</th>}
+       <!-- Always show post date -->    <th (click)="sortBy('datePosted');">Date Posted</th>
+        @if ( txShow?.account )         {<th (click)="sortBy('account');">Account</th>}
+        <!-- Always show amount -->      <th (click)="sortBy('amount');">Amount</th>
+        <!-- Always show desc. -->       <th (click)="sortBy('description');">Description</th>
+        @if ( txShow?.merchant )        {<th (click)="sortBy('merchant');">Merchant</th>}
+        @if ( txShow?.transactionType ) {<th>Transaction Type</th>}
+        @if ( withTags )                {<th>Budgets</th>}
             </tr>
         </thead>
+    }
         <tbody>
-            <tr *ngForOf="let txn of txns | sortByTxnHeader:sort.column:sort.asc | limitTo:itemsPerPage:offset; trackBy txn.id">
-                <td *ngIf="txShow?.id"> <span class="md-truncate"> {{ txn.id }} </span> </td>
-                <td *ngIf="txShow?.datePending" txn-edit="true" [ngSwitch]="!!currentlyEditing['datePending']">
-                    <span *ngSwitchCase="false"> {{ txn.datePending | date:'yyyy-MM-dd' }} </span>
-                    <div *ngSwitchCase="true" ng-blur="$emit('yaba.edit2view-txn-datePending', $event)">
-                        <input
-                        type="date"
-                        [(ngModel)]="txn.datePending"
-                        class="txn-edit-field"
-                        ng-blur="$emit('yaba.edit2view-txn-datePending', $event)"
-                        />
-                    </div>
-                </td>
-                <td txn-edit="true" [ngSwitch]="!!currentlyEditing['datePosted']">
-                    <span *ngSwitchCase="false"> {{ txn.datePosted | date:'yyyy-MM-dd' }} </span>
-                    <div *ngSwitchCase="true" ng-blur="$emit('yaba.edit2view-txn-datePosted', $event)">
-                        <input
-                          type="date"
-                          [(ngModel)]="txn.datePosted"
-                          class="txn-edit-field"
-                          ng-blur="$emit('yaba.edit2view-txn-datePosted', $event)"
-                        />
-                    </div>
-                </td>
+    @for(txn of txns; track txn.id) {
+        <tr>
+            @if (txShow?.id) {<td> <span class="md-truncate"> {{ txn.id }} </span> </td>}
+            @if (txShow?.datePending) {<td txn-edit="true" [ngSwitch]="!!currentlyEditing['datePending']">
+                <span *ngSwitchCase="false"> {{ txn.datePending | date:'yyyy-MM-dd' }} </span>
+                <div *ngSwitchCase="true" ng-blur="$emit('yaba.edit2view-txn-datePending', $event)">
+                    <input
+                    type="date"
+                    [(ngModel)]="txn.datePending"
+                    (blur)="edit2view('datePending', txn.datePending)"
+                    class="txn-edit-field"
+                    ng-blur="$emit('yaba.edit2view-txn-datePending', $event)"
+                    />
+                </div>
+            </td>}
+            <td txn-edit="true" [ngSwitch]="!!currentlyEditing['datePosted']">
+                <span *ngSwitchCase="false"> {{ txn.datePosted | date:'yyyy-MM-dd' }} </span>
+                <div *ngSwitchCase="true" ng-blur="$emit('yaba.edit2view-txn-datePosted', $event)">
+                    <input
+                      type="date"
+                      [(ngModel)]="txn.datePosted"
+                      class="txn-edit-field"
+                      ng-blur="$emit('yaba.edit2view-txn-datePosted', $event)"
+                    />
+                </div>
+            </td>
 
-                <td *ngIf="txShow?.account"> <span> {{ accounts.byId(txn.accountId)?.name }} </span> </td>
+            <td *ngIf="txShow?.account"> <span> {{ accounts.byId(txn.accountId)?.name }} </span> </td>
 
-                <td txn-edit="true" ng-model="txn.amount" [ngSwitch]="!!currentlyEditing['amount']">
-                    <span *ngSwitchCase="false" [textContent]="txn.amount | currency" [ngClass]="{'negative': txn.amount < 0}"></span>
-                    <span *ngSwitchCase="true">
-                        <input
-                        type="number"
-                        [(ngModel)]="txn.amount"
-                        class="txn-edit-field"
-                        ng-blur="$emit('yaba.edit2view-txn-amount', $event)"
-                        />
-                    </span>
-                </td>
-                <td txn-edit="true" ng-model="txn.description" [ngSwitch]="!!currentlyEditing['description']">
-                    <!-- md-truncate has failed me here! :sob: -->
-                    <span *ngSwitchCase="false"> {{ limit == -1 ? txn.description: txn.description.slice(0, 30) + (txn.description.length > 30? '...': '') }} </span>
-                    <span *ngSwitchCase="true">
-                        <input
-                        type="text"
-                        [(ngModel)]="txn.description"
-                        class="txn-edit-field"
-                        ng-blur="$emit('yaba.edit2view-txn-description', $event)"
-                        />
-                    </span>
-                </td>
-                <td *ngIf="txShow?.merchant" txn-edit="true" ng-model="txn.merchant" [ngSwitch]="!!currentlyEditing['merchant']">
-                    <span *ngSwitchCase="false"> {{ txn.merchant }} </span>
-                    <span *ngSwitchCase="true">
-                        <input
-                        type="text"
-                        [(ngModel)]="txn.merchant"
-                        class="txn-edit-field"
-                        ng-blur="$emit('yaba.edit2view-txn-merchant', $event)"
-                        />
-                    </span>
-                </td>
-                <td *ngIf="txShow?.transactionType" txn-edit="true" ng-model="txn.transactionType" [ngSwitch]="!!currentlyEditing['transactionType']">
-                    <span *ngSwitchCase="false"> {{ txn.transactionType }} </span>
-                    <span *ngSwitchCase="true">
-                        <input
-                        type="text"
-                        [(ngModel)]="txn.transactionType"
-                        class="txn-edit-field"
-                        ng-blur="$emit('yaba.edit2view-txn-transactionType', $event)"
-                        />
-                    </span>
-                </td>
-                <td txn-edit="true" ng-model="txn.tags" [ngSwitch]="!!currentlyEditing['tags']" ng-show="withTags">
-                    <span *ngSwitchCase="false"> {{ txn.tags.join(", ") }} </span>
-                    <span *ngSwitchCase="true">
-                        <mat-chip-grid #chipGrid aria-label="Enter hidden tags" *ngFor="let tag of txn.tags; track tag">
-                              <mat-chip-row
-                                (removed)="removeTag(txn, $event)"
-                                [editable]="true"
-                                (changed)="save()"
-                                [aria-description]="'press enter to edit tag'">
-                                <span [textContent]="tag"></span>
-                                <button matChipRemove [attr.aria-label]="'remove tag'">
-                                  <mat-icon>cancel</mat-icon>
-                                </button>
-                              </mat-chip-row>
-                            <input placeholder="New tag..."
-                                   [matChipInputFor]="chipGrid"
-                                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                                   [matChipInputAddOnBlur]="addOnBlur"
-                                   (matChipInputTokenEnd)="addTag(txn, $event)"/>
-                          </mat-chip-grid>
+            <td txn-edit="true" ng-model="txn.amount" [ngSwitch]="!!currentlyEditing['amount']">
+                <span *ngSwitchCase="false" [textContent]="txn.amount | currency" [ngClass]="{'negative': txn.amount < 0}"></span>
+                <span *ngSwitchCase="true">
+                    <input
+                    type="number"
+                    [(ngModel)]="txn.amount"
+                    class="txn-edit-field"
+                    ng-blur="$emit('yaba.edit2view-txn-amount', $event)"
+                    />
+                </span>
+            </td>
+            <td txn-edit="true" ng-model="txn.description" [ngSwitch]="!!currentlyEditing['description']">
+                <!-- md-truncate has failed me here! :sob: -->
+                <span *ngSwitchCase="false"> {{ limit == -1 ? txn.description: txn.description.slice(0, 30) + (txn.description.length > 30? '...': '') }} </span>
+                <span *ngSwitchCase="true">
+                    <input
+                    type="text"
+                    [(ngModel)]="txn.description"
+                    class="txn-edit-field"
+                    ng-blur="$emit('yaba.edit2view-txn-description', $event)"
+                    />
+                </span>
+            </td>
+            <td *ngIf="txShow?.merchant" txn-edit="true" ng-model="txn.merchant" [ngSwitch]="!!currentlyEditing['merchant']">
+                <span *ngSwitchCase="false"> {{ txn.merchant }} </span>
+                <span *ngSwitchCase="true">
+                    <input
+                    type="text"
+                    [(ngModel)]="txn.merchant"
+                    class="txn-edit-field"
+                    ng-blur="$emit('yaba.edit2view-txn-merchant', $event)"
+                    />
+                </span>
+            </td>
+            <td *ngIf="txShow?.transactionType" txn-edit="true" ng-model="txn.transactionType" [ngSwitch]="!!currentlyEditing['transactionType']">
+                <span *ngSwitchCase="false"> {{ txn.transactionType }} </span>
+                <span *ngSwitchCase="true">
+                    <input
+                    type="text"
+                    [(ngModel)]="txn.transactionType"
+                    class="txn-edit-field"
+                    ng-blur="$emit('yaba.edit2view-txn-transactionType', $event)"
+                    />
+                </span>
+            </td>
+            <td txn-edit="true" ng-model="txn.tags" [ngSwitch]="!!currentlyEditing['tags']" ng-show="withTags">
+                <span *ngSwitchCase="false"> {{ txn.tags.join(", ") }} </span>
+                <span *ngSwitchCase="true">
+                    <mat-chip-grid #chipGrid aria-label="Enter hidden tags" *ngFor="let tag of txn.tags; track tag">
+                          <mat-chip-row
+                            (removed)="removeTag(txn, $event)"
+                            [editable]="true"
+                            (changed)="save()"
+                            [aria-description]="'press enter to edit tag'">
+                            <span [textContent]="tag"></span>
+                            <button matChipRemove [attr.aria-label]="'remove tag'">
+                              <mat-icon>cancel</mat-icon>
+                            </button>
+                          </mat-chip-row>
+                        <input placeholder="New tag..."
+                               [matChipInputFor]="chipGrid"
+                               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                               [matChipInputAddOnBlur]="addOnBlur"
+                               (matChipInputTokenEnd)="addTag(txn, $event)"/>
+                      </mat-chip-grid>
 
-                          <!-- <mat-chips
-                            ng-model="txn.tags"
-                            ng-blur="$scope.$emit('yaba.edit2view-txn-tags', $event)"
-                            md-readonly="false"
-                            md-removable="true"
-                            md-enable-chip-edit="true"
-                        ></mat-chips> -->
-                    </span>
-                </td>
-            </tr>
+                      <!-- <mat-chips
+                        ng-model="txn.tags"
+                        ng-blur="$scope.$emit('yaba.edit2view-txn-tags', $event)"
+                        md-readonly="false"
+                        md-removable="true"
+                        md-enable-chip-edit="true"
+                    ></mat-chips> -->
+                </span>
+            </td>
+        </tr>
+    }
         </tbody>
     </table>
+}
     <yaba-pagination *ngIf="showPaginate && txns.length > 10" [itemCount]="txns.length"></yaba-pagination><br />
     <debug>
         txn.length: <span [textContent]="txns.length"></span>
