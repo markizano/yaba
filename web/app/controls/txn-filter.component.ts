@@ -2,12 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { EventEmitter, Output } from '@angular/core';
 
-import { Account, Accounts } from 'app/lib/accounts';
-import { Transactions } from 'app/lib/transactions';
-import { YabaFilterDateRangeComponent } from 'app/controls/daterange.component';
-import { YabaFilterAccountsComponent } from 'app/controls/account-filter.component';
-import { YabaFilterDescriptionComponent } from 'app/controls/description.component';
-import { YabaFilterBudgetsComponent } from 'app/controls/budgets-filter.component';
+import { Budgets, TransactionFilter } from 'app/lib/transactions';
+import { DateRangeFilterComponent } from 'app/controls/daterange.component';
+import { AccountsFilterComponent } from 'app/controls/account-filter.component';
+import { DescriptionFilterComponent } from 'app/controls/description.component';
+import { BudgetsFilterComponent } from 'app/controls/budgets-filter.component';
+import { Accounts } from 'app/lib/accounts';
 
 @Component({
     selector: 'transaction-filters',
@@ -15,48 +15,33 @@ import { YabaFilterBudgetsComponent } from 'app/controls/budgets-filter.componen
     standalone: true,
     imports: [
         CommonModule,
-        YabaFilterDateRangeComponent,
-        YabaFilterAccountsComponent,
-        YabaFilterDescriptionComponent,
-        YabaFilterBudgetsComponent,
+        DateRangeFilterComponent,
+        AccountsFilterComponent,
+        DescriptionFilterComponent,
+        BudgetsFilterComponent,
     ],
 })
 export class TransactionFilterComponent {
-    title = 'Transaction Filters';
-    @Input() showDaterange: boolean;
-    @Input() showAccounts: boolean;
-    @Input() showDescription: boolean;
-    @Input() showTags: boolean;
-    @Input() txns: Transactions;
-    @Input() accounts: Accounts;
-    @Input() fromDate: Date;
-    @Input() toDate: Date;
-    @Input() description: string|RegExp;
-    @Input() budgets: string[];
-    @Output() fromDateChange = new EventEmitter<Date>();
-    @Output() toDateChange = new EventEmitter<Date>();
-    @Output() descriptionChange = new EventEmitter<string|RegExp>();
-    @Output() selectedBudgets = new EventEmitter<string[]>();
-    @Output() selectedAccounts = new EventEmitter<Account[]|Accounts>();
+    @Input() filter: TransactionFilter;
+    @Output() filterChange = new EventEmitter<TransactionFilter>();
 
     constructor() {
-        this.showDaterange = true;
-        this.showAccounts = true;
-        this.showDescription = true;
-        this.showTags = true;
-        this.txns = new Transactions();
-        this.accounts = new Accounts();
-        this.fromDate = new Date();
-        this.toDate = new Date();
-        this.description = '';
-        this.budgets = [];
+        this.filter = <TransactionFilter>{
+            fromDate: new Date(),
+            toDate: new Date(),
+            description: '',
+            budgets: <Budgets>[],
+            accounts: [],
+        };
     }
 
-    useAccounts(accounts: Account[]) {
-        this.selectedAccounts.emit(accounts);
+    accounts($event: Accounts): void {
+        this.filter.accounts = $event;
+        this.filterChange.emit(this.filter);
     }
 
-    useBudgets(budgets: string[]) {
-        this.selectedBudgets.emit(budgets);
+    budgets($event: Budgets): void {
+        this.filter.budgets = $event;
+        this.filterChange.emit(this.filter);
     }
 }

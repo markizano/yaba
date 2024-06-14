@@ -4,16 +4,7 @@
     <div layout="row">
         <yaba-transaction-list
             [showFilters]="true"
-            [showDaterange]="true"
-            [showAccounts]="true"
-            [showDescription]="true"
-            [showTags]="true"
             [editable]="true"
-            [txns]="txns"
-            [(fromDate)]="fromDate"
-            [(toDate)]="toDate"
-            [(description)]="description"
-            (selectedAccounts)="selectedAccounts"
         ></yaba-transaction-list>
         <yaba-budgets-table [budgets]="budgets" />
     </div>

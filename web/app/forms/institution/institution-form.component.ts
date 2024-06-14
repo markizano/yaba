@@ -3,9 +3,9 @@ import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from
 
 /* YABA Definitions */
 import { YabaAnimations } from 'app/lib/animations';
-import { FormMode } from 'app/lib/structures';
+import { FormMode, NgSelectable } from 'app/lib/structures';
 import { IInstitution, Institution, InstitutionMappings, MapTypes } from 'app/lib/institutions';
-import { TransactionFields } from 'app/lib/transactions';
+import { Transaction, TransactionFields } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 
 /* SubComponents */
@@ -44,10 +44,9 @@ export class InstitutionFormComponent {
     preventBodyDrop = true;
 
     readonly MapTypes = MapTypes;
-    readonly TransactionFields = TransactionFields;
 
     constructor(protected $element: ElementRef) {
-        this.institution = new Institution(undefined, '', '', new InstitutionMappings({fromField: '', toField: TransactionFields.UNKNOWN, mapType: MapTypes.csv}));
+        this.institution = new Institution(undefined, '', '', new InstitutionMappings({fromField: '', toField: 'UNKNOWN', mapType: MapTypes.csv}));
         this.getTransactionFields();
     }
 
@@ -91,10 +90,10 @@ export class InstitutionFormComponent {
     /**
      * Get the list of transaction field types from the enum into a list of pairs for the name:value.
      */
-    getTransactionFields() {
-        this.fields = Object.keys(TransactionFields)
+    getTransactionFields(): NgSelectable<TransactionFields>[] {
+        this.fields = Object.keys(Transaction)
           .filter((x) => typeof x === 'string' && !this.institution.mappings.hasToField(x as TransactionFields))
-          .map((key: string) => ({ label: key, value: TransactionFields[key as keyof typeof TransactionFields] as TransactionFields }));
+          .map((key: string) => ({ label: key, value: key as TransactionFields }));
           return this.fields;
     }
 
@@ -124,7 +123,7 @@ export class InstitutionFormComponent {
      */
     addMapping(): void {
         if ( this.fields.length -1 > this.institution.mappings.length ) {
-            this.institution.addMapping('', TransactionFields.UNKNOWN, MapTypes.csv);
+            this.institution.addMapping('', 'UNKNOWN', MapTypes.csv);
         }
         this.getTransactionFields();
     }

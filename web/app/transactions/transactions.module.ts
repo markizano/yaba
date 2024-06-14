@@ -8,8 +8,6 @@ import { ControlsModule } from 'app/controls/controls.module';
 import { TransactionsComponent } from 'app/transactions/transactions.component';
 import { TransactionsListComponent } from 'app/tables/transactions/transactions-list.component';
 
-import { YabaTxnPaginationComponent } from 'app/controls/controls.component';
-
 @NgModule({
   declarations: [
     TransactionsComponent,
@@ -20,7 +18,6 @@ import { YabaTxnPaginationComponent } from 'app/controls/controls.component';
     MatIconModule,
     FormsModule,
     ControlsModule,
-    YabaTxnPaginationComponent,
     TransactionsListComponent,
   ],
   exports: [

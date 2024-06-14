@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
     selector: 'yaba-pagination',
     templateUrl: './pagination.component.html',
     standalone: true,
-    imports: [ CommonModule, FormsModule ],
+    imports: [ CommonModule, FormsModule, NgSelectModule ],
 })
-export class YabaTxnPaginationComponent {
+export class PaginationComponent {
     title = 'Pagination';
     @Input() itemCount = 0;
     itemsPerPage = 10;

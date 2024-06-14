@@ -1,4 +1,17 @@
-Budgets: <br />
+<div>
+    Budgets: <br />
+    <ng-select
+        [items]="budgets"
+        [multiple]="true"
+        [closeOnSelect]="false"
+        [searchable]="false"
+        [clearable]="true"
+        [hideSelected]="false"
+        [placeholder]="'Select budgets'"
+        (ngModelChange)="changed($event)"
+        class="budget-list"
+    ></ng-select>
+</div>
 <select multiple [(ngModel)]="selectedBudgets" class="budget-list" (ngModelChange)="changed($event.target.value)">
   <option *ngFor="let budget of budgets" [value]="budget">
     {{budget}}

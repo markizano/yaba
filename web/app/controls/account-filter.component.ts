@@ -1,22 +1,37 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import { NgSelectModule } from "@ng-select/ng-select";
 
 import { Account, Accounts } from "app/lib/accounts";
-
+import { AccountsService } from "app/services/accounts.service";
+/**
+ * I needed a way to take a list of accounts and filter them by the end-user's selection.
+ * This is a space or gap in the operation, a transitor of sorts, that will enable me to display a list of
+ * accounts we have in the system and allow the end-user to select one or more of them.
+ * An event is fired upon selection casting the list of selected accounts to the parent component.
+ * In this way, the original list won't change and the user's selection can be interpreted by the
+ * system.
+ */
 @Component({
     selector: 'yaba-accounts',
     templateUrl: './account-filter.component.html',
     styles: [ ],
     standalone: true,
-    imports: [ CommonModule, FormsModule ],
+    imports: [ CommonModule, FormsModule, NgSelectModule ],
 })
-export class YabaFilterAccountsComponent {
-  @Input() accounts: Accounts;
-  @Output() selectedAccounts: EventEmitter<Account[]> = new EventEmitter<Account[]>();
+export class AccountsFilterComponent {
+  accounts: Accounts;
+  @Output() selectedAccounts: EventEmitter<Accounts> = new EventEmitter<Accounts>();
 
-  constructor() {
+  constructor(protected accountsService: AccountsService) {
     this.accounts = new Accounts();
+  }
+
+  ngOnInit() {
+    this.accountsService.load().then((accounts: Accounts) => {
+      this.accounts.push(...accounts);
+    });
   }
 
   /**
@@ -25,6 +40,6 @@ export class YabaFilterAccountsComponent {
    * @param accounts {IAccount} Accounts selected by end-user
    */
   changed(accounts: Account[]) {
-    this.selectedAccounts.emit(accounts);
+    this.selectedAccounts.emit(new Accounts(...accounts));
   }
 }

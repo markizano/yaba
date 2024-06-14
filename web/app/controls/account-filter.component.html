@@ -1,4 +1,15 @@
-Account: <br />
-<select [(ngModel)]="selectedAccounts" multiple="1" (ngModelChange)="changed($event)">
-    <option *ngFor="let account for account in accounts" [(ngModel)]="account.id">{{account.name}}</option>
-</select>
+<div class="account-filter-wrapper">
+    Account: <br />
+    <ng-select
+        [items]="accounts"
+        [multiple]="true"
+        [closeOnSelect]="false"
+        [searchable]="false"
+        [clearable]="true"
+        [hideSelected]="false"
+        [placeholder]="'Select accounts'"
+        [(ngModel)]="selectedAccounts"
+        (ngModelChange)="changed($event)"
+        class="account-filter-list"
+    ></ng-select>
+</div>

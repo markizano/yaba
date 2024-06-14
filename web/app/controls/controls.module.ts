@@ -32,11 +32,10 @@ import {
   TrashComponent,
 } from 'app/controls/icons.component';
 
-import { YabaTxnPaginationComponent } from 'app/controls/pagination.component';
+import { PaginationComponent } from 'app/controls/pagination.component';
 import { TransactionFilterComponent } from 'app/controls/txn-filter.component';
 
 import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
-import { SortByTxnHeaderPipe } from 'app/tables/transactions/sort-by-txn-header.pipe';
 
 const components = [
   ActionsComponent,
@@ -56,8 +55,7 @@ const components = [
     declarations: components,
     imports: [
         CommonModule,
-        YabaTxnPaginationComponent,
-        SortByTxnHeaderPipe,
+        PaginationComponent,
         TransactionFilterComponent,
     ],
     providers: [ ],
@@ -68,7 +66,7 @@ const components = [
         ReactiveFormsModule,
         TransactionFilterComponent,
         NgSelectModule,
-        SortByTxnHeaderPipe,
+        PaginationComponent,
         ...components,
     ],
 })

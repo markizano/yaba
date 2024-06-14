@@ -1,4 +1,3 @@
-
 declare global {
     interface Date {
         toISOShortDate(): string;
@@ -53,7 +52,6 @@ export const CACHE_EXPIRY_SECONDS = 120;
 export interface DateRange {
     fromDate: Date;
     toDate: Date;
-
 }
 
 /**
@@ -65,19 +63,14 @@ export interface DescriptionChange {
 }
 
 /**
- * Budget Struct for reading budgets.
- */
-export interface BudgetStruct {
-    tag: string;
-    amount: number;
-}
-
-/**
  * Special string array that represents a list of tags.
  * If we later want to expand on this, we can use this stub.
  */
 export class Tags extends Array<string> {}
 
+/**
+ * NgSelectable Struct for rendering select contents.
+ */
 export type NgSelectable<T> = { label: string, value: T };
 
 /**

@@ -20,25 +20,13 @@ export enum TransactionType {
 /**
  * @enum List of top-level member fields that represent a transaction.
  */
-export enum TransactionFields {
-    UNKNOWN = '',
-    id = 'id',
-    accountId = 'accountId',
-    description = 'description',
-    datePending = 'datePending',
-    datePosted = 'datePosted',
-    transactionType = 'transactionType',
-    amount = 'amount',
-    tax = 'tax',
-    currency = 'currency',
-    merchant = 'merchant',
-    tags = 'tags',
-}
+export type TransactionFields = keyof ITransaction & string | 'UNKNOWN';
 
 /**
  * Transaction interface to define a transaction.
  */
 export interface ITransaction {
+    readonly UNKNOWN: string; // TS hack to make 'UNKNOWN' work as a member.
     id: string;
     accountId: string;
     description: string;
@@ -50,12 +38,6 @@ export interface ITransaction {
     currency: CurrencyType;
     merchant: string;
     tags: Tags;
-    update(data: ITransaction): Transaction;
-    hasTag(tag: string): boolean;
-    setTag(tag: string): Transaction;
-    addTag(tag: string): Transaction;
-    removeTag(tag: string): Transaction;        
-    YYYYMM(): string;
 }
 
 /**
@@ -64,6 +46,27 @@ export interface ITransaction {
 export interface IBudget {
     tag: string;
     amount: number;
+}
+
+export type Budgets = IBudget[];
+
+/**
+ * Transaction Sorting descriptor.
+ */
+export interface SortHeader {
+    column: TransactionFields;
+    asc: boolean;
+}
+
+/**
+ * Transaction Filter structure that helps us collect and transmit txn filter data across components.
+ */
+export interface TransactionFilter {
+    fromDate: Date;
+    toDate: Date;
+    description: string|RegExp;
+    budgets: Budgets;
+    accounts: Account[]|Accounts;
 }
 
 /**
@@ -79,6 +82,29 @@ export interface EditPlaceholder {
     tags: boolean;
 }
 
+abstract class aTransaction implements ITransaction {
+    abstract readonly UNKNOWN: string; // TS hack to make 'UNKNOWN' work as a member.
+    abstract id: string;
+    abstract accountId: string;
+    abstract description: string;
+    abstract datePending: Date;
+    abstract datePosted: Date;
+    abstract transactionType: TransactionType;
+    abstract amount: number;
+    abstract tax: number;
+    abstract currency: CurrencyType;
+    abstract merchant: string;
+    abstract tags: Tags;
+
+    abstract update(data: ITransaction): Transaction;
+    abstract hasTag(tag: string): boolean;
+    abstract setTag(tag: string): Transaction;
+    abstract addTag(tag: string): Transaction;
+    abstract removeTag(tag: string): Transaction;
+    abstract YYYYMM(): string;
+
+}
+
 /**
  * Data model object to represent a transaction.
  * Coerces a Hash/Object into something we can use as institution to at least typecast the
@@ -86,7 +112,8 @@ export interface EditPlaceholder {
  * Also performs typecasting to ensure we have Date() object for date related fields and
  * Number() types for numeric fields, etc.
  */
-export class Transaction implements ITransaction {
+export class Transaction extends aTransaction implements ITransaction {
+    readonly UNKNOWN = 'unknown'; // TS hack to make 'UNKNOWN' work as a member.
     public id: string;
     public accountId: string;
     public description: string;
@@ -110,6 +137,7 @@ export class Transaction implements ITransaction {
       currency?: CurrencyType,
       merchant?: string,
       tags?: Tags) {
+        super();
         this.id = id || v4();
         this.accountId = accountId || '';
         this.description = description || '';
@@ -209,7 +237,7 @@ export class Transaction implements ITransaction {
  */
 export class Transactions extends Array<Transaction> {
 
-    constructor(...items: ITransaction[]) {
+    constructor(...items: Transaction[]) {
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
                 const item = items[i];
@@ -228,7 +256,7 @@ export class Transactions extends Array<Transaction> {
      * @param  {...ITransaction} items 
      * @returns Number of items in the current set/array.
      */
-    public override push(...items: ITransaction[]): number {
+    public override push(...items: Transaction[]): number {
         for ( const i in items ) {
             const item = new Transaction();
             items[i] instanceof Transaction || (items[i] = item.update(items[i]));
@@ -259,7 +287,7 @@ export class Transactions extends Array<Transaction> {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
     public search(callback: Function, thisArg?: any): Transactions {
-        const overrideCallback = (value: ITransaction, index: number, txns: ITransaction[]): boolean => {
+        const overrideCallback = (value: ITransaction, index: number, txns: Transaction[]): boolean => {
             return callback(value, index, new Transactions(...txns));
         };
         return new Transactions(...this.filter(overrideCallback, thisArg));
@@ -275,7 +303,7 @@ export class Transactions extends Array<Transaction> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
     public it(callback: Function, thisArg?: any): Transactions {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const overrideCallback = (value: ITransaction, index: number, txns: ITransaction[]): any => {
+        const overrideCallback = (value: ITransaction, index: number, txns: Transaction[]): any => {
             return callback(value, index, new Transactions(...txns));
         };
         return new Transactions(...this.map(overrideCallback, thisArg));
@@ -297,6 +325,14 @@ export class Transactions extends Array<Transaction> {
                 this.splice(i, 1);
             }
         }
+        return this;
+    }
+
+    /**
+     * Clears the set of transactions.
+     */
+    public clear(): Transactions {
+        this.length = 0;
         return this;
     }
 
@@ -466,7 +502,7 @@ export class Transactions extends Array<Transaction> {
      * @returns {Transactions} List of transactions only by accountId
      */
     public byAccountId(accountId: string|Account): Transactions {
-        return this.search((txn: ITransaction) => this.filterAccountId(txn, accountId));
+        return this.search((txn: Transaction) => this.filterAccountId(txn, accountId));
     }
 
     /**
@@ -477,7 +513,7 @@ export class Transactions extends Array<Transaction> {
      * @returns {Transactions} List of transactions only by accountId
      */
     public byAccountIds(accountIds: string[]): Transactions {
-        return this.search((txn: ITransaction) => this.filterAccountIds(txn, accountIds));
+        return this.search((txn: Transaction) => this.filterAccountIds(txn, accountIds));
     }
 
     /**
@@ -486,7 +522,7 @@ export class Transactions extends Array<Transaction> {
      * @returns {Transactions} The list of matching transactions.
      */
     public byDescription(description: string|RegExp): Transactions {
-        return this.search((txn: ITransaction) => this.filterDescription(txn, description));
+        return this.search((txn: Transaction) => this.filterDescription(txn, description));
     }
 
     /**
@@ -495,7 +531,7 @@ export class Transactions extends Array<Transaction> {
      * @returns {Transactions} The list of matching transactions.
      */
     public byTag(tag: string): Transactions {
-        return this.search((txn: ITransaction) => this.filterTag(txn, tag || ''));
+        return this.search((txn: Transaction) => this.filterTag(txn, tag || ''));
     }
 
     /**
@@ -504,7 +540,7 @@ export class Transactions extends Array<Transaction> {
      * @returns {Transactions} The list of matching transactions.
      */
     public byTags(tags: string[]): Transactions {
-        return this.search((txn: ITransaction) => this.filterTags(txn, tags || []));
+        return this.search((txn: Transaction) => this.filterTags(txn, tags || []));
     }
 
     /**
@@ -513,7 +549,7 @@ export class Transactions extends Array<Transaction> {
      * @returns {Transactions} Updated copy of transactions with this tag set on all of them.
      */
     public setTag(tag: string): Transactions {
-        return this.it((txn: ITransaction) => txn.setTag(tag));
+        return this.it((txn: Transaction) => txn.setTag(tag));
     }
 
     /**
@@ -521,7 +557,7 @@ export class Transactions extends Array<Transaction> {
      * @returns {Transaction}
      */
     public removeTag(tag: string): Transactions {
-        return this.it((txn: ITransaction) => txn.removeTag(tag));
+        return this.it((txn: Transaction) => txn.removeTag(tag));
     }
 
     /**
@@ -529,7 +565,7 @@ export class Transactions extends Array<Transaction> {
      * @returns {Transactions} new list of transactions that have a tag set.
      */
     public haveTags(): Transactions {
-        return this.search((t: ITransaction) => t.tags.length > 0);
+        return this.search((t: Transaction) => t.tags.length > 0);
     }
 
     /**
@@ -541,7 +577,7 @@ export class Transactions extends Array<Transaction> {
      */
     public getBudgets(): IBudget[] {
         // Map each transaction to a {tag, amount} object.
-        const tag2amount = (t: Transaction) => t.tags.map(tag => ({tag, amount: t.amount}) );
+        const tag2amount = (t: ITransaction) => t.tags.map(tag => ({tag, amount: t.amount}) );
         // Sort by tag near the end of this operation.
         const sortByTags = (a: IBudget, b: IBudget) => a.tag.toLowerCase() > b.tag.toLowerCase()? 1: -1;
         // Reducer method for filtering out duplicates into a unique
@@ -616,7 +652,31 @@ export class Transactions extends Array<Transaction> {
      * @returns {Transactions} The sorted list of transactions by datePosted.
      */
     public sorted(asc=true): Transactions {
-        return this.sort((a: Transaction, b: Transaction) => asc ? b.datePosted.getTime() - a.datePosted.getTime(): a.datePosted.getTime() - b.datePosted.getTime());
+        return this.sort((a: ITransaction, b: ITransaction) => asc ? b.datePosted.getTime() - a.datePosted.getTime(): a.datePosted.getTime() - b.datePosted.getTime());
+    }
+
+    /**
+     * Sorts by a specified key given that is a field of a transaction.
+     * @param {keyof Transaction} key The key to sort by.
+     * @param {boolean} asc TRUE for Ascending; FALSE for Descending.
+     * @returns {Transactions} The sorted list of transactions by the specified key.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+    public sortBy(key: TransactionFields, asc: boolean=true): Transactions {
+        const result = <Transactions>this.concat();
+        result.sort((a: ITransaction, b: ITransaction): number => {
+            switch(true) {
+                case ['datePending', 'datePosted'].includes(key):
+                    return asc? (<Date>a[key]).getTime() - (<Date>b[key]).getTime(): (<Date>b[key]).getTime() - (<Date>a[key]).getTime();
+                case ['amount'].includes(key):
+                    return asc? (<number>a[key]) - (<number>b[key]): (<number>b[key]) - (<number>a[key]);
+                case ['accountId', 'description', 'merchant'].includes(key):
+                    return asc? ((<string>a[key]) > (<string>b[key])? -1: 1 ): ((<string>b[key]) > (<string>a[key])? -1: 1 );
+                default:
+                    return 0;
+            }
+        });
+        return result;
     }
 
     /**
@@ -632,7 +692,7 @@ export class Transactions extends Array<Transaction> {
             case 1:
                 return new TransactionGroup(...this);
             default:
-                return <TransactionGroup>this.sorted().reduce((monthGroups, txn) => monthGroups.append(txn), new TransactionGroup());
+                return <TransactionGroup>this.sorted().reduce((monthGroups, txn: ITransaction) => monthGroups.append(txn as Transaction), new TransactionGroup());
         }
     }
 
@@ -730,13 +790,8 @@ export class Transactions extends Array<Transaction> {
      */
     static digest(institution: IInstitution, accountId: TransactionFields, transactions: Transactions): Transactions {
         const results = new Transactions(), mappings: InstitutionMappings = <InstitutionMappings>institution.mappings.concat();
-        mappings.unshift({
-            mapType: MapTypes.csv,
-            toField: TransactionFields.accountId,
-            fromField: accountId
-        });
         transactions.map((transaction: ITransaction) => {
-            const cannonical: ITransaction = new Transaction();
+            const cannonical: Transaction = new Transaction();
             mappings.map((mapping: IMapping) => {
                 switch(mapping.mapType) {
                     case MapTypes.csv:
@@ -953,7 +1008,7 @@ class TransactionGroup {
                 if ( txns instanceof Transaction ) {
                     txns = new Transactions(txns);
                 }
-                this.append(...<Transactions>txns);
+                this.append(...<Array<Transaction>>txns);
             });
         }
     }
@@ -964,13 +1019,13 @@ class TransactionGroup {
      * @returns {TransactionGroup} This object for chaining.
      */
     append(...txns: Transaction[]|Transactions): TransactionGroup {
-        for ( const txn of txns ) {
-            const yyyymm: string = txn.YYYYMM();
+        txns.forEach((txn: ITransaction) => {
+            const yyyymm: string = (<Transaction>txn).YYYYMM();
             if ( ! Object.hasOwn(this, yyyymm) ) {
                 Object.defineProperty(this, yyyymm, { value: new Transactions(), enumerable: true });
             }
             (<PropertyDescriptor>Object.getOwnPropertyDescriptor(this, yyyymm)).value.push(txn);
-        }
+        });
         return this;
     }
 
@@ -1204,7 +1259,7 @@ class TransactionGroup {
             txn.tags = ['auto', 'future'];
             txn.description = 'TransactionGroup auto-record. Future wishlist item.';
             if ( Object.hasOwn(wishlist, txn.YYYYMM()) ) {
-                const yymm: Transactions = (<PropertyDescriptor>Object.getOwnPropertyDescriptor(wishlist, txn.YYYYMM())).value;
+                const yymm = <Transaction[]>(<PropertyDescriptor>Object.getOwnPropertyDescriptor(wishlist, txn.YYYYMM())).value;
                 result.append(...yymm);
             }
             result.append(txn);

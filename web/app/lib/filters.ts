@@ -1,9 +1,5 @@
 import { Transactions, Transaction } from "app/lib/transactions";
 
-export interface SortAgent {
-    column: string;
-    asc: boolean;
-}
 
 export class YabaFilters {
 
@@ -30,7 +26,7 @@ export class YabaFilters {
     }
 
     static sortBy(sortAgent: SortAgent) {
-        return (field: string) => {
+        return (field: keyof Transaction & string) => {
             sortAgent.asc = sortAgent.column == field? !sortAgent.asc: true;
             sortAgent.column = field;
             return sortAgent;
