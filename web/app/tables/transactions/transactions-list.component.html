@@ -1,28 +1,14 @@
 <div class="transaction-list-wrapper">
-@if ( showFilters ){
-    <transaction-filters
-        [accounts]="accounts"
-        [txns]="txns"
-        [showDaterange]="showDaterange"
-        [showAccounts]="showAccounts"
-        [showDescription]="showDescription"
-        [showTags]="showTags"
-        [(fromDate)]="fromDate"
-        [(toDate)]="toDate"
-        [(description)]="description"
-        (selectedAccounts)="useAccounts($event)"
-        (selectedBudgets)="useBudgets($event)"
-    ></transaction-filters>
-}
+@if ( showFilters ){ <transaction-filters [(filter)]="filters" (filterChange)="refresh()"></transaction-filters> }
 @if ( txns.length > 0){
-    <table class="data item-list" [ngClass]="editable ? 'editable': ''" *ngIf="txns.length > 0">
-    @if (withHeader) {
-        <thead *ngIf="withHeader">
+    <table class="data item-list" [ngClass]="editable ? 'editable': ''">
+    @if ( withHeader ) {
+        <thead>
             <tr>
         @if ( txShow?.id )              {<th>Transaction ID</th>}
         @if ( txShow?.datePending )     {<th (click)="sortBy('datePending');">Date Pending</th>}
        <!-- Always show post date -->    <th (click)="sortBy('datePosted');">Date Posted</th>
-        @if ( txShow?.account )         {<th (click)="sortBy('account');">Account</th>}
+        @if ( txShow?.account )         {<th (click)="sortBy('accountId');">Account</th>}
         <!-- Always show amount -->      <th (click)="sortBy('amount');">Amount</th>
         <!-- Always show desc. -->       <th (click)="sortBy('description');">Description</th>
         @if ( txShow?.merchant )        {<th (click)="sortBy('merchant');">Merchant</th>}
@@ -35,7 +21,7 @@
     @for(txn of txns; track txn.id) {
         <tr>
             @if (txShow?.id) {<td> <span class="md-truncate"> {{ txn.id }} </span> </td>}
-            @if (txShow?.datePending) {<td txn-edit="true" [ngSwitch]="!!currentlyEditing['datePending']">
+            @if (txShow?.datePending) {<td txn-edit="true" [ngSwitch]="!!currentlyEditing.datePending">
                 <span *ngSwitchCase="false"> {{ txn.datePending | date:'yyyy-MM-dd' }} </span>
                 <div *ngSwitchCase="true" ng-blur="$emit('yaba.edit2view-txn-datePending', $event)">
                     <input
@@ -47,7 +33,7 @@
                     />
                 </div>
             </td>}
-            <td txn-edit="true" [ngSwitch]="!!currentlyEditing['datePosted']">
+            <td txn-edit="true" [ngSwitch]="!!currentlyEditing.datePosted">
                 <span *ngSwitchCase="false"> {{ txn.datePosted | date:'yyyy-MM-dd' }} </span>
                 <div *ngSwitchCase="true" ng-blur="$emit('yaba.edit2view-txn-datePosted', $event)">
                     <input
@@ -59,9 +45,9 @@
                 </div>
             </td>
 
-            <td *ngIf="txShow?.account"> <span> {{ accounts.byId(txn.accountId)?.name }} </span> </td>
+            @if ( txShow?.account ) {<td> <span> {{ accountId2name[txn.accountId] || '{!unknown account id!}' }} </span> </td>}
 
-            <td txn-edit="true" ng-model="txn.amount" [ngSwitch]="!!currentlyEditing['amount']">
+            <td txn-edit="true" [(ngModel)]="txn.amount" [ngSwitch]="!!currentlyEditing.amount">
                 <span *ngSwitchCase="false" [textContent]="txn.amount | currency" [ngClass]="{'negative': txn.amount < 0}"></span>
                 <span *ngSwitchCase="true">
                     <input
@@ -72,7 +58,7 @@
                     />
                 </span>
             </td>
-            <td txn-edit="true" ng-model="txn.description" [ngSwitch]="!!currentlyEditing['description']">
+            <td txn-edit="true" [(ngModel)]="txn.description" [ngSwitch]="!!currentlyEditing.description">
                 <!-- md-truncate has failed me here! :sob: -->
                 <span *ngSwitchCase="false"> {{ limit == -1 ? txn.description: txn.description.slice(0, 30) + (txn.description.length > 30? '...': '') }} </span>
                 <span *ngSwitchCase="true">
@@ -84,7 +70,7 @@
                     />
                 </span>
             </td>
-            <td *ngIf="txShow?.merchant" txn-edit="true" ng-model="txn.merchant" [ngSwitch]="!!currentlyEditing['merchant']">
+            @if ( txShow?.merchant ) {<td txn-edit="true" [(ngModel)]="txn.merchant" [ngSwitch]="!!currentlyEditing.merchant">
                 <span *ngSwitchCase="false"> {{ txn.merchant }} </span>
                 <span *ngSwitchCase="true">
                     <input
@@ -94,8 +80,8 @@
                     ng-blur="$emit('yaba.edit2view-txn-merchant', $event)"
                     />
                 </span>
-            </td>
-            <td *ngIf="txShow?.transactionType" txn-edit="true" ng-model="txn.transactionType" [ngSwitch]="!!currentlyEditing['transactionType']">
+            </td>}
+            @if ( txShow?.transactionType ) {<td txn-edit="true" [(ngModel)]="txn.transactionType" [ngSwitch]="!!currentlyEditing.transactionType">
                 <span *ngSwitchCase="false"> {{ txn.transactionType }} </span>
                 <span *ngSwitchCase="true">
                     <input
@@ -105,8 +91,9 @@
                     ng-blur="$emit('yaba.edit2view-txn-transactionType', $event)"
                     />
                 </span>
-            </td>
-            <td txn-edit="true" ng-model="txn.tags" [ngSwitch]="!!currentlyEditing['tags']" ng-show="withTags">
+            </td>}
+            @if ( withTags )
+            {<td txn-edit="true" [(ngModel)]="txn.tags" [ngSwitch]="!!currentlyEditing.tags">
                 <span *ngSwitchCase="false"> {{ txn.tags.join(", ") }} </span>
                 <span *ngSwitchCase="true">
                     <mat-chip-grid #chipGrid aria-label="Enter hidden tags" *ngFor="let tag of txn.tags; track tag">
@@ -128,20 +115,20 @@
                       </mat-chip-grid>
 
                       <!-- <mat-chips
-                        ng-model="txn.tags"
+                        [(ngModel)]="txn.tags"
                         ng-blur="$scope.$emit('yaba.edit2view-txn-tags', $event)"
                         md-readonly="false"
                         md-removable="true"
                         md-enable-chip-edit="true"
                     ></mat-chips> -->
                 </span>
-            </td>
+            </td>}
         </tr>
     }
         </tbody>
     </table>
 }
-    <yaba-pagination *ngIf="showPaginate && txns.length > 10" [itemCount]="txns.length"></yaba-pagination><br />
+    @if ( showPaginate && txns.length > 10 ){ <yaba-pagination [itemCount]="txns.length"></yaba-pagination> }
     <debug>
         txn.length: <span [textContent]="txns.length"></span>
         limit: <span [textContent]="limit"></span>

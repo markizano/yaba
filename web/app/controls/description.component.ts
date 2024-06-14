@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
     imports: [ CommonModule, FormsModule ],
 
 })
-export class YabaFilterDescriptionComponent {
+export class DescriptionFilterComponent {
     @Input() description: string|RegExp;
     useRegexp: boolean;
     @Output() descriptionChange = new EventEmitter<string|RegExp>();

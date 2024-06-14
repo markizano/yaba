@@ -1,3 +1,5 @@
-<input type="text" [(ngModel)]="description" (ngChange)="changed(description, useRegexp)" placeholder="Search Description" />
-<input type="checkbox" [(ngModel)]="useRegexp" placeholder="Use Regular Expressions?" title="Use Regular Expressions?" />
-  RegExp?
+<div class="description-filter-wrapper">
+    <input type="text" [(ngModel)]="description" (ngModelChange)="changed(description, useRegexp)" placeholder="Search Description" />
+    <input type="checkbox" [(ngModel)]="useRegexp" placeholder="Use Regular Expressions?" title="Use Regular Expressions?" />
+      RegExp?
+</div>

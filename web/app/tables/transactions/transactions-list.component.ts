@@ -3,11 +3,15 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 
-import { SortAgent, YabaFilters } from 'app/lib/filters';
 import { TransactionHeaders } from 'app/lib/structures';
-import { Transactions, EditPlaceholder, Transaction } from 'app/lib/transactions';
+import { Transactions, EditPlaceholder, Transaction, TransactionFilter, SortHeader, ITransaction, TransactionFields, IBudget } from 'app/lib/transactions';
 import { Account, Accounts } from 'app/lib/accounts';
 import { ControlsModule } from 'app/controls/controls.module';
+import { PaginationComponent } from 'app/controls/pagination.component';
+import { TransactionsService } from 'app/services/transactions.service';
+import { AccountsService } from 'app/services/accounts.service';
+
+type AccountIdHashMap = { [key: string]: string };
 
 @Component({
     selector: 'yaba-transaction-list',
@@ -17,56 +21,48 @@ import { ControlsModule } from 'app/controls/controls.module';
         MatChipsModule,
         MatIconModule,
         ControlsModule,
+        PaginationComponent
     ],
 })
 export class TransactionsListComponent {
-    title = 'Transactions';
     addOnBlur = true;
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
     // Data
-    @Input() txns: Transactions;
-    @Input() accounts: Accounts;
-    @Input() accountId: string;
+    @Input() accountId?: string;
+
     // Filtering
     @Input() showFilters: boolean;
-    @Input() showDaterange: boolean;
-    @Input() showAccounts: boolean;
-    @Input() showDescription: boolean;
-    @Input() showTags: boolean;
-    @Input() fromDate: Date;
-    @Input() toDate: Date;
-    @Input() description: string|RegExp;
-    @Input() useRegexp: boolean;
+
+    @Input() filters: TransactionFilter;
+    @Output() filtersChange = new EventEmitter<TransactionFilter>();
+
     // Decorators
     @Input() showPaginate: boolean;
     @Input() txShow?: TransactionHeaders;
-    currentlyEditing: EditPlaceholder;
+
     @Input() editable: boolean;
     @Input() withHeader: boolean;
     @Input() withTags: boolean;
     // Sorting and Ordering
-    @Input() sort: SortAgent;
+    @Input() sort: SortHeader;
     @Input() limit: number;
 
-    @Output() fromDateChange = new EventEmitter<Date>();
-    @Output() toDateChange = new EventEmitter<Date>();
-    @Output() descriptionChange = new EventEmitter<string|RegExp>();
-    @Output() selectedBudgets = new EventEmitter<string[]>();
-    @Output() selectedAccounts = new EventEmitter<Account[]|Accounts>();
+    currentlyEditing: EditPlaceholder;
+    transactions: Transactions;
+    txns: Transactions;
+    accountId2name: AccountIdHashMap;
 
-    constructor() {
+    constructor(protected accountsService: AccountsService, protected txnService: TransactionsService) {
         this.accountId = '';
-        this.txns = new Transactions();
         this.sort = { column: 'datePosted', asc: true };
         this.showFilters = true;
-        this.showDaterange = true;
-        this.showAccounts = true;
-        this.showDescription = true;
-        this.showTags = true;
-        this.fromDate = new Date(new Date().getTime() - 86400);
-        this.toDate = new Date();
-        this.description = '';
-        this.useRegexp = false;
+        this.filters = <TransactionFilter>{
+            fromDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
+            toDate: new Date(),
+            description: '',
+            budgets: [],
+            accounts: [],
+        };
         this.showPaginate = true;
         this.withHeader = true;
         this.withTags = true;
@@ -81,44 +77,66 @@ export class TransactionsListComponent {
             transactionType: false,
             tags: false,
         };
-        this.accounts = new Accounts();
+        this.transactions = new Transactions();
+        this.txns = new Transactions();
+        this.accountId2name = {};
     }
 
-    sortBy(header: string) {
+    ngOnInit() {
+        this.accountsService.load().then(
+            (accounts: Accounts) => {
+                this.accountId2name = accounts.reduce((a: AccountIdHashMap, b: Account) => { a[b.id] = b.name; return a; }, {});
+            },
+            (error) => console.error('TransactionListComponent().ngOnInit().accountsService.load()', error) );
+        this.txnService.load().then(
+            (txns: Transactions) => {
+                if ( this.accountId ) {
+                    this.transactions.push(...txns.byAccountId(this.accountId));
+                } else {
+                    this.transactions.push(...txns);
+                }
+            }, (error) => {
+                console.error('TransactionsListComponent().ngOnInit().load()', error);
+            });
+    }
+
+    /**
+     * Update the cached txns from the post-filtered transactions based on user-input filters.
+     */
+    refresh() {
+        this.txns.clear();
+        this.txns.push(...this.transactions
+            .byAccountIds(this.filters.accounts.map((x: Account) => x.id))
+            .daterange(this.filters.fromDate, this.filters.toDate)
+            .byDescription(this.filters.description)
+            .byTags(this.filters.budgets.map((x: IBudget) => x.tag))
+            .sortBy(this.sort.column, this.sort.asc)
+        );
+    }
+
+    sortBy(header: TransactionFields) {
         this.sort.column = header;
-        return YabaFilters.sortBy(this.sort);
+        return ((sortAgent: SortHeader) => (field: TransactionFields) => {
+            sortAgent.asc = sortAgent.column == field? !sortAgent.asc: true;
+            sortAgent.column = field;
+            return sortAgent;
+        })(this.sort);
     }
 
-    removeTag(txn: Transaction, $event: MatChipEvent) {
-        return txn.removeTag($event.chip.value);
+    removeTag(txn: ITransaction, $event: MatChipEvent) {
+        return (<Transaction>txn).removeTag($event.chip.value);
     }
 
     save() {
         // @TODO: access storables and store to disk.
     }
 
-    addTag(txn: Transaction, $event: MatChipInputEvent) {
-        return txn.addTag($event.value);
+    addTag(txn: ITransaction, $event: MatChipInputEvent) {
+        return (<Transaction>txn).addTag($event.value);
     }
 
-    useAccounts(accounts: Account[]|Accounts) {
-        this.selectedAccounts.emit(<Accounts>accounts);
-    }
-
-    useBudgets(budgets: string[]) {
-        this.selectedBudgets.emit(budgets);
-    }
-
-    edit2view(txn: Transaction, $event: Event) {
-        this.currentlyEditing = {
-            datePending: false,
-            datePosted: false,
-            amount: false,
-            description: false,
-            merchant: false,
-            transactionType: false,
-            tags: false,
-        };
-        txn.editing = false;
+    edit2view(field: keyof EditPlaceholder, value: unknown) {
+        this.currentlyEditing[field] = false;
+        this.save();
     }
 }

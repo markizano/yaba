@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ControlsModule } from 'app/controls/controls.module';
-import { BudgetStruct } from 'app/lib/structures';
+import { IBudget } from 'app/lib/transactions';
 
 @Component({
     selector: 'yaba-budgets-table',
@@ -15,14 +15,14 @@ import { BudgetStruct } from 'app/lib/structures';
     standalone: true,
 })
 export class YabaTableBudgetsComponent {
-    @Input() budgets: BudgetStruct[];
+    @Input() budgets: IBudget[];
 
     constructor() {
         this.budgets = [];
     }
 
-    getBudgets(): BudgetStruct[] {
-        const budgets: BudgetStruct[] = [...this.budgets];
+    getBudgets(): IBudget[] {
+        const budgets: IBudget[] = [...this.budgets];
         budgets.sort((a, b) => {
             if (a.tag < b.tag) {
                 return -1;

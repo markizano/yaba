@@ -4,22 +4,6 @@ import { Papa, ParseConfig, ParseResult } from 'ngx-papaparse';
 import { TransactionFields } from './transactions';
 
 /**
- * @class Exception to make it clear this is a Yaba exception we are raising.
- * Business logic error for when an institution mapping doesn't add up. Typically
- * this happens when the user uploads a CSV file and the institution mapping doesn't
- * match the fields in the CSV file.
- */
-export class InstitutionMappingException extends Error {
-    constructor(fromField: string, toField: TransactionFields) {
-        const txFields = Object.values(TransactionFields);
-        super(`Institution Mapping should contain one of` +
-            ` "${txFields.join('", "')}". ` +
-            `Got "${toField}" when setting "${fromField}"`);
-        this.name = this.constructor.name;
-    }
-}
-
-/**
  * @enum MapTypes Valid mapping types. To later support function() types as well for things
  * like change the sign and make it negative, perform a regexp replacement on a description or perform
  * some calculation based on related fields in this transaction.
@@ -118,13 +102,9 @@ export class InstitutionMappings extends Array<IMapping> {
      * Remove a mapping from this collection
      * @param {String} fromField Field to remove from the mapping.
      * @returns {InstitutionMappings} Returns this object for chaining..
-     * @throws {InstitutionMappingException} If the mapping doesn't exist.
      */
     public removeMapping(mapping: IMapping): InstitutionMappings {
         const index = this.findIndex((item: IMapping) => item.fromField === mapping.fromField && item.toField === mapping.toField && item.mapType === mapping.mapType);
-        if (index < 0) {
-            throw new InstitutionMappingException(mapping.fromField, mapping.toField);
-        }
         this.splice(index, 1);
         return this;
     }
@@ -158,7 +138,7 @@ export class Institution implements IInstitution {
         this.id          = id || v4();
         this.name        = name || '';
         this.description = description || '';
-        this.mappings    = mappings? new InstitutionMappings(...mappings): new InstitutionMappings({fromField: '', toField: TransactionFields.UNKNOWN, mapType: MapTypes.csv});
+        this.mappings    = mappings? new InstitutionMappings(...mappings): new InstitutionMappings({fromField: '', toField: 'UNKNOWN', mapType: MapTypes.csv});
     }
 
     /**
@@ -353,7 +333,7 @@ export class Institutions extends Array<Institution> {
                         reject(parsedCSV.errors);
                     }
                     const headers = Object.keys(parsedCSV.data.shift());
-                    const imaps = new InstitutionMappings(...headers.map(h => new InstitutionMapping(h, TransactionFields.UNKNOWN, MapTypes.csv)));
+                    const imaps = new InstitutionMappings(...headers.map(h => new InstitutionMapping(h, 'UNKNOWN', MapTypes.csv)));
                     resolve(imaps);
                 },
             };

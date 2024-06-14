@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Account, Accounts } from 'app/lib/accounts';
-import { BudgetStruct } from 'app/lib/structures';
+import { IBudget } from 'app/lib/transactions';
 import { Transactions } from 'app/lib/transactions';
 
 @Component({
@@ -13,7 +13,7 @@ export class BudgetingComponent {
   @Input() selectedAccounts: Account[]|Accounts;
   @Input() description: string|RegExp;
   @Input() txns: Transactions;
-  @Input() budgets: BudgetStruct[] = [];
+  @Input() budgets: IBudget[] = [];
   error = '';
   @Output() fromDateChange = new EventEmitter<Date>();
   @Output() toDateChange = new EventEmitter<Date>();

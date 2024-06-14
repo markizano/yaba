@@ -3,7 +3,7 @@
         <input
           type="date"
           [(ngModel)]="fromDate"
-          (ngChange)="changed($event)"
+          (change)="changed($event)"
           placeholder="From Date"
           class="from-date"
           name="fromDate"
@@ -14,7 +14,7 @@
         <input
             type="date"
             [(ngModel)]="toDate"
-            (ngChange)="changed($event)"
+            (change)="changed($event)"
             placeholder="To Date"
             class="to-date"
             name="toDate"

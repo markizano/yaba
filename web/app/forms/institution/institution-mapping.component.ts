@@ -27,7 +27,7 @@ export class InstitutionMappingComponent {
     readonly MapTypes = MapTypes;
 
     constructor() {
-        this.mapping = new InstitutionMapping('', TransactionFields.UNKNOWN, MapTypes.csv);
+        this.mapping = new InstitutionMapping('', 'UNKNOWN', MapTypes.csv);
     }
 
     protected _remove() {

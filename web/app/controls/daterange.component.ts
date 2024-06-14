@@ -9,11 +9,11 @@ import { FormsModule } from "@angular/forms";
     standalone: true,
     imports: [ CommonModule, FormsModule ],
 })
-export class YabaFilterDateRangeComponent {
-    title = 'Date Range';
+export class DateRangeFilterComponent {
     @Input() fromDate: Date;
-    @Input() toDate: Date;
     @Output() fromDateChange = new EventEmitter<Date>();
+
+    @Input() toDate: Date;
     @Output() toDateChange = new EventEmitter<Date>();
 
     constructor() {
@@ -26,7 +26,6 @@ export class YabaFilterDateRangeComponent {
      * @param $event {Event} Event object from the DOM
      */
     changed($event: Event) {
-        console.log($event);
         this.fromDateChange.emit( this.fromDate );
         this.toDateChange.emit( this.toDate );
     }

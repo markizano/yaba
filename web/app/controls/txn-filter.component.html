@@ -1,6 +1,6 @@
-<div *ngIf="showDaterange || showAccounts || showDescription || showTags" layout="row">
-    <yaba-daterange *ngIf="showDaterange" [(fromDate)]="fromDate" [(toDate)]="toDate"></yaba-daterange>
-    <yaba-accounts *ngIf="showAccounts" [accounts]="accounts" (selectedAccounts)="useAccounts($event)"></yaba-accounts>
-    <yaba-description *ngIf="showDescription" [(description)]="description"></yaba-description>
-    <yaba-budgets *ngIf="showTags" [budgets]="txns.getTags()" (selectedBudgets)="useBudgets($event)" ></yaba-budgets>
+<div class="txn-filter-wrapper">
+    <yaba-daterange [(fromDate)]="filter.fromDate" [(toDate)]="filter.toDate"></yaba-daterange>
+    <yaba-accounts (selectedAccounts)="accounts($event)"></yaba-accounts>
+    <yaba-description [(description)]="filter.description"></yaba-description>
+    <yaba-budgets (selectedBudgets)="budgets($event)" ></yaba-budgets>
 </div>
