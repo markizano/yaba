@@ -3,8 +3,7 @@
     <!-- Container wrapper -->
     <div class="container-fluid">
       <!-- Navbar Home -->
-      <a class="navbar-dashboard" routerLink="/" routerLinkActive="router-link-active" >Yaba</a>
-
+@if( isScreenSmall ) {
       <!-- Collapsible wrapper -->
       <div
         class="collapse navbar-collapse"
@@ -21,9 +20,20 @@
             </button>
 }
         </mat-menu>
-        <!-- Left links -->
+        <!-- /Left links -->
       </div>
-      <!-- Collapsible wrapper -->
+      <!-- /Collapsible wrapper -->
+
+} @else {
+        <!-- RouterLink top-level menu -->
+         <div class="nav-wrapper">
+    @for(route of routes; track route.path) {
+            <menu>
+                <a [routerLink]="[route.path]" class="nav-link">{{ route.title }}</a>
+            </menu>
+    }
+        </div>
+}
     </div>
     <!-- Container wrapper -->
   </nav>

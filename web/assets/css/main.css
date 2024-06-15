@@ -338,6 +338,12 @@ yaba-menu {
     font-weight: bold;
     border-bottom: 1px solid #ffffff;
 }
+yaba-menu menu {
+    display: inline-block;
+    align-items: center;
+    margin: 5px 10px;
+
+}
 
 debug {
     display: block;
