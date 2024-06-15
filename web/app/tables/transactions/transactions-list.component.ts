@@ -68,7 +68,7 @@ export class TransactionsListComponent {
         this.withTags = true;
         this.limit = 1000;
         this.editable = false;
-        this.currentlyEditing = {
+        this.currentlyEditing = <EditPlaceholder>{
             datePending: false,
             datePosted: false,
             amount: false,
@@ -86,15 +86,19 @@ export class TransactionsListComponent {
         this.accountsService.load().then(
             (accounts: Accounts) => {
                 this.accountId2name = accounts.reduce((a: AccountIdHashMap, b: Account) => { a[b.id] = b.name; return a; }, {});
+                console.log('TransactionListComponent().ngOnInit().accountsService.load()', this.accountId2name);
             },
             (error) => console.error('TransactionListComponent().ngOnInit().accountsService.load()', error) );
         this.txnService.load().then(
-            (txns: Transactions) => {
+            (_txns: Transactions) => {
+                const txns = new Transactions(..._txns);
                 if ( this.accountId ) {
+                    console.log(`By AccountId: ${this.accountId}`);
                     this.transactions.push(...txns.byAccountId(this.accountId));
                 } else {
                     this.transactions.push(...txns);
                 }
+                console.log('TransactionsListComponent().ngOnInit().load()', this.transactions);
             }, (error) => {
                 console.error('TransactionsListComponent().ngOnInit().load()', error);
             });
