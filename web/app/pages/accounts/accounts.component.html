@@ -8,8 +8,10 @@
 @for(account of accounts; track account.id) {
     <div class="account yaba-item">
         <figcaption>
-            <h2 class="title md-truncate">{{account.name}}</h2>
-            <div class="account-balance">{{ account.balance() | currency }}</div>
+            <div>
+                <h2 class="title md-truncate"><a [routerLink]="['/account', account.id]">{{account.name}}</a></h2>
+                <div class="account-balance">{{ account.balance() | currency }}</div>
+            </div>
             <actions>
                 <inspect (click)="view(account)" class="helper" title="View &quot;{{ account.name }}&quot; details &amp; Transactions."></inspect>
                 <edit (click)="edit(account)" class="helper" title="Edit Account &quot;{{ account.name }}&quot;."></edit>

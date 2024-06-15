@@ -11,6 +11,7 @@
     --topaz: #F4CB89;
     --liberty: #5B539E;
     --sky-blue: #53a9e4;
+    --navy: #0f3079;
 }
 
 b, .bold { font-weight: bold; }
@@ -507,7 +508,19 @@ wishlist-item {
 cancel, .cancel {
     background-color: #f00;
     color: #fff;
-    font-size: 20px;
+    font-size: 1.2rem;
+    border-radius: 1rem;
+    padding: 0.3rem 0.8rem;
+    box-shadow: #bcbcbc 5px 5px;
+    display: inline-flex;
+    line-height: 1.2rem;
+    margin: 5px;
+}
+
+save, .save {
+    background-color: #108810;
+    color: #fff;
+    font-size: 1.2rem;
     border-radius: 1rem;
     padding: 0.3rem 0.8rem;
     box-shadow: #bcbcbc 5px 5px;
@@ -548,7 +561,6 @@ edit {
 
 inspect {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAQMAAACQp+OdAAAABlBMVEWFY1UAAADJW86pAAAAAXRSTlMAQObYZgAAAJJJREFUKM/FkLsRxCAMROW5QOGV4FIozS7NpagEQgLGeyuYWQLnPgXwBrSrj9mfovR5f4BrwA60AQdw572BcRI8IQhfhKOmGOeGPnLNRnYeBSnq45u+LT0vqqsHlVTXvfHga5Tu/C8TOm3iuJ0eAkzAgmeO5DJUCRVVG2rMErLv1bzG0YAaWUvQWtaitDot8/34AewUoP8HNfvLAAAAAElFTkSuQmCC');
-    filter: invert(100%);
     border: 1px solid #FFFFFF00;
 }
 
@@ -595,8 +607,10 @@ settings {
     width: 99%;
     display: flex;
     flex-flow: row;
-    background-color: var(--sky-blue);
+    background-color: var(--navy);
     border-radius: 10px 10px 0 0;
+    color: white;
+    trash, edit, inspect { filter: invert(100%); }
 }
 
 .yaba-item figcaption p {
