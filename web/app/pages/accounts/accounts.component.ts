@@ -1,19 +1,17 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
 
 import { Accounts, Account } from 'app/lib/accounts';
 import { FormMode } from 'app/lib/structures';
 import { AccountsService } from 'app/services/accounts.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-accounts',
   templateUrl: './accounts.component.html',
-  providers: [ Location, { provide: LocationStrategy, useClass: PathLocationStrategy } ],
 })
 export class AccountsComponent {
     // User feedback
     error?: string;
-    location: Location;
 
     // This really needs to be a service we can use to communicate with the filesystem.
     @Input() accounts: Accounts;
@@ -29,14 +27,13 @@ export class AccountsComponent {
     // Access to class objects from within the templates.
     Account: typeof Account = Account;
 
-    constructor( location: Location, protected accountsService: AccountsService) {
+    constructor( protected router: Router, protected accountsService: AccountsService) {
         console.log('new AccountsComponent()');
         this.accounts = new Accounts();
         this.account = new Account();
         this.error = '';
         this.formVisible = false;
         this.formMode = FormMode.Create;
-        this.location = location;
     }
 
     ngOnInit() {
@@ -63,8 +60,8 @@ export class AccountsComponent {
      */
     view(account: Account): void {
         // Navigate to the account route.
-        const accountId = typeof account === 'object' ? account.id : account;
-        location.href = `accounts/${accountId}`;
+        const accountId = account instanceof Account ? account.id : account;
+        this.router.navigate(['/account', accountId]);
     }
 
     /**

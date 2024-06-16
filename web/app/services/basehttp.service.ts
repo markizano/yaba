@@ -74,7 +74,7 @@ export abstract class BaseHttpService<T, Type extends Array<T>> {
                     }
                     console.log('Loaded from localStorage: ', this._cache);
                     this._cacheExpiry = false;
-                    resolve(result);
+                    resolve(<Type>result);
                 } catch (e) {
                     console.error('Error loading from localStorage: ', e);
                     reject(e);
@@ -83,7 +83,7 @@ export abstract class BaseHttpService<T, Type extends Array<T>> {
             };
             const complete = () => {
                 console.log('complete:load()');
-                resolve(result);
+                resolve(<Type>result);
                 sub.unsubscribe();
             };
             const sub = request.subscribe({ next, error, complete });

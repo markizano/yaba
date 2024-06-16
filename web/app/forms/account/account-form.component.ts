@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AccountTypes, Account, InterestStrategy } from 'app/lib/accounts';
-import { Institutions } from 'app/lib/institutions';
+import { Institution, Institutions } from 'app/lib/institutions';
 import { FormMode, NgSelectable } from 'app/lib/structures';
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
@@ -28,7 +28,8 @@ export class AccountFormComponent {
     @Output() save = new EventEmitter<Account>();
     @Output() close = new EventEmitter<void>();
 
-    institutions: Institutions = new Institutions();
+    institutions: Institutions;
+    institutionIds: NgSelectable<Institution>[] = [];
     accountTypes: NgSelectable<AccountTypes>[] = [];
     interestStrategies: NgSelectable<InterestStrategy>[] = [];
 
@@ -38,6 +39,7 @@ export class AccountFormComponent {
     constructor(protected institutionsService: InstitutionsService, protected chgRef: ChangeDetectorRef) {
         console.log('new AccountFormComponent()');
         this.account = new Account();
+        this.institutions = new Institutions();
         this.reset();
     }
 
@@ -48,8 +50,9 @@ export class AccountFormComponent {
         this.institutionsService.load().then(
             (institutions: Institutions) => {
                 this.institutions.push(...institutions);
+                this.institutionIds = institutions.map((x: Institution) => ({ label: x.name, value: x }));
                 this.chgRef.detectChanges();
-                console.log('AccountFormComponent().ngOnInit(): ', institutions);
+                console.log('AccountFormComponent().ngOnInit().institutions: ', institutions);
             },
             (error) => console.error('Error loading institutions: ', error)
         );

@@ -53,7 +53,7 @@ export type Budgets = IBudget[];
 /**
  * Transaction Sorting descriptor.
  */
-export interface SortHeader {
+export interface TxnSortHeader {
     column: TransactionFields;
     asc: boolean;
 }
@@ -67,6 +67,9 @@ export interface TransactionFilter {
     description: string|RegExp;
     budgets: Budgets;
     accounts: Account[]|Accounts;
+    limit: number;
+    tags?: Tags;
+    sort: TxnSortHeader
 }
 
 /**
@@ -470,7 +473,7 @@ export class Transactions extends Array<Transaction> {
      * @returns TRUE|FALSE for `this.filter()` use on if this tag exists on this transaction or not.
      */
     public filterTags(txn: ITransaction, tags: string[]|undefined): boolean {
-        return txn.tags.some(tag => tags === undefined? true: tags.includes(tag || ''));
+        return txn.tags.some((tag) => tags === undefined? true: tags.includes(tag || ''));
     }
 
     /**
@@ -490,8 +493,8 @@ export class Transactions extends Array<Transaction> {
      * @param {String} ID The transaction.id we want to find.
      * @returns {Transaction} The transaction object by reference.
      */
-    public byId(ID: string): ITransaction|null {
-        return this.filter(txn => txn.id == ID).shift() || null;
+    public byId(ID: string): ITransaction|undefined {
+        return this.filter(txn => txn.id == ID).shift() || undefined;
     }
 
     /**
@@ -711,14 +714,10 @@ export class Transactions extends Array<Transaction> {
      * @param limit Limit the number of transactions to this many.
      *  Use -1 to disable this filter.
      * @param tags List of tags transaction must match.
+     * @param sort Sort the transactions by SortHeader.column.
      * @returns {Transactions} List of transactions after filtering and limiting.
      */
-    public getTransactions(fromDate: Date | string | undefined=undefined,
-      toDate: Date | string | undefined=undefined,
-      description: string | undefined=undefined,
-      tags: Array<string> | undefined=undefined,
-      limit=-1,
-      sort=false): Transactions {
+    public getTransactions(search: TransactionFilter): Transactions {
         let result = this.search((txn: ITransaction) => {
             const tests = {
                 date: true,
@@ -727,25 +726,23 @@ export class Transactions extends Array<Transaction> {
             };
 
             /* DATES */
-            if ( fromDate !== undefined && toDate !== undefined ) {
-                fromDate instanceof Date || (fromDate = new Date(fromDate));
-                toDate instanceof Date || (toDate = new Date(toDate));
-                tests.date = this.filterDaterange(txn, fromDate, toDate);
+            if ( search.fromDate && search.toDate ) {
+                tests.date = this.filterDaterange(txn, search.fromDate, search.toDate);
             }
 
             /* DESCRIPTION */
-            if ( description !== undefined ) {
-                tests.description = this.filterDescription(txn, description);
+            if ( search.description !== undefined ) {
+                tests.description = this.filterDescription(txn, search.description);
             }
 
             /* TAGS (OR|ANY) */
-            if ( tags !== undefined && tags.length > 0 ) {
-                tests.tags = this.filterTags(txn, tags);
+            if ( search.tags && search.tags.length > 0 ) {
+                tests.tags = this.filterTags(txn, search.tags);
             }
 
-            const useDate = ( fromDate !== undefined && toDate !== undefined ),
-                useDescription = description !== undefined,
-                useTags = tags !== undefined && tags.length > 0;
+            const useDate = ( !!search.fromDate && !!search.toDate ),
+                useDescription = !!search.description,
+                useTags = !!search.tags && search.tags.length > 0;
 
                 const truthy = [
                 useDate? tests.date: true,
@@ -763,12 +760,12 @@ export class Transactions extends Array<Transaction> {
             return truthy.every(x => x);
         });
 
-        if ( sort ) {
-            result = result.sorted();
+        if ( search.sort ) {
+            result = result.sortBy(search.sort.column, search.sort.asc);
         }
 
-        if ( limit && limit > 0 ) {
-            result = new Transactions(...result.slice(0, limit));
+        if ( search.limit && search.limit > 0 ) {
+            result = <Transactions>result.slice(0, search.limit);
         }
 
         return result;

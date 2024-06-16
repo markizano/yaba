@@ -7,10 +7,13 @@
     <p>Interest Rate: <span>{{ account.interestRate }} ( {{ account.interestStrategy }} )</span></p>
     <p>{{ account.description }}</p>
     <yaba-transaction-list
-      [accountId]="account.id"
-      [withTags]="true"
-      class="dropfile detail"
-      [editable]="true"
+        [(transactions)]="account.transactions"
+        [showFilters]="false"
+        [withTags]="false"
+        [editable]="false"
+        [withHeader]="true"
+        [showPaginate]="true"
+        class="dropfile detail"
     ></yaba-transaction-list>
     <div class="errors">{{ error }}</div>
 </div>

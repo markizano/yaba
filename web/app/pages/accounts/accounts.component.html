@@ -19,12 +19,15 @@
             </actions>
         </figcaption>
         <yaba-transaction-list
+            [(transactions)]="account.transactions"
             [showFilters]="false"
-            [accountId]="account.id"
+            [withTags]="false"
+            [editable]="false"
             [limit]="5"
             [showPaginate]="false"
             class="dropfile"
         ></yaba-transaction-list>
+        <span>txns: {{ account.transactions.length }}</span>
     </div>
 }
     </div>
