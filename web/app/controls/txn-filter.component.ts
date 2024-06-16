@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { EventEmitter, Output } from '@angular/core';
 
-import { Budgets, TransactionFilter } from 'app/lib/transactions';
+import { Budgets, TransactionFilter, TxnSortHeader } from 'app/lib/transactions';
 import { DateRangeFilterComponent } from 'app/controls/daterange.component';
 import { AccountsFilterComponent } from 'app/controls/account-filter.component';
 import { DescriptionFilterComponent } from 'app/controls/description.component';
@@ -32,6 +32,9 @@ export class TransactionFilterComponent {
             description: '',
             budgets: <Budgets>[],
             accounts: [],
+            tags: [],
+            limit: -1,
+            sort: <TxnSortHeader>{ column: 'datePosted', asc: true }
         };
     }
 

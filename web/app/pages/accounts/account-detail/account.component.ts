@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Account, Accounts, IAccount } from 'app/lib/accounts';
+import { Account, Accounts } from 'app/lib/accounts';
 import { AccountsService } from 'app/services/accounts.service';
 /**
  * This component is responsible for displaying the details of a single account.
@@ -8,7 +8,6 @@ import { AccountsService } from 'app/services/accounts.service';
 @Component({
     selector: 'yaba-account',
     templateUrl: './account.component.html',
-    providers: [Router, AccountsService],
 })
 export class AccountComponent {
     @Input() public id: string;
@@ -21,12 +20,24 @@ export class AccountComponent {
         this.account = new Account();
     }
 
+    /**
+     * Load the account from the filesystem or server.
+     */
     ngOnInit() {
         console.log('AccountComponent() ngOnInit()');
         if (this.id) {
             this.accountsService.load().then(
                 (accounts: Accounts) => {
-                    this.account.update(<IAccount>accounts.byId(this.id));
+                    try {
+                        const account = (new Accounts(...accounts)).byId(this.id) as Account;
+                        if ( account ) {
+                            console.log('AccountComponent() ngOnInit() found account: ', account);
+                            this.account.update(account);
+                        }
+                    } catch (e) {
+                        console.error('Error loading account', e);
+                        this.error = <string>e;
+                    }
                 }, (error) => {
                     console.error('Error loading account', error);
                     this.error = error;

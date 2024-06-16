@@ -4,12 +4,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 
 import { TransactionHeaders } from 'app/lib/structures';
-import { Transactions, EditPlaceholder, Transaction, TransactionFilter, SortHeader, ITransaction, TransactionFields, IBudget } from 'app/lib/transactions';
-import { Account, Accounts } from 'app/lib/accounts';
+import { Transactions, EditPlaceholder, Transaction, TransactionFilter, TxnSortHeader, ITransaction, TransactionFields } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 import { PaginationComponent } from 'app/controls/pagination.component';
-import { TransactionsService } from 'app/services/transactions.service';
-import { AccountsService } from 'app/services/accounts.service';
+import { TxnEditDirective } from './txn-edit.directive';
 
 type AccountIdHashMap = { [key: string]: string };
 
@@ -21,14 +19,16 @@ type AccountIdHashMap = { [key: string]: string };
         MatChipsModule,
         MatIconModule,
         ControlsModule,
-        PaginationComponent
+        PaginationComponent,
+        TxnEditDirective,
     ],
 })
 export class TransactionsListComponent {
     addOnBlur = true;
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
     // Data
-    @Input() accountId?: string;
+    @Input() transactions: Transactions;
+    @Output() transactionsChange = new EventEmitter<Transactions>();
 
     // Filtering
     @Input() showFilters: boolean;
@@ -44,29 +44,30 @@ export class TransactionsListComponent {
     @Input() withHeader: boolean;
     @Input() withTags: boolean;
     // Sorting and Ordering
-    @Input() sort: SortHeader;
+    @Input() sort: TxnSortHeader;
     @Input() limit: number;
 
     currentlyEditing: EditPlaceholder;
-    transactions: Transactions;
     txns: Transactions;
     accountId2name: AccountIdHashMap;
 
-    constructor(protected accountsService: AccountsService, protected txnService: TransactionsService) {
-        this.accountId = '';
+    constructor() {
         this.sort = { column: 'datePosted', asc: true };
         this.showFilters = true;
+        this.limit = -1;
         this.filters = <TransactionFilter>{
             fromDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
             toDate: new Date(),
             description: '',
             budgets: [],
             accounts: [],
+            tags: [],
+            limit: this.limit,
+            sort: this.sort
         };
         this.showPaginate = true;
         this.withHeader = true;
         this.withTags = true;
-        this.limit = 1000;
         this.editable = false;
         this.currentlyEditing = <EditPlaceholder>{
             datePending: false,
@@ -83,25 +84,11 @@ export class TransactionsListComponent {
     }
 
     ngOnInit() {
-        this.accountsService.load().then(
-            (accounts: Accounts) => {
-                this.accountId2name = accounts.reduce((a: AccountIdHashMap, b: Account) => { a[b.id] = b.name; return a; }, {});
-                console.log('TransactionListComponent().ngOnInit().accountsService.load()', this.accountId2name);
-            },
-            (error) => console.error('TransactionListComponent().ngOnInit().accountsService.load()', error) );
-        this.txnService.load().then(
-            (_txns: Transactions) => {
-                const txns = new Transactions(..._txns);
-                if ( this.accountId ) {
-                    console.log(`By AccountId: ${this.accountId}`);
-                    this.transactions.push(...txns.byAccountId(this.accountId));
-                } else {
-                    this.transactions.push(...txns);
-                }
-                console.log('TransactionsListComponent().ngOnInit().load()', this.transactions);
-            }, (error) => {
-                console.error('TransactionsListComponent().ngOnInit().load()', error);
-            });
+        try {
+            this.refresh();
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     /**
@@ -109,18 +96,20 @@ export class TransactionsListComponent {
      */
     refresh() {
         this.txns.clear();
-        this.txns.push(...this.transactions
-            .byAccountIds(this.filters.accounts.map((x: Account) => x.id))
-            .daterange(this.filters.fromDate, this.filters.toDate)
-            .byDescription(this.filters.description)
-            .byTags(this.filters.budgets.map((x: IBudget) => x.tag))
-            .sortBy(this.sort.column, this.sort.asc)
-        );
+        if ( this.showFilters ) {
+            this.txns.push(...this.transactions.getTransactions(this.filters));
+        } else {
+            if ( this.limit > -1 ) {
+                this.txns.push(...this.transactions.slice(0, this.limit));
+            } else {
+                this.txns.push(...this.transactions);
+            }
+        }
     }
 
     sortBy(header: TransactionFields) {
         this.sort.column = header;
-        return ((sortAgent: SortHeader) => (field: TransactionFields) => {
+        return ((sortAgent: TxnSortHeader) => (field: TransactionFields) => {
             sortAgent.asc = sortAgent.column == field? !sortAgent.asc: true;
             sortAgent.column = field;
             return sortAgent;
@@ -137,10 +126,5 @@ export class TransactionsListComponent {
 
     addTag(txn: ITransaction, $event: MatChipInputEvent) {
         return (<Transaction>txn).addTag($event.value);
-    }
-
-    edit2view(field: keyof EditPlaceholder, value: unknown) {
-        this.currentlyEditing[field] = false;
-        this.save();
     }
 }

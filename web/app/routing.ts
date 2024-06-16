@@ -30,12 +30,11 @@ export const routeConfig: Routes = [
     path: 'accounts',
     title: 'Accounts',
     component: AccountsComponent,
-    children: [
-      {
-        path: ':id',
-        component: AccountComponent,
-      },
-    ]
+  },
+  {
+    path: 'account/:id',
+    title: 'Account Details',
+    component: AccountComponent,
   },
   {
     path: 'charts',

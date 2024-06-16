@@ -1,7 +1,7 @@
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
-import { ITransaction, Transactions } from './transactions';
+import { ITransaction, TransactionFilter, Transactions } from './transactions';
 import { Tags } from './structures';
 
 /**
@@ -234,20 +234,8 @@ export class Accounts extends Array<Account> {
      * @param limit The maximum number of transactions to return. If not provided, all transactions are returned.
      * @returns New list of transactions that match the search criteria.
      */
-    public getTransactions(selectedAccounts?: Accounts, fromDate?: Date, toDate?: Date, description?: string, tags?: Tags, limit=-1): Transactions {
-        const result = new Transactions();
-        const searchResults: Transactions = <Transactions>this.selected(selectedAccounts).map(
-            (a: IAccount) => a.transactions.getTransactions(
-                fromDate,
-                toDate,
-                description,
-                tags
-            )
-        ).flat(); // Returns Accounts(x)[...Transactions]
-        if ( searchResults.length ) {
-            result.push( ...searchResults.sorted() );
-        }
-        return limit && limit > 0? <Transactions>result.slice(0, limit): result;
+    public getTransactions(search: TransactionFilter): Transactions {
+        return this.selected(search.accounts).reduce((a: Transactions, b: IAccount) => {a.push(...b.transactions.getTransactions(search)); return a;}, new Transactions());
     }
 
     /**
