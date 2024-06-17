@@ -31,9 +31,10 @@ export class AccountsFilterComponent {
     }
 
     ngOnInit() {
-        this.accountsService.loaded((accounts: Accounts) => {
+        this.accountsService.load().subscribe((accounts: Accounts) => {
             this.accounts.add(...accounts);
-            this.selectable = this.getAccounts();
+            this.selectable = this.accounts.map((x: Account) => ({ label: x.name, value: x }));
+            console.log('AccountsFilterComponent().selectable:', this.selectable);
         });
     }
 
@@ -44,12 +45,5 @@ export class AccountsFilterComponent {
      */
     changed(accounts: Account[]) {
         this.selectedAccounts.emit(new Accounts(...accounts));
-    }
-
-    /**
-     * Get the accounts in a way ng-select can render.
-     */
-    getAccounts(): NgSelectable<Account>[] {
-        return this.accounts.map((x: Account) => ({ label: x.name, value: x }));
     }
 }

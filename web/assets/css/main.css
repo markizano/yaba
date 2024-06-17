@@ -384,11 +384,7 @@ debug span {
     overflow-y: auto;
 }
 
-yaba-controls {
-    display: block;
-    width: 100%;
-}
-controls {
+.yaba-controls {
     display: flex;
     border: 1px solid #191988C0;
     border-radius: 10px;
@@ -396,7 +392,7 @@ controls {
     margin: 30px auto 15px auto;
     position: relative;
 }
-controls:before {
+.yaba-controls:before {
     content: "Filters: ";
     color: #0e1871;
     font-family: sans-serif, monospace;
@@ -406,27 +402,43 @@ controls:before {
     top: -25px;
     left: 25px;
 }
-controls accounts {
+.yaba-daterange {
     display: inline-block;
-    width: fit-content;
     margin: 10px auto;
     padding: 5px;
 }
-controls description {
+.date-range-wrapper {
+    width: 250px;
+    display: flex;
+    flex-flow: row;
+}
+.date-range-wrapper div {
+    display: block;
+}
+.date-range-wrapper input[type=date] {
+    font-size: 1.2rem;
+}
+.yaba-controls yaba-accounts {
     display: inline-block;
-    width: 220px;
+    min-width: 250px;
+    margin: 10px auto;
+    padding: 5px;
+}
+.yaba-controls yaba-description {
+    display: inline-block;
+    min-width: 250px;
     height: 40px;
     margin: 10px auto;
     padding: 5px;
 }
-controls budgets {
+.yaba-controls yaba-budgets {
     margin: 10px auto;
     display: inline-block;
-    min-width: 150px;
+    min-width: 200px;
     min-height: 120px;
     vertical-align: top;
 }
-controls accounts select, controls budgets select {
+.yaba-controls yaba-accounts ng-select, controls budgets ng-select {
     min-width: 100px;
     width:99%;
     min-height: 100px;

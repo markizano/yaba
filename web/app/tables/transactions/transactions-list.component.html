@@ -1,6 +1,7 @@
 <div class="transaction-list-wrapper">
 @if ( showFilters ){ <transaction-filters [(filter)]="filters" (filterChange)="refresh()"></transaction-filters> }
-@if ( txns.length > 0){
+Transactions: {{ transactions.length }}
+@if ( transactions.length > 0){
     <table class="data item-list" [ngClass]="editable ? 'editable': ''">
     @if ( withHeader ) {
         <thead>
@@ -18,7 +19,7 @@
         </thead>
     }
         <tbody>
-    @for(txn of txns; track txn.id) {
+    @for(txn of transactions; track txn.id) {
         <tr>
             @if (txShow?.id) {<td> <span class="md-truncate"> {{ txn.id }} </span> </td>}
             @if (txShow?.datePending) {<td [(txnEdit)]="currentlyEditing.datePending" [ngSwitch]="currentlyEditing.datePending">
@@ -46,7 +47,7 @@
 
             @if ( txShow?.account ) {<td> <span> {{ accountId2name[txn.accountId] || '{!unknown account id!}' }} </span> </td>}
 
-            <td [(txnEdit)]="currentlyEditing.amount" [(ngModel)]="txn.amount" [ngSwitch]="currentlyEditing.amount">
+            <td [(txnEdit)]="currentlyEditing.amount" [ngSwitch]="currentlyEditing.amount">
                 <span *ngSwitchCase="false" [textContent]="txn.amount | currency" [ngClass]="{'negative': txn.amount < 0}"></span>
                 <span *ngSwitchCase="true">
                     <input
@@ -58,7 +59,7 @@
                     />
                 </span>
             </td>
-            <td [(txnEdit)]="currentlyEditing.description" [(ngModel)]="txn.description" [ngSwitch]="currentlyEditing.description">
+            <td [(txnEdit)]="currentlyEditing.description" [ngSwitch]="currentlyEditing.description">
                 <!-- md-truncate has failed me here! :sob: -->
                 <span *ngSwitchCase="false" class="md-truncate"> {{ limit == -1 ? txn.description: txn.description.slice(0, 30) + (txn.description.length > 30? '...': '') }} </span>
                 <span *ngSwitchCase="true">
@@ -70,7 +71,7 @@
                     />
                 </span>
             </td>
-            @if ( txShow?.merchant ) {<td [(txnEdit)]="currentlyEditing.merchant" [(ngModel)]="txn.merchant" [ngSwitch]="currentlyEditing.merchant">
+            @if ( txShow?.merchant ) {<td [(txnEdit)]="currentlyEditing.merchant" [ngSwitch]="currentlyEditing.merchant">
                 <span *ngSwitchCase="false"> {{ txn.merchant }} </span>
                 <span *ngSwitchCase="true">
                     <input
@@ -81,7 +82,7 @@
                     />
                 </span>
             </td>}
-            @if ( txShow?.transactionType ) {<td [(txnEdit)]="currentlyEditing.transactionType" [(ngModel)]="txn.transactionType" [ngSwitch]="currentlyEditing.transactionType">
+            @if ( txShow?.transactionType ) {<td [(txnEdit)]="currentlyEditing.transactionType" [ngSwitch]="currentlyEditing.transactionType">
                 <span *ngSwitchCase="false"> {{ txn.transactionType }} </span>
                 <span *ngSwitchCase="true">
                     <input
@@ -92,8 +93,7 @@
                     />
                 </span>
             </td>}
-            @if ( withTags )
-            {<td [(txnEdit)]="currentlyEditing.tags" [(ngModel)]="txn.tags" [ngSwitch]="currentlyEditing.tags">
+            @if ( withTags ) {<td [(txnEdit)]="currentlyEditing.tags" [ngSwitch]="currentlyEditing.tags">
                 <span *ngSwitchCase="false"> {{ txn.tags.join(", ") }} </span>
                 <span *ngSwitchCase="true">
                     <mat-chip-grid #chipGrid aria-label="Enter hidden tags" *ngFor="let tag of txn.tags; track tag">
@@ -114,13 +114,6 @@
                                [matChipInputAddOnBlur]="addOnBlur"
                                (matChipInputTokenEnd)="addTag(txn, $event)"/>
                       </mat-chip-grid>
-
-                      <!-- <mat-chips
-                        [(ngModel)]="txn.tags"
-                        md-readonly="false"
-                        md-removable="true"
-                        md-enable-chip-edit="true"
-                    ></mat-chips> -->
                 </span>
             </td>}
         </tr>
@@ -129,8 +122,8 @@
     </table>
 }
     @if ( showPaginate && txns.length > 10 ){ <yaba-pagination [itemCount]="txns.length"></yaba-pagination> }
-    <!-- <debug> -->
+    <!-- <debug>
         txn.length: <span [textContent]="txns.length"></span>
         limit: <span [textContent]="limit"></span>
-    <!-- </debug> -->
+    </debug> -->
 </div>

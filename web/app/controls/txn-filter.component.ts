@@ -8,6 +8,7 @@ import { AccountsFilterComponent } from 'app/controls/account-filter.component';
 import { DescriptionFilterComponent } from 'app/controls/description.component';
 import { BudgetsFilterComponent } from 'app/controls/budgets-filter.component';
 import { Accounts } from 'app/lib/accounts';
+import { DEFAULT_DATERANGE } from 'app/lib/structures';
 
 @Component({
     selector: 'transaction-filters',
@@ -27,7 +28,7 @@ export class TransactionFilterComponent {
 
     constructor() {
         this.filter = <TransactionFilter>{
-            fromDate: new Date(),
+            fromDate: new Date(Date.now() - DEFAULT_DATERANGE),
             toDate: new Date(),
             description: '',
             budgets: <Budgets>[],

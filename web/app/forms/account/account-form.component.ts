@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AccountTypes, Account, InterestStrategy } from 'app/lib/accounts';
 import { Institution, Institutions } from 'app/lib/institutions';
@@ -37,7 +37,7 @@ export class AccountFormComponent {
     // User feedback.
     errors: string[] = [];
 
-    constructor(protected institutionsService: InstitutionsService, protected chgRef: ChangeDetectorRef) {
+    constructor(protected institutionsService: InstitutionsService) {
         console.log('new AccountFormComponent()');
         this.account = new Account();
         this.institutions = new Institutions();
@@ -48,14 +48,13 @@ export class AccountFormComponent {
         console.log('AccountFormComponent().ngOnInit()');
         this.accountTypes = this.getAccountTypes();
         this.interestStrategies = this.getInterestStrategies();
-        this.institutionsService.loaded(
-            (institutions: Institutions) => {
-                this.institutions.push(...institutions);
-                this.institutionIds = institutions.map((x: Institution) => ({ label: x.name, value: x }));
-                this.chgRef.detectChanges();
-                console.log('AccountFormComponent().ngOnInit().institutions: ', institutions);
-            },
-        );
+        // this.institutionsService.loaded(
+        //     (institutions: Institutions) => {
+        //         this.institutions.push(...institutions);
+        //         this.institutionIds = institutions.map((x: Institution) => ({ label: x.name, value: x }));
+        //         console.log('AccountFormComponent().ngOnInit().institutionIds: ', this.institutionIds);
+        //     },
+        // );
     }
 
     getAccountTypes(): NgSelectable<AccountTypes>[] {

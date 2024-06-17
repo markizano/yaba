@@ -46,6 +46,11 @@ export const NULLDATE = new Date('1970-01-01T00:00:00');
 export const CACHE_EXPIRY_SECONDS = 120;
 
 /**
+ * @param {number} DEFAULT_DATERANGE Number of ms in the default date range. (90 days)
+ */
+export const DEFAULT_DATERANGE = 90 * 24 * 60 * 60 * 1000;
+
+/**
  * Description + Regexp Struct for sending description update change events.
  */
 export interface DescriptionChange {

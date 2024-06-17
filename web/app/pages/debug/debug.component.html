@@ -1,3 +1,8 @@
 <h1>DEBUGGING!</h1>
-<yaba-transaction-list [transactions]="transactions"></yaba-transaction-list>
+<yaba-transaction-list
+    [(transactions)]="transactions"
+    [txShow]="txShow"
+    [filters]="filters"
+    [withTags]="false"
+></yaba-transaction-list>
 txn: {{ transactions.length }}

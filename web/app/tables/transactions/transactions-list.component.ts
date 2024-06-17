@@ -1,13 +1,15 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 
-import { TransactionShowHeaders } from 'app/lib/structures';
+import { DEFAULT_DATERANGE, TransactionShowHeaders } from 'app/lib/structures';
 import { Transactions, EditPlaceholder, Transaction, TransactionFilter, TxnSortHeader, ITransaction, TransactionFields } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 import { PaginationComponent } from 'app/controls/pagination.component';
-import { TxnEditDirective } from './txn-edit.directive';
+import { TxnEditDirective } from 'app/tables/transactions/txn-edit.directive';
+import { TransactionFilterComponent } from 'app/controls/txn-filter.component';
+import { AccountsService } from 'app/services/accounts.service';
 
 type AccountIdHashMap = { [key: string]: string };
 
@@ -20,7 +22,9 @@ type AccountIdHashMap = { [key: string]: string };
         MatIconModule,
         ControlsModule,
         PaginationComponent,
+        TransactionFilterComponent,
         TxnEditDirective,
+        PaginationComponent,
     ],
 })
 export class TransactionsListComponent {
@@ -51,12 +55,12 @@ export class TransactionsListComponent {
     txns: Transactions;
     accountId2name: AccountIdHashMap;
 
-    constructor() {
+    constructor(protected accountsService: AccountsService, protected chgDet: ChangeDetectorRef) {
         this.sort = { column: 'datePosted', asc: true };
         this.showFilters = true;
         this.limit = -1;
         this.filters = <TransactionFilter>{
-            fromDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
+            fromDate: new Date(Date.now() - DEFAULT_DATERANGE),
             toDate: new Date(),
             description: '',
             budgets: [],
@@ -81,12 +85,18 @@ export class TransactionsListComponent {
         this.transactions = new Transactions();
         this.txns = new Transactions();
         this.accountId2name = {};
-        this.transactionsChange.subscribe(() => {
-            this.refresh();
-        });
+
+
+        // this.transactionsChange.subscribe(() => {
+        //     this.refresh();
+        // });
     }
 
     ngOnInit() {
+        console.log('TransactionsListComponent().ngOnInit().transactions', this.transactions.length, this.transactions);
+        this.accountsService.load().subscribe(() => {
+            console.log('TransactionsListComponent().ngOnInit().transactionsLoaded', this.transactions.length, this.transactions);
+        });
         try {
             this.refresh();
         } catch (e) {
@@ -102,11 +112,7 @@ export class TransactionsListComponent {
         if ( this.showFilters ) {
             this.txns.add(...this.transactions.getTransactions(this.filters));
         } else {
-            if ( this.limit > -1 ) {
-                this.txns.add(...this.transactions.slice(0, this.limit));
-            } else {
-                this.txns.add(...this.transactions);
-            }
+            this.txns.add(...this.transactions);
         }
     }
 

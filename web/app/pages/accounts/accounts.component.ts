@@ -39,10 +39,10 @@ export class AccountsComponent {
     ngOnInit() {
         // Load the accounts from the filesystem.
         console.log('AccountsComponent().ngOnInit()');
-        this.accountsService.loaded((accounts: Accounts) => {
-            this.accounts.add(...accounts);
-            console.log('AccountsComponent().ngOnInit() loaded accounts: ', accounts);
-        });
+        // this.accountsService.loaded((accounts: Accounts) => {
+        //     this.accounts.add(...accounts);
+        //     console.log('AccountsComponent().ngOnInit() loaded accounts: ', accounts);
+        // });
     }
 
     /**

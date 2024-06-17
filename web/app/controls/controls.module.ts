@@ -31,9 +31,6 @@ import {
   TrashComponent,
 } from 'app/controls/icons.component';
 
-import { PaginationComponent } from 'app/controls/pagination.component';
-import { TransactionFilterComponent } from 'app/controls/txn-filter.component';
-
 import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
 
 const components = [
@@ -54,17 +51,13 @@ const components = [
     declarations: components,
     imports: [
         CommonModule,
-        PaginationComponent,
-        TransactionFilterComponent,
     ],
     providers: [ ],
     exports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        TransactionFilterComponent,
         NgSelectModule,
-        PaginationComponent,
         ...components,
     ],
 })

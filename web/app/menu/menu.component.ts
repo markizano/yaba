@@ -32,7 +32,6 @@ export class MenuComponent {
         // Start off with the initial value use the isScreenSmall$ | async in the
         // view to get both the original value and the new value after resize.
         this.isScreenSmall$ = screenSizeChanged$.pipe(startWith(checkScreenSize()))
-        console.log('MenuComponent().ngOnInit().isScreeSmall: ', this.isScreenSmall$);
       }
 
 }

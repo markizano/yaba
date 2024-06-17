@@ -2,6 +2,7 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import { DEFAULT_DATERANGE } from "app/lib/structures";
 
 @Component({
     selector: 'yaba-daterange',
@@ -17,7 +18,7 @@ export class DateRangeFilterComponent {
     @Output() toDateChange = new EventEmitter<Date>();
 
     constructor() {
-        this.fromDate = new Date();
+        this.fromDate = new Date(Date.now() - DEFAULT_DATERANGE);
         this.toDate = new Date();
     }
 
@@ -25,7 +26,7 @@ export class DateRangeFilterComponent {
      * In this way, if either date object is changed, both are sent an update event.
      * @param $event {Event} Event object from the DOM
      */
-    changed($event: Event) {
+    changed() {
         this.fromDateChange.emit( this.fromDate );
         this.toDateChange.emit( this.toDate );
     }
