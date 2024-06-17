@@ -129,8 +129,8 @@
     </table>
 }
     @if ( showPaginate && txns.length > 10 ){ <yaba-pagination [itemCount]="txns.length"></yaba-pagination> }
-    <debug>
+    <!-- <debug> -->
         txn.length: <span [textContent]="txns.length"></span>
         limit: <span [textContent]="limit"></span>
-    </debug>
+    <!-- </debug> -->
 </div>

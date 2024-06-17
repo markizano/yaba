@@ -14,8 +14,9 @@ export class TransactionsService extends BaseHttpService<Transactions> {
 
     constructor(http: HttpClient) {
         super(http);
-        console.log('new TransactionsService()');
         this.cache = new Transactions();
+        console.log('new TransactionsService()');
+        this.load();
     }
 
     next(value: Transactions): void {

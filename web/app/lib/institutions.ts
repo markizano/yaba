@@ -180,7 +180,6 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      * @param items 
      * @returns Updated number of items in the list.
      */
-    add<I>(...items: I[]): number;
     add(...items: Institution[]): number {
         for ( const i in items ) {
             const item: Institution = <IInstitution>items[i];

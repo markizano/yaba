@@ -2,15 +2,16 @@ import { EventEmitter } from 'events';
 
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { HostListener, Injectable } from "@angular/core";
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Yabables } from 'app/lib/types';
+import { CACHE_EXPIRY_SECONDS } from 'app/lib/structures';
 
 @Injectable()
 export abstract class BaseHttpService<Yabadaba extends Yabables> {
     headers: HttpHeaders = new HttpHeaders({'Content-Type': 'application/json'});
     abstract cache: Yabadaba;
     cacheExpiry: boolean;
-    sub?: Subscription;
+    request?: Observable<Yabadaba>;
     event: EventEmitter = new EventEmitter();
 
     /**
@@ -32,7 +33,12 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
         console.log('new BaseHttpService()');
         this.cacheExpiry = true;
         this.event = new EventEmitter();
-        this.load();
+        this.onExpire();
+        this.onClear();
+    }
+
+    isExpired(): boolean {
+        return this.cacheExpiry;
     }
 
     /**
@@ -46,76 +52,68 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
         this.cacheExpiry = true;
     }
 
-    on(event: string, listener: (value: unknown) => void): EventEmitter {
-        return this.event.on(event, listener);
+    onExpire(): void {
+        this.event.on('expire', () => this.cacheExpiry = true);
     }
 
-    emit(event: string, value?: unknown): boolean {
-        return this.event.emit(event, value);
+    onClear() {
+        this.event.on('clear', () => this.flush());
     }
 
-    isExpired(): boolean {
-        return this.cacheExpiry;
+    setExpire() {
+        setTimeout(() => {this.cacheExpiry = true; console.debug('cache:timeout!');}, CACHE_EXPIRY_SECONDS * 1000);
+    }
+
+    /**
+     * Register your loaded function with loaded before calling load().
+     * This will allow you to process the results of the load() function when it comes back.
+     * @param {Function} callback method with a single argument containing the results of the api call to the server (or results from local storage.)
+     */
+    loaded(callback: (result: Yabadaba) => void): void {
+        this.event.on('loaded', callback);
     }
 
     /**
      * Fetch the server items saved from the server if possible.
      * If the cache is expired, fetch from the server.
      * If fetching from the server fails, attempt to work from localStorage.
-     * @returns Promise<Yabadaba>
+     * @returns {void}
      */
-    load(): Promise<Yabadaba> {
+    load(): void {
         // Loading items returns a promise so we can asynchronously process results.
-        return new Promise<Yabadaba>((resolve: (value: Yabadaba) => void, reject: (error: unknown) => void) => {
-            console.debug('BaseHttpService.load(): ', this.isExpired());
-            if ( !this.isExpired() ) {
-                console.log('cache-hit: ', this.cache);
-                return resolve(this.cache);
-            }
-            if ( this.sub == undefined ) {
-                console.log('cache-miss and not loading: ', this.cache);
-                this.clear();
-                const request = this.http.get<Yabadaba>(this.endpoint, {headers: this.headers});
-                this.sub = request.subscribe({
-                    next: (x: Yabadaba) => this.next(x),
-                    error: (e: unknown) => this.tryLocalStorage(e, resolve, reject),
-                    complete: () => this.complete(resolve)
-                });
-            } else {
-                console.log('cache-miss and loading: ', this.cache);
-                this.on('loaded', () => resolve(this.cache));
-            }
-        });
-    }
-
-    complete(resolve: (value: Yabadaba) => void): void {
-        console.log('complete:load()');
-        resolve(this.cache);
-        this.emit('loaded');
-        this.sub?.unsubscribe();
-        this.sub = undefined;
-    }
-
-    clear(): void {
-        try {
-            this.cache.clear();
+        console.debug('BaseHttpService.load(): ', this.isExpired());
+        if ( !this.isExpired() ) {
+            console.log('cache-hit: ', this.cache);
+            this.event.emit('loaded', this.cache);
+            return;
+        }
+        if ( this.request === undefined ) {
+            console.log('cache-miss and not loading: ', this.cache);
             this.event.emit('clear');
-        } catch(e) {
-            console.warn('Error clearing cache: ', this.cache, e);
+            this.request = this.http.get<Yabadaba>(this.endpoint);
+            const sub: Subscription = this.request.subscribe({
+                next: (x: Yabadaba) => this.next(x),
+                error: (e: unknown) => this.tryLocalStorage(e, sub),
+                complete: () => this.complete(sub)
+            });
+        } else {
+            console.log('cache-miss and loading: ', this.cache);
         }
     }
 
-    error (e: Error, reject: (error: unknown) => void ): void {
-        console.warn('Error fetching from server: ', e);
-        this.sub?.unsubscribe();
-        this.sub = undefined;
-        return reject(e);
+    complete(sub: Subscription): void {
+        console.log('complete:load()');
+        sub.unsubscribe();
+        this.request = undefined;
+        this.cacheExpiry = false;
+        this.setExpire();
+        this.event.emit('loaded', this.cache);
     }
 
     /**
      * Attempt to load from local storage if the server fails.
      */
-    tryLocalStorage(e: unknown, resolve: (value: Yabadaba) => void, reject: (error: unknown) => void): void {
+    tryLocalStorage(e: unknown, sub: Subscription): void {
         console.log('Attempting to load from localStorage.');
         try {
             const cached = localStorage.getItem(this.name) ?? '';
@@ -125,21 +123,17 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
             }
             console.log('Loaded from localStorage: ', this.cache);
             this.cacheExpiry = false;
-            resolve(this.cache);
+            sub.unsubscribe();
+            this.request = undefined;
+            this.event.emit('loaded', this.cache)
         } catch (ex) {
-            const fail = new Error('Error loading from localStorage: ' + ex);
             console.error('Error loading from localStorage: ', e);
-            this.error(fail, reject);
+            sub.unsubscribe();
+            this.request = undefined;
+            this.event.emit('error', new Error('Error loading from localStorage: ' + ex, {cause: e}));
         }
     }
 
-    // I don't understand how this is different from load() above yet, but I did it anyways...
-    async get(): Promise<Yabadaba> {
-        if ( this.isExpired() ) {
-            await this.load();
-        }
-        return this.cache;
-    }
     /**
      * Save the objects to the server.
      * @returns void
@@ -152,8 +146,9 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
             next: (i: unknown) => console.log('next:saved(): ', i),
             complete: () => {
                 console.log('complete:saved()');
-                this.event.emit('saved');
-                sub.unsubscribe(); },
+                sub.unsubscribe()
+                this.event.emit('saved', this.cache);
+            },
             error: (error: unknown) => console.error('Error saving: ', error),
         });
     }

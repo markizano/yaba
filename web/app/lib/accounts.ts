@@ -142,7 +142,6 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      * @param  {...Account} items New Account(s) to add to this collection.
      * @returns {Number} Current number of items after adding.
      */
-    add<A>(...items: A[]): number;
     add(...items: Account[]): number {
         for ( const i in items ) {
             const item = new Account();

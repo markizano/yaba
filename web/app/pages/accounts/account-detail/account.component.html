@@ -15,5 +15,5 @@
         [showPaginate]="true"
         class="dropfile detail"
     ></yaba-transaction-list>
-    <div class="errors">{{ error }}</div>
+    <div class="errors">@for(error of errors; track error) { <p>{{error}}</p> }</div>
 </div>

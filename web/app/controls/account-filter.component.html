@@ -1,15 +1,16 @@
 <div class="account-filter-wrapper">
     Account: <br />
     <ng-select
-        [items]="accounts"
+        [items]="getAccounts()"
+        bindLabel="label"
+        bindValue="value"
         [multiple]="true"
         [closeOnSelect]="false"
         [searchable]="false"
         [clearable]="true"
         [hideSelected]="false"
         [placeholder]="'Select accounts'"
-        [(ngModel)]="selectedAccounts"
-        (ngModelChange)="changed($event)"
+        (change)="changed($event)"
         class="account-filter-list"
     ></ng-select>
 </div>

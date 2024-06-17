@@ -58,17 +58,17 @@ export class InstitutionFormComponent {
     validate(): boolean {
         this.errors = [];
         if ( ! this.institution ) {
-            this.errors.add('Institution is not set? This is a bug, please report it to the developers at support@markizano.net');
+            this.errors.push('Institution is not set? This is a bug, please report it to the developers at support@markizano.net');
             return false;
         }
         if ( ! this.institution.name ) {
-            this.errors.add('Name is required.');
+            this.errors.push('Name is required.');
         }
         if ( this.institution.name.length > 255 ) {
-            this.errors.add('Name must be less than 255 characters.');
+            this.errors.push('Name must be less than 255 characters.');
         }
         if ( this.institution.description.length > 255 ) {
-            this.errors.add('Description must be less than 255 characters.');
+            this.errors.push('Description must be less than 255 characters.');
         }
         return this.errors.length === 0;
     }

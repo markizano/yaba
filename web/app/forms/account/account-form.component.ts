@@ -48,14 +48,13 @@ export class AccountFormComponent {
         console.log('AccountFormComponent().ngOnInit()');
         this.accountTypes = this.getAccountTypes();
         this.interestStrategies = this.getInterestStrategies();
-        this.institutionsService.load().then(
+        this.institutionsService.loaded(
             (institutions: Institutions) => {
-                this.institutions.add(...institutions);
+                this.institutions.push(...institutions);
                 this.institutionIds = institutions.map((x: Institution) => ({ label: x.name, value: x }));
                 this.chgRef.detectChanges();
                 console.log('AccountFormComponent().ngOnInit().institutions: ', institutions);
             },
-            (error) => console.error('Error loading institutions: ', error)
         );
     }
 
@@ -70,19 +69,19 @@ export class AccountFormComponent {
     validate() {
         this.errors = [];
         if (!this.account.name) {
-            this.errors.add('Name is required.');
+            this.errors.push('Name is required.');
         }
         if (this.account.name.length > 64) {
-            this.errors.add('Name must be less than 64 characters.');
+            this.errors.push('Name must be less than 64 characters.');
         }
         if (this.account.description.length > 256) {
-            this.errors.add('Description must be less than 256 characters.');
+            this.errors.push('Description must be less than 256 characters.');
         }
         if (!this.account.institutionId) {
-            this.errors.add('Account must be associated with institution.');
+            this.errors.push('Account must be associated with institution.');
         }
         if (!this.account.accountType) {
-            this.errors.add('What kind of account is this?');
+            this.errors.push('What kind of account is this?');
         }
         return this.errors.length === 0;
     }

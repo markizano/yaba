@@ -14,8 +14,9 @@ export class InstitutionsService extends BaseHttpService<Institutions> {
 
     constructor(http: HttpClient) {
         super(http);
-        console.log('new InstitutionsService()');
         this.cache = new Institutions();
+        console.log('new InstitutionsService()');
+        this.load();
     }
 
     next(value: Institutions): void {
