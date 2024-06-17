@@ -714,7 +714,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @param sort Sort the transactions by SortHeader.column.
      * @returns {Transactions} List of transactions after filtering and limiting.
      */
-    public getTransactions(search: TransactionFilter): Transactions {
+    getTransactions(search: TransactionFilter): Transactions {
         let result = this.search((txn: ITransaction) => {
             const tests = {
                 date: true,
@@ -723,12 +723,12 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
             };
 
             /* DATES */
-            if ( search.fromDate && search.toDate ) {
+            if ( search.fromDate && search.toDate && search.fromDate != NULLDATE && search.toDate != NULLDATE) {
                 tests.date = this.filterDaterange(txn, search.fromDate, search.toDate);
             }
 
             /* DESCRIPTION */
-            if ( search.description !== undefined ) {
+            if ( search.description !== undefined && search.description !== '' ) {
                 tests.description = this.filterDescription(txn, search.description);
             }
 
@@ -748,9 +748,9 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
             ];
             /*
             console.log([
-                {useDate, fromDate, toDate },
-                {useDescription, description},
-                {useTags, tags},
+                {useDate, fromDate: search.fromDate, toDate: search.toDate },
+                {useDescription, description: search.description},
+                {useTags, tags: search.tags},
                 {truthy}
             ]); //*/
 

@@ -25,20 +25,20 @@ export class AccountComponent {
      */
     ngOnInit() {
         console.log('AccountComponent() ngOnInit()');
-        this.accountsService.loaded((accounts: Accounts) => {
-            console.log('AccountComponent().ngOnInit() loaded accounts: ', accounts);
-            try {
-                const account = accounts.byId(this.id);
-                if ( account ) {
-                    console.log('AccountComponent() ngOnInit() found account: ', account);
-                    this.account.update(account);
-                } else {
-                    this.errors.push(`Account ${this.id} not found.`);
-                }
-            } catch (e) {
-                console.error('Error loading account', e);
-                this.errors.push(<string>e);
-            }
-        });
+        // this.accountsService.loaded((accounts: Accounts) => {
+        //     console.log('AccountComponent().ngOnInit() loaded accounts: ', accounts);
+        //     try {
+        //         const account = accounts.byId(this.id);
+        //         if ( account ) {
+        //             console.log('AccountComponent() ngOnInit() found account: ', account);
+        //             this.account.update(account);
+        //         } else {
+        //             this.errors.push(`Account ${this.id} not found.`);
+        //         }
+        //     } catch (e) {
+        //         console.error('Error loading account', e);
+        //         this.errors.push(<string>e);
+        //     }
+        // });
     }
 }

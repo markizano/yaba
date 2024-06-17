@@ -30,10 +30,10 @@ export class InstitutionsComponent {
     }
 
     ngOnInit(): void {
-        this.institutionsService.loaded((institutions) => {
-            console.log('Institutions loaded: ', institutions);
-            this.institutions.add(...institutions);
-        });
+        // this.institutionsService.loaded((institutions) => {
+        //     console.log('Institutions loaded: ', institutions);
+        //     this.institutions.add(...institutions);
+        // });
     }
 
     ngOnDestroy(): void {

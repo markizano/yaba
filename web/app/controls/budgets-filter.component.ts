@@ -26,10 +26,10 @@ export class BudgetsFilterComponent {
     }
 
     ngOnInit() {
-        this.accountsService.loaded((accounts) => {
-            console.log('BudgetsFilterComponent().ngOnInit() loaded accounts:', accounts);
-            this.budgets.push(...accounts.getTransactions(<TransactionFilter>{}).getBudgets());
-        });
+        // this.accountsService.loaded((accounts) => {
+        //     console.log('BudgetsFilterComponent().ngOnInit() loaded accounts:', accounts);
+        //     this.budgets.push(...accounts.getTransactions(<TransactionFilter>{}).getBudgets());
+        // });
     }
 
     changed($event: Event) {
