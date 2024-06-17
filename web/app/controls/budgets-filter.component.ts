@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+
 import { NgSelectModule } from "@ng-select/ng-select";
-import { Budgets } from "app/lib/transactions";
-import { TransactionsService } from "app/services/transactions.service";
-import { Transactions } from "app/lib/transactions";
+
+import { Budgets, TransactionFilter } from "app/lib/transactions";
+import { AccountsService } from "app/services/accounts.service";
 
 /**
  * I needed a way to take a list of budgets and filter them by the end-user's selection.
@@ -20,18 +21,15 @@ export class BudgetsFilterComponent {
     budgets: Budgets;
     @Output() selectedBudgets = new EventEmitter<Budgets>();
 
-    constructor(protected transactionsService: TransactionsService) {
+    constructor(protected accountsService: AccountsService) {
         this.budgets = [];
     }
 
     ngOnInit() {
-        this.transactionsService.load().then(
-            (transactions: Transactions) => {
-                this.budgets.add(...transactions.getBudgets());
-                this.budgets.sort();
-            }, (error) => {
-                console.error('YabaFilterBudgetsComponent().ngOnInit()', error);
-            });
+        this.accountsService.loaded((accounts) => {
+            console.log('BudgetsFilterComponent().ngOnInit() loaded accounts:', accounts);
+            this.budgets.push(...accounts.getTransactions(<TransactionFilter>{}).getBudgets());
+        });
     }
 
     changed($event: Event) {

@@ -5,6 +5,7 @@ import { NgSelectModule } from "@ng-select/ng-select";
 
 import { Account, Accounts } from "app/lib/accounts";
 import { AccountsService } from "app/services/accounts.service";
+import { NgSelectable } from "app/lib/types";
 /**
  * I needed a way to take a list of accounts and filter them by the end-user's selection.
  * This is a space or gap in the operation, a transitor of sorts, that will enable me to display a list of
@@ -21,25 +22,34 @@ import { AccountsService } from "app/services/accounts.service";
     imports: [ CommonModule, FormsModule, NgSelectModule ],
 })
 export class AccountsFilterComponent {
-  accounts: Accounts;
-  @Output() selectedAccounts: EventEmitter<Accounts> = new EventEmitter<Accounts>();
+    accounts: Accounts;
+    selectable: NgSelectable<Account>[] = [];
+    @Output() selectedAccounts: EventEmitter<Accounts> = new EventEmitter<Accounts>();
 
-  constructor(protected accountsService: AccountsService) {
-    this.accounts = new Accounts();
-  }
+    constructor(protected accountsService: AccountsService) {
+        this.accounts = new Accounts();
+    }
 
-  ngOnInit() {
-    this.accountsService.load().then((accounts: Accounts) => {
-      this.accounts.add(...accounts);
-    });
-  }
+    ngOnInit() {
+        this.accountsService.loaded((accounts: Accounts) => {
+            this.accounts.add(...accounts);
+            this.selectable = this.getAccounts();
+        });
+    }
 
-  /**
-   * I use a separate event to only notify of selected accounts instead of changing the
-   * underlying bound account list to maintain the list box in the DOM/UI.
-   * @param accounts {IAccount} Accounts selected by end-user
-   */
-  changed(accounts: Account[]) {
-    this.selectedAccounts.emit(new Accounts(...accounts));
-  }
+    /**
+     * I use a separate event to only notify of selected accounts instead of changing the
+     * underlying bound account list to maintain the list box in the DOM/UI.
+     * @param accounts {IAccount} Accounts selected by end-user
+     */
+    changed(accounts: Account[]) {
+        this.selectedAccounts.emit(new Accounts(...accounts));
+    }
+
+    /**
+     * Get the accounts in a way ng-select can render.
+     */
+    getAccounts(): NgSelectable<Account>[] {
+        return this.accounts.map((x: Account) => ({ label: x.name, value: x }));
+    }
 }

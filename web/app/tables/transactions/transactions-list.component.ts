@@ -81,6 +81,9 @@ export class TransactionsListComponent {
         this.transactions = new Transactions();
         this.txns = new Transactions();
         this.accountId2name = {};
+        this.transactionsChange.subscribe(() => {
+            this.refresh();
+        });
     }
 
     ngOnInit() {

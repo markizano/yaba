@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { Transactions } from 'app/lib/transactions';
+import { TransactionFilter, Transactions } from 'app/lib/transactions';
 import { AccountsService } from 'app/services/accounts.service';
 import { TransactionsListComponent } from 'app/tables/transactions/transactions-list.component';
 
@@ -19,7 +19,14 @@ export class DebugComponent {
         this.transactions = new Transactions();
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         console.log('DebugComponent ngOnInit()');
+        this.accountsService.event.on('loaded', (accounts) => {
+            this.transactions.clear();
+            console.log('DebugComponent().Accounts:', accounts);
+            this.transactions.add(...accounts.getTransactions(<TransactionFilter>{}));
+            console.log('DebugComponent().Transactions:', this.transactions);
+            });
+        this.accountsService.load();
     }
 }

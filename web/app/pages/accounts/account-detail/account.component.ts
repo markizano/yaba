@@ -10,9 +10,9 @@ import { AccountsService } from 'app/services/accounts.service';
     templateUrl: './account.component.html',
 })
 export class AccountComponent {
-    @Input() public id: string;
+    @Input() id: string;
     account: Account;
-    error?: string;
+    errors: string[] = [];
 
     constructor(protected router: Router, protected accountsService: AccountsService) {
         console.log('AccountComponent constructor');
@@ -25,24 +25,20 @@ export class AccountComponent {
      */
     ngOnInit() {
         console.log('AccountComponent() ngOnInit()');
-        if (this.id) {
-            this.accountsService.load().then(
-                (accounts: Accounts) => {
-                    try {
-                        const account = (new Accounts(...accounts)).byId(this.id) as Account;
-                        if ( account ) {
-                            console.log('AccountComponent() ngOnInit() found account: ', account);
-                            this.account.update(account);
-                        }
-                    } catch (e) {
-                        console.error('Error loading account', e);
-                        this.error = <string>e;
-                    }
-                }, (error) => {
-                    console.error('Error loading account', error);
-                    this.error = error;
+        this.accountsService.loaded((accounts: Accounts) => {
+            console.log('AccountComponent().ngOnInit() loaded accounts: ', accounts);
+            try {
+                const account = accounts.byId(this.id);
+                if ( account ) {
+                    console.log('AccountComponent() ngOnInit() found account: ', account);
+                    this.account.update(account);
+                } else {
+                    this.errors.push(`Account ${this.id} not found.`);
                 }
-            );
-        }
+            } catch (e) {
+                console.error('Error loading account', e);
+                this.errors.push(<string>e);
+            }
+        });
     }
 }

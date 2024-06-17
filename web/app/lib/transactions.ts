@@ -256,7 +256,6 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @param  {...ITransaction} items 
      * @returns Number of items in the current set/array.
      */
-    add<Txn>(...items: Txn[]): number;
     add(...items: Transaction[]): number {
         for ( const i in items ) {
             const item = new Transaction();

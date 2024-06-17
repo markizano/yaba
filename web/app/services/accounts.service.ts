@@ -14,11 +14,13 @@ export class AccountsService extends BaseHttpService<Accounts> {
 
     constructor(http: HttpClient) {
         super(http);
-        console.log('new AccountsService()');
         this.cache = new Accounts();
+        console.log('new AccountsService()');
+        this.load();
     }
 
     next(value: Accounts): void {
+        console.log('AccountsService().next()', value);
         this.cache.add(...value);
         this.cacheExpiry = false;
     }

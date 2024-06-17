@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
 import { FormMode } from 'app/lib/structures';
@@ -21,7 +21,7 @@ export class InstitutionsComponent {
     #isub: Subscription;
 
     // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
-    constructor( protected institutionsService: InstitutionsService, protected changeDet: ChangeDetectorRef ) {
+    constructor( protected institutionsService: InstitutionsService ) {
         this.institutions = new Institutions();
         this.institution = new Institution();
         this.#isub = this.institutionsChange.subscribe((institutions: Institutions) => {
@@ -30,12 +30,9 @@ export class InstitutionsComponent {
     }
 
     ngOnInit(): void {
-        this.institutionsService.load().then(institutions => {
+        this.institutionsService.loaded((institutions) => {
             console.log('Institutions loaded: ', institutions);
             this.institutions.add(...institutions);
-            this.changeDet.detectChanges();
-        }, error => {
-            console.error('Error loading institutions: ', error);
         });
     }
 
