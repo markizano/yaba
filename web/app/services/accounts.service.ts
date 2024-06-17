@@ -1,21 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { iStorables, BaseHttpService } from 'app/services/basehttp.service';
-import { Account, Accounts } from 'app/lib/accounts';
+import { BaseHttpService } from 'app/services/basehttp.service';
+import { Accounts } from 'app/lib/accounts';
 
 @Injectable({
     providedIn: 'root'
 })
-export class AccountsService extends BaseHttpService<Account, Accounts> implements iStorables<Accounts> {
+export class AccountsService extends BaseHttpService<Accounts> {
     readonly name = 'accounts';
+    readonly endpoint = '/api/accounts';
+    cache: Accounts;
 
     constructor(http: HttpClient) {
         super(http);
         console.log('new AccountsService()');
+        this.cache = new Accounts();
     }
 
-    getEndpoint(): string {
-        return '/api/accounts';
+    next(value: Accounts): void {
+        this.cache.add(...value);
+        this.cacheExpiry = false;
     }
 }

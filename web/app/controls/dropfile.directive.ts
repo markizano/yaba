@@ -55,12 +55,12 @@ export class YabaDropFileDirective {
                     if (dataTransfer.items[i].kind === 'file') {
                         const file = dataTransfer.items[i].getAsFile();
                         if ( file !== null && file !== undefined)
-                            files.push(file);
+                            files.add(file);
                     }
                 }
                 dataTransfer.items.clear();
             } else {
-                files.push(...Array.from(dataTransfer.files));
+                files.add(...Array.from(dataTransfer.files));
                 dataTransfer.clearData();
             }
             this.fileDrop.emit(files);

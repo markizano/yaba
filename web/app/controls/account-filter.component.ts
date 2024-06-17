@@ -30,7 +30,7 @@ export class AccountsFilterComponent {
 
   ngOnInit() {
     this.accountsService.load().then((accounts: Accounts) => {
-      this.accounts.push(...accounts);
+      this.accounts.add(...accounts);
     });
   }
 

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatChipInputEvent, MatChipEvent, MatChipEditedEvent } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { PayCycle, TransactionDeltas, TransactionHeaders } from 'app/lib/structures';
+import { PayCycle, TransactionDeltas, TransactionShowHeaders } from 'app/lib/structures';
 
 @Component({
   selector: 'yaba-settings',
@@ -18,7 +18,7 @@ export class SettingsComponent {
   expenseTags: string[];
   transferTags: string[];
   hideTags: string[];
-  txShow: TransactionHeaders;
+  txShow: TransactionShowHeaders;
 
   constructor() {
     this.payCycle = PayCycle.BiMonthly;

@@ -9,6 +9,8 @@ import { AccountsModule } from 'app/pages/accounts/accounts.module';
 import { ChartsModule } from 'app/pages/charts/charts.module';
 import { BudgetingModule } from 'app/pages/budgeting/budgeting.module';
 import { SettingsModule } from 'app/pages/settings/settings.module';
+import { DebugComponent } from 'app/pages/debug/debug.component';
+
 // import { SessionManagementService } from './session.service';
 import { HttpClientModule } from '@angular/common/http';
 import { ControlsModule } from 'app/controls/controls.module';
@@ -33,6 +35,7 @@ import { ControlsModule } from 'app/controls/controls.module';
     ChartsModule,
     BudgetingModule,
     SettingsModule,
+    DebugComponent,
   ],
 //   providers: [
 //     SessionManagementService,

@@ -27,7 +27,7 @@ export class BudgetsFilterComponent {
     ngOnInit() {
         this.transactionsService.load().then(
             (transactions: Transactions) => {
-                this.budgets.push(...transactions.getBudgets());
+                this.budgets.add(...transactions.getBudgets());
                 this.budgets.sort();
             }, (error) => {
                 console.error('YabaFilterBudgetsComponent().ngOnInit()', error);

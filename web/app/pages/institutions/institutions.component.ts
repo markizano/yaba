@@ -32,7 +32,7 @@ export class InstitutionsComponent {
     ngOnInit(): void {
         this.institutionsService.load().then(institutions => {
             console.log('Institutions loaded: ', institutions);
-            this.institutions.push(...institutions);
+            this.institutions.add(...institutions);
             this.changeDet.detectChanges();
         }, error => {
             console.error('Error loading institutions: ', error);
@@ -59,7 +59,7 @@ export class InstitutionsComponent {
     // User clicked save button.
     save(institution: IInstitution): void {
         if ( this.formMode === FormMode.Create ) {
-            this.institutions.push(institution);
+            this.institutions.add(institution);
         }
         this.institutionsChange.emit(this.institutions);
         this.close()

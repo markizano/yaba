@@ -1,24 +1,38 @@
+import { EventEmitter } from 'events';
+
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { HostListener, Injectable } from "@angular/core";
-
-export interface iStorables<T> {
-    load(): Promise<T>;
-    save(items: T): void;
-}
+import { Subscription } from 'rxjs';
+import { Yabables } from 'app/lib/types';
 
 @Injectable()
-export abstract class BaseHttpService<T, Type extends Array<T>> {
-    protected _headers: HttpHeaders = new HttpHeaders({'Content-Type': 'application/json'});
-    protected _cache: Type;
-    protected _cacheExpiry: boolean;
+export abstract class BaseHttpService<Yabadaba extends Yabables> {
+    headers: HttpHeaders = new HttpHeaders({'Content-Type': 'application/json'});
+    abstract cache: Yabadaba;
+    cacheExpiry: boolean;
+    sub?: Subscription;
+    event: EventEmitter = new EventEmitter();
 
-    abstract getEndpoint(): string;
+    /**
+     * The name of the service. Please keep this r'[a-z0-9_\-]+' so we can use it as a localStorage key.
+     */
     abstract name: string;
+
+    /**
+     * The endpoint to fetch and save data from the server. Server can be derived from the environment if needed.
+     */
+    abstract endpoint: string;
+
+    /**
+     * Fetch the next value from the server and add it to the cache.
+     */
+    abstract next (value: Yabadaba): void;
 
     constructor(protected http: HttpClient) {
         console.log('new BaseHttpService()');
-        this._cache = [] as unknown as Type;
-        this._cacheExpiry = true;
+        this.cacheExpiry = true;
+        this.event = new EventEmitter();
+        this.load();
     }
 
     /**
@@ -29,78 +43,126 @@ export abstract class BaseHttpService<T, Type extends Array<T>> {
     @HostListener('window:storage')
     onStorage(): void {
         console.log(`Storage event detected in ${this.constructor.name}!`);
-        this._cacheExpiry = true;
+        this.cacheExpiry = true;
     }
 
-    protected isExpired(): boolean {
-        return this._cacheExpiry;
+    on(event: string, listener: (value: unknown) => void): EventEmitter {
+        return this.event.on(event, listener);
+    }
+
+    emit(event: string, value?: unknown): boolean {
+        return this.event.emit(event, value);
+    }
+
+    isExpired(): boolean {
+        return this.cacheExpiry;
     }
 
     /**
-     * Fetch the server items saved from the server.
+     * Fetch the server items saved from the server if possible.
      * If the cache is expired, fetch from the server.
-     * If fetching from the server fails, attempt to load from localStorage.
-     * @returns Promise<T>
+     * If fetching from the server fails, attempt to work from localStorage.
+     * @returns Promise<Yabadaba>
      */
-    load(): Promise<Type> {
-        const result = [] as unknown as Type;
+    load(): Promise<Yabadaba> {
         // Loading items returns a promise so we can asynchronously process results.
-        return new Promise<Type>((resolve: (value: Type) => void, reject: (error: unknown) => void) => {
+        return new Promise<Yabadaba>((resolve: (value: Yabadaba) => void, reject: (error: unknown) => void) => {
             console.debug('BaseHttpService.load(): ', this.isExpired());
             if ( !this.isExpired() ) {
-                console.log('cache-hit: ', this._cache);
-                return resolve(this._cache);
+                console.log('cache-hit: ', this.cache);
+                return resolve(this.cache);
             }
-            console.log('cache-miss: ', this._cache);
-            const request = this.http.get<Type>(this.getEndpoint(), {headers: this._headers});
-            this._cache.length = 0;
-            // using an annonymous arrow function to avoid replacing the `this` context.
-            const next = (x: Type) => {
-                result.push(...x);
-                this._cache.push(...x);
-                this._cacheExpiry = false;
+            if ( this.sub == undefined ) {
+                console.log('cache-miss and not loading: ', this.cache);
+                this.clear();
+                const request = this.http.get<Yabadaba>(this.endpoint, {headers: this.headers});
+                this.sub = request.subscribe({
+                    next: (x: Yabadaba) => this.next(x),
+                    error: (e: unknown) => this.tryLocalStorage(e, resolve, reject),
+                    complete: () => this.complete(resolve)
+                });
+            } else {
+                console.log('cache-miss and loading: ', this.cache);
+                this.on('loaded', () => resolve(this.cache));
             }
-            const error = (e: unknown) => {
-                console.error('Error fetching from server: ', e);
-                console.log('Attempting to load from localStorage.');
-                try {
-                    const cached = localStorage.getItem(this.name) ?? '';
-                    if ( cached ) {
-                        this._cache.length = 0;
-                        (c => {
-                            this._cache.push(...c);
-                            result.push(...c);
-                        })(JSON.parse(cached));
-                    }
-                    console.log('Loaded from localStorage: ', this._cache);
-                    this._cacheExpiry = false;
-                    resolve(<Type>result);
-                } catch (e) {
-                    console.error('Error loading from localStorage: ', e);
-                    reject(e);
-                }
-                sub.unsubscribe();
-            };
-            const complete = () => {
-                console.log('complete:load()');
-                resolve(<Type>result);
-                sub.unsubscribe();
-            };
-            const sub = request.subscribe({ next, error, complete });
         });
     }
 
+    complete(resolve: (value: Yabadaba) => void): void {
+        console.log('complete:load()');
+        resolve(this.cache);
+        this.emit('loaded');
+        this.sub?.unsubscribe();
+        this.sub = undefined;
+    }
+
+    clear(): void {
+        try {
+            this.cache.clear();
+            this.event.emit('clear');
+        } catch(e) {
+            console.warn('Error clearing cache: ', this.cache, e);
+        }
+    }
+
+    error (e: Error, reject: (error: unknown) => void ): void {
+        console.warn('Error fetching from server: ', e);
+        this.sub?.unsubscribe();
+        this.sub = undefined;
+        return reject(e);
+    }
+
+    /**
+     * Attempt to load from local storage if the server fails.
+     */
+    tryLocalStorage(e: unknown, resolve: (value: Yabadaba) => void, reject: (error: unknown) => void): void {
+        console.log('Attempting to load from localStorage.');
+        try {
+            const cached = localStorage.getItem(this.name) ?? '';
+            if ( cached ) {
+                const parsed = JSON.parse(cached);
+                this.cache.add(...parsed);
+            }
+            console.log('Loaded from localStorage: ', this.cache);
+            this.cacheExpiry = false;
+            resolve(this.cache);
+        } catch (ex) {
+            const fail = new Error('Error loading from localStorage: ' + ex);
+            console.error('Error loading from localStorage: ', e);
+            this.error(fail, reject);
+        }
+    }
+
+    // I don't understand how this is different from load() above yet, but I did it anyways...
+    async get(): Promise<Yabadaba> {
+        if ( this.isExpired() ) {
+            await this.load();
+        }
+        return this.cache;
+    }
     /**
      * Save the objects to the server.
      * @returns void
      */
-    save(items: Type): void {
-        localStorage.setItem(this.name, JSON.stringify(this._cache = items));
-        this.http.post(this.getEndpoint(), this._cache, {headers: this._headers}).subscribe({
+    save(items: Yabadaba): void {
+        // The act of setItem() will trigger the storage event in other tabs.
+        this.event.emit('save', items);
+        localStorage.setItem(this.name, JSON.stringify(this.cache = items));
+        const sub = this.http.post(this.endpoint, this.cache, {headers: this.headers}).subscribe({
             next: (i: unknown) => console.log('next:saved(): ', i),
-            complete: () => console.log('complete:saved()'),
+            complete: () => {
+                console.log('complete:saved()');
+                this.event.emit('saved');
+                sub.unsubscribe(); },
             error: (error: unknown) => console.error('Error saving: ', error),
         });
     }
 
+    /**
+     * Clear the cache and force a reload from the server.
+     */
+    flush(): void {
+        this.cache.length = 0;
+        this.cacheExpiry = true;
+    }
 }

@@ -15,8 +15,8 @@ export class YabaFilters {
                 filterTags.forEach((incomeTag) => {
                     if ( transaction.tags.includes(incomeTag.trim()) ) {
                         if ( !txnIds.includes(transaction.id) ) {
-                            result.push(transaction);
-                            txnIds.push(transaction.id);
+                            result.add(transaction);
+                            txnIds.add(transaction.id);
                         }
                     }
                 });

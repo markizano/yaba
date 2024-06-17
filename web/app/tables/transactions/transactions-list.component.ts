@@ -3,7 +3,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 
-import { TransactionHeaders } from 'app/lib/structures';
+import { TransactionShowHeaders } from 'app/lib/structures';
 import { Transactions, EditPlaceholder, Transaction, TransactionFilter, TxnSortHeader, ITransaction, TransactionFields } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 import { PaginationComponent } from 'app/controls/pagination.component';
@@ -38,7 +38,7 @@ export class TransactionsListComponent {
 
     // Decorators
     @Input() showPaginate: boolean;
-    @Input() txShow?: TransactionHeaders;
+    @Input() txShow?: TransactionShowHeaders;
 
     @Input() editable: boolean;
     @Input() withHeader: boolean;
@@ -97,12 +97,12 @@ export class TransactionsListComponent {
     refresh() {
         this.txns.clear();
         if ( this.showFilters ) {
-            this.txns.push(...this.transactions.getTransactions(this.filters));
+            this.txns.add(...this.transactions.getTransactions(this.filters));
         } else {
             if ( this.limit > -1 ) {
-                this.txns.push(...this.transactions.slice(0, this.limit));
+                this.txns.add(...this.transactions.slice(0, this.limit));
             } else {
-                this.txns.push(...this.transactions);
+                this.txns.add(...this.transactions);
             }
         }
     }

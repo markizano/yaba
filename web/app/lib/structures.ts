@@ -45,15 +45,6 @@ export const NULLDATE = new Date('1970-01-01T00:00:00');
  */
 export const CACHE_EXPIRY_SECONDS = 120;
 
-
-/**
- * @param {DateRange} DateRange Object to represent a range of dates.
- */
-export interface DateRange {
-    fromDate: Date;
-    toDate: Date;
-}
-
 /**
  * Description + Regexp Struct for sending description update change events.
  */
@@ -61,17 +52,6 @@ export interface DescriptionChange {
     description: string|RegExp;
     useRegexp: boolean;
 }
-
-/**
- * Special string array that represents a list of tags.
- * If we later want to expand on this, we can use this stub.
- */
-export class Tags extends Array<string> {}
-
-/**
- * NgSelectable Struct for rendering select contents.
- */
-export type NgSelectable<T> = { label: string, value: T };
 
 /**
  * enum(PayCycle). Set of key-value pairs of pay cycles.
@@ -105,7 +85,10 @@ export enum TransactionDeltas {
     days730 = 62208000000,
 }
 
-export interface TransactionHeaders {
+/**
+ * Used in settings and txn-list to determine which headers/columns to show.
+ */
+export interface TransactionShowHeaders {
     id: boolean;
     datePending: boolean;
     merchant: boolean;
@@ -157,7 +140,7 @@ export interface UserPreferences {
     expenseTags: string[];
     transferTags: string[];
     hideTags: string[];
-    txShow: TransactionHeaders;
+    txShow: TransactionShowHeaders;
     payCycle: PayCycle;
     txnDelta: TransactionDeltas;
 }
@@ -166,20 +149,20 @@ export interface UserPreferences {
  * Object to store settings and interfaces with the localStorage in order to accomplish this.
  */
 export class Settings implements UserPreferences {
-    public incomeTags: string[];
-    public expenseTags: string[];
-    public transferTags: string[];
-    public hideTags: string[];
-    public txShow: TransactionHeaders;
-    public payCycle: PayCycle;
-    public txnDelta: TransactionDeltas;
+    incomeTags: string[];
+    expenseTags: string[];
+    transferTags: string[];
+    hideTags: string[];
+    txShow: TransactionShowHeaders;
+    payCycle: PayCycle;
+    txnDelta: TransactionDeltas;
 
-    constructor(incomeTags?: string[], expenseTags?: string[], transferTags?: string[], hideTags?: string[], txShow?: TransactionHeaders, payCycle?: PayCycle, txnDelta?: TransactionDeltas) {
+    constructor(incomeTags?: string[], expenseTags?: string[], transferTags?: string[], hideTags?: string[], txShow?: TransactionShowHeaders, payCycle?: PayCycle, txnDelta?: TransactionDeltas) {
         this.incomeTags = incomeTags || [];
         this.expenseTags = expenseTags || [];
         this.transferTags = transferTags || [];
         this.hideTags = hideTags || [];
-        this.txShow = txShow || <TransactionHeaders>{};
+        this.txShow = txShow || <TransactionShowHeaders>{};
         this.payCycle = payCycle || PayCycle.Weekly;
         this.txnDelta = txnDelta || TransactionDeltas.days30;
     }
