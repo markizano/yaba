@@ -1,7 +1,8 @@
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import { Papa, ParseConfig, ParseResult } from 'ngx-papaparse';
-import { TransactionFields } from './transactions';
+import { TransactionFields } from 'app/lib/transactions';
+import { YabaPlural } from 'app/lib/types';
 
 /**
  * @enum MapTypes Valid mapping types. To later support function() types as well for things
@@ -68,7 +69,7 @@ export class InstitutionMappings extends Array<IMapping> {
      * @param  {...InstitutionMapping|object} items Items to push onto the array.
      * @returns Number of items in the current set/array.
      */
-    public override push(...items: IMapping[]|InstitutionMappings ): number {
+    public add(...items: IMapping[]|InstitutionMappings ): number {
         for ( const i in items ) {
             const item = items[i];
             item instanceof InstitutionMapping || (items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType));
@@ -161,7 +162,7 @@ export class Institution implements IInstitution {
      * @returns {Institution} Returns this object for chaining.
      */
     public addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): IInstitution {
-        this.mappings.push(new InstitutionMapping(fromField, toField, mapType));
+        this.mappings.add(new InstitutionMapping(fromField, toField, mapType));
         return this;
     }
 }
@@ -172,9 +173,15 @@ export class Institution implements IInstitution {
  * Ability to find objects by ID and Name.
  * More may come as we find additional use cases for a list/collection.
  */
-export class Institutions extends Array<Institution> {
+export class Institutions extends Array<Institution> implements YabaPlural<IInstitution> {
 
-    public override push(...items: Institution[]): number {
+    /**
+     * Add an institution to the list. If the item is not an instance of Institution, it will be coerced into one.
+     * @param items 
+     * @returns Updated number of items in the list.
+     */
+    add<I>(...items: I[]): number;
+    add(...items: Institution[]): number {
         for ( const i in items ) {
             const item: Institution = <IInstitution>items[i];
             items[i] instanceof Institution || (items[i] = new Institution(item.id, item.name, item.description, item.mappings));
@@ -182,29 +189,22 @@ export class Institutions extends Array<Institution> {
         return super.push(...items);
     }
 
-    public override unshift(...items: IInstitution[]): number {
-        for (const i in items) {
-            const item = <IInstitution>items[i];
-            item instanceof Institution || (items[i] = new Institution(item.id, item.name, item.description, item.mappings));
-        }
-        return super.unshift(...items);
-    }
-
     /**
      * Removes an item from this collection. Easier to understand than [].splice() since
-     * we are using the ID field.
-     * @param ID The ID field to remove.
+     * we are using the ID field. Edits the array in place.
+     * @param {IInstitution|string} ID The ID field to remove.
      * @returns New Mutated array no longer containing the transaction.
      *   returns itself if no action was taken.
      */
-    public remove(ID: IInstitution|string): Institutions {
+    remove(ID: IInstitution|string): Institutions {
+        const institutionId = (ID instanceof Institution)? ID.id: ID;
         for ( const i in this ) {
+            // Skip properties, only iterate over array indexes.
             if ( typeof i !== 'number' ) continue;
             const item = this[i];
-            if ( ID instanceof Institution && item.id == ID.id ) {
+            if ( item.id == institutionId ) {
                 this.splice(i, 1);
-            } else if (typeof ID === 'string' && item.id == ID) {
-                this.splice(i, 1);
+                break;
             }
         }
         return this;
@@ -214,8 +214,9 @@ export class Institutions extends Array<Institution> {
      * Remove all entries.
      * @return {void}
      */
-    clear(): void {
+    clear(): Institutions {
         this.length = 0;
+        return this;
     }
 
     /**
@@ -276,9 +277,9 @@ export class Institutions extends Array<Institution> {
                                 reject(parsedMappings.errors);
                                 return;
                             }
-                            this.push(...parsedInstitutions.data);
+                            this.add(...parsedInstitutions.data);
                             parsedMappings.data.forEach((mappings: CsvIMapping) =>
-                                (<IInstitution>this.byId(mappings.institutionId)).mappings.push({
+                                (<IInstitution>this.byId(mappings.institutionId)).mappings.add({
                                     fromField: mappings.fromField,
                                     toField: mappings.toField,
                                     mapType: mappings.mapType

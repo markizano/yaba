@@ -8,47 +8,45 @@ import { AccountComponent } from 'app/pages/accounts/account-detail/account.comp
 import { InstitutionsComponent } from 'app/pages/institutions/institutions.component';
 import { SettingsComponent } from 'app/pages/settings/settings.component';
 import { ChartsComponent } from 'app/pages/charts/charts.component';
+import { DebugComponent } from 'app/pages/debug/debug.component';
 
-export const routeConfig: Routes = [
-  {
+export const routeConfig: Routes = [{
     path: '',
     title: 'Home',
     component: HomeComponent,
-    children: [ ],
-  },
-  {
+    children: [],
+}, {
     path: 'budgeting',
     title: 'Budgeting',
     component: BudgetingComponent,
-  },
-  {
+}, {
     path: 'institutions',
     title: 'Institutions',
     component: InstitutionsComponent,
-  },
-  {
+}, {
     path: 'accounts',
     title: 'Accounts',
     component: AccountsComponent,
-  },
-  {
+}, {
     path: 'account/:id',
     title: 'Account Details',
     component: AccountComponent,
-  },
-  {
+}, {
     path: 'charts',
     title: 'Charts and Graphs',
     component: ChartsComponent,
-  },
-  {
+}, {
     path: 'settings',
     title: 'Settings',
     component: SettingsComponent,
-  },
-  { path: '**', redirectTo: '/' },
-];
-
+}, {
+    path: 'debug',
+    title: 'Debugging',
+    component: DebugComponent,
+}, {
+    path: '**',
+    redirectTo: '/'
+}];
 @NgModule({
   imports: [ RouterModule.forRoot(routeConfig) ],
   exports: [ RouterModule ],

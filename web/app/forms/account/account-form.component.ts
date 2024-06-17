@@ -2,7 +2,8 @@ import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angu
 
 import { AccountTypes, Account, InterestStrategy } from 'app/lib/accounts';
 import { Institution, Institutions } from 'app/lib/institutions';
-import { FormMode, NgSelectable } from 'app/lib/structures';
+import { FormMode } from 'app/lib/structures';
+import { NgSelectable } from 'app/lib/types';
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
 import { InstitutionsService } from 'app/services/institutions.service';
@@ -49,7 +50,7 @@ export class AccountFormComponent {
         this.interestStrategies = this.getInterestStrategies();
         this.institutionsService.load().then(
             (institutions: Institutions) => {
-                this.institutions.push(...institutions);
+                this.institutions.add(...institutions);
                 this.institutionIds = institutions.map((x: Institution) => ({ label: x.name, value: x }));
                 this.chgRef.detectChanges();
                 console.log('AccountFormComponent().ngOnInit().institutions: ', institutions);
@@ -69,19 +70,19 @@ export class AccountFormComponent {
     validate() {
         this.errors = [];
         if (!this.account.name) {
-            this.errors.push('Name is required.');
+            this.errors.add('Name is required.');
         }
         if (this.account.name.length > 64) {
-            this.errors.push('Name must be less than 64 characters.');
+            this.errors.add('Name must be less than 64 characters.');
         }
         if (this.account.description.length > 256) {
-            this.errors.push('Description must be less than 256 characters.');
+            this.errors.add('Description must be less than 256 characters.');
         }
         if (!this.account.institutionId) {
-            this.errors.push('Account must be associated with institution.');
+            this.errors.add('Account must be associated with institution.');
         }
         if (!this.account.accountType) {
-            this.errors.push('What kind of account is this?');
+            this.errors.add('What kind of account is this?');
         }
         return this.errors.length === 0;
     }

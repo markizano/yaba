@@ -3,7 +3,8 @@ import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from
 
 /* YABA Definitions */
 import { YabaAnimations } from 'app/lib/animations';
-import { FormMode, NgSelectable } from 'app/lib/structures';
+import { FormMode } from 'app/lib/structures';
+import { NgSelectable } from 'app/lib/types';
 import { IInstitution, Institution, InstitutionMappings, MapTypes } from 'app/lib/institutions';
 import { Transaction, TransactionFields } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
@@ -57,17 +58,17 @@ export class InstitutionFormComponent {
     validate(): boolean {
         this.errors = [];
         if ( ! this.institution ) {
-            this.errors.push('Institution is not set? This is a bug, please report it to the developers at support@markizano.net');
+            this.errors.add('Institution is not set? This is a bug, please report it to the developers at support@markizano.net');
             return false;
         }
         if ( ! this.institution.name ) {
-            this.errors.push('Name is required.');
+            this.errors.add('Name is required.');
         }
         if ( this.institution.name.length > 255 ) {
-            this.errors.push('Name must be less than 255 characters.');
+            this.errors.add('Name must be less than 255 characters.');
         }
         if ( this.institution.description.length > 255 ) {
-            this.errors.push('Description must be less than 255 characters.');
+            this.errors.add('Description must be less than 255 characters.');
         }
         return this.errors.length === 0;
     }

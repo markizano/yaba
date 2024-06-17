@@ -1,8 +1,8 @@
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
-import { ITransaction, TransactionFilter, Transactions } from './transactions';
-import { Tags } from './structures';
+import { ITransaction, TransactionFilter, Transactions } from 'app/lib/transactions';
+import { YabaPlural } from 'app/lib/types';
 
 /**
  * @enum {String} AccountTypes - Types of accounts for tracking.
@@ -105,7 +105,7 @@ export class Account implements IAccount {
         data.interestRate       && (this.interestRate = Number(data.interestRate));
         data.interestStrategy   && (this.interestStrategy = data.interestStrategy);
         if (  Object.hasOwn(data, 'transactions') && data.transactions instanceof Array ) {
-            this.transactions.push(...data.transactions);
+            this.transactions.add(...data.transactions);
         }
         return this;
     }
@@ -124,7 +124,7 @@ export class Account implements IAccount {
  * Allows for operations on a per-account basis.
  * Also allows for defining handy functions that we'd use as filters.
  */
-export class Accounts extends Array<Account> {
+export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
     constructor(...items: IAccount[]) {
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
@@ -142,7 +142,8 @@ export class Accounts extends Array<Account> {
      * @param  {...Account} items New Account(s) to add to this collection.
      * @returns {Number} Current number of items after adding.
      */
-    public override push(...items: IAccount[]): number {
+    add<A>(...items: A[]): number;
+    add(...items: Account[]): number {
         for ( const i in items ) {
             const item = new Account();
             items[i] instanceof Account || (items[i] = item.update(items[i]));
@@ -151,25 +152,12 @@ export class Accounts extends Array<Account> {
     }
 
     /**
-     * Override to Array.unshift().
-     * @param  {...Account} items New Account(s) to add to this collection.
-     * @returns {Number} Current number of items after adding.
-     */
-    public override unshift(...items: IAccount[]): number {
-        for (const i in items) {
-            const item = new Account();
-            items[i] instanceof Account || (items[i] = item.update(items[i]));
-        }
-        return super.unshift(...items);
-    }
-
-    /**
      * Removes an item from this collection. Easier to understand than [].splice() since
      * we are using the ID field.
      * @param {String} ID The ID field to remove.
      * @returns {Accounts} New Mutated array no longer containing the account.
      */
-    public remove(ID: IAccount|string): Accounts {
+    remove(ID: IAccount|string): Accounts {
         for ( const i in this ) {
             if ( typeof i !== 'number' ) continue;
             const item = this[i];
@@ -183,12 +171,21 @@ export class Accounts extends Array<Account> {
     }
 
     /**
+     * Remove all entries.
+     * @return {void}
+     */
+    clear(): Accounts {
+        this.length = 0;
+        return this;
+    }
+
+    /**
      * Gimmie this account by ID.
      * Since the ID is unique, this will only ever return 1 element.
      * @param {String} ID The account.id we want to find.
      * @returns {Account} The Account object by reference removed from the list.
      */
-    public byId(ID: string): Account|undefined {
+    byId(ID: string): Account|undefined {
         return this.filter((acct: IAccount) => acct.id == ID).shift();
     }
 
@@ -197,7 +194,7 @@ export class Accounts extends Array<Account> {
      * @param {String|Account} item Item to check against inclusion.
      * @returns {Boolean}
      */
-    public override includes(item: Account|string, fromIndex?: number|undefined): boolean {
+    override includes(item: Account|string, fromIndex?: number|undefined): boolean {
         let itemId: string;
         if ( item instanceof Account ) {
             itemId = item.id;
@@ -219,7 +216,7 @@ export class Accounts extends Array<Account> {
      * Gets the unique set of tags from the transactions of this account.
      * @returns {Array<String>} The list of tags from the transactions in this list.
      */
-    public getTags(): string[] {
+    getTags(): string[] {
         const txnWithTags = this.map((acct: Account) => acct.transactions.getTags()).flat().sort();
         return Array.from(new Set( txnWithTags ));
     }
@@ -235,7 +232,7 @@ export class Accounts extends Array<Account> {
      * @returns New list of transactions that match the search criteria.
      */
     public getTransactions(search: TransactionFilter): Transactions {
-        return this.selected(search.accounts).reduce((a: Transactions, b: IAccount) => {a.push(...b.transactions.getTransactions(search)); return a;}, new Transactions());
+        return this.selected(search.accounts).reduce((a: Transactions, b: IAccount) => {a.add(...b.transactions.getTransactions(search)); return a;}, new Transactions());
     }
 
     /**
@@ -277,7 +274,7 @@ export class Accounts extends Array<Account> {
         const papaOpts = { header: true, skipEmptyLines: true };
         const accountsCSV = await jszip.files['accounts.csv'].async('text');
         const parsedAccounts: Papa.ParseResult<IAccount> = Papa.parse(accountsCSV, papaOpts);
-        this.push(...parsedAccounts.data);
+        this.add(...parsedAccounts.data);
         for ( const account of this ) {
             await account.transactions.fromZIP(account.id, jszip);
             console.info(`> Parsed out ${account.transactions.length} transactions for account "${account.name}".`);

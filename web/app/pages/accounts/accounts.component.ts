@@ -40,7 +40,7 @@ export class AccountsComponent {
         // Load the accounts from the filesystem.
         console.log('AccountsComponent().ngOnInit()');
         this.accountsService.load().then((accounts: Accounts) => {
-            this.accounts.push(...accounts);
+            this.accounts.add(...accounts);
             this.accountsChange.emit(accounts);
             console.log('AccountsComponent().ngOnInit() loaded accounts: ', accounts);
         });
@@ -88,7 +88,7 @@ export class AccountsComponent {
      */
     save(account: Account): void {
         if ( this.formMode == FormMode.Create ) {
-            this.accounts.push(account);
+            this.accounts.add(account);
         }
         this.accountsChange.emit(this.accounts);
         this.formVisible = false;

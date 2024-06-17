@@ -2,9 +2,10 @@
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
-import { NULLDATE, Tags, TransactionDeltas, CurrencyType } from './structures';
-import { IAccount, Account, Accounts } from './accounts';
-import { IInstitution, InstitutionMappings, MapTypes, IMapping } from './institutions';
+import { NULLDATE, TransactionDeltas, CurrencyType } from 'app/lib/structures';
+import { IAccount, Account, Accounts } from 'app/lib/accounts';
+import { IInstitution, InstitutionMappings, MapTypes, IMapping } from 'app/lib/institutions';
+import { Tags, YabaPlural } from 'app/lib/types';
 
 /**
  * Annotation type for a transaction type.
@@ -43,11 +44,7 @@ export interface ITransaction {
 /**
  * Budget interface to define a budget.
  */
-export interface IBudget {
-    tag: string;
-    amount: number;
-}
-
+export type IBudget = { tag: string, amount: number };
 export type Budgets = IBudget[];
 
 /**
@@ -151,7 +148,7 @@ export class Transaction extends aTransaction implements ITransaction {
         this.tax = tax || 0.0;
         this.currency = currency || CurrencyType.USD;
         this.merchant = merchant || '';
-        this.tags = tags || new Tags();
+        this.tags = tags || <Tags>[];
     }
 
     /**
@@ -238,7 +235,7 @@ export class Transaction extends aTransaction implements ITransaction {
  * @param {ITransaction[]} items Items to initialize the array with.
  * @returns {Transactions} Array of transactions.
  */
-export class Transactions extends Array<Transaction> {
+export class Transactions extends Array<Transaction> implements YabaPlural<ITransaction> {
 
     constructor(...items: Transaction[]) {
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
@@ -259,7 +256,8 @@ export class Transactions extends Array<Transaction> {
      * @param  {...ITransaction} items 
      * @returns Number of items in the current set/array.
      */
-    public override push(...items: Transaction[]): number {
+    add<Txn>(...items: Txn[]): number;
+    add(...items: Transaction[]): number {
         for ( const i in items ) {
             const item = new Transaction();
             items[i] instanceof Transaction || (items[i] = item.update(items[i]));
@@ -318,7 +316,7 @@ export class Transactions extends Array<Transaction> {
      * @param ID The ID field to remove.
      * @returns New Mutated array no longer containing the transaction.
      */
-    public remove(ID: ITransaction|string): Transactions {
+    remove(ID: string|ITransaction): Transactions {
         for ( const i in this ) {
             if ( typeof i !== 'number' ) continue;
             const item = this[i];
@@ -334,7 +332,7 @@ export class Transactions extends Array<Transaction> {
     /**
      * Clears the set of transactions.
      */
-    public clear(): Transactions {
+    clear(): Transactions {
         this.length = 0;
         return this;
     }
@@ -378,7 +376,7 @@ export class Transactions extends Array<Transaction> {
         const papaOpts = { header: true, skipEmptyLines: true };
         const transactionCSV = await jszip.files[`transactions_${accountId}.csv`].async('text');
         const parsedTransactions = Papa.parse(transactionCSV, papaOpts);
-        this.push(...parsedTransactions.data.map(txn => {
+        this.add(...parsedTransactions.data.map(txn => {
             const result = new Transaction();
             result.update(<ITransaction>txn);
             return result;
@@ -493,7 +491,7 @@ export class Transactions extends Array<Transaction> {
      * @param {String} ID The transaction.id we want to find.
      * @returns {Transaction} The transaction object by reference.
      */
-    public byId(ID: string): ITransaction|undefined {
+    public byId(ID: string): Transaction|undefined {
         return this.filter(txn => txn.id == ID).shift() || undefined;
     }
 
@@ -813,7 +811,7 @@ export class Transactions extends Array<Transaction> {
                         `attached to account "${accountId}" on transaction "${transaction.id}".`);
                 }
             });
-            results.push( cannonical );
+            results.add( cannonical );
         });
         return results.sorted();
     }

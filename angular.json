@@ -32,7 +32,8 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "papaparse"
+                "papaparse",
+                "events"
             ]
           },
           "configurations": {
