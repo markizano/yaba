@@ -2,7 +2,7 @@
 <yaba-transaction-list
     [(transactions)]="transactions"
     [txShow]="txShow"
-    [filters]="filters"
-    [withTags]="false"
+    [withTags]="true"
+    [limit]="10"
 ></yaba-transaction-list>
-txn: {{ transactions.length }}
+
