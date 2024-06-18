@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { AccountsFilterComponent } from 'app/controls/account-filter.component';
 import { TransactionShowHeaders } from 'app/lib/structures';
 
-import { TransactionFilter, Transactions } from 'app/lib/transactions';
+import { Transactions } from 'app/lib/transactions';
 import { AccountsService } from 'app/services/accounts.service';
 import { TransactionsListComponent } from 'app/tables/transactions/transactions-list.component';
 
@@ -13,33 +13,30 @@ import { TransactionsListComponent } from 'app/tables/transactions/transactions-
         TransactionsListComponent,
         AccountsFilterComponent,
     ],
-    templateUrl: './debug.component.html',
+    templateUrl: './develop.component.html',
 })
-export class DebugComponent {
+export class DevelopComponent {
     transactions: Transactions;
-    filters: TransactionFilter;
     txShow: TransactionShowHeaders;
 
     constructor(protected accountsService: AccountsService) {
         this.transactions = new Transactions();
-        this.filters = <TransactionFilter>{};
         this.txShow = <TransactionShowHeaders>{
             id: false,
-            account: false,
+            account: true,
             datePending: false,
             merchant: false,
             transactionType: false,
-            tags: false,
         };
     }
 
     ngOnInit() {
-        console.log('DebugComponent ngOnInit()');
+        console.log('DevelopComponent ngOnInit()');
         this.accountsService.load().subscribe((accounts) => {
             this.transactions.clear();
-            console.log('DebugComponent().Accounts:', accounts);
-            this.transactions.add(...accounts.getTransactions(<TransactionFilter>{}));
-            console.log('DebugComponent().Transactions:', this.transactions);
+            // console.log('DevelopComponent().Accounts:', accounts);
+            this.transactions.add(...new Transactions( ...accounts.map(a => a.transactions).flat() ));
+            // console.log('DevelopComponent().Transactions:', this.transactions);
         });
     }
 

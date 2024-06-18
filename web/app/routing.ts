@@ -8,7 +8,7 @@ import { AccountComponent } from 'app/pages/accounts/account-detail/account.comp
 import { InstitutionsComponent } from 'app/pages/institutions/institutions.component';
 import { SettingsComponent } from 'app/pages/settings/settings.component';
 import { ChartsComponent } from 'app/pages/charts/charts.component';
-import { DebugComponent } from 'app/pages/debug/debug.component';
+import { DevelopComponent } from 'app/pages/develop/develop.component';
 
 export const routeConfig: Routes = [{
     path: '',
@@ -26,11 +26,16 @@ export const routeConfig: Routes = [{
 }, {
     path: 'accounts',
     title: 'Accounts',
-    component: AccountsComponent,
-}, {
-    path: 'account/:id',
-    title: 'Account Details',
-    component: AccountComponent,
+    children: [
+        {
+            path: '',
+            component: AccountsComponent
+        },
+        {
+            path: ':id',
+            component: AccountComponent,
+        }
+    ]
 }, {
     path: 'charts',
     title: 'Charts and Graphs',
@@ -40,9 +45,9 @@ export const routeConfig: Routes = [{
     title: 'Settings',
     component: SettingsComponent,
 }, {
-    path: 'debug',
+    path: 'develop',
     title: 'Debugging',
-    component: DebugComponent,
+    component: DevelopComponent,
 }, {
     path: '**',
     redirectTo: '/'
