@@ -4,6 +4,8 @@ import { Accounts, Account } from 'app/lib/accounts';
 import { FormMode } from 'app/lib/structures';
 import { AccountsService } from 'app/services/accounts.service';
 import { Router } from '@angular/router';
+import { EMPTY_TRANSACTION_FILTER, TransactionFilter } from 'app/lib/transactions';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-accounts',
@@ -11,7 +13,7 @@ import { Router } from '@angular/router';
 })
 export class AccountsComponent {
     // User feedback
-    error?: string;
+    errors: string[];
 
     // This really needs to be a service we can use to communicate with the filesystem.
     @Input() accounts: Accounts;
@@ -23,26 +25,33 @@ export class AccountsComponent {
     // Form controls.
     formVisible: boolean;
     formMode: FormMode;
+    filters: TransactionFilter;
 
-    // Access to class objects from within the templates.
-    Account: typeof Account = Account;
+    #accountUpdate: Subscription;
+    #cacheUpdate: Subscription;
 
     constructor( protected router: Router, protected accountsService: AccountsService) {
         console.log('new AccountsComponent()');
         this.accounts = new Accounts();
         this.account = new Account();
-        this.error = '';
+        this.errors = [];
         this.formVisible = false;
         this.formMode = FormMode.Create;
+        this.filters = EMPTY_TRANSACTION_FILTER;
+        this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
+        this.#accountUpdate = this.accountsChange.subscribe((accounts: Accounts) => {
+            this.accountsService.save(accounts);
+        });
+        this.#cacheUpdate = this.accountsService.subscribe((accounts) => {
+            this.accounts.add(...accounts);
+            console.log('AccountsComponent().ngOnInit() loaded accounts: ', accounts);
+        });
     }
 
-    ngOnInit() {
-        // Load the accounts from the filesystem.
-        console.log('AccountsComponent().ngOnInit()');
-        // this.accountsService.loaded((accounts: Accounts) => {
-        //     this.accounts.add(...accounts);
-        //     console.log('AccountsComponent().ngOnInit() loaded accounts: ', accounts);
-        // });
+    ngOnDestroy() {
+        console.log('AccountsComponent().ngOnDestroy()');
+        this.#accountUpdate.unsubscribe();
+        this.#cacheUpdate.unsubscribe();
     }
 
     /**
@@ -60,7 +69,7 @@ export class AccountsComponent {
     view(account: Account): void {
         // Navigate to the account route.
         const accountId = account instanceof Account ? account.id : account;
-        this.router.navigate(['/account', accountId]);
+        this.router.navigate(['/accounts', accountId]);
     }
 
     /**

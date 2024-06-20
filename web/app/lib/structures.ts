@@ -1,3 +1,5 @@
+import { TransactionShowHeaders } from "app/lib/types";
+
 declare global {
     interface Date {
         toISOShortDate(): string;
@@ -36,29 +38,6 @@ export function parseCurrency(value: string): number {
 }
 
 /**
- * @param {Date} NULLDATE Object we can use for NULL but also instanceof Date().
- */
-export const NULLDATE = new Date('1970-01-01T00:00:00');
-
-/**
- * @param {number} CACHE_EXPIRY_SECONDS Number of seconds before client-store cache expires.
- */
-export const CACHE_EXPIRY_SECONDS = 120;
-
-/**
- * @param {number} DEFAULT_DATERANGE Number of ms in the default date range. (90 days)
- */
-export const DEFAULT_DATERANGE = 90 * 24 * 60 * 60 * 1000;
-
-/**
- * Description + Regexp Struct for sending description update change events.
- */
-export interface DescriptionChange {
-    description: string|RegExp;
-    useRegexp: boolean;
-}
-
-/**
  * enum(PayCycle). Set of key-value pairs of pay cycles.
  */
 export enum PayCycle {
@@ -88,17 +67,6 @@ export enum TransactionDeltas {
     days180 = 15552000000,
     days365 = 31104000000,
     days730 = 62208000000,
-}
-
-/**
- * Used in settings and txn-list to determine which headers/columns to show.
- */
-export interface TransactionShowHeaders {
-    id: boolean;
-    datePending: boolean;
-    merchant: boolean;
-    account: boolean;
-    transactionType: boolean;
 }
 
 export enum CurrencyType {

@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
+
+import { PageTurn } from 'app/lib/types';
+
 
 @Component({
     selector: 'yaba-pagination',
@@ -12,12 +15,21 @@ import { NgSelectModule } from '@ng-select/ng-select';
 export class PaginationComponent {
     title = 'Pagination';
     @Input() itemCount = 0;
+    @Output() itemCountChange = new EventEmitter<number>(); // two-way bind to get the parent to notify this component when it updates.
     itemsPerPage = 10;
     offset = 0;
     page = 1;
     pageCount = 1;
+    pages: number[] = [];
+    @Output() turnPage = new EventEmitter<PageTurn>();
 
     constructor() {
+        this.itemCountChange.subscribe(() => {
+            this.refresh();
+        });
+    }
+
+    ngOnInit() {
         this.refresh();
     }
 
@@ -25,6 +37,8 @@ export class PaginationComponent {
         if ( $page < 0 || $page > this.pageCount -1 ) return;
         this.page = $page;
         this.offset = $page * this.itemsPerPage;
+        this.pages = Array.from(Array(this.pageCount).keys());
+        this.turnPage.emit({ page: this.page, offset: this.offset, itemsPerPage: this.itemsPerPage });
     }
 
     previous() {

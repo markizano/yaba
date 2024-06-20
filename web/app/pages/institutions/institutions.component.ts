@@ -18,26 +18,26 @@ export class InstitutionsComponent {
     // Form controls
     formVisible = false;
     formMode: FormMode = FormMode.Create;
-    #isub: Subscription;
+    #institutionChanges: Subscription;
+    #cacheUpdates: Subscription;
 
     // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
     constructor( protected institutionsService: InstitutionsService ) {
         this.institutions = new Institutions();
         this.institution = new Institution();
-        this.#isub = this.institutionsChange.subscribe((institutions: Institutions) => {
+        this.#cacheUpdates = this.institutionsService.subscribe((institutions) => {
+            console.log('Institutions loaded: ', institutions);
+            this.institutions.clear();
+            this.institutions.add(...institutions);
+        });
+        this.#institutionChanges = this.institutionsChange.subscribe((institutions: Institutions) => {
             this.institutionsService.save(institutions);
         });
     }
 
-    ngOnInit(): void {
-        // this.institutionsService.loaded((institutions) => {
-        //     console.log('Institutions loaded: ', institutions);
-        //     this.institutions.add(...institutions);
-        // });
-    }
-
     ngOnDestroy(): void {
-        this.#isub.unsubscribe();
+        this.#institutionChanges.unsubscribe();
+        this.#cacheUpdates.unsubscribe();
     }
 
     // user-clickable add button

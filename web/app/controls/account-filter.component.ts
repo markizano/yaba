@@ -6,6 +6,7 @@ import { NgSelectModule } from "@ng-select/ng-select";
 import { Account, Accounts } from "app/lib/accounts";
 import { AccountsService } from "app/services/accounts.service";
 import { NgSelectable } from "app/lib/types";
+import { Subscription } from "rxjs";
 /**
  * I needed a way to take a list of accounts and filter them by the end-user's selection.
  * This is a space or gap in the operation, a transitor of sorts, that will enable me to display a list of
@@ -25,17 +26,19 @@ export class AccountsFilterComponent {
     accounts: Accounts;
     selectable: NgSelectable<Account>[] = [];
     @Output() selectedAccounts: EventEmitter<Accounts> = new EventEmitter<Accounts>();
+    #cacheUpdate: Subscription;
 
     constructor(protected accountsService: AccountsService) {
         this.accounts = new Accounts();
-    }
-
-    ngOnInit() {
-        this.accountsService.load().subscribe((accounts: Accounts) => {
+        this.#cacheUpdate = this.accountsService.subscribe((accounts) => {
             this.accounts.add(...accounts);
             this.selectable = this.accounts.map((x: Account) => ({ label: x.name, value: x }));
             console.log('AccountsFilterComponent().selectable:', this.selectable);
         });
+    }
+
+    ngOnDestroy() {
+        this.#cacheUpdate.unsubscribe();
     }
 
     /**

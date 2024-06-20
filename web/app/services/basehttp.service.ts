@@ -1,11 +1,12 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { HostListener, Injectable } from "@angular/core";
-import { Observable, BehaviorSubject, of, shareReplay, retry, catchError } from 'rxjs';
+import { Observable, BehaviorSubject, of, shareReplay, retry, catchError, finalize, Observer, Subscription } from 'rxjs';
 import { Yabables } from 'app/lib/types';
-import { CACHE_EXPIRY_SECONDS } from 'app/lib/structures';
+import { CACHE_EXPIRY_SECONDS } from 'app/lib/constants';
 
 /**
  * This helped a lot in caching: https://borstch.com/blog/development/angulars-httpclient-caching-techniques
+ * 
  */
 @Injectable()
 export abstract class BaseHttpService<Yabadaba extends Yabables> {
@@ -39,7 +40,7 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
     abstract next (value: Yabadaba): void;
 
     constructor(protected http: HttpClient) {
-        console.log('new BaseHttpService()');
+        // console.log('new BaseHttpService()');
         this.cacheExpiry = true;
     }
 
@@ -74,47 +75,54 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
      */
     load(): Observable<Yabadaba> {
         // Loading items returns a promise so we can asynchronously process results.
-        console.debug('BaseHttpService.load(): ', this.isExpired());
+        // console.debug('BaseHttpService.load(): ', this.isExpired());
         if ( !this.isExpired() && this.cache.length > 0 ) {
-            console.log('cache-hit: ', this.cache);
+            // console.log('cache-hit: ', this.cache);
             return of(this.cache);
         }
-        console.log('cache-miss and not loading: ', this.cache);
+        // console.log('cache-miss and not loading: ', this.cache);
         if ( !this.request ) {
-            this.request = this.http.get<Yabadaba>(this.endpoint);
+            this.request = this.http.get<Yabadaba>(this.endpoint).pipe(
+                retry(0),
+                shareReplay(undefined, 5000),
+                catchError((err) => {
+                    console.warn('Error fetching data from the server:', err);
+                    console.log('Attempting to load from localStorage:', this.name);
+                    const data = localStorage.getItem(this.name);
+                    if (data) {
+                        const cache = <Yabadaba>JSON.parse(data);
+                        this.cacheSubject.next(cache);
+                    }
+                    return of(this.cache);
+                }),
+                finalize(() => {
+                    this.request = undefined;
+                })
+            );
         }
-        return this.request.pipe(
-            retry(0),
-            shareReplay(100, 1000),
-            catchError((err) => {
-                console.warn('Error fetching data from the server:', err);
-                console.log('Attempting to load from localStorage:', this.name);
-                const data = localStorage.getItem(this.name);
-                if (data) {
-                    const cache = <Yabadaba>JSON.parse(data);
-                    this.cacheSubject.next(cache);
-                }
-                return of(this.cache);
-            })
-        );
+        return this.request;
     }
 
     /**
      * Save the objects to the server.
-     * @returns void
+     * @returns {Observable<Yabadaba>} Fire and forget save post.
      */
     save(items: Yabadaba): Observable<Yabadaba> {
         // The act of setItem() will trigger the storage event in other tabs.
-        localStorage.setItem(this.name, JSON.stringify(this.cache = items));
+        this.cacheSubject.next(items);
+        localStorage.setItem(this.name, JSON.stringify(this.cache));
         return this.http.post<Yabadaba>(this.endpoint, this.cache, {headers: this.headers});
     }
 
-    onCachedUpdate(): Observable<Yabadaba> {
-        return this.cacheSubject.asObservable();
+    subscribe(subscription: Partial<Observer<Yabadaba>> | ((value: Yabadaba) => void)): Subscription {
+        return this.cacheSubject.asObservable().subscribe(subscription);
     }
 
-    get(): Yabadaba {
-        return this.cache;
+    /**
+     * Refresh the cache from the server.
+     */
+    refresh() {
+        this.load().subscribe((value) => this.cacheSubject.next(value));
     }
 
     /**

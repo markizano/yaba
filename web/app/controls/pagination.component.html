@@ -1,7 +1,7 @@
 <div class="pagination-wrapper"> <!-- (ngKeyDown)="keyNavigate($event)" -->
     <ul class="pagination">
       <li [ngClass]="{'disabled': page == 0}" (click)="previous()">&lt;&lt;</li>
-@for( p of [].constructor(pageCount); track p ) {
+@for( p of pages; track p ) {
         <li
             [ngClass]="{'active': page == p}"
             (click)="setPage(p)"
@@ -12,11 +12,11 @@
         <li [ngClass]="{'disabled': page > pageCount -1}" (click)="proximo()">&gt;&gt;</li>
     </ul>
     <label>Items per Page:</label>
-    <ng-select [(ngModel)]="itemsPerPage" (change)="refresh()">
-        <ng-option value="10" selected>10</ng-option>
-        <ng-option value="25">25</ng-option>
-        <ng-option value="50">50</ng-option>
-        <ng-option value="100">100</ng-option>
-    </ng-select>
+    <select [(ngModel)]="itemsPerPage" (change)="refresh()">
+        <option value="10" selected>10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+    </select>
     <label>Results: {{ itemCount }}</label>
 </div>

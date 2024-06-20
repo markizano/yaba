@@ -2,10 +2,11 @@
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
-import { NULLDATE, TransactionDeltas, CurrencyType } from 'app/lib/structures';
+import { NULLDATE, DEFAULT_DATERANGE } from 'app/lib/constants';
+import { TransactionDeltas, CurrencyType } from 'app/lib/structures';
 import { IAccount, Account, Accounts } from 'app/lib/accounts';
 import { IInstitution, InstitutionMappings, MapTypes, IMapping } from 'app/lib/institutions';
-import { Tags, YabaPlural } from 'app/lib/types';
+import { Tags, YabaPlural, PageTurn } from 'app/lib/types';
 
 /**
  * Annotation type for a transaction type.
@@ -58,16 +59,28 @@ export interface TxnSortHeader {
 /**
  * Transaction Filter structure that helps us collect and transmit txn filter data across components.
  */
-export interface TransactionFilter {
+export type TransactionFilter = {
     fromDate: Date;
     toDate: Date;
     description: string|RegExp;
     budgets: Budgets;
-    accounts: Account[]|Accounts;
+    accounts?: Account[]|Accounts;
     limit: number;
     tags?: Tags;
-    sort: TxnSortHeader
-}
+    sort: TxnSortHeader,
+    page: PageTurn,
+};
+
+export const EMPTY_TRANSACTION_FILTER = <TransactionFilter>{
+    fromDate: new Date(Date.now() - DEFAULT_DATERANGE),
+    toDate: new Date(),
+    description: '',
+    budgets: [],
+    accounts: [],
+    limit: -1,
+    sort: { column: 'datePosted', asc: true },
+    page: { page: 0, offset: 0, itemsPerPage: 10 },
+};
 
 /**
  * Placeholders for editing transactions.
@@ -126,7 +139,8 @@ export class Transaction extends aTransaction implements ITransaction {
     public merchant: string;
     public tags: Tags;
 
-    constructor(id?: string,
+    constructor(id?: ITransaction);
+    constructor(id?: string|ITransaction,
       accountId?: string,
       description?: string,
       datePending?: Date,
@@ -138,17 +152,31 @@ export class Transaction extends aTransaction implements ITransaction {
       merchant?: string,
       tags?: Tags) {
         super();
-        this.id = id || v4();
-        this.accountId = accountId || '';
-        this.description = description || '';
-        this.datePending = datePending || NULLDATE;
-        this.datePosted = datePosted || NULLDATE;
-        this.transactionType = transactionType || TransactionType.UNKNOWN;
-        this.amount = amount || 0.0;
-        this.tax = tax || 0.0;
-        this.currency = currency || CurrencyType.USD;
-        this.merchant = merchant || '';
-        this.tags = tags || <Tags>[];
+        if ( typeof id === "string" || typeof id === "undefined" ) {
+            this.id = id ?? v4();
+            this.accountId = accountId ?? '';
+            this.description = description ?? '';
+            this.datePending = datePending ?? NULLDATE;
+            this.datePosted = datePosted ?? NULLDATE;
+            this.transactionType = transactionType ?? TransactionType.UNKNOWN;
+            this.amount = amount ?? 0.0;
+            this.tax = tax || 0.0;
+            this.currency = currency ?? CurrencyType.USD;
+            this.merchant = merchant ?? '';
+            this.tags = tags || <Tags>[];
+       } else {
+            this.id = id.id;
+            this.accountId = id.accountId;
+            this.description = id.description;
+            this.datePending = id.datePending;
+            this.datePosted = id.datePosted;
+            this.transactionType = id.transactionType;
+            this.amount = id.amount;
+            this.tax = id.tax;
+            this.currency = id.currency;
+            this.merchant = id.merchant;
+            this.tags = id.tags;
+        }
     }
 
     /**
@@ -166,8 +194,8 @@ export class Transaction extends aTransaction implements ITransaction {
         data.currency           && (this.currency = data.currency);
         data.merchant           && (this.merchant = data.merchant);
         data.tags               && (this.tags = data.tags);
-        if ( data.datePending && data.datePending != NULLDATE ) this.datePending = data.datePending;
-        if ( data.datePosted  && data.datePosted  != NULLDATE ) this.datePosted  = data.datePosted;
+        if ( data.datePending && data.datePending != NULLDATE ) this.datePending = new Date(data.datePending);
+        if ( data.datePosted  && data.datePosted  != NULLDATE ) this.datePosted  = new Date(data.datePosted);
         return this;
     }
 
@@ -232,10 +260,10 @@ export class Transaction extends aTransaction implements ITransaction {
  * @constructor {Transactions} Array of transactions. Can be initialized with an array of transactions.
  *   If the array contains objects, they will be converted to Transaction objects.
  *   If the array contains Transaction objects, they will be left as is.
- * @param {ITransaction[]} items Items to initialize the array with.
+ * @param {Transaction[]} items Items to initialize the array with.
  * @returns {Transactions} Array of transactions.
  */
-export class Transactions extends Array<Transaction> implements YabaPlural<ITransaction> {
+export class Transactions extends Array<Transaction> implements YabaPlural<Transaction> {
 
     constructor(...items: Transaction[]) {
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
@@ -253,7 +281,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
 
     /**
      * Override of the push() function to ensure that each item added to the array is of type `Transaction`.
-     * @param  {...ITransaction} items 
+     * @param  {...Transaction} items 
      * @returns Number of items in the current set/array.
      */
     add(...items: Transaction[]): number {
@@ -287,7 +315,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
     public search(callback: Function, thisArg?: any): Transactions {
-        const overrideCallback = (value: ITransaction, index: number, txns: Transaction[]): boolean => {
+        const overrideCallback = (value: Transaction, index: number, txns: Transaction[]): boolean => {
             return callback(value, index, new Transactions(...txns));
         };
         return new Transactions(...this.filter(overrideCallback, thisArg));
@@ -303,7 +331,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
     public it(callback: Function, thisArg?: any): Transactions {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const overrideCallback = (value: ITransaction, index: number, txns: Transaction[]): any => {
+        const overrideCallback = (value: Transaction, index: number, txns: Transaction[]): any => {
             return callback(value, index, new Transactions(...txns));
         };
         return new Transactions(...this.map(overrideCallback, thisArg));
@@ -315,7 +343,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @param ID The ID field to remove.
      * @returns New Mutated array no longer containing the transaction.
      */
-    remove(ID: string|ITransaction): Transactions {
+    remove(ID: string|Transaction): Transactions {
         for ( const i in this ) {
             if ( typeof i !== 'number' ) continue;
             const item = this[i];
@@ -377,7 +405,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
         const parsedTransactions = Papa.parse(transactionCSV, papaOpts);
         this.add(...parsedTransactions.data.map(txn => {
             const result = new Transaction();
-            result.update(<ITransaction>txn);
+            result.update(<Transaction>txn);
             return result;
         }));
         return this;
@@ -406,9 +434,9 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @param {Transaction} txn The transaction for the filter iteration
      * @returns {Boolean} TRUE|FALSE based on if this txn is in the specified date range.
      */
-    public filterDaterange(txn: ITransaction, fromDate: Date, toDate: Date): boolean {
-        const recent = txn.datePosted.getTime() >= fromDate.getTime();
-        const older = txn.datePosted.getTime() <= toDate.getTime();
+    public filterDaterange(txn: Transaction, fromDate: Date, toDate: Date): boolean {
+        const recent = new Date(txn.datePosted).getTime() >= fromDate.getTime();
+        const older = new Date(txn.datePosted).getTime() <= toDate.getTime();
         return recent && older;
     }
 
@@ -418,7 +446,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @param {string|Account} accountId Account ID to filter against.
      * @returns {boolean} TRUE|FALSE if we find this in the description.
      */
-    public filterAccountId(txn: ITransaction, accountId: string|IAccount): boolean {
+    public filterAccountId(txn: Transaction, accountId: string|IAccount): boolean {
         return txn.accountId == (accountId instanceof Account? accountId.id: accountId);
     }
 
@@ -428,7 +456,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @param {string|Account} accountIds Account ID to filter against.
      * @returns {boolean} TRUE|FALSE if we find this in the description.
      */
-    public filterAccountIds(txn: ITransaction, accountIds: string[]|Accounts): boolean {
+    public filterAccountIds(txn: Transaction, accountIds: string[]|Accounts): boolean {
         return accountIds.includes(txn.accountId);
     }
 
@@ -438,7 +466,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @param {String|RegExp|undefined} description String description to filter against. Will match in .merchant or in .description.
      * @returns {Boolean} TRUE|FALSE if we find this in the description.
      */
-    public filterDescription(txn: ITransaction, description: string|RegExp): boolean {
+    public filterDescription(txn: Transaction, description: string|RegExp): boolean {
         // Assign as booleans to check if any in match.
         if ( description instanceof String ) {
             const inMerchant = txn.merchant.toLowerCase().indexOf(description.toLowerCase()) !== -1;
@@ -459,7 +487,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @param {String|undefined} tag The tag to match against.
      * @returns TRUE|FALSE for `this.filter()` use on if this tag exists on this transaction or not.
      */
-    public filterTag(txn: ITransaction, tag: string|undefined): boolean {
+    public filterTag(txn: Transaction, tag: string|undefined): boolean {
         return txn.tags.includes(tag || '');
     }
 
@@ -469,7 +497,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @param {Array<String>|undefined} tags The tags to match against.
      * @returns TRUE|FALSE for `this.filter()` use on if this tag exists on this transaction or not.
      */
-    public filterTags(txn: ITransaction, tags: string[]|undefined): boolean {
+    public filterTags(txn: Transaction, tags: string[]|undefined): boolean {
         return txn.tags.some((tag) => tags === undefined? true: tags.includes(tag || ''));
     }
 
@@ -481,7 +509,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @returns {Transactions}
      */
     public daterange(fromDate: Date, toDate: Date): Transactions {
-        return this.search((txn: ITransaction) => this.filterDaterange(txn, fromDate, toDate));
+        return this.search((txn: Transaction) => this.filterDaterange(txn, fromDate, toDate));
     }
 
     /**
@@ -577,7 +605,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      */
     public getBudgets(): IBudget[] {
         // Map each transaction to a {tag, amount} object.
-        const tag2amount = (t: ITransaction) => t.tags.map(tag => ({tag, amount: t.amount}) );
+        const tag2amount = (t: Transaction) => t.tags.map(tag => ({tag, amount: t.amount}) );
         // Sort by tag near the end of this operation.
         const sortByTags = (a: IBudget, b: IBudget) => a.tag.toLowerCase() > b.tag.toLowerCase()? 1: -1;
         // Reducer method for filtering out duplicates into a unique
@@ -652,7 +680,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @returns {Transactions} The sorted list of transactions by datePosted.
      */
     public sorted(asc=true): Transactions {
-        return this.sort((a: ITransaction, b: ITransaction) => asc ? b.datePosted.getTime() - a.datePosted.getTime(): a.datePosted.getTime() - b.datePosted.getTime());
+        return this.sort((a: Transaction, b: Transaction) => asc ? b.datePosted.getTime() - a.datePosted.getTime(): a.datePosted.getTime() - b.datePosted.getTime());
     }
 
     /**
@@ -664,10 +692,10 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
     // eslint-disable-next-line @typescript-eslint/no-inferrable-types
     public sortBy(key: TransactionFields, asc: boolean=true): Transactions {
         const result = <Transactions>this.concat();
-        result.sort((a: ITransaction, b: ITransaction): number => {
+        result.sort((a: Transaction, b: Transaction): number => {
             switch(true) {
                 case ['datePending', 'datePosted'].includes(key):
-                    return asc? (<Date>a[key]).getTime() - (<Date>b[key]).getTime(): (<Date>b[key]).getTime() - (<Date>a[key]).getTime();
+                    return asc? new Date(<Date>a[key]).getTime() - new Date(<Date>b[key]).getTime(): new Date(<Date>b[key]).getTime() - new Date(<Date>a[key]).getTime();
                 case ['amount'].includes(key):
                     return asc? (<number>a[key]) - (<number>b[key]): (<number>b[key]) - (<number>a[key]);
                 case ['accountId', 'description', 'merchant'].includes(key):
@@ -692,7 +720,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
             case 1:
                 return new TransactionGroup(...this);
             default:
-                return <TransactionGroup>this.sorted().reduce((monthGroups, txn: ITransaction) => monthGroups.append(txn as Transaction), new TransactionGroup());
+                return <TransactionGroup>this.sorted().reduce((monthGroups, txn: Transaction) => monthGroups.append(txn as Transaction), new TransactionGroup());
         }
     }
 
@@ -715,7 +743,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      * @returns {Transactions} List of transactions after filtering and limiting.
      */
     getTransactions(search: TransactionFilter): Transactions {
-        let result = this.search((txn: ITransaction) => {
+        let result = this.search((txn: Transaction) => {
             const tests = {
                 date: true,
                 description: false,
@@ -723,7 +751,9 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
             };
 
             /* DATES */
-            if ( search.fromDate && search.toDate && search.fromDate != NULLDATE && search.toDate != NULLDATE) {
+            if ( search.fromDate !== undefined && search.toDate !== undefined && search.fromDate != NULLDATE && search.toDate != NULLDATE) {
+                if (typeof search.fromDate == 'string') search.fromDate = new Date(search.fromDate);
+                if (typeof search.toDate == 'string') search.toDate = new Date(search.toDate);
                 tests.date = this.filterDaterange(txn, search.fromDate, search.toDate);
             }
 
@@ -761,6 +791,10 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
             result = result.sortBy(search.sort.column, search.sort.asc);
         }
 
+        if ( search.page && search.page.page > 0 ) {
+            result = <Transactions>result.slice(search.page.offset, search.page.itemsPerPage);
+        }
+
         if ( search.limit && search.limit > 0 ) {
             result = <Transactions>result.slice(0, search.limit);
         }
@@ -784,7 +818,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<ITran
      */
     static digest(institution: IInstitution, accountId: TransactionFields, transactions: Transactions): Transactions {
         const results = new Transactions(), mappings: InstitutionMappings = <InstitutionMappings>institution.mappings.concat();
-        transactions.map((transaction: ITransaction) => {
+        transactions.map((transaction: Transaction) => {
             const cannonical: Transaction = new Transaction();
             mappings.map((mapping: IMapping) => {
                 switch(mapping.mapType) {
@@ -993,17 +1027,12 @@ class TransactionGroup {
     /**
      * Orgnize the set of transactions by month as they are allocated.
      */
-    constructor(...args: ITransaction[]) {
+    constructor(...args: Transaction[]|Transactions|ITransaction[]) {
         if ( args.length > 0 && typeof args[0] != 'number' ) {
-            args.forEach((txns: ITransaction|ITransaction[], i: number) => {
-                if ( false === txns instanceof Transactions && false === txns instanceof Transaction) {
-                    throw new TypeError(`Argument ${i} must be Transaction() or Transactions(). Got ${txns.constructor.name}`);
-                }
-                if ( txns instanceof Transaction ) {
-                    txns = new Transactions(txns);
-                }
-                this.append(...<Array<Transaction>>txns);
-            });
+            // coerce the type on each entity coming in.
+            this.append(
+                ...args.map((_txn: Transaction|ITransaction) => new Transaction(_txn))
+            );
         }
     }
 
@@ -1013,7 +1042,7 @@ class TransactionGroup {
      * @returns {TransactionGroup} This object for chaining.
      */
     append(...txns: Transaction[]|Transactions): TransactionGroup {
-        txns.forEach((txn: ITransaction) => {
+        txns.forEach((txn: Transaction) => {
             const yyyymm: string = (<Transaction>txn).YYYYMM();
             if ( ! Object.hasOwn(this, yyyymm) ) {
                 Object.defineProperty(this, yyyymm, { value: new Transactions(), enumerable: true });

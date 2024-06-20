@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { MatChipInputEvent, MatChipEvent, MatChipEditedEvent } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { PayCycle, TransactionDeltas, TransactionShowHeaders } from 'app/lib/structures';
+import { PayCycle, TransactionDeltas } from 'app/lib/structures';
+import { TransactionShowHeaders } from 'app/lib/types';
 
 @Component({
   selector: 'yaba-settings',

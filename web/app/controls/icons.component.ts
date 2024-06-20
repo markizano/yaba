@@ -1,5 +1,5 @@
 
-import { Component, Directive, HostListener, Injectable } from '@angular/core';
+import { Component, Directive, HostListener, Injectable, Input } from '@angular/core';
 
 @Injectable()
 abstract class IconBaseComponent {
@@ -76,3 +76,12 @@ export class TrashComponent extends IconBaseComponent { }
   template: '',
 })
 export class SettingsComponent extends IconBaseComponent { }
+
+@Component({
+    selector: 'errors',
+    template: '<div class="errors">@for(error of errors; track error) { <p>{{ error }} </p> }</div>',
+})
+export class ErrorsDisplayComponent {
+    @Input() errors: string[] = [];
+}
+  
