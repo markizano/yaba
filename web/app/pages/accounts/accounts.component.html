@@ -9,7 +9,7 @@
     <div class="account yaba-item">
         <figcaption>
             <div>
-                <h2 class="title md-truncate"><a [routerLink]="['/account', account.id]">{{account.name}}</a></h2>
+                <h2 class="title md-truncate"><a [routerLink]="['/accounts', account.id]">{{account.name}}</a></h2>
                 <div class="account-balance">{{ account.balance() | currency }}</div>
             </div>
             <actions>
@@ -19,18 +19,19 @@
             </actions>
         </figcaption>
         <yaba-transaction-list
-            [(transactions)]="account.transactions"
+            [transactions]="account.transactions"
             [showFilters]="false"
+            [filters]="filters"
             [withTags]="false"
             [editable]="false"
             [limit]="5"
             [showPaginate]="false"
             class="dropfile"
         ></yaba-transaction-list>
-        <span>txns: {{ account.transactions.length }}</span>
     </div>
 }
     </div>
+    <errors [errors]="errors"></errors>
     <yaba-account-form
       [(account)]="account"
       [(formMode)]="formMode"

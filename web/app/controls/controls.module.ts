@@ -29,6 +29,7 @@ import {
   SaveComponent,
   SettingsComponent,
   TrashComponent,
+  ErrorsDisplayComponent,
 } from 'app/controls/icons.component';
 
 import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
@@ -44,6 +45,7 @@ const components = [
   SaveComponent,
   SettingsComponent,
   TrashComponent,
+  ErrorsDisplayComponent,
   YabaDropFileDirective,
 ];
 

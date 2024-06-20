@@ -1,7 +1,11 @@
 <div class="transaction-list-wrapper">
+    <!-- <div class="debug">
+        Filters: {{ filtation() }}<br />
+        Transactions: {{ transactions.length }}<br />
+        Txns: {{ txns.length }}<br />
+    </div> -->
 @if ( showFilters ){ <transaction-filters [(filter)]="filters" (filterChange)="refresh()"></transaction-filters> }
-Transactions: {{ transactions.length }}
-@if ( transactions.length > 0){
+@if ( txns.length > 0){
     <table class="data item-list" [ngClass]="editable ? 'editable': ''">
     @if ( withHeader ) {
         <thead>
@@ -19,7 +23,7 @@ Transactions: {{ transactions.length }}
         </thead>
     }
         <tbody>
-    @for(txn of transactions; track txn.id) {
+    @for(txn of txns; track txn.id) {
         <tr>
             @if (txShow?.id) {<td> <span class="md-truncate"> {{ txn.id }} </span> </td>}
             @if (txShow?.datePending) {<td [(txnEdit)]="currentlyEditing.datePending" [ngSwitch]="currentlyEditing.datePending">
@@ -100,7 +104,6 @@ Transactions: {{ transactions.length }}
                           <mat-chip-row
                             (removed)="removeTag(txn, $event)"
                             [editable]="true"
-                            (changed)="save()"
                             [aria-description]="'press enter to edit tag'">
                             <span [textContent]="tag"></span>
                             <button matChipRemove [attr.aria-label]="'remove tag'">
@@ -121,9 +124,5 @@ Transactions: {{ transactions.length }}
         </tbody>
     </table>
 }
-    @if ( showPaginate && txns.length > 10 ){ <yaba-pagination [itemCount]="txns.length"></yaba-pagination> }
-    <!-- <debug>
-        txn.length: <span [textContent]="txns.length"></span>
-        limit: <span [textContent]="limit"></span>
-    </debug> -->
+    @if ( showPaginate && txns.length > 10 ){ <yaba-pagination [(itemCount)]="txns.length" (turnPage)="turnPage($event)"></yaba-pagination> }
 </div>

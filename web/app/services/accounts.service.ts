@@ -12,14 +12,15 @@ export class AccountsService extends BaseHttpService<Accounts> {
     readonly name = 'accounts';
     readonly endpoint = '/api/accounts';
     cache: Accounts;
-    override cacheSubject: BehaviorSubject<Accounts>;
+    cacheSubject: BehaviorSubject<Accounts>;
 
     constructor(http: HttpClient) {
         super(http);
         this.cache = new Accounts();
         this.cacheSubject = new BehaviorSubject<Accounts>(this.cache);
-        console.log('new AccountsService()');
         this.cacheSubject.subscribe((value) => this.next(value));
+        this.load().subscribe((value) => this.cacheSubject.next(value));
+        console.log('new AccountsService()');
     }
 
     next(value: Accounts): void {

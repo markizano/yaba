@@ -1,19 +1,18 @@
 <div id="account-detail" ng-controller="account" class="controller">
     <h2 class="title">{{ account.name }}</h2>
-    <p>Balance: <span>{{ account.balance() | currency }}</span></p>
-    <p>Account Type: <span>{{ account.accountType }}</span></p>
-    <p>Number: <span>{{ account.number }}</span></p>
-    <p>Routing: <span>{{ account.routing }}</span></p>
-    <p>Interest Rate: <span>{{ account.interestRate }} ( {{ account.interestStrategy }} )</span></p>
+    <p><b>Balance</b>: <span>{{ account.balance() | currency }}</span></p>
+    <p><b>Account Type</b>: <span>{{ account.accountType }}</span></p>
+    <p><b>Interest Rate</b>: <span>{{ account.interestRate }} ( {{ account.interestStrategy }} )</span></p>
     <p>{{ account.description }}</p>
     <yaba-transaction-list
         [(transactions)]="account.transactions"
-        [showFilters]="false"
-        [withTags]="false"
-        [editable]="false"
+        [showFilters]="true"
+        [filters]="filters"
+        [withTags]="true"
+        [editable]="true"
         [withHeader]="true"
         [showPaginate]="true"
         class="dropfile detail"
     ></yaba-transaction-list>
-    <div class="errors">@for(error of errors; track error) { <p>{{error}}</p> }</div>
+    <errors [errors]="errors"></errors>
 </div>

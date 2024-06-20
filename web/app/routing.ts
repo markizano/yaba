@@ -4,7 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from 'app/pages/home/home.component';
 import { BudgetingComponent } from 'app/pages/budgeting/budgeting.component';
 import { AccountsComponent } from 'app/pages/accounts/accounts.component';
-import { AccountComponent } from 'app/pages/accounts/account-detail/account.component';
+import { AccountDetailComponent } from 'app/pages/accounts/account-detail/account.component';
 import { InstitutionsComponent } from 'app/pages/institutions/institutions.component';
 import { SettingsComponent } from 'app/pages/settings/settings.component';
 import { ChartsComponent } from 'app/pages/charts/charts.component';
@@ -33,7 +33,7 @@ export const routeConfig: Routes = [{
         },
         {
             path: ':id',
-            component: AccountComponent,
+            component: AccountDetailComponent,
         }
     ]
 }, {

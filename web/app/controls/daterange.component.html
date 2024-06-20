@@ -2,10 +2,10 @@
     <div class="from-date-wrapper date-input-wrapper">
         <input
           type="date"
-          [(ngModel)]="fromDate"
-          (ngModelChange)="changed()"
+          [ngModel]="fromDate | date:'yyyy-MM-dd'"
+          (ngModelChange)="fromDateChange.emit($event)"
           placeholder="From Date"
-          class="from-date"
+          class="from-date date-input"
           name="fromDate"
         />
     </div>
@@ -13,10 +13,10 @@
     <div class="to-date-wrapper date-input-wrapper">
         <input
             type="date"
-            [(ngModel)]="toDate"
-            (ngModelChange)="changed()"
+            [ngModel]="toDate | date:'yyyy-MM-dd'"
+            (ngModelChange)="toDateChange.emit($event)"
             placeholder="To Date"
-            class="to-date"
+            class="to-date date-input"
             name="toDate"
         />
     </div>

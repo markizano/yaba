@@ -12,14 +12,15 @@ export class InstitutionsService extends BaseHttpService<Institutions> {
     readonly name = 'institutions';
     readonly endpoint = '/api/institutions';
     cache: Institutions;
-    override cacheSubject: BehaviorSubject<Institutions>;
+    cacheSubject: BehaviorSubject<Institutions>;
 
     constructor(http: HttpClient) {
         super(http);
         this.cache = new Institutions();
         this.cacheSubject = new BehaviorSubject<Institutions>(this.cache);
-        console.log('new InstitutionsService()');
         this.cacheSubject.subscribe((value) => this.next(value));
+        this.load().subscribe((value) => this.cacheSubject.next(value));
+        console.log('new InstitutionsService()');
     }
 
     next(value: Institutions): void {
