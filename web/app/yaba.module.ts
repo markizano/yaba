@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { YabaRoutingModule } from 'app/routing';
 import { YabaComponent } from 'app/yaba.component';
@@ -22,6 +23,7 @@ import { ControlsModule } from 'app/controls/controls.module';
   imports: [
     // Angular Modules and needs.
     BrowserModule,
+    BrowserAnimationsModule,
 
     // Yaba Modules and global standalone components.
     YabaRoutingModule,

@@ -19,13 +19,12 @@
             </actions>
         </figcaption>
         <yaba-transaction-list
-            [transactions]="account.transactions"
-            [showFilters]="false"
+            [transactions]="account.transactions.sample()"
             [filters]="filters"
-            [withTags]="false"
-            [editable]="false"
-            [limit]="5"
+            [showFilters]="false"
+            [showTags]="false"
             [showPaginate]="false"
+            [editable]="false"
             class="dropfile"
         ></yaba-transaction-list>
     </div>

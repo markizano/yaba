@@ -48,7 +48,7 @@ export type DescriptionChange = {
 /**
  * Event structure communicated across the pagination component.
  */
-export type PageTurn = { page: number, offset: number, itemsPerPage: number };
+export type Paginatable = { page: number, offset: number, itemsPerPage: number };
 
 /**
  * Used in settings and txn-list to determine which headers/columns to show.
@@ -56,9 +56,9 @@ export type PageTurn = { page: number, offset: number, itemsPerPage: number };
 export type TransactionShowHeaders = {
     id: boolean;
     datePending: boolean;
-    merchant: boolean;
     account: boolean;
     transactionType: boolean;
+    merchant: boolean;
 };
 
 

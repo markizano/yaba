@@ -12,7 +12,7 @@ import { Description } from 'app/lib/types';
 
 })
 export class DescriptionFilterComponent {
-    @Input() description: Description;
+    @Input() description?: Description;
     @Output() descriptionChange = new EventEmitter<Description>();
     useRegexp: boolean;
 

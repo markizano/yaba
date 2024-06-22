@@ -2,5 +2,5 @@
     <yaba-daterange (changed)="daterange($event)" [(fromDate)]="filter.fromDate" [(toDate)]="filter.toDate"></yaba-daterange>
     @if ( filterByAccount ) {<yaba-accounts (selectedAccounts)="accounts($event)"></yaba-accounts>}
     <yaba-description (changed)="description($event)" [(description)]="filter.description"></yaba-description>
-    <yaba-budgets (selectedBudgets)="budgets($event)" ></yaba-budgets>
+    <yaba-budgets [transactions]="transactions" (selectedBudgets)="budgets($event)" ></yaba-budgets>
 </div>

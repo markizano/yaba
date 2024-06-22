@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { HostListener, Injectable } from "@angular/core";
-import { Observable, BehaviorSubject, of, shareReplay, retry, catchError, finalize, Observer, Subscription } from 'rxjs';
+import { EventEmitter, HostListener, Injectable } from "@angular/core";
+import { Observable, of, shareReplay, retry, Observer, Subscription } from 'rxjs';
 import { Yabables } from 'app/lib/types';
 import { CACHE_EXPIRY_SECONDS } from 'app/lib/constants';
 
@@ -17,12 +17,12 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
     /**
      * The cached items from the server or localStorage.
      */
-    abstract cache: Yabadaba;
+    protected abstract cache: Yabadaba;
 
     /**
      * The cacheSubject is used to notify subscribers of changes to the cache.
      */
-    abstract cacheSubject: BehaviorSubject<Yabadaba>;
+    protected abstract cacheSubject: EventEmitter<Yabadaba>;
 
     /**
      * The name of the service. Please keep this r'[a-z0-9_\-]+' so we can use it as a localStorage key.
@@ -81,26 +81,26 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
             return of(this.cache);
         }
         // console.log('cache-miss and not loading: ', this.cache);
-        if ( !this.request ) {
-            this.request = this.http.get<Yabadaba>(this.endpoint).pipe(
-                retry(0),
-                shareReplay(undefined, 5000),
-                catchError((err) => {
-                    console.warn('Error fetching data from the server:', err);
-                    console.log('Attempting to load from localStorage:', this.name);
-                    const data = localStorage.getItem(this.name);
-                    if (data) {
-                        const cache = <Yabadaba>JSON.parse(data);
-                        this.cacheSubject.next(cache);
-                    }
-                    return of(this.cache);
-                }),
-                finalize(() => {
-                    this.request = undefined;
-                })
-            );
-        }
-        return this.request;
+        const error = (err: unknown) => {
+            console.warn('Error fetching data from the server:', err);
+            try {
+                console.log('Attempting to load from localStorage:', this.name);
+                const data = localStorage.getItem(this.name);
+                if (data) {
+                    const cache = JSON.parse(data);
+                    console.log('Loaded from localStorage:', this.name, cache)
+                    this.next(<Yabadaba>cache);
+                }
+            } catch(e) {
+                console.error('Error loading from localStorage:', e);
+            }
+            return of(this.cache);
+        };
+        const sub: Subscription = this.http.get<Yabadaba>(this.endpoint).pipe(
+            retry(0),
+            shareReplay(undefined, 5000),
+        ).subscribe({next: (value) => this.next(value), error, complete: () => sub.unsubscribe()});
+        return of(this.cache);
     }
 
     /**
@@ -109,7 +109,7 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
      */
     save(items: Yabadaba): Observable<Yabadaba> {
         // The act of setItem() will trigger the storage event in other tabs.
-        this.cacheSubject.next(items);
+        this.next(items);
         localStorage.setItem(this.name, JSON.stringify(this.cache));
         return this.http.post<Yabadaba>(this.endpoint, this.cache, {headers: this.headers});
     }
@@ -122,7 +122,7 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
      * Refresh the cache from the server.
      */
     refresh() {
-        this.load().subscribe((value) => this.cacheSubject.next(value));
+        this.load().subscribe((value) => this.next(value));
     }
 
     /**
@@ -131,5 +131,12 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
     flush(): void {
         this.cache.length = 0;
         this.cacheExpiry = true;
+    }
+
+    /**
+     * Run me inside a subscribe function to get the last cached object.
+     */
+    get(): Yabadaba {
+        return this.cache;
     }
 }

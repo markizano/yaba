@@ -1,9 +1,28 @@
-<h1>DEBUGGING!</h1>
+<h1>DEBUGGING!</h1><br />
+<div>
+    <label>Filters: <input type="checkbox" name="showFilters" #showFilters /></label> |
+    <label>Editable: <input type="checkbox" name="editable" #editable /></label> |
+    <label>Tags: <input type="checkbox" name="showTags" #showTags /></label> |
+    <label>Paginate: <input type="checkbox" name="showPaginate" #showPaginate /> </label> |
+    <label>Header: <input type="checkbox" name="showHeader" #showHeader checked /> </label> |
+    <br />
+    <p>
+        Fields: 
+        ID: <input type="checkbox" name="txShow_id" [(ngModel)]="txShow.id" /> |
+        Date: <input type="checkbox" name="txShow_date" [(ngModel)]="txShow.datePending" /> |
+        Account: <input type="checkbox" name="txShow_account" [(ngModel)]="txShow.account" /> |
+        Merchant: <input type="checkbox" name="txShow_merchant" [(ngModel)]="txShow.merchant" /> |
+        Type: <input type="checkbox" name="txShow_type" [(ngModel)]="txShow.transactionType" /> |
+    </p>
+</div>
 <yaba-transaction-list
     [(transactions)]="transactions"
     [txShow]="txShow"
     [filters]="filters"
-    [showPaginate]="true"
-    [withTags]="true"
+    [showFilters]="showFilters.checked"
+    [showHeader]="showHeader.checked"
+    [showPaginate]="showPaginate.checked"
+    [showTags]="showTags.checked"
+    [editable]="editable.checked"
 ></yaba-transaction-list>
 

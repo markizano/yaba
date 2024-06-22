@@ -4,11 +4,11 @@
         [items]="budgets"
         [multiple]="true"
         [closeOnSelect]="false"
-        [searchable]="false"
+        [searchable]="true"
         [clearable]="true"
-        [hideSelected]="false"
-        [placeholder]="'Select budgets'"
+        [hideSelected]="true"
         (ngModelChange)="changed($event)"
+        placeholder="Select budgets"
         class="budget-list"
     ></ng-select>
 </div>

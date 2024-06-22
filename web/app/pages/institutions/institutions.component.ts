@@ -28,10 +28,12 @@ export class InstitutionsComponent {
         this.#cacheUpdates = this.institutionsService.subscribe((institutions) => {
             console.log('Institutions loaded: ', institutions);
             this.institutions.clear();
-            this.institutions.add(...institutions);
+            this.institutions.add(...this.institutionsService.get());
         });
         this.#institutionChanges = this.institutionsChange.subscribe((institutions: Institutions) => {
-            this.institutionsService.save(institutions);
+            this.institutionsService.save(institutions).subscribe((response) => {
+                console.log('Institutions saved: ', response);
+            });
         });
     }
 
