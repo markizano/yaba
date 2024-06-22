@@ -4,10 +4,10 @@
         Transactions: {{ transactions.length }}<br />
         Txns: {{ txns.length }}<br />
     </div> -->
-@if ( showFilters ){ <transaction-filters [(filter)]="filters" (filterChange)="refresh()"></transaction-filters> }
-@if ( txns.length > 0){
+@if ( showFilters ){ <transaction-filters [transactions]="txns" [(filter)]="filters"></transaction-filters> }
+@if ( txns.length > 0) {
     <table class="data item-list" [ngClass]="editable ? 'editable': ''">
-    @if ( withHeader ) {
+    @if ( showHeader ) {
         <thead>
             <tr>
         @if ( txShow?.id )              {<th>Transaction ID</th>}
@@ -18,7 +18,7 @@
         <!-- Always show desc. -->       <th (click)="sortBy('description');">Description</th>
         @if ( txShow?.merchant )        {<th (click)="sortBy('merchant');">Merchant</th>}
         @if ( txShow?.transactionType ) {<th>Transaction Type</th>}
-        @if ( withTags )                {<th>Budgets</th>}
+        @if ( showTags )                {<th>Budgets</th>}
             </tr>
         </thead>
     }
@@ -65,7 +65,7 @@
             </td>
             <td [(txnEdit)]="currentlyEditing.description" [ngSwitch]="currentlyEditing.description">
                 <!-- md-truncate has failed me here! :sob: -->
-                <span *ngSwitchCase="false" class="md-truncate"> {{ limit == -1 ? txn.description: txn.description.slice(0, 30) + (txn.description.length > 30? '...': '') }} </span>
+                <span *ngSwitchCase="false" class="md-truncate"> {{ txn.description }} </span>
                 <span *ngSwitchCase="true">
                     <input
                     type="text"
@@ -97,7 +97,7 @@
                     />
                 </span>
             </td>}
-            @if ( withTags ) {<td [(txnEdit)]="currentlyEditing.tags" [ngSwitch]="currentlyEditing.tags">
+            @if ( showTags ) {<td [(txnEdit)]="currentlyEditing.tags" [ngSwitch]="currentlyEditing.tags">
                 <span *ngSwitchCase="false"> {{ txn.tags.join(", ") }} </span>
                 <span *ngSwitchCase="true">
                     <mat-chip-grid #chipGrid aria-label="Enter hidden tags" *ngFor="let tag of txn.tags; track tag">
@@ -124,5 +124,12 @@
         </tbody>
     </table>
 }
-    @if ( showPaginate && txns.length > 10 ){ <yaba-pagination [(itemCount)]="txns.length" (turnPage)="turnPage($event)"></yaba-pagination> }
+@if ( showPaginate && transactions.length > 10 ){
+    <mat-paginator 
+        (page)="turnPage($event)"
+        [length]="transactions.length"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+    ></mat-paginator>
+}
 </div>

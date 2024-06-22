@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Account } from 'app/lib/accounts';
+import { Account, Accounts } from 'app/lib/accounts';
 import { EMPTY_TRANSACTION_FILTER, TransactionFilter } from 'app/lib/transactions';
 import { TransactionShowHeaders } from 'app/lib/types';
 import { AccountsService } from 'app/services/accounts.service';
@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 })
 export class AccountDetailComponent {
     @Input() id: string;
+    accounts: Accounts;
     account: Account;
     filters: TransactionFilter;
     txShow: TransactionShowHeaders;
@@ -25,6 +26,7 @@ export class AccountDetailComponent {
     constructor(protected router: Router, protected accountsService: AccountsService) {
         console.log('AccountDetailComponent constructor');
         this.id = this.router.url.split('/').pop() ?? '';
+        this.accounts = new Accounts();
         this.account = new Account();
         this.filters = EMPTY_TRANSACTION_FILTER;
         this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
@@ -36,10 +38,13 @@ export class AccountDetailComponent {
             merchant: true,
             transactionType: true
         };
-        this.#cacheUpdate = this.accountsService.subscribe((accounts) => {
+        this.#cacheUpdate = this.accountsService.subscribe((accounts: Accounts) => {
+            this.errors.length = 0;
             console.log('AccountDetailComponent().accountsService.subscribe() loaded accounts: ', accounts);
+            this.accounts.clear();
+            this.accounts.add(...accounts);
             try {
-                const account = accounts.byId(this.id);
+                const account = this.accounts.byId(this.id);
                 if ( account ) {
                     console.log('AccountDetailComponent() ngOnInit() found account: ', account);
                     this.account.update(account);

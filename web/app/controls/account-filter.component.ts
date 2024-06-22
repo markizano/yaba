@@ -18,7 +18,6 @@ import { Subscription } from "rxjs";
 @Component({
     selector: 'yaba-accounts',
     templateUrl: './account-filter.component.html',
-    styles: [ ],
     standalone: true,
     imports: [ CommonModule, FormsModule, NgSelectModule ],
 })
@@ -26,19 +25,22 @@ export class AccountsFilterComponent {
     accounts: Accounts;
     selectable: NgSelectable<Account>[] = [];
     @Output() selectedAccounts: EventEmitter<Accounts> = new EventEmitter<Accounts>();
-    #cacheUpdate: Subscription;
+    #cacheUpdate?: Subscription;
 
     constructor(protected accountsService: AccountsService) {
         this.accounts = new Accounts();
+    }
+
+    ngOnInit() {
         this.#cacheUpdate = this.accountsService.subscribe((accounts) => {
-            this.accounts.add(...accounts);
+            this.accounts = new Accounts(...accounts);
             this.selectable = this.accounts.map((x: Account) => ({ label: x.name, value: x }));
             console.log('AccountsFilterComponent().selectable:', this.selectable);
         });
     }
 
     ngOnDestroy() {
-        this.#cacheUpdate.unsubscribe();
+        this.#cacheUpdate?.unsubscribe();
     }
 
     /**

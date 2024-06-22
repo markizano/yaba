@@ -6,7 +6,8 @@ import { NULLDATE, DEFAULT_DATERANGE } from 'app/lib/constants';
 import { TransactionDeltas, CurrencyType } from 'app/lib/structures';
 import { IAccount, Account, Accounts } from 'app/lib/accounts';
 import { IInstitution, InstitutionMappings, MapTypes, IMapping } from 'app/lib/institutions';
-import { Tags, YabaPlural, PageTurn } from 'app/lib/types';
+import { Description, Tags, YabaPlural } from 'app/lib/types';
+import { PageEvent } from '@angular/material/paginator';
 
 /**
  * Annotation type for a transaction type.
@@ -62,24 +63,19 @@ export interface TxnSortHeader {
 export type TransactionFilter = {
     fromDate: Date;
     toDate: Date;
-    description: string|RegExp;
-    budgets: Budgets;
+    description?: Description;
+    budgets?: Budgets;
     accounts?: Account[]|Accounts;
-    limit: number;
     tags?: Tags;
     sort: TxnSortHeader,
-    page: PageTurn,
+    page: PageEvent,
 };
 
 export const EMPTY_TRANSACTION_FILTER = <TransactionFilter>{
     fromDate: new Date(Date.now() - DEFAULT_DATERANGE),
     toDate: new Date(),
-    description: '',
-    budgets: [],
-    accounts: [],
-    limit: -1,
     sort: { column: 'datePosted', asc: true },
-    page: { page: 0, offset: 0, itemsPerPage: 10 },
+    page: { pageIndex: 0, pageSize: 10, length: 0 },
 };
 
 /**
@@ -298,7 +294,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param  {...any} items Any list of arguments of items to add as Transaction()
      * @returns Number of items unshift()ed.
      */
-    public override unshift(...items: Transaction[]): number {
+    override unshift(...items: Transaction[]): number {
         for (const i in items) {
             const item = new Transaction();
             items[i] instanceof Transaction || (items[i] = item.update(items[i]));
@@ -314,7 +310,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
-    public search(callback: Function, thisArg?: any): Transactions {
+    search(callback: Function, thisArg?: any): Transactions {
         const overrideCallback = (value: Transaction, index: number, txns: Transaction[]): boolean => {
             return callback(value, index, new Transactions(...txns));
         };
@@ -329,7 +325,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
-    public it(callback: Function, thisArg?: any): Transactions {
+    it(callback: Function, thisArg?: any): Transactions {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const overrideCallback = (value: Transaction, index: number, txns: Transaction[]): any => {
             return callback(value, index, new Transactions(...txns));
@@ -365,11 +361,18 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     }
 
     /**
+     * For the account listing page, just return a sample of transactions as Transactions() not Transaction[].
+     */
+    sample(count?: number): Transactions {
+        return new Transactions(...this.concat().slice(0, count ?? 5));
+    }
+
+    /**
      * Produce a CSV result of the contents of this object.
      * @returns {String} CSV string of the contents of this object.
      * @todo Figure out how to stream results rather than buffering in-memory.
      */
-    public toCSV(): string {
+    toCSV(): string {
         if ( this.length == 0 ) {
             return '';
         }
@@ -398,7 +401,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * From a CSV file, import transactions into this collection.
      * @param {JSZip} jszip JSZip Instance
      */
-    public async fromZIP(accountId: string, jszip: JSZip): Promise<Transactions> {
+    async fromZIP(accountId: string, jszip: JSZip): Promise<Transactions> {
         // this.clear(); // @TODO: restore this from the old version
         const papaOpts = { header: true, skipEmptyLines: true };
         const transactionCSV = await jszip.files[`transactions_${accountId}.csv`].async('text');
@@ -424,7 +427,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * Get the list of tags we have for this transaction collection.
      * @returns {Array<String>} List of tags associated with this collection of transactions.
      */
-    public getTags(): string[] {
+    getTags(): string[] {
         const tagCollection: string[] = this.map(txn => txn.tags).flat().sort();
         return Array.from( new Set(tagCollection) );
     }
@@ -434,7 +437,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {Transaction} txn The transaction for the filter iteration
      * @returns {Boolean} TRUE|FALSE based on if this txn is in the specified date range.
      */
-    public filterDaterange(txn: Transaction, fromDate: Date, toDate: Date): boolean {
+    filterDaterange(txn: Transaction, fromDate: Date, toDate: Date): boolean {
         const recent = new Date(txn.datePosted).getTime() >= fromDate.getTime();
         const older = new Date(txn.datePosted).getTime() <= toDate.getTime();
         return recent && older;
@@ -446,7 +449,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {string|Account} accountId Account ID to filter against.
      * @returns {boolean} TRUE|FALSE if we find this in the description.
      */
-    public filterAccountId(txn: Transaction, accountId: string|IAccount): boolean {
+    filterAccountId(txn: Transaction, accountId: string|IAccount): boolean {
         return txn.accountId == (accountId instanceof Account? accountId.id: accountId);
     }
 
@@ -456,7 +459,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {string|Account} accountIds Account ID to filter against.
      * @returns {boolean} TRUE|FALSE if we find this in the description.
      */
-    public filterAccountIds(txn: Transaction, accountIds: string[]|Accounts): boolean {
+    filterAccountIds(txn: Transaction, accountIds: string[]|Accounts): boolean {
         return accountIds.includes(txn.accountId);
     }
 
@@ -466,7 +469,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {String|RegExp|undefined} description String description to filter against. Will match in .merchant or in .description.
      * @returns {Boolean} TRUE|FALSE if we find this in the description.
      */
-    public filterDescription(txn: Transaction, description: string|RegExp): boolean {
+    filterDescription(txn: Transaction, description: string|RegExp): boolean {
         // Assign as booleans to check if any in match.
         if ( description instanceof String ) {
             const inMerchant = txn.merchant.toLowerCase().indexOf(description.toLowerCase()) !== -1;
@@ -487,7 +490,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {String|undefined} tag The tag to match against.
      * @returns TRUE|FALSE for `this.filter()` use on if this tag exists on this transaction or not.
      */
-    public filterTag(txn: Transaction, tag: string|undefined): boolean {
+    filterTag(txn: Transaction, tag: string|undefined): boolean {
         return txn.tags.includes(tag || '');
     }
 
@@ -497,7 +500,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {Array<String>|undefined} tags The tags to match against.
      * @returns TRUE|FALSE for `this.filter()` use on if this tag exists on this transaction or not.
      */
-    public filterTags(txn: Transaction, tags: string[]|undefined): boolean {
+    filterTags(txn: Transaction, tags: string[]|undefined): boolean {
         return txn.tags.some((tag) => tags === undefined? true: tags.includes(tag || ''));
     }
 
@@ -508,7 +511,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {Date} toDate No transactions newer than this date.
      * @returns {Transactions}
      */
-    public daterange(fromDate: Date, toDate: Date): Transactions {
+    daterange(fromDate: Date, toDate: Date): Transactions {
         return this.search((txn: Transaction) => this.filterDaterange(txn, fromDate, toDate));
     }
 
@@ -518,7 +521,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {String} ID The transaction.id we want to find.
      * @returns {Transaction} The transaction object by reference.
      */
-    public byId(ID: string): Transaction|undefined {
+    byId(ID: string): Transaction|undefined {
         return this.filter(txn => txn.id == ID).shift() || undefined;
     }
 
@@ -529,7 +532,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {uuid.v4} accountId The account ID to filter.
      * @returns {Transactions} List of transactions only by accountId
      */
-    public byAccountId(accountId: string|Account): Transactions {
+    byAccountId(accountId: string|Account): Transactions {
         return this.search((txn: Transaction) => this.filterAccountId(txn, accountId));
     }
 
@@ -540,7 +543,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {uuid.v4} accountIds The account ID to filter.
      * @returns {Transactions} List of transactions only by accountId
      */
-    public byAccountIds(accountIds: string[]): Transactions {
+    byAccountIds(accountIds: string[]): Transactions {
         return this.search((txn: Transaction) => this.filterAccountIds(txn, accountIds));
     }
 
@@ -549,7 +552,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {String|RegExp} description The description to match against.
      * @returns {Transactions} The list of matching transactions.
      */
-    public byDescription(description: string|RegExp): Transactions {
+    byDescription(description: string|RegExp): Transactions {
         return this.search((txn: Transaction) => this.filterDescription(txn, description));
     }
 
@@ -558,7 +561,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {String} tag Filter the list of transactions by tag.
      * @returns {Transactions} The list of matching transactions.
      */
-    public byTag(tag: string): Transactions {
+    byTag(tag: string): Transactions {
         return this.search((txn: Transaction) => this.filterTag(txn, tag || ''));
     }
 
@@ -567,7 +570,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {Array} tags Filter the list of transactions by a set of tags.
      * @returns {Transactions} The list of matching transactions.
      */
-    public byTags(tags: string[]): Transactions {
+    byTags(tags: string[]): Transactions {
         return this.search((txn: Transaction) => this.filterTags(txn, tags || []));
     }
 
@@ -576,7 +579,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {String} tag The Tag to associate with all these transactions.
      * @returns {Transactions} Updated copy of transactions with this tag set on all of them.
      */
-    public setTag(tag: string): Transactions {
+    setTag(tag: string): Transactions {
         return this.it((txn: Transaction) => txn.setTag(tag));
     }
 
@@ -584,7 +587,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * Removes a tag from this transaction if it is set.
      * @returns {Transaction}
      */
-    public removeTag(tag: string): Transactions {
+    removeTag(tag: string): Transactions {
         return this.it((txn: Transaction) => txn.removeTag(tag));
     }
 
@@ -592,7 +595,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * Get me a copy of transactions that have a tag, any tag set.
      * @returns {Transactions} new list of transactions that have a tag set.
      */
-    public haveTags(): Transactions {
+    haveTags(): Transactions {
         return this.search((t: Transaction) => t.tags.length > 0);
     }
 
@@ -603,7 +606,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * For example, for each transaction that has a "Grocery" tag on it, it will be sum()d up
      * and result as a single {"Groceries": $amount} object in the resulting Array().
      */
-    public getBudgets(): IBudget[] {
+    getBudgets(): IBudget[] {
         // Map each transaction to a {tag, amount} object.
         const tag2amount = (t: Transaction) => t.tags.map(tag => ({tag, amount: t.amount}) );
         // Sort by tag near the end of this operation.
@@ -654,7 +657,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * Reducer method to get us the sum() of all the transactions in this collection.
      * @returns {Number}
      */
-    public sum(): number {
+    sum(): number {
         switch (this.length) {
             case 0:
                 return 0;
@@ -670,7 +673,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * in this collection.
      * @returns {Number}
      */
-    public avg(): number {
+    avg(): number {
         return this.length > 0? this.sum() / this.length: 0;
     }
 
@@ -679,7 +682,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param asc TRUE for Ascending; FALSE for Descending.
      * @returns {Transactions} The sorted list of transactions by datePosted.
      */
-    public sorted(asc=true): Transactions {
+    sorted(asc=true): Transactions {
         return this.sort((a: Transaction, b: Transaction) => asc ? b.datePosted.getTime() - a.datePosted.getTime(): a.datePosted.getTime() - b.datePosted.getTime());
     }
 
@@ -690,7 +693,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @returns {Transactions} The sorted list of transactions by the specified key.
      */
     // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-    public sortBy(key: TransactionFields, asc: boolean=true): Transactions {
+    sortBy(key: TransactionFields, asc: boolean=true): Transactions {
         const result = <Transactions>this.concat();
         result.sort((a: Transaction, b: Transaction): number => {
             switch(true) {
@@ -713,7 +716,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * with subsequent matching year and month.
      * @returns {TransactionGroup} An Object mapping of {`YYYY-MM`: Transactions()}
      */
-    public monthly(): TransactionGroup {
+    monthly(): TransactionGroup {
         switch( this.length ) {
             case 0:
                 return new TransactionGroup();
@@ -791,12 +794,10 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
             result = result.sortBy(search.sort.column, search.sort.asc);
         }
 
-        if ( search.page && search.page.page > 0 ) {
-            result = <Transactions>result.slice(search.page.offset, search.page.itemsPerPage);
-        }
-
-        if ( search.limit && search.limit > 0 ) {
-            result = <Transactions>result.slice(0, search.limit);
+        if ( search.page ) {
+            const offset = search.page.pageIndex * search.page.pageSize,
+              end = offset + search.page.pageSize;
+            result = new Transactions(...result.slice(offset, end));
         }
 
         return result;

@@ -28,7 +28,7 @@ export class AccountsComponent {
     filters: TransactionFilter;
 
     #accountUpdate: Subscription;
-    #cacheUpdate: Subscription;
+    #cacheUpdate?: Subscription;
 
     constructor( protected router: Router, protected accountsService: AccountsService) {
         console.log('new AccountsComponent()');
@@ -42,16 +42,22 @@ export class AccountsComponent {
         this.#accountUpdate = this.accountsChange.subscribe((accounts: Accounts) => {
             this.accountsService.save(accounts);
         });
+    }
+
+    ngOnInit() {
+        console.log('AccountsComponent().ngOnInit()');
         this.#cacheUpdate = this.accountsService.subscribe((accounts) => {
-            this.accounts.add(...accounts);
-            console.log('AccountsComponent().ngOnInit() loaded accounts: ', accounts);
+            // Coerce the type because Observer loses this.
+            // Also, trigger angular bells and whistles by replacing the reference object instead
+            // of in-place updates.
+            this.accounts = new Accounts(...accounts);
         });
     }
 
     ngOnDestroy() {
         console.log('AccountsComponent().ngOnDestroy()');
         this.#accountUpdate.unsubscribe();
-        this.#cacheUpdate.unsubscribe();
+        this.#cacheUpdate?.unsubscribe();
     }
 
     /**

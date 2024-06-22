@@ -6,12 +6,11 @@
     <p>{{ account.description }}</p>
     <yaba-transaction-list
         [(transactions)]="account.transactions"
-        [showFilters]="true"
         [filters]="filters"
-        [withTags]="true"
-        [editable]="true"
-        [withHeader]="true"
+        [showFilters]="true"
+        [showTags]="true"
         [showPaginate]="true"
+        [editable]="true"
         class="dropfile detail"
     ></yaba-transaction-list>
     <errors [errors]="errors"></errors>

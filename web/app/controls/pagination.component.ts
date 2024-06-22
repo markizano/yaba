@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 
-import { PageTurn } from 'app/lib/types';
+import { Paginatable } from 'app/lib/types';
 
 
 @Component({
@@ -21,7 +21,7 @@ export class PaginationComponent {
     page = 1;
     pageCount = 1;
     pages: number[] = [];
-    @Output() turnPage = new EventEmitter<PageTurn>();
+    @Output() turnPage = new EventEmitter<Paginatable>();
 
     constructor() {
         this.itemCountChange.subscribe(() => {
@@ -32,12 +32,15 @@ export class PaginationComponent {
     ngOnInit() {
         this.refresh();
     }
+    ngOnChanges() {
+        this.turnPage.emit({ page: this.page, offset: this.offset, itemsPerPage: this.itemsPerPage });
+    }
 
     setPage($page: number) {
         if ( $page < 0 || $page > this.pageCount -1 ) return;
         this.page = $page;
         this.offset = $page * this.itemsPerPage;
-        this.pages = Array.from(Array(this.pageCount).keys());
+        this.pages = Array.from(Array(Math.round(this.pageCount / this.itemsPerPage)).keys());
         this.turnPage.emit({ page: this.page, offset: this.offset, itemsPerPage: this.itemsPerPage });
     }
 

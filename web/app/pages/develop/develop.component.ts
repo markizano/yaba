@@ -1,15 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter } from '@angular/core';
 import { AccountsFilterComponent } from 'app/controls/account-filter.component';
 import { TransactionShowHeaders } from 'app/lib/types';
 
 import { EMPTY_TRANSACTION_FILTER, TransactionFilter, Transactions } from 'app/lib/transactions';
 import { AccountsService } from 'app/services/accounts.service';
 import { TransactionsListComponent } from 'app/tables/transactions/transactions-list.component';
+import { NULLDATE } from 'app/lib/constants';
+import { Accounts } from 'app/lib/accounts';
+import { ControlsModule } from 'app/controls/controls.module';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'debugging',
     standalone: true,
     imports: [
+        ControlsModule,
         TransactionsListComponent,
         AccountsFilterComponent,
     ],
@@ -17,13 +22,16 @@ import { TransactionsListComponent } from 'app/tables/transactions/transactions-
 })
 export class DevelopComponent {
     transactions: Transactions;
+    transactionsChange: EventEmitter<Transactions>;
     filters: TransactionFilter;
     txShow: TransactionShowHeaders;
+    #cachedUpdate?: Subscription;
 
     constructor(protected accountsService: AccountsService) {
         this.transactions = new Transactions();
+        this.transactionsChange = new EventEmitter<Transactions>();
         this.filters = EMPTY_TRANSACTION_FILTER;
-        this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
+        this.filters.fromDate = NULLDATE;
         this.filters.accounts = undefined;
         this.txShow = <TransactionShowHeaders>{
             id: false,
@@ -36,12 +44,16 @@ export class DevelopComponent {
 
     ngOnInit() {
         console.log('DevelopComponent ngOnInit()');
-        this.accountsService.load().subscribe((accounts) => {
+        this.#cachedUpdate = this.accountsService.subscribe((accounts: Accounts) => {
             this.transactions.clear();
-            // console.log('DevelopComponent().Accounts:', accounts);
-            this.transactions.add(...new Transactions( ...accounts.map(a => a.transactions).flat() ));
-            // console.log('DevelopComponent().Transactions:', this.transactions);
+            // const accounts = this.accountsService.get();
+            console.log('DevelopComponent().Accounts:', accounts);
+            this.transactions = new Transactions(...accounts.map(a => a.transactions).flat());
         });
+    }
+
+    ngOnDestroy() {
+        this.#cachedUpdate?.unsubscribe();
     }
 
     log(data: unknown) {
