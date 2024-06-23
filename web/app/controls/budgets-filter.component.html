@@ -2,12 +2,14 @@
     Budgets: <br />
     <ng-select
         [items]="budgets"
+        bindLabel="tag"
+        bindValue="tag"
         [multiple]="true"
         [closeOnSelect]="false"
         [searchable]="true"
         [clearable]="true"
         [hideSelected]="true"
-        (ngModelChange)="changed($event)"
+        (change)="changed($event)"
         placeholder="Select budgets"
         class="budget-list"
     ></ng-select>

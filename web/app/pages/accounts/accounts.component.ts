@@ -4,7 +4,7 @@ import { Accounts, Account } from 'app/lib/accounts';
 import { FormMode } from 'app/lib/structures';
 import { AccountsService } from 'app/services/accounts.service';
 import { Router } from '@angular/router';
-import { EMPTY_TRANSACTION_FILTER, TransactionFilter } from 'app/lib/transactions';
+import { EMPTY_TRANSACTION_FILTER } from 'app/lib/transactions';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -13,31 +13,25 @@ import { Subscription } from 'rxjs';
 })
 export class AccountsComponent {
     // User feedback
-    errors: string[];
+    errors: string[] = [];
 
     // This really needs to be a service we can use to communicate with the filesystem.
-    @Input() accounts: Accounts;
-    @Output() accountsChange: EventEmitter<Accounts> = new EventEmitter<Accounts>();
+    @Input() accounts = new Accounts();
+    @Output() accountsChange = new EventEmitter<Accounts>();
 
-    @Input() account: Account;
-    @Output() accountChange: EventEmitter<Account> = new EventEmitter<Account>();
+    @Input() account = new Account();
+    @Output() accountChange = new EventEmitter<Account>();
 
     // Form controls.
-    formVisible: boolean;
-    formMode: FormMode;
-    filters: TransactionFilter;
+    formVisible = false;
+    formMode = FormMode.Create;
+    filters = EMPTY_TRANSACTION_FILTER;
 
     #accountUpdate: Subscription;
     #cacheUpdate?: Subscription;
 
     constructor( protected router: Router, protected accountsService: AccountsService) {
         console.log('new AccountsComponent()');
-        this.accounts = new Accounts();
-        this.account = new Account();
-        this.errors = [];
-        this.formVisible = false;
-        this.formMode = FormMode.Create;
-        this.filters = EMPTY_TRANSACTION_FILTER;
         this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
         this.#accountUpdate = this.accountsChange.subscribe((accounts: Accounts) => {
             this.accountsService.save(accounts);
@@ -46,12 +40,10 @@ export class AccountsComponent {
 
     ngOnInit() {
         console.log('AccountsComponent().ngOnInit()');
-        this.#cacheUpdate = this.accountsService.subscribe((accounts) => {
-            // Coerce the type because Observer loses this.
-            // Also, trigger angular bells and whistles by replacing the reference object instead
-            // of in-place updates.
-            this.accounts = new Accounts(...accounts);
-        });
+        const update = (accounts: Accounts) => {
+            this.accounts = accounts;
+        };
+        this.#cacheUpdate = this.accountsService.subscribe(update);
     }
 
     ngOnDestroy() {

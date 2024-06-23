@@ -4,18 +4,15 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 
-import { DEFAULT_DATERANGE } from 'app/lib/constants';
-import { TransactionShowHeaders } from 'app/lib/types';
-import { Transactions, EditPlaceholder, Transaction, TransactionFilter, TxnSortHeader, TransactionFields } from 'app/lib/transactions';
+import { Id2NameHashMap, TransactionShowHeaders } from 'app/lib/types';
+import { Transactions, EditPlaceholder, Transaction, TransactionFilter, TransactionFields, EMPTY_TRANSACTION_FILTER, TxnSortHeader } from 'app/lib/transactions';
 
 import { AccountsService } from 'app/services/accounts.service';
 import { ControlsModule } from 'app/controls/controls.module';
-import { PaginationComponent } from 'app/controls/pagination.component';
 import { TxnEditDirective } from 'app/tables/transactions/txn-edit.directive';
 import { TransactionFilterComponent } from 'app/controls/txn-filter.component';
 import { Accounts } from 'app/lib/accounts';
-
-type AccountIdHashMap = { [key: string]: string };
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'yaba-transaction-list',
@@ -25,7 +22,6 @@ type AccountIdHashMap = { [key: string]: string };
         MatChipsModule,
         MatIconModule,
         ControlsModule,
-        PaginationComponent,
         TransactionFilterComponent,
         TxnEditDirective,
         MatPaginatorModule,
@@ -35,7 +31,7 @@ export class TransactionsListComponent {
     addOnBlur = true;
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
     // Data
-    #transactions: Transactions;
+    #transactions = new Transactions();
     @Input() get transactions(): Transactions {
         return this.#transactions;
     }
@@ -46,74 +42,51 @@ export class TransactionsListComponent {
     @Output() transactionsChange = new EventEmitter<Transactions>();
 
     // Filtering
-    @Input() showFilters: boolean;
+    @Input() showFilters = true;
 
-    @Input() filters: TransactionFilter;
+    @Input() filters = EMPTY_TRANSACTION_FILTER;
     @Output() filtersChange = new EventEmitter<TransactionFilter>();
 
     // Decorators
-    @Input() showPaginate: boolean;
+    @Input() showPaginate = true;
     @Input() txShow?: TransactionShowHeaders;
 
-    @Input() editable: boolean;
-    @Input() showHeader: boolean;
-    @Input() showTags: boolean;
+    @Input() editable = false;
+    @Input() showHeader = true;
+    @Input() showTags = true;
 
-    currentlyEditing: EditPlaceholder;
-    txns: Transactions;
-    accountId2name: AccountIdHashMap;
+    currentlyEditing = <EditPlaceholder>{
+        datePending: false,
+        datePosted: false,
+        amount: false,
+        description: false,
+        merchant: false,
+        transactionType: false,
+        tags: false,
+    };
+    txns = new Transactions();
+    accountId2name = <Id2NameHashMap>{};
 
-    #oldTxnLen: number;
+    #oldTxnLen = 0;
+    #cachedUpdates?: Subscription;
 
     constructor(protected accountsService: AccountsService) {
         console.log('new TransactionsListComponent()');
-        this.showFilters = true;
-        this.filters = <TransactionFilter>{
-            fromDate: new Date(Date.now() - DEFAULT_DATERANGE),
-            toDate: new Date(),
-            description: '',
-            budgets: [],
-            accounts: [],
-            tags: [],
-            limit: -1,
-            sort: {
-                column: 'datePosted',
-                asc: true
-            },
-            page: {
-                pageIndex: 0,
-                pageSize: 0,
-                length: 0,
-            }
-        };
-        this.showPaginate = true;
-        this.showHeader = true;
-        this.showTags = true;
-        this.editable = false;
-        this.currentlyEditing = <EditPlaceholder>{
-            datePending: false,
-            datePosted: false,
-            amount: false,
-            description: false,
-            merchant: false,
-            transactionType: false,
-            tags: false,
-        };
-        this.#transactions = new Transactions();
-        this.txns = new Transactions();
-        this.accountId2name = {};
-        this.#oldTxnLen = 0;
+        this.transactionsChange.subscribe(() => this.refresh());
+        this.filtersChange.subscribe(() => this.refresh());
     }
 
     ngOnInit(): void {
         console.log('TransactionsListComponent().ngOnInit()');
         console.debug(this.transactions);
-        this.accountsService.subscribe((acts: Accounts) => {
+        const update = (acts: Accounts) => {
             this.accountId2name = new Accounts(...acts).reduce((acc, x) => {
                 acc[x.id] = x.name;
                 return acc;
-            }, <AccountIdHashMap>{});
-        });
+            }, <Id2NameHashMap>{});
+        };
+        update(this.accountsService.get());
+        this.#cachedUpdates = this.accountsService.subscribe(update);
     }
 
     ngDoCheck() {
@@ -121,6 +94,10 @@ export class TransactionsListComponent {
             this.#oldTxnLen = this.transactions.length;
             this.transactionsChange.emit(this.transactions);
         }
+    }
+
+    ngOnDestroy() {
+        this.#cachedUpdates?.unsubscribe();
     }
 
     /**
@@ -133,26 +110,26 @@ export class TransactionsListComponent {
         console.debug({filters: this.filters, transactions: this.transactions, txns: this.txns});
     }
 
-    filtation(): string {
-        return JSON.stringify((f => ({
-            fromDate: f.fromDate,
-            toDate: f.toDate,
-            description: f.description,
-            budgets: f.budgets,
-            accounts: f.accounts?.map(x => ({id: x.id, name: x.name})),
-            tags: f.tags,
-            sort: f.sort,
-            page: f.page,
-        }))(this.filters));
+    filtation(filters: TransactionFilter): string {
+        return JSON.stringify({
+            fromDate: filters.fromDate,
+            toDate: filters.toDate,
+            description: filters.description,
+            budgets: filters.budgets,
+            accounts: filters.accounts?.map(x => ({id: x.id, name: x.name})),
+            tags: filters.tags,
+            sort: filters.sort,
+            page: filters.page,
+        });
     }
 
-    sortBy(header: TransactionFields): (field: TransactionFields) => TxnSortHeader{
-        this.filters.sort.column = header;
-        return ((sortAgent: TxnSortHeader) => (field: TransactionFields) => {
-            sortAgent.asc = sortAgent.column == field? !sortAgent.asc: true;
-            sortAgent.column = field;
-            return sortAgent;
-        })(this.filters.sort);
+    sortBy(header: TransactionFields): void {
+        const sortAgent = <TxnSortHeader>{
+            asc: this.filters.sort.column == header? !this.filters.sort.asc: true,
+            column: header,
+        };
+        this.filters.sort = sortAgent;
+        this.filtersChange.emit(this.filters);
     }
 
     removeTag(txn: Transaction, $event: MatChipEvent): void {
@@ -166,9 +143,7 @@ export class TransactionsListComponent {
 
     turnPage($event: PageEvent) {
         console.log('page turned:', $event);
-        this.filters.page.length = $event.length;
-        this.filters.page.pageSize = $event.pageSize;
-        this.filters.page.pageIndex = $event.pageIndex;
+        this.filters.page = $event;
         this.filtersChange.emit(this.filters);
         this.refresh();
     }

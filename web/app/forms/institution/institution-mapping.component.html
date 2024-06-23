@@ -1,7 +1,7 @@
 <div class="mapping">
     <trash (click)="_remove()" tabindex="{{ (index * 4) + 7 }}" ></trash>
     <label>
-        From {{ mapping.mapType == MapTypes.csv ? 'Field': 'Value' }}:
+        From {{ isField() ? 'Field': 'Value' }}:
         <input type="text" name="fromField" [(ngModel)]="mapping.fromField" tabindex="{{ (index * 4) + 4 }}" />
     </label>
     <label>

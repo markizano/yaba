@@ -18,17 +18,11 @@ import { YabaAnimations } from 'app/lib/animations';
 })
 export class InstitutionMappingComponent {
     @Input() index = 0;
-    @Input() mapping: InstitutionMapping;
+    @Input() mapping = new InstitutionMapping('', 'UNKNOWN', MapTypes.csv);
     @Output() mappingChange = new EventEmitter<InstitutionMapping>();
     @Input() fields: {label: string, value: TransactionFields}[] = [];
     @Output() fieldsChange = new EventEmitter<TransactionFields>();
     @Output() remove = new EventEmitter<number>();
-
-    readonly MapTypes = MapTypes;
-
-    constructor() {
-        this.mapping = new InstitutionMapping('', 'UNKNOWN', MapTypes.csv);
-    }
 
     protected _remove() {
         this.remove.emit(this.index);
@@ -42,5 +36,9 @@ export class InstitutionMappingComponent {
         this.mapping.toField = toFieldSelect.value as TransactionFields;
         this.mappingChange.emit(this.mapping);
         this.fieldsChange.emit(this.mapping.toField);
+    }
+
+    isField() {
+        return this.mapping.mapType == MapTypes.csv
     }
 }

@@ -1,8 +1,13 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Description } from 'app/lib/types';
+import { Description, DescriptionChange } from 'app/lib/types';
 
+/**
+ * Description component does not require any input since it is just a textbox to receive input from the user.
+ * Return the user's changes as a series of events that can be used to filter the transactions.
+ * Include the useRegexp flag to allow the user to use regular expressions in the description filter.
+ */
 @Component({
     selector: 'yaba-description',
     templateUrl: './description.component.html',
@@ -12,19 +17,16 @@ import { Description } from 'app/lib/types';
 
 })
 export class DescriptionFilterComponent {
-    @Input() description?: Description;
-    @Output() descriptionChange = new EventEmitter<Description>();
-    useRegexp: boolean;
+    description: Description = '';
+    useRegexp = false;
 
-    @Output() changed = new EventEmitter<Description>();
-
-    constructor() {
-        this.description = '';
-        this.useRegexp = false;
-    }
+    @Output() changed = new EventEmitter<DescriptionChange>();
 
     onChanged(description: Description) {
-        this.description = this.useRegexp ? new RegExp(description) : description;
-        this.changed.emit(this.description);
+        this.description = description;
+        this.emit();
+    }
+    emit() {
+        this.changed.emit({description: this.description, useRegexp: this.useRegexp});
     }
 }
