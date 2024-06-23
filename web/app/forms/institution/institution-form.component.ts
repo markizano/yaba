@@ -25,10 +25,10 @@ import { InstitutionMappingComponent } from 'app/forms/institution/institution-m
     ],
 })
 export class InstitutionFormComponent {
-    @Input() institution: IInstitution;
-    @Output() institutionChange: EventEmitter<IInstitution> = new EventEmitter<IInstitution>();
+    @Input() institution = new Institution(undefined, '', '', new InstitutionMappings({fromField: '', toField: 'UNKNOWN', mapType: MapTypes.csv}));
+    @Output() institutionChange = new EventEmitter<IInstitution>();
 
-    @Input() mode: FormMode = FormMode.Create;
+    @Input() mode = FormMode.Create;
     @Output() modeChange = new EventEmitter<FormMode>();
 
     @Output() save = new EventEmitter<IInstitution>();
@@ -36,7 +36,7 @@ export class InstitutionFormComponent {
     @Output() drop = new EventEmitter<Array<File>>();
 
     errors: string[] = []; // List of array messages to render to end-user.
-    fields: {label: string, value: TransactionFields}[] = [];
+    fields: NgSelectable<TransactionFields>[] = [];
 
     // Disable dropping on the body of the document. 
     // This prevents the browser from loading the dropped files
@@ -44,10 +44,9 @@ export class InstitutionFormComponent {
     // Set this input to false if you want the browser default behaviour.
     preventBodyDrop = true;
 
-    readonly MapTypes = MapTypes;
+    constructor(protected $element: ElementRef) { }
 
-    constructor(protected $element: ElementRef) {
-        this.institution = new Institution(undefined, '', '', new InstitutionMappings({fromField: '', toField: 'UNKNOWN', mapType: MapTypes.csv}));
+    ngOnInit() {
         this.getTransactionFields();
     }
 

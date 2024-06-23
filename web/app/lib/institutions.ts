@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import { Papa, ParseConfig, ParseResult } from 'ngx-papaparse';
 import { TransactionFields } from 'app/lib/transactions';
-import { YabaPlural } from 'app/lib/types';
+import { Id2NameHashMap, YabaPlural } from 'app/lib/types';
 
 /**
  * @enum MapTypes Valid mapping types. To later support function() types as well for things
@@ -75,20 +75,6 @@ export class InstitutionMappings extends Array<IMapping> {
             item instanceof InstitutionMapping || (items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType));
         }
         return super.push(...items);
-    }
-
-    /**
-     * Override of unshift() to check if item added is an instance of a InstitutionMapping() or not
-     * to ensure we only ever contain a list of InstitutionMappings.
-     * @param  {...any} items Any list of arguments of items to add as InstitutionMapping()
-     * @returns Number of items unshift()ed.
-     */
-    public override unshift(...items: InstitutionMapping[]): number {
-        for (const i in items) {
-            const item = items[i];
-            item instanceof InstitutionMapping && (items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType));
-        }
-        return super.unshift(...items);
     }
 
     /**
@@ -176,14 +162,35 @@ export class Institution implements IInstitution {
 export class Institutions extends Array<Institution> implements YabaPlural<IInstitution> {
 
     /**
+     * @property {Id2NameHashMap} id2name Convenience mapping of account.id to account.name for quick lookups.
+     */
+    id2name: Id2NameHashMap = {};
+
+    constructor(...items: IInstitution[]) {
+        const id2name: Id2NameHashMap = {};
+        if ( items.length > 0 && typeof items[0] !== 'number' ) {
+            for ( const i in items ) {
+                const item = new Institution();
+                if ( false === items[i] instanceof Institution ) {
+                    items[i] = item.update(items[i]);
+                }
+                id2name[item.id] = item.name;
+            }
+        }
+        super(...items);
+        this.id2name = id2name;
+    }
+
+    /**
      * Add an institution to the list. If the item is not an instance of Institution, it will be coerced into one.
      * @param items 
      * @returns Updated number of items in the list.
      */
-    add(...items: Institution[]): number {
+    add(...items: IInstitution[]): number {
         for ( const i in items ) {
-            const item: Institution = <IInstitution>items[i];
+            const item = <Institution>items[i];
             items[i] instanceof Institution || (items[i] = new Institution(item.id, item.name, item.description, item.mappings));
+            this.id2name[item.id] = item.name;
         }
         return super.push(...items);
     }
@@ -195,7 +202,7 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      * @returns New Mutated array no longer containing the transaction.
      *   returns itself if no action was taken.
      */
-    remove(ID: IInstitution|string): Institutions {
+    remove(ID: Institution|string): Institutions {
         const institutionId = (ID instanceof Institution)? ID.id: ID;
         for ( const i in this ) {
             // Skip properties, only iterate over array indexes.
@@ -250,7 +257,7 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      * @param {JSZip} jsz The JSZip instance that has already loaded the ZIP contents from the end-user.
      * @returns {Promise<Institutions>}
      */
-    public async fromZIP(jsz: JSZip): Promise<Institutions> {
+    async fromZIP(jsz: JSZip): Promise<Institutions> {
         interface CsvIMapping extends IMapping {
             institutionId: string;
         }
@@ -298,7 +305,7 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      * @param {String} ID Institution ID to fetch
      * @returns {Institution}
      */
-    public byId(ID: string): Institution|undefined {
+    byId(ID: string): Institution|undefined {
         return this.filter(i => i.id == ID).shift();
     }
 

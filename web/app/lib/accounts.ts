@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
 import { ITransaction, TransactionFilter, Transactions } from 'app/lib/transactions';
-import { YabaPlural } from 'app/lib/types';
+import { Id2NameHashMap, YabaPlural } from 'app/lib/types';
 
 /**
  * @enum {String} AccountTypes - Types of accounts for tracking.
@@ -125,16 +125,25 @@ export class Account implements IAccount {
  * Also allows for defining handy functions that we'd use as filters.
  */
 export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
+
+    /**
+     * @property {Id2NameHashMap} id2name Convenience mapping of account.id to account.name for quick lookups.
+     */
+    id2name: Id2NameHashMap = {};
+
     constructor(...items: IAccount[]) {
+        const id2name: Id2NameHashMap = {};
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
-                const item: Account = new Account();
+                const item = new Account();
                 if ( false === items[i] instanceof Account ) {
                     items[i] = item.update(items[i]);
+                    id2name[item.id] = item.name;
                 }
             }
         }
         super(...items);
+        this.id2name = id2name;
     }
 
     /**
@@ -146,6 +155,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
         for ( const i in items ) {
             const item = new Account();
             items[i] instanceof Account || (items[i] = item.update(items[i]));
+            this.id2name[item.id] = item.name;
         }
         return super.push(...items);
     }
@@ -156,16 +166,21 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      * @param {String} ID The ID field to remove.
      * @returns {Accounts} New Mutated array no longer containing the account.
      */
-    remove(ID: IAccount|string): Accounts {
+    remove(ID: Account|string): Accounts {
+        const accountId = ID instanceof Account? ID.id: ID;
         for ( const i in this ) {
-            if ( typeof i !== 'number' ) continue;
-            const item = this[i];
-            if ( ID instanceof Account && item.id == ID.id ) {
-                this.splice(i, 1);
-            } else if (typeof ID === 'string' && item.id == ID) {
-                this.splice(i, 1);
+            try {
+                if ( typeof i !== 'number' ) continue;
+                const item = this[i];
+                if ( item.id == accountId ) {
+                    this.splice(i, 1);
+                    break;
+                }
+            } catch (e) {
+                console.error(`Error removing item ${i} from Accounts: ${e}`);
             }
         }
+        delete this.id2name[accountId];
         return this;
     }
 
@@ -175,6 +190,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      */
     clear(): Accounts {
         this.length = 0;
+        this.id2name = {};
         return this;
     }
 

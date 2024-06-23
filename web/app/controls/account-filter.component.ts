@@ -22,21 +22,21 @@ import { Subscription } from "rxjs";
     imports: [ CommonModule, FormsModule, NgSelectModule ],
 })
 export class AccountsFilterComponent {
-    accounts: Accounts;
+    accounts = new Accounts();
     selectable: NgSelectable<Account>[] = [];
-    @Output() selectedAccounts: EventEmitter<Accounts> = new EventEmitter<Accounts>();
+    @Output() selectedAccounts = new EventEmitter<Accounts>();
     #cacheUpdate?: Subscription;
 
-    constructor(protected accountsService: AccountsService) {
-        this.accounts = new Accounts();
-    }
+    constructor(protected accountsService: AccountsService) { }
 
     ngOnInit() {
-        this.#cacheUpdate = this.accountsService.subscribe((accounts) => {
-            this.accounts = new Accounts(...accounts);
+        const update = (accounts: Accounts) => {
+            this.accounts = accounts;
             this.selectable = this.accounts.map((x: Account) => ({ label: x.name, value: x }));
             console.log('AccountsFilterComponent().selectable:', this.selectable);
-        });
+        };
+        update(this.accountsService.get());
+        this.#cacheUpdate = this.accountsService.subscribe(update);
     }
 
     ngOnDestroy() {

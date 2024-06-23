@@ -6,7 +6,7 @@ import { NULLDATE, DEFAULT_DATERANGE } from 'app/lib/constants';
 import { TransactionDeltas, CurrencyType } from 'app/lib/structures';
 import { IAccount, Account, Accounts } from 'app/lib/accounts';
 import { IInstitution, InstitutionMappings, MapTypes, IMapping } from 'app/lib/institutions';
-import { Description, Tags, YabaPlural } from 'app/lib/types';
+import { Description, Id2NameHashMap, Tags, YabaPlural } from 'app/lib/types';
 import { PageEvent } from '@angular/material/paginator';
 
 /**
@@ -63,7 +63,7 @@ export interface TxnSortHeader {
 export type TransactionFilter = {
     fromDate: Date;
     toDate: Date;
-    description?: Description;
+    description: Description;
     budgets?: Budgets;
     accounts?: Account[]|Accounts;
     tags?: Tags;
@@ -261,7 +261,13 @@ export class Transaction extends aTransaction implements ITransaction {
  */
 export class Transactions extends Array<Transaction> implements YabaPlural<Transaction> {
 
+    /**
+     * @property {Id2NameHashMap} id2name Convenience mapping of account.id to account.name for quick lookups.
+     */
+    id2name: Id2NameHashMap = {};
+
     constructor(...items: Transaction[]) {
+        const id2name: Id2NameHashMap = {};
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
                 const item = items[i];
@@ -270,9 +276,11 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
                     txn.update(item);
                     items[i] = txn;
                 }
+                id2name[item.id] = item.description;
             }
         }
         super(...items);
+        this.id2name = id2name;
     }
 
     /**
@@ -284,22 +292,9 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
         for ( const i in items ) {
             const item = new Transaction();
             items[i] instanceof Transaction || (items[i] = item.update(items[i]));
+            this.id2name[items[i].id] = items[i].description;
         }
         return super.push(...items);
-    }
-
-    /**
-     * Override of unshift() to check if item added is an instance of a Transaction() or not
-     * to ensure we only ever contain a list of Transactions.
-     * @param  {...any} items Any list of arguments of items to add as Transaction()
-     * @returns Number of items unshift()ed.
-     */
-    override unshift(...items: Transaction[]): number {
-        for (const i in items) {
-            const item = new Transaction();
-            items[i] instanceof Transaction || (items[i] = item.update(items[i]));
-        }
-        return super.unshift(...items);
     }
 
     /**
@@ -471,7 +466,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      */
     filterDescription(txn: Transaction, description: string|RegExp): boolean {
         // Assign as booleans to check if any in match.
-        if ( description instanceof String ) {
+        if ( typeof description == 'string' ) {
             const inMerchant = txn.merchant.toLowerCase().indexOf(description.toLowerCase()) !== -1;
             const inDescription = txn.description.toLowerCase().indexOf(description.toLowerCase()) !== -1;
             return inMerchant || inDescription;
@@ -606,7 +601,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * For example, for each transaction that has a "Grocery" tag on it, it will be sum()d up
      * and result as a single {"Groceries": $amount} object in the resulting Array().
      */
-    getBudgets(): IBudget[] {
+    getBudgets(): Budgets {
         // Map each transaction to a {tag, amount} object.
         const tag2amount = (t: Transaction) => t.tags.map(tag => ({tag, amount: t.amount}) );
         // Sort by tag near the end of this operation.
@@ -628,7 +623,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
         // Run this rube-goldberg and haphazardly return the result.
         switch ( this.length ) {
             case 0:
-                return [];
+                return <Budgets>[];
             case 1:
                 return (txn => {
                     if ( txn.tags.length ) {
@@ -755,9 +750,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
 
             /* DATES */
             if ( search.fromDate !== undefined && search.toDate !== undefined && search.fromDate != NULLDATE && search.toDate != NULLDATE) {
-                if (typeof search.fromDate == 'string') search.fromDate = new Date(search.fromDate);
-                if (typeof search.toDate == 'string') search.toDate = new Date(search.toDate);
-                tests.date = this.filterDaterange(txn, search.fromDate, search.toDate);
+                tests.date = this.filterDaterange(txn, new Date(search.fromDate), new Date(search.toDate));
             }
 
             /* DESCRIPTION */

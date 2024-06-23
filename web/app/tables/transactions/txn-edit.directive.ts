@@ -1,7 +1,7 @@
 import { Directive, EventEmitter, HostBinding, HostListener, Input, Output} from '@angular/core';
 
 @Directive({
-    selector: '[txnEdit]',
+    selector: '.editable',
     standalone: true,
 })
 export class TxnEditDirective {
@@ -20,7 +20,7 @@ export class TxnEditDirective {
 
     @HostListener('click', ['$event'])
     onClick() {
-        this.txnEdit = true;
+        // this.txnEdit = true;
         this.txnEditChange.emit(this.txnEdit);
     }
 

@@ -8,7 +8,7 @@ import { AccountsFilterComponent } from 'app/controls/account-filter.component';
 import { DescriptionFilterComponent } from 'app/controls/description.component';
 import { BudgetsFilterComponent } from 'app/controls/budgets-filter.component';
 import { Accounts } from 'app/lib/accounts';
-import { DateRange, Description } from 'app/lib/types';
+import { DateRange, DescriptionChange } from 'app/lib/types';
 
 /**
  * This is a glue component that combines the various filters into a single component
@@ -35,24 +35,25 @@ import { DateRange, Description } from 'app/lib/types';
     ],
 })
 export class TransactionFilterComponent {
-    @Input() filter: TransactionFilter;
+    @Input() filter = EMPTY_TRANSACTION_FILTER;
     @Output() filterChange = new EventEmitter<TransactionFilter>();
-    @Input() transactions: Transactions;
+    @Input() transactions = new Transactions();
     filterByAccount: boolean;
 
     constructor() {
-        this.transactions = new Transactions();
-        this.filter = EMPTY_TRANSACTION_FILTER;
         this.filter.description = '';
+        this.filter.budgets = <Budgets>[];
+        this.filter.tags = [];
         this.filterByAccount = this.filter.accounts !== undefined;
         this.filterChange.subscribe((filter: TransactionFilter) => {
             this.filterByAccount = filter.accounts !== undefined;
         });
+        this.filterChange.emit(this.filter);
     }
 
-    daterange(dr: DateRange) {
-        this.filter.fromDate = new Date(dr.fromDate);
-        this.filter.toDate = new Date(dr.toDate);
+    daterange($event: DateRange) {
+        this.filter.fromDate = new Date($event.fromDate);
+        this.filter.toDate = new Date($event.toDate);
         this.filterChange.emit(this.filter);
     }
 
@@ -63,11 +64,12 @@ export class TransactionFilterComponent {
 
     budgets($event: Budgets): void {
         this.filter.budgets = $event;
+        this.filter.tags = this.filter.budgets.map(b => b.tag);
         this.filterChange.emit(this.filter);
     }
 
-    description($event: Description) {
-        this.filter.description = $event;
+    description($event: DescriptionChange) {
+        this.filter.description = $event.useRegexp ? new RegExp($event.description) : $event.description;
         this.filterChange.emit(this.filter);
     }
 }

@@ -7,6 +7,7 @@ import { NgSelectable } from 'app/lib/types';
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
 import { InstitutionsService } from 'app/services/institutions.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'yaba-account-form',
@@ -20,41 +21,45 @@ import { InstitutionsService } from 'app/services/institutions.service';
   ]
 })
 export class AccountFormComponent {
-    @Input() account: Account;
+    @Input() account = new Account();
     @Output() accountChange = new EventEmitter<Account>();
 
-    @Input() formMode: FormMode = FormMode.Create;
+    @Input() formMode = FormMode.Create;
     @Output() formModeChange = new EventEmitter<FormMode>();
 
     @Output() save = new EventEmitter<Account>();
     @Output() close = new EventEmitter<void>();
 
-    institutions: Institutions;
+    institutions = new Institutions();
     institutionIds: NgSelectable<Institution>[] = [];
-    accountTypes: NgSelectable<AccountTypes>[] = [];
-    interestStrategies: NgSelectable<InterestStrategy>[] = [];
+    accountTypes = this.getAccountTypes();
+    interestStrategies = this.getInterestStrategies();
 
     // User feedback.
     errors: string[] = [];
 
+    #cachedUpdates?: Subscription;
+
     constructor(protected institutionsService: InstitutionsService) {
         console.log('new AccountFormComponent()');
-        this.account = new Account();
-        this.institutions = new Institutions();
-        this.reset();
     }
 
     ngOnInit(): void {
         console.log('AccountFormComponent().ngOnInit()');
-        this.accountTypes = this.getAccountTypes();
-        this.interestStrategies = this.getInterestStrategies();
-        // this.institutionsService.loaded(
-        //     (institutions: Institutions) => {
-        //         this.institutions.push(...institutions);
-        //         this.institutionIds = institutions.map((x: Institution) => ({ label: x.name, value: x }));
-        //         console.log('AccountFormComponent().ngOnInit().institutionIds: ', this.institutionIds);
-        //     },
-        // );
+        const update = (institutions: Institutions) => {
+            this.institutions = institutions;
+            this.institutionIds = institutions.map((x: Institution) => ({ label: x.name, value: x }));
+            console.log('AccountFormComponent().ngOnInit().institutionIds: ', this.institutionIds);
+        }
+        update(this.institutionsService.get());
+        this.#cachedUpdates = this.institutionsService.subscribe(update);
+        this.reset();
+    }
+
+    ngOnDestroy(): void {
+        console.log('AccountFormComponent().ngOnDestroy()');
+        this.#cachedUpdates?.unsubscribe();
+        this.reset();
     }
 
     getAccountTypes(): NgSelectable<AccountTypes>[] {

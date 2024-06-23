@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Account, Accounts } from 'app/lib/accounts';
-import { EMPTY_TRANSACTION_FILTER, TransactionFilter } from 'app/lib/transactions';
+import { EMPTY_TRANSACTION_FILTER } from 'app/lib/transactions';
 import { TransactionShowHeaders } from 'app/lib/types';
 import { AccountsService } from 'app/services/accounts.service';
 import { Subscription } from 'rxjs';
@@ -14,35 +14,34 @@ import { Subscription } from 'rxjs';
     templateUrl: './account.component.html',
 })
 export class AccountDetailComponent {
-    @Input() id: string;
-    accounts: Accounts;
-    account: Account;
-    filters: TransactionFilter;
-    txShow: TransactionShowHeaders;
+    @Input() id = this.router.url.split('/').pop() ?? '';
+    accounts = new Accounts();
+    account = new Account();
+    filters = EMPTY_TRANSACTION_FILTER;
+    txShow = <TransactionShowHeaders>{
+        id: false,
+        account: true,
+        datePending: false,
+        merchant: true,
+        transactionType: true
+    };
     errors: string[] = [];
 
-    #cacheUpdate: Subscription;
+    // @TODO: Add form headers/variables.
+
+    #cacheUpdate?: Subscription;
 
     constructor(protected router: Router, protected accountsService: AccountsService) {
         console.log('AccountDetailComponent constructor');
-        this.id = this.router.url.split('/').pop() ?? '';
-        this.accounts = new Accounts();
-        this.account = new Account();
-        this.filters = EMPTY_TRANSACTION_FILTER;
         this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
         this.filters.accounts = undefined;
-        this.txShow = <TransactionShowHeaders>{
-            id: false,
-            account: true,
-            datePending: false,
-            merchant: true,
-            transactionType: true
-        };
-        this.#cacheUpdate = this.accountsService.subscribe((accounts: Accounts) => {
+    }
+
+    ngOnInit() {
+        console.log('AccountDetailComponent() ngOnInit()');
+        const update = (accounts: Accounts) => {
             this.errors.length = 0;
-            console.log('AccountDetailComponent().accountsService.subscribe() loaded accounts: ', accounts);
-            this.accounts.clear();
-            this.accounts.add(...accounts);
+            this.accounts = accounts;
             try {
                 const account = this.accounts.byId(this.id);
                 if ( account ) {
@@ -55,7 +54,9 @@ export class AccountDetailComponent {
                 console.error('Error loading account', e);
                 this.errors.push(<string>e);
             }
-        });
+        }
+        update(this.accountsService.get());
+        this.#cacheUpdate = this.accountsService.subscribe(update);
     }
 
     /**
@@ -63,6 +64,8 @@ export class AccountDetailComponent {
      */
     ngOnDestroy() {
         console.log('AccountDetailComponent() ngOnDestroy()');
-        this.#cacheUpdate.unsubscribe();
+        this.#cacheUpdate?.unsubscribe();
     }
+
+    // @TODO: Add form functions.
 }

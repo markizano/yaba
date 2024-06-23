@@ -9,6 +9,7 @@ export type Yabables = Transactions | Accounts | Institutions;
  * Interface all plural yaba-able objects must implement.
  */
 export type YabaPlural<T> = Array<T> & {
+    id2name: Id2NameHashMap;
     add(...items: T[]): number;
     add<A>(...items: A[]): number;
     remove(ID: T|string): YabaPlural<T>;
@@ -33,7 +34,14 @@ export type NgSelectable<T> = { label: string, value: T };
 export type DateRange = { fromDate: Date, toDate: Date };
 
 /**
+ * @type {Id2NameHashMap} Yabable.id:Yabable.name mapping for quick lookups.
+ */
+export type Id2NameHashMap = { [key: string]: string };
+
+/**
  * Description cab be either a string or a regular expression.
+ * @edit: I learned that regex as a type passed along does not work as well as I thought.
+ * The data structure goes better as a struct with the string and the boolean attached as a unit.
  */
 export type Description = string | RegExp;
 
@@ -41,14 +49,9 @@ export type Description = string | RegExp;
  * Description + Regexp Struct for sending description update change events.
  */
 export type DescriptionChange = {
-    description: string|RegExp;
+    description: Description;
     useRegexp: boolean;
 };
-
-/**
- * Event structure communicated across the pagination component.
- */
-export type Paginatable = { page: number, offset: number, itemsPerPage: number };
 
 /**
  * Used in settings and txn-list to determine which headers/columns to show.
