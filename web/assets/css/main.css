@@ -32,7 +32,12 @@ a:hover {
 
 body {
     font-family: "Sans", "Arial", "Calibri";
-    padding: 2px;
+}
+
+app-root {
+    display: block;
+    margin: 5px auto;
+    width: 98%;
 }
 
 h1 {
@@ -296,7 +301,7 @@ nav {
 }
 
 yaba-menu {
-    width: 100%;
+    width: fit-content;
     display: flex;
     justify-content: space-between;
     flex-direction: row;
@@ -600,6 +605,10 @@ settings {
 
 .ng-hide { opacity: 0; height: 0; visibility: hidden; }
 
+.wide {
+    width: 99%;
+}
+
 .yaba-list-wrapper {
     width: 100%;
     margin: 0 auto;
@@ -625,4 +634,10 @@ settings {
 .yaba-item figcaption p {
     font-size: 120%;
     margin-left: 10px;
+}
+
+.md-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

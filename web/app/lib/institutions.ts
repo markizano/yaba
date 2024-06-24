@@ -27,9 +27,9 @@ export interface IMapping {
  * thing we can use for importing/exporting and otherwise managing institution mappings.
  */
 export class InstitutionMapping implements IMapping {
-    public fromField: string;
-    public toField: TransactionFields;
-    public mapType: MapTypes;
+    fromField: string;
+    toField: TransactionFields;
+    mapType: MapTypes;
 
     constructor(fromField: string, toField: TransactionFields, mapType: MapTypes) {
         this.fromField = fromField;
@@ -41,7 +41,7 @@ export class InstitutionMapping implements IMapping {
      * Override for this.toString();
      * @returns {String}
      */
-    public toString(): string {
+    toString(): string {
         return JSON.stringify({
             fromField: this.fromField,
             toField: this.toField,
@@ -69,7 +69,7 @@ export class InstitutionMappings extends Array<IMapping> {
      * @param  {...InstitutionMapping|object} items Items to push onto the array.
      * @returns Number of items in the current set/array.
      */
-    public add(...items: IMapping[]|InstitutionMappings ): number {
+    add(...items: IMapping[]|InstitutionMappings ): number {
         for ( const i in items ) {
             const item = items[i];
             item instanceof InstitutionMapping || (items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType));
@@ -81,7 +81,7 @@ export class InstitutionMappings extends Array<IMapping> {
      * Override for this.toString();
      * @returns {String}
      */
-    public override toString(): string {
+    override toString(): string {
         return JSON.stringify(this);
     }
 
@@ -90,13 +90,13 @@ export class InstitutionMappings extends Array<IMapping> {
      * @param {String} fromField Field to remove from the mapping.
      * @returns {InstitutionMappings} Returns this object for chaining..
      */
-    public removeMapping(mapping: IMapping): InstitutionMappings {
+    removeMapping(mapping: IMapping): InstitutionMappings {
         const index = this.findIndex((item: IMapping) => item.fromField === mapping.fromField && item.toField === mapping.toField && item.mapType === mapping.mapType);
         this.splice(index, 1);
         return this;
     }
 
-    public hasToField(toField: TransactionFields): boolean {
+    hasToField(toField: TransactionFields): boolean {
         return this.some(mapping => mapping.toField === toField);
     }
 }
@@ -116,10 +116,10 @@ export interface IInstitution {
  * structure as we need it here.
  */
 export class Institution implements IInstitution {
-    public id: string;
-    public name: string;
-    public description: string;
-    public mappings: InstitutionMappings;
+    id: string;
+    name: string;
+    description: string;
+    mappings: InstitutionMappings;
 
     constructor(id?: string, name?: string, description?: string, mappings?: IMapping[]) {
         this.id          = id || v4();
@@ -135,7 +135,7 @@ export class Institution implements IInstitution {
      * @param {Object} data Data to use to update this object.
      * @returns Institution
      */
-    public update(data: IInstitution): Institution {
+    update(data: IInstitution): Institution {
         data.id && (this.id = data.id);
         data.name && (this.name = data.name);
         data.description && (this.description = data.description);
@@ -147,7 +147,7 @@ export class Institution implements IInstitution {
      * Add a mapping to this institution.
      * @returns {Institution} Returns this object for chaining.
      */
-    public addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): IInstitution {
+    addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): IInstitution {
         this.mappings.add(new InstitutionMapping(fromField, toField, mapType));
         return this;
     }
@@ -230,7 +230,7 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      * @returns {String} CSV string of the contents of this object.
      * @todo Figure out how to stream results rather than buffering in-memory.
      */
-    public toCSV(jszip: JSZip): JSZip {
+    toCSV(jszip: JSZip): JSZip {
         if ( this.length == 0 ) {
             return jszip;
         }

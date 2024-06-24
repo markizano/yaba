@@ -1,8 +1,14 @@
-import { TransactionShowHeaders } from "app/lib/types";
 
 declare global {
     interface Date {
+        /**
+         * Returns a YYYY-MM-DD formatted string of the date.
+         */
         toISOShortDate(): string;
+
+        /**
+         * Returns a new Date object with the time rounded back to the nearest day.
+         */
         round(): Date;
     }
 }
@@ -108,89 +114,3 @@ export interface Storables {
     load(): void;
 }
 
-export interface UserPreferences {
-    incomeTags: string[];
-    expenseTags: string[];
-    transferTags: string[];
-    hideTags: string[];
-    txShow: TransactionShowHeaders;
-    payCycle: PayCycle;
-    txnDelta: TransactionDeltas;
-}
-
-/**
- * Object to store settings and interfaces with the localStorage in order to accomplish this.
- */
-export class Settings implements UserPreferences {
-    incomeTags: string[];
-    expenseTags: string[];
-    transferTags: string[];
-    hideTags: string[];
-    txShow: TransactionShowHeaders;
-    payCycle: PayCycle;
-    txnDelta: TransactionDeltas;
-
-    constructor(incomeTags?: string[], expenseTags?: string[], transferTags?: string[], hideTags?: string[], txShow?: TransactionShowHeaders, payCycle?: PayCycle, txnDelta?: TransactionDeltas) {
-        this.incomeTags = incomeTags || [];
-        this.expenseTags = expenseTags || [];
-        this.transferTags = transferTags || [];
-        this.hideTags = hideTags || [];
-        this.txShow = txShow || <TransactionShowHeaders>{};
-        this.payCycle = payCycle || PayCycle.Weekly;
-        this.txnDelta = txnDelta || TransactionDeltas.days30;
-    }
-
-    /**
-     * Read the local storage for our settings.
-     * This should not override any existing settings.
-     * @param {Settings} data Settings object to load.
-     * @return {Settings} "this" Settings object for easy chaining.
-     */
-    load(data: UserPreferences): Settings {
-        if ( data.incomeTags )      this.incomeTags = data.incomeTags;
-        if ( data.expenseTags )     this.expenseTags = data.expenseTags;
-        if ( data.transferTags )    this.transferTags = data.transferTags;
-        if ( data.hideTags )        this.hideTags = data.hideTags;
-        if ( data.txShow )          this.txShow = data.txShow;
-        if ( data.payCycle )        this.payCycle = data.payCycle;
-        if ( data.txnDelta )        this.txnDelta = data.txnDelta;
-        return this;
-    }
-
-    /**
-     * Load the settings from a JSON stringified object.
-     * @param {string} loadString JSON stringified object to load.
-     * @return {Settings}
-     */
-    static fromString(loadString: string): Settings {
-        return new Settings().load(JSON.parse(loadString));
-    }
-
-    /**
-     * Convert a pay cycle to milliseconds.
-     * @param {PayCycle} cycle Pay cycle to convert.
-     * @returns {number} Milliseconds in the pay cycle.
-     */
-    payCycle2ms(cycle: PayCycle): number {
-        let next1st: Date, next15th: Date;
-        switch (cycle) {
-            case PayCycle.Weekly:
-                return 7 * 24 * 60 * 60 * 1000;
-            case PayCycle.BiWeekly:
-                return 14 * 24 * 60 * 60 * 1000;
-            case PayCycle.BiMonthly:
-                next1st = new Date();
-                next1st.setDate(1);
-                next1st.setMonth(next1st.getMonth() + 1);
-                next15th = new Date();
-                next15th.setDate(15);
-                next15th.setMonth(next15th.getMonth() + 1);
-                return ( next15th.getTime() - next1st.getTime() ) * 1000;
-            case PayCycle.Monthly:
-                next1st = new Date();
-                next1st.setDate(1);
-                next1st.setMonth(next1st.getMonth() + 1);
-                return (next1st.getTime() - new Date().getTime()) * 1000;
-        }
-    }
-}

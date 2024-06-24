@@ -6,7 +6,6 @@
     </div>
     <p><b>Balance</b>: <span>{{ account.balance() | currency }}</span></p>
     <p><b>Account Type</b>: <span>{{ account.accountType }}</span></p>
-    <p><b>Interest Rate</b>: <span>{{ account.interestRate }} ( {{ account.interestStrategy }} )</span></p>
     <p>{{ account.description }}</p>
     <yaba-transaction-list
         [(transactions)]="account.transactions"

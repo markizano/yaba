@@ -65,7 +65,7 @@
             </td>
             <td [ngSwitch]="currentlyEditing.description">
                 <!-- md-truncate has failed me here! :sob: -->
-                <span *ngSwitchCase="false" class="md-truncate"> {{ txn.description }} </span>
+                <span *ngSwitchCase="false" class="md-truncate"> {{ truncate ? txn.description.slice(0, 30): txn.description }}{{ txn.description.length > 30 ? '...' : '' }} </span>
                 <span *ngSwitchCase="true">
                     <input
                     type="text"

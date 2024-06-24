@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { Accounts, Account } from 'app/lib/accounts';
 import { FormMode } from 'app/lib/structures';
@@ -30,11 +30,13 @@ export class AccountsComponent {
     #accountUpdate: Subscription;
     #cacheUpdate?: Subscription;
 
-    constructor( protected router: Router, protected accountsService: AccountsService) {
+    constructor( protected router: Router, protected accountsService: AccountsService, protected chgDet: ChangeDetectorRef) {
         console.log('new AccountsComponent()');
         this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
         this.#accountUpdate = this.accountsChange.subscribe((accounts: Accounts) => {
-            this.accountsService.save(accounts);
+            this.accountsService.save(accounts).subscribe((response) => {
+                console.log('Accounts saved: ', response);
+            });
         });
     }
 
@@ -42,7 +44,9 @@ export class AccountsComponent {
         console.log('AccountsComponent().ngOnInit()');
         const update = (accounts: Accounts) => {
             this.accounts = accounts;
+            // this.chgDet.detectChanges();
         };
+        update(this.accountsService.get());
         this.#cacheUpdate = this.accountsService.subscribe(update);
     }
 

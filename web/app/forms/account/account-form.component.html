@@ -28,21 +28,6 @@
             tabindex="4"
         ></ng-select>
       </label>
-      <label>
-        Account Number: <input type="text" name="account" [(ngModel)]="account.number"  tabindex="5" />
-      </label>
-      <label>Routing Number: <input type="text" name="routing" [(ngModel)]="account.routing" tabindex="6" /></label>
-      <label>Interest Rate: <input type="number" name="interestRate" step="0.01" [(ngModel)]="account.interestRate" tabindex="7" /></label>
-      <label>Interest Strategy: <ng-select
-            [items]="interestStrategies"
-            bindLabel="label"
-            bindValue="value"
-            placeholder="Select Interest Strategy: "
-            [(ngModel)]="account.interestStrategy"
-            name="interestStrategy"
-            tabindex="8"
-            ></ng-select>
-      </label><br />
       <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
       <input type="button" name="cancel" value="Cancel" (click)="cancel()"  tabindex="9" class="cancel" />
       <input type="button" name="save" value="Save Account" (click)="saveChanges()"  tabindex="10" class="save" />
