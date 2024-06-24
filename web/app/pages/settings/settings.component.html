@@ -1,144 +1,146 @@
-<content class="controller">
+<div class="settings controller">
     <h1>Settings</h1>
     <p>Where you control the app behaviours.</p>
-    <mat-list layout="column" flex="">
-        <mat-list-item>
+    <div class="yaba-list-wrapper">
+        <div class="yaba-item wide">
             <label for="payCycle">What is your pay cycle?</label>
-            <select ng-model="payCycle" ng-change="save()" class="md-secondary">
-                <option value="weekly">Weekly</option>
-                <option value="bi-weekly">Bi-Weekly</option>
-                <option value="bi-monthly">Bi-Monthly</option>
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="annually">Annually</option>
-            </select>
-        </mat-list-item>
-        <mat-list-item>
+            <ng-select [(ngModel)]="settings.payCycle" (change)="save()" [clearable]="false" class="md-secondary">
+                <ng-option [value]="'weekly'">Weekly</ng-option>
+                <ng-option [value]="'bi-weekly'">Bi-Weekly</ng-option>
+                <ng-option [value]="'bi-monthly'">Bi-Monthly</ng-option>
+                <ng-option [value]="'monthly'">Monthly</ng-option>
+                <ng-option [value]="'quarterly'">Quarterly</ng-option>
+                <ng-option [value]="'annually'">Annually</ng-option>
+            </ng-select>
+        </div>
+        <div class="yaba-item wide">
             <label for="txnDelta">How many months do you want in a transaction view by default?</label>
-            <select ng-model="txnDelta" ng-change="save()" class="md-secondary">
-                <option value="2592000000">30 days</option>
-                <option value="5184000000">60 days</option>
-                <option value="7776000000">90 days</option>
-                <option value="15552000000">6 months</option>
-                <option value="31104000000">1 year</option>
-                <option value="62208000000">2 years</option>
-            </select>
-        </mat-list-item>
-        <mat-list-item>
+            <ng-select [(ngModel)]="settings.txnDelta" (change)="save()" [clearable]="false" class="md-secondary">
+                <ng-option [value]="2592000000">30 days</ng-option>
+                <ng-option [value]="5184000000">60 days</ng-option>
+                <ng-option [value]="7776000000">90 days</ng-option>
+                <ng-option [value]="15552000000">6 months</ng-option>
+                <ng-option [value]="31104000000">1 year</ng-option>
+                <ng-option [value]="62208000000">2 years</ng-option>
+            </ng-select>
+        </div>
+        <div class="yaba-item wide">
             <label for="incomeTags">What are your income tags?: </label>
-            <mat-chip-grid #chipGrid aria-label="Enter income tags" *ngFor="let tag of incomeTags; track tag">
-                  <mat-chip-row
-                    (removed)="remove($event)"
+            <mat-chip-grid #incomeChips aria-label="Enter income tags">
+@for( tag of settings.incomeTags; track tag ) {
+                <mat-chip-row
+                    (removed)="remove('incomeTags', $event)"
+                    (edited)="edit('incomeTags', tag, $event)"
                     [editable]="true"
-                    (edited)="edit($event)"
-                    (changed)="save()"
                     [aria-description]="'press enter to edit tag'">
-                    <span ng-model="tag"></span>
-                    <button matChipRemove [attr.aria-label]="'remove tag'">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
-                  </mat-chip-row>
+                <span>{{ tag }}</span>
+                <button matChipRemove [attr.aria-label]="'remove tag'">
+                    <mat-icon>cancel</mat-icon>
+                </button>
+                </mat-chip-row>
+}
                 <input placeholder="New tag..."
-                       [matChipInputFor]="chipGrid"
-                       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                       [matChipInputAddOnBlur]="addOnBlur"
-                       (matChipInputTokenEnd)="add('incomeTags', $event)"/>
+                    [matChipInputFor]="incomeChips"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                    [matChipInputAddOnBlur]="addOnBlur"
+                    (matChipInputTokenEnd)="add('incomeTags', $event)"/>
               </mat-chip-grid>
-            <question class="md-secondary helper" helper="Income tags will tell this app how to treat things you deem as income per defined pay period as defined above.">
-            </question>
-        </mat-list-item>
-        <mat-list-item>
+            <question class="md-secondary helper" helper="Income tags will tell this app how to treat things you deem as income per defined pay period as defined above."></question>
+        </div>
+        <div class="yaba-item wide">
             <label>What are your expense tags?: </label>
-            <mat-chip-grid #chipGrid aria-label="Enter expense tags" *ngFor="let tag of expenseTags; track tag">
-                  <mat-chip-row
-                    (removed)="remove($event)"
+            <mat-chip-grid #expenseChips aria-label="Enter expense tags">
+@for ( tag of settings.expenseTags; track tag ) {
+                <mat-chip-row
+                    (removed)="remove('expenseTags', $event)"
+                    (edited)="edit('expenseTags', tag, $event)"
                     [editable]="true"
-                    (edited)="edit($event)"
-                    (changed)="save()"
                     [aria-description]="'press enter to edit tag'">
-                    <span ng-model="tag"></span>
+                    <span>{{ tag }}</span>
                     <button matChipRemove [attr.aria-label]="'remove tag'">
                       <mat-icon>cancel</mat-icon>
                     </button>
-                  </mat-chip-row>
+                </mat-chip-row>
+}
                 <input placeholder="New tag..."
-                       [matChipInputFor]="chipGrid"
-                       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                       [matChipInputAddOnBlur]="addOnBlur"
-                       (matChipInputTokenEnd)="add('expenseTags', $event)"/>
+                    [matChipInputFor]="expenseChips"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                    [matChipInputAddOnBlur]="addOnBlur"
+                    (matChipInputTokenEnd)="add('expenseTags', $event)"/>
               </mat-chip-grid>
-            <question class="md-secondary helper" helper="Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses.">
-            </question>
-        </mat-list-item>
-        <mat-list-item>
+            <question class="md-secondary helper" helper="Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses."></question>
+        </div>
+        <div class="yaba-item wide">
             <label>What is your transfer tag?: </label>
-            <mat-chip-grid #chipGrid aria-label="Enter transfer tags" *ngFor="let tag of transferTags; track tag">
+            <mat-chip-grid #transferChips aria-label="Enter transfer tags">
+@for( tag of settings.transferTags; track tag ) {
                   <mat-chip-row
-                    (removed)="remove($event)"
+                    (removed)="remove('transferTags', $event)"
+                    (edited)="edit('transferTags', tag, $event)"
                     [editable]="true"
-                    (edited)="edit($event)"
-                    (changed)="save()"
                     [aria-description]="'press enter to edit tag'">
-                    <span ng-model="tag"></span>
+                    <span>{{ tag }}</span>
                     <button matChipRemove [attr.aria-label]="'remove tag'">
                       <mat-icon>cancel</mat-icon>
                     </button>
                   </mat-chip-row>
+}
                 <input placeholder="New tag..."
-                       [matChipInputFor]="chipGrid"
+                       [matChipInputFor]="transferChips"
                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                        [matChipInputAddOnBlur]="addOnBlur"
                        (matChipInputTokenEnd)="add('transferTags', $event)"/>
               </mat-chip-grid>
             <question class="md-secondary helper" helper="Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions.">
             </question>
-        </mat-list-item>
-        <mat-list-item>
+        </div>
+        <div class="yaba-item wide">
             <label>What is your hide tag?: </label>
-            <mat-chip-grid #chipGrid aria-label="Enter hidden tags" *ngFor="let tag of hideTags; track tag">
-                  <mat-chip-row
-                    (removed)="remove($event)"
+            <mat-chip-grid #hiddenChips aria-label="Enter hidden tags">
+@for ( tag of settings.hideTags; track tag ) {
+                <mat-chip-row
+                    (removed)="remove('hideTags', $event)"
+                    (edited)="edit('hideTags', tag, $event)"
                     [editable]="true"
-                    (edited)="edit($event)"
-                    (changed)="save()"
                     [aria-description]="'press enter to edit tag'">
-                    <span ng-model="tag"></span>
+                    <span>{{ tag }}</span>
                     <button matChipRemove [attr.aria-label]="'remove tag'">
                       <mat-icon>cancel</mat-icon>
                     </button>
                   </mat-chip-row>
+}
                 <input placeholder="New tag..."
-                       [matChipInputFor]="chipGrid"
+                       [matChipInputFor]="hiddenChips"
                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                        [matChipInputAddOnBlur]="addOnBlur"
                        (matChipInputTokenEnd)="add('hideTags', $event)"/>
               </mat-chip-grid>
             <question class="md-secondary helper" helper="These transactions will be hidden from view and removed from calculations."></question>
-        </mat-list-item>
-        <mat-list-item>
+        </div>
+        <div class="yaba-item wide">
             <label>What additional Fields do you want to see on transaction lists? </label>
             <div class="md-secondary additional-fields" layout="column">
-                <div><mat-checkbox ng-model="txShow.id" ng-change="save()">Transaction ID</mat-checkbox></div>
-                <div><mat-checkbox ng-model="txShow.datePending" ng-change="save()">Date Pending</mat-checkbox></div>
-                <div><mat-checkbox ng-model="txShow.merchant" ng-change="save()">Merchant</mat-checkbox></div>
-                <div><mat-checkbox ng-model="txShow.account" ng-change="save()">Account Name</mat-checkbox></div>
-                <div><mat-checkbox ng-model="txShow.transactionType" ng-change="save()">Transaction Type</mat-checkbox></div>
+                <div><mat-checkbox [(ngModel)]="settings.txShow.id" (ngModelChange)="save()">Transaction ID</mat-checkbox></div>
+                <div><mat-checkbox [(ngModel)]="settings.txShow.datePending" (ngModelChange)="save()">Date Pending</mat-checkbox></div>
+                <div><mat-checkbox [(ngModel)]="settings.txShow.merchant" (ngModelChange)="save()">Merchant</mat-checkbox></div>
+                <div><mat-checkbox [(ngModel)]="settings.txShow.account" (ngModelChange)="save()">Account Name</mat-checkbox></div>
+                <div><mat-checkbox [(ngModel)]="settings.txShow.transactionType" (ngModelChange)="save()">Transaction Type</mat-checkbox></div>
             </div>
             <question class="md-secondary helper" helper="Checking these will include these columns in transaction list displays"></question>
-        </mat-list-item>
-        <mat-list-item>
+        </div>
+        <div class="yaba-item wide">
             <label>Export all data to a set of CSV files in ZIP format: </label>
-            <button ng-click="export2zip()" class="md-secondary">[Export]</button>
-        </mat-list-item>
-        <mat-list-item>
+            <button (click)="export2zip()" class="md-secondary">[Export]</button>
+        </div>
+        <div class="yaba-item wide">
             <label>Import a previous export: </label>
-            <button ng-click="importFromzip()" class="md-secondary">[IMPORT]</button>
-        </mat-list-item>
-        <mat-list-item>
+            <button (click)="importFromZip()" class="md-secondary">[IMPORT]</button>
+        </div>
+        <div class="yaba-item wide">
             <label>Delete all data: </label>
             <span class="warning md-secondary">NOTE: This will delete ALL the data!!!</span>
-            <button ng-click="deleteAll()" class="md-secondary">DELETE</button><br />
-        </mat-list-item>
-    </mat-list>
-</content>
+            <button (click)="deleteAll()" class="md-secondary">DELETE</button><br />
+        </div>
+    </div>
+</div>
 <br clear="all" />

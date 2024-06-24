@@ -24,14 +24,6 @@ export enum AccountTypes {
 }
 
 /**
- * @enum {String} InterestStrategy - Strategies for calculating interest.
- */
-export enum InterestStrategy {
-    Simple = 'simple',
-    Compound = 'compound',
-}
-
-/**
  * @interface IAccount - Data model object to represent an account.
  */
 export interface IAccount {
@@ -41,10 +33,6 @@ export interface IAccount {
     description: string;
     balance: () => number;
     accountType: AccountTypes;
-    number: string;
-    routing: string;
-    interestRate: number;
-    interestStrategy: InterestStrategy;
     transactions: Transactions;
     update: (data: IAccount) => Account;
 }
@@ -56,26 +44,18 @@ export interface IAccount {
  */
 export class Account implements IAccount {
 
-    public id: string;
-    public institutionId: string;
-    public name: string;
-    public description: string;
-    public accountType: AccountTypes;
-    public number: string;
-    public routing: string;
-    public interestRate: number;
-    public interestStrategy: InterestStrategy;
-    public transactions: Transactions;
+    id: string;
+    institutionId: string;
+    name: string;
+    description: string;
+    accountType: AccountTypes;
+    transactions: Transactions;
 
     constructor(id?: string,
       institutionId?: string,
       name?: string,
       description?: string,
       accountType?: AccountTypes,
-      number?: string,
-      routing?: string,
-      interestRate?: number,
-      interestStrategy?: InterestStrategy,
       transactions?: Transactions
       ) {
         this.id = id || v4();
@@ -83,10 +63,6 @@ export class Account implements IAccount {
         this.name = name || '';
         this.description = description || '';
         this.accountType = accountType || AccountTypes.UNKNOWN;
-        this.number = number || '';
-        this.routing = routing || '';
-        this.interestRate = interestRate || 0.0;
-        this.interestStrategy = interestStrategy || InterestStrategy.Simple;
         this.transactions = transactions || new Transactions();
     }
 
@@ -94,16 +70,12 @@ export class Account implements IAccount {
      * Updates this object with any data one might have for updates.
      * @param {Object} data Input data to update for this object.
      */
-    public update(data: IAccount): Account {
+    update(data: IAccount): Account {
         data.id                 && (this.id = data.id);
         data.institutionId      && (this.institutionId = data.institutionId);
         data.name               && (this.name = data.name);
         data.description        && (this.description = data.description);
         data.accountType        && (this.accountType = data.accountType);
-        data.number             && (this.number = data.number);
-        data.routing            && (this.routing = data.routing);
-        data.interestRate       && (this.interestRate = Number(data.interestRate));
-        data.interestStrategy   && (this.interestStrategy = data.interestStrategy);
         if (  Object.hasOwn(data, 'transactions') && data.transactions instanceof Array ) {
             this.transactions.add(...data.transactions);
         }
@@ -114,7 +86,7 @@ export class Account implements IAccount {
      * Balance as a function will allow us to traverse the current transaction list.
      * @returns {Number} The current running balance of this account.
      */
-    public balance(): number {
+    balance(): number {
         return this.transactions.reduce((result: number, txn: ITransaction) => result += txn.amount, 0.0);
     }
 }
@@ -246,7 +218,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      * @param limit The maximum number of transactions to return. If not provided, all transactions are returned.
      * @returns New list of transactions that match the search criteria.
      */
-    public getTransactions(search: TransactionFilter): Transactions {
+    getTransactions(search: TransactionFilter): Transactions {
         return this.selected(search.accounts).reduce((a: Transactions, b: IAccount) => {a.add(...b.transactions.getTransactions(search)); return a;}, new Transactions());
     }
 
@@ -255,12 +227,12 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      * @returns {JSZip} The JSZip object with the CSV files.
      * @todo Figure out how to stream results rather than buffering in-memory.
      */
-    public toCSV(jszip: JSZip): JSZip {
+    toCSV(jszip: JSZip): JSZip {
         if ( this.length == 0 ) {
             return jszip;
         }
         const accountsZIP = ['"id","institutionId","name","description"' +
-            ',"accountType","number","routing","interestRate","interestStrategy"'];
+            ',"accountType"'];
         this.forEach((account: Account) => {
             const aFields = [
                 account.id,
@@ -268,10 +240,6 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
                 account.name,
                 account.description,
                 account.accountType,
-                account.number,
-                account.routing,
-                account.interestRate,
-                account.interestStrategy
             ];
             accountsZIP.push(`"${aFields.join('","')}"`);
             jszip.file(`transactions_${account.id}.csv`, account.transactions.toCSV());
@@ -284,7 +252,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      * Read a ZIP file and populate this instance with the data from the CSV.
      * @param {JSZip} jszip Instance of JSZip containing the files we need to operate on this instance.
      */
-    public async fromZIP(jszip: JSZip): Promise<Accounts> {
+    async fromZIP(jszip: JSZip): Promise<Accounts> {
         this.length = 0;
         const papaOpts = { header: true, skipEmptyLines: true };
         const accountsCSV = await jszip.files['accounts.csv'].async('text');
@@ -303,7 +271,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      * @param {String|Account|Array<String>|Array<Account>|Accounts} selectedAccounts The selected accounts to filter against.
      * @returns The accounts that match what was listed in the provided item or collection.
      */
-    public filterSelected(account: Account|string, selectedAccounts: Accounts | Account[] | Account | undefined) {
+    filterSelected(account: Account|string, selectedAccounts: Accounts | Account[] | Account | undefined) {
         if ( selectedAccounts === undefined ) {
             return true;
         }
@@ -326,7 +294,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      * @param {Array|Accounts} selectedAccounts The list of accounts to check for includes. Match ANY accounts listed.
      * @returns {Accounts}
      */
-    public selected(selectedAccounts: Accounts | Account[] | undefined): Accounts {
+    selected(selectedAccounts: Accounts | Account[] | undefined): Accounts {
         return <Accounts>this.filter((a: Account) => this.filterSelected(a, selectedAccounts));
     }
 

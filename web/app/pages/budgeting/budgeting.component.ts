@@ -1,29 +1,37 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Account, Accounts } from 'app/lib/accounts';
-import { IBudget } from 'app/lib/transactions';
+import { Component } from '@angular/core';
+
+import { Accounts } from 'app/lib/accounts';
+import { Budgets, EMPTY_TRANSACTION_FILTER } from 'app/lib/transactions';
 import { Transactions } from 'app/lib/transactions';
+import { AccountsService } from 'app/services/accounts.service';
+import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'yaba-budgeting',
-  templateUrl: './budgeting.component.html',
+    selector: 'yaba-budgeting',
+    templateUrl: './budgeting.component.html',
 })
 export class BudgetingComponent {
-  @Input() fromDate: Date;
-  @Input() toDate: Date;
-  @Input() selectedAccounts: Account[]|Accounts;
-  @Input() description: string|RegExp;
-  @Input() txns: Transactions;
-  @Input() budgets: IBudget[] = [];
-  error = '';
-  @Output() fromDateChange = new EventEmitter<Date>();
-  @Output() toDateChange = new EventEmitter<Date>();
-  @Output() descriptionChange = new EventEmitter<string|RegExp>();
+    txns = new Transactions();
+    filters = EMPTY_TRANSACTION_FILTER;
+    budgets: Budgets = [];
+    errors: string[] = [];
+    #cachedUpdates?: Subscription;
 
-  constructor() {
-    this.txns = new Transactions();
-    this.fromDate = new Date();
-    this.toDate = new Date();
-    this.selectedAccounts = [];
-    this.description = '';
-  }
+    constructor(protected accountsService: AccountsService) {
+        this.filters.description = '';
+        this.filters.accounts = [];
+    }
+
+    ngOnInit() {
+        const update = (accounts: Accounts) => {
+            this.txns = new Transactions(...accounts.map(a => a.transactions).flat());
+            this.budgets = this.txns.getBudgets();
+        };
+        update(this.accountsService.get());
+        this.#cachedUpdates = this.accountsService.subscribe(update);
+    }
+
+    ngOnDestroy() {
+        this.#cachedUpdates?.unsubscribe();
+    }
 }

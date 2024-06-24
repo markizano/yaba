@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ControlsModule } from 'app/controls/controls.module';
-import { IBudget } from 'app/lib/transactions';
+import { Budgets } from 'app/lib/transactions';
 
 @Component({
     selector: 'yaba-budgets-table',
@@ -15,14 +15,14 @@ import { IBudget } from 'app/lib/transactions';
     standalone: true,
 })
 export class YabaTableBudgetsComponent {
-    @Input() budgets: IBudget[];
+    @Input() budgets: Budgets;
 
     constructor() {
         this.budgets = [];
     }
 
-    getBudgets(): IBudget[] {
-        const budgets: IBudget[] = [...this.budgets];
+    getBudgets(): Budgets {
+        const budgets = this.budgets.concat(); // shallow copy to avoid modifying the original array.
         budgets.sort((a, b) => {
             if (a.tag < b.tag) {
                 return -1;

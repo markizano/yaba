@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { AccountTypes, Account, InterestStrategy } from 'app/lib/accounts';
+import { AccountTypes, Account } from 'app/lib/accounts';
 import { Institution, Institutions } from 'app/lib/institutions';
 import { FormMode } from 'app/lib/structures';
 import { NgSelectable } from 'app/lib/types';
@@ -33,7 +33,6 @@ export class AccountFormComponent {
     institutions = new Institutions();
     institutionIds: NgSelectable<Institution>[] = [];
     accountTypes = this.getAccountTypes();
-    interestStrategies = this.getInterestStrategies();
 
     // User feedback.
     errors: string[] = [];
@@ -64,10 +63,6 @@ export class AccountFormComponent {
 
     getAccountTypes(): NgSelectable<AccountTypes>[] {
         return Object.keys(AccountTypes).filter((x) => typeof x === 'string').map((y) => ({ label: y, value: AccountTypes[y as keyof typeof AccountTypes] }));
-    }
-
-    getInterestStrategies(): NgSelectable<InterestStrategy>[] {
-        return Object.keys(InterestStrategy).filter((x) => typeof x === 'string').map((y) => ({ label: y, value: InterestStrategy[y as keyof typeof InterestStrategy] }));
     }
 
     validate() {

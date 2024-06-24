@@ -5,13 +5,15 @@
             <th>Spending</th>
         </thead>
         <tbody>
-            <tr *ngForOf="let b in getBudgets()">
+@for(b of getBudgets(); track b) {
+            <tr>
                 <td>{{ b.tag }}</td>
                 <td>{{ b.amount | currency }}</td>
             </tr>
+}
         </tbody>
     </table>
 </div>
-<debug>
+<!-- <debug>
     budgets: {{budgets.length}}
-</debug>
+</debug> -->

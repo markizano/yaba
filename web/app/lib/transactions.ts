@@ -123,17 +123,17 @@ abstract class aTransaction implements ITransaction {
  */
 export class Transaction extends aTransaction implements ITransaction {
     readonly UNKNOWN = 'unknown'; // TS hack to make 'UNKNOWN' work as a member.
-    public id: string;
-    public accountId: string;
-    public description: string;
-    public datePending: Date;
-    public datePosted: Date;
-    public transactionType: TransactionType;
-    public amount: number;
-    public tax: number;
-    public currency: CurrencyType;
-    public merchant: string;
-    public tags: Tags;
+    id: string;
+    accountId: string;
+    description: string;
+    datePending: Date;
+    datePosted: Date;
+    transactionType: TransactionType;
+    amount: number;
+    tax: number;
+    currency: CurrencyType;
+    merchant: string;
+    tags: Tags;
 
     constructor(id?: ITransaction);
     constructor(id?: string|ITransaction,
@@ -180,7 +180,7 @@ export class Transaction extends aTransaction implements ITransaction {
      * @param {ITransaction} data Data object to load.
      * @return {Transaction} Chainable object.
      */
-    public update(data: ITransaction): Transaction {
+    update(data: ITransaction): Transaction {
         data.id                 && (this.id = data.id);
         data.accountId          && (this.accountId = data.accountId);
         data.description        && (this.description = data.description);
@@ -200,7 +200,7 @@ export class Transaction extends aTransaction implements ITransaction {
      * @param {string} tag Check to see if this transaction has a this given tag.
      * @returns {boolean} whether we have this tag or not.
      */
-    public hasTag(tag: string): boolean {
+    hasTag(tag: string): boolean {
         return this.tags.includes(tag);
     }
 
@@ -209,7 +209,7 @@ export class Transaction extends aTransaction implements ITransaction {
      * @param {String} tag Name of the tag to ensure is set.
      * @returns {Transaction}
      */
-    public setTag(tag: string): Transaction {
+    setTag(tag: string): Transaction {
         if ( ! this.hasTag(tag) ) {
             this.addTag(tag);
         }
@@ -221,7 +221,7 @@ export class Transaction extends aTransaction implements ITransaction {
      * @param {String} tag Name of the tag to add.
      * @returns {Transaction}
      */
-    public addTag(tag: string): Transaction {
+    addTag(tag: string): Transaction {
         this.tags.push(tag);
         return this;
     }
@@ -231,7 +231,7 @@ export class Transaction extends aTransaction implements ITransaction {
      * @param {String} tag The tag in question to ensure is removed.
      * @returns {Transaction}
      */
-    public removeTag(tag: string): Transaction {
+    removeTag(tag: string): Transaction {
         if ( this.hasTag(tag) ) {
             this.tags = this.tags.filter(t => t != tag);
         }
@@ -242,7 +242,7 @@ export class Transaction extends aTransaction implements ITransaction {
      * Get the YYYYMM representation of this transaction for date categorization.
      * @returns {String}
      */
-    public YYYYMM(): string {
+    YYYYMM(): string {
         return this.datePosted.toISOShortDate().split('-', 2).join('-');
     }
 }
@@ -1158,7 +1158,7 @@ class TransactionGroup {
         return result;
     }
 
-    public length(): number {
+    length(): number {
         return Object.keys(this).length;
     }
 

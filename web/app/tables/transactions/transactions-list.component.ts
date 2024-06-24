@@ -49,6 +49,7 @@ export class TransactionsListComponent {
 
     // Decorators
     @Input() showPaginate = true;
+    @Input() truncate = false;
     @Input() txShow?: TransactionShowHeaders;
 
     @Input() editable = false;
