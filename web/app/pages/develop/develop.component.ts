@@ -1,6 +1,5 @@
 import { Component, EventEmitter } from '@angular/core';
 import { AccountsFilterComponent } from 'app/controls/account-filter.component';
-import { TransactionShowHeaders } from 'app/lib/types';
 
 import { EMPTY_TRANSACTION_FILTER, Transactions } from 'app/lib/transactions';
 import { AccountsService } from 'app/services/accounts.service';
@@ -24,13 +23,6 @@ export class DevelopComponent {
     transactions = new Transactions();
     transactionsChange = new EventEmitter<Transactions>();
     filters = EMPTY_TRANSACTION_FILTER;
-    txShow = <TransactionShowHeaders>{
-        id: false,
-        account: true,
-        datePending: false,
-        merchant: false,
-        transactionType: false,
-    };
     #cachedUpdate?: Subscription;
 
     constructor(protected accountsService: AccountsService) {

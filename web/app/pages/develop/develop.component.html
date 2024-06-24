@@ -6,18 +6,17 @@
     <label>Paginate: <input type="checkbox" name="showPaginate" #showPaginate checked /> </label> |
     <label>Header: <input type="checkbox" name="showHeader" #showHeader checked /> </label> |
     <br />
-    <p>
+    <!-- <p>
         Fields: 
         ID: <input type="checkbox" name="txShow_id" [(ngModel)]="txShow.id" /> |
         Date: <input type="checkbox" name="txShow_date" [(ngModel)]="txShow.datePending" /> |
         Account: <input type="checkbox" name="txShow_account" [(ngModel)]="txShow.account" /> |
         Merchant: <input type="checkbox" name="txShow_merchant" [(ngModel)]="txShow.merchant" /> |
         Type: <input type="checkbox" name="txShow_type" [(ngModel)]="txShow.transactionType" /> |
-    </p>
+    </p> -->
 </div>
 <yaba-transaction-list
     [(transactions)]="transactions"
-    [txShow]="txShow"
     [filters]="filters"
     [showFilters]="showFilters.checked"
     [showHeader]="showHeader.checked"
