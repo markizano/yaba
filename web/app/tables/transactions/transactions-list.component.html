@@ -10,14 +10,14 @@
     @if ( showHeader ) {
         <thead>
             <tr>
-        @if ( txShow?.id )              {<th>Transaction ID</th>}
-        @if ( txShow?.datePending )     {<th (click)="sortBy('datePending');">Date Pending</th>}
+        @if ( txShow.id )              {<th>Transaction ID</th>}
+        @if ( txShow.datePending )     {<th (click)="sortBy('datePending');">Date Pending</th>}
        <!-- Always show post date -->    <th (click)="sortBy('datePosted');">Date Posted</th>
-        @if ( txShow?.account )         {<th (click)="sortBy('accountId');">Account</th>}
+        @if ( txShow.account )         {<th (click)="sortBy('accountId');">Account</th>}
         <!-- Always show amount -->      <th (click)="sortBy('amount');">Amount</th>
         <!-- Always show desc. -->       <th (click)="sortBy('description');">Description</th>
-        @if ( txShow?.merchant )        {<th (click)="sortBy('merchant');">Merchant</th>}
-        @if ( txShow?.transactionType ) {<th>Transaction Type</th>}
+        @if ( txShow.merchant )        {<th (click)="sortBy('merchant');">Merchant</th>}
+        @if ( txShow.transactionType ) {<th>Transaction Type</th>}
         @if ( showTags )                {<th>Budgets</th>}
             </tr>
         </thead>
@@ -25,8 +25,8 @@
         <tbody>
     @for(txn of txns; track txn.id) {
         <tr>
-            @if (txShow?.id) {<td> <span class="md-truncate"> {{ txn.id }} </span> </td>}
-            @if (txShow?.datePending) {<td [ngSwitch]="currentlyEditing.datePending">
+            @if (txShow.id) {<td> <span class="md-truncate"> {{ txn.id }} </span> </td>}
+            @if (txShow.datePending) {<td [ngSwitch]="currentlyEditing.datePending">
                 <span *ngSwitchCase="false"> {{ txn.datePending | date:'yyyy-MM-dd' }} </span>
                 <div *ngSwitchCase="true">
                     <input
@@ -49,7 +49,7 @@
                 </div>
             </td>
 
-            @if ( txShow?.account ) {<td> <span> {{ accountId2name[txn.accountId] || '{!unknown account id!}' }} </span> </td>}
+            @if ( txShow.account ) {<td> <span> {{ accountId2name[txn.accountId] || '{!unknown account id!}' }} </span> </td>}
 
             <td [ngSwitch]="currentlyEditing.amount">
                 <span *ngSwitchCase="false" [textContent]="txn.amount | currency" [ngClass]="{'negative': txn.amount < 0}"></span>
@@ -75,7 +75,7 @@
                     />
                 </span>
             </td>
-            @if ( txShow?.merchant ) {<td [ngSwitch]="currentlyEditing.merchant">
+            @if ( txShow.merchant ) {<td [ngSwitch]="currentlyEditing.merchant">
                 <span *ngSwitchCase="false"> {{ txn.merchant }} </span>
                 <span *ngSwitchCase="true">
                     <input
@@ -86,7 +86,7 @@
                     />
                 </span>
             </td>}
-            @if ( txShow?.transactionType ) {<td [ngSwitch]="currentlyEditing.transactionType">
+            @if ( txShow.transactionType ) {<td [ngSwitch]="currentlyEditing.transactionType">
                 <span *ngSwitchCase="false"> {{ txn.transactionType }} </span>
                 <span *ngSwitchCase="true">
                     <input

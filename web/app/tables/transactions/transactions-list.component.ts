@@ -13,6 +13,7 @@ import { TxnEditDirective } from 'app/tables/transactions/txn-edit.directive';
 import { TransactionFilterComponent } from 'app/controls/txn-filter.component';
 import { Accounts } from 'app/lib/accounts';
 import { Subscription } from 'rxjs';
+import { Settings } from 'app/lib/settings';
 
 @Component({
     selector: 'yaba-transaction-list',
@@ -50,7 +51,7 @@ export class TransactionsListComponent {
     // Decorators
     @Input() showPaginate = true;
     @Input() truncate = false;
-    @Input() txShow?: TransactionShowHeaders;
+    txShow: TransactionShowHeaders;
 
     @Input() editable = false;
     @Input() showHeader = true;
@@ -75,6 +76,7 @@ export class TransactionsListComponent {
         console.log('new TransactionsListComponent()');
         this.transactionsChange.subscribe(() => this.refresh());
         this.filtersChange.subscribe(() => this.refresh());
+        this.txShow = Settings.fromLocalStorage().txShow;
     }
 
     ngOnInit(): void {
