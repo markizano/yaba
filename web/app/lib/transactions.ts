@@ -8,6 +8,7 @@ import { IAccount, Account, Accounts } from 'app/lib/accounts';
 import { IInstitution, InstitutionMappings, MapTypes, IMapping } from 'app/lib/institutions';
 import { Description, Id2NameHashMap, Tags, YabaPlural } from 'app/lib/types';
 import { PageEvent } from '@angular/material/paginator';
+import { Settings } from './settings';
 
 /**
  * Annotation type for a transaction type.
@@ -67,12 +68,12 @@ export type TransactionFilter = {
     budgets?: Budgets;
     accounts?: Account[]|Accounts;
     tags?: Tags;
-    sort: TxnSortHeader,
+    sort: TxnSortHeader;
     page: PageEvent,
 };
 
 export const EMPTY_TRANSACTION_FILTER = <TransactionFilter>{
-    fromDate: new Date(Date.now() - DEFAULT_DATERANGE),
+    fromDate: new Date(Date.now() - Settings.fromLocalStorage().txnDelta ?? DEFAULT_DATERANGE),
     toDate: new Date(),
     sort: { column: 'datePosted', asc: true },
     page: { pageIndex: 0, pageSize: 10, length: 0 },
@@ -723,6 +724,54 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     }
 
     /**
+     * Like the TSA, search the transaction for what we are looking.
+     * @param search 
+     * @param txn 
+     * @returns 
+     */
+    searchTransaction(search: TransactionFilter, txn: Transaction): boolean {
+        const tests = {
+            date: true,
+            description: false,
+            tags: false,
+        };
+
+        /* DATES */
+        if ( search.fromDate !== undefined && search.toDate !== undefined && search.fromDate != NULLDATE && search.toDate != NULLDATE) {
+            tests.date = this.filterDaterange(txn, new Date(search.fromDate), new Date(search.toDate));
+        }
+
+        /* DESCRIPTION */
+        if ( search.description !== undefined && search.description !== '' ) {
+            tests.description = this.filterDescription(txn, search.description);
+        }
+
+        /* TAGS (OR|ANY) */
+        if ( search.tags && search.tags.length > 0 ) {
+            tests.tags = this.filterTags(txn, search.tags);
+        }
+
+        const useDate = ( !!search.fromDate && !!search.toDate ),
+            useDescription = !!search.description,
+            useTags = !!search.tags && search.tags.length > 0;
+
+            const truthy = [
+            useDate? tests.date: true,
+            useDescription? tests.description: true,
+            useTags? tests.tags: true
+        ];
+        /*
+        console.log([
+            {useDate, fromDate: search.fromDate, toDate: search.toDate },
+            {useDescription, description: search.description},
+            {useTags, tags: search.tags},
+            {truthy}
+        ]); //*/
+
+        return truthy.every(x => x);
+    }
+
+    /**
      * Assumes all data points are found as they are required.
      * This method takes and combines the filter functions above to give us a robust method that will filter on
      * an "ANY" basis for the criteria described. In this way, we only iterate the transactions once and filter out
@@ -741,47 +790,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @returns {Transactions} List of transactions after filtering and limiting.
      */
     getTransactions(search: TransactionFilter): Transactions {
-        let result = this.search((txn: Transaction) => {
-            const tests = {
-                date: true,
-                description: false,
-                tags: false,
-            };
-
-            /* DATES */
-            if ( search.fromDate !== undefined && search.toDate !== undefined && search.fromDate != NULLDATE && search.toDate != NULLDATE) {
-                tests.date = this.filterDaterange(txn, new Date(search.fromDate), new Date(search.toDate));
-            }
-
-            /* DESCRIPTION */
-            if ( search.description !== undefined && search.description !== '' ) {
-                tests.description = this.filterDescription(txn, search.description);
-            }
-
-            /* TAGS (OR|ANY) */
-            if ( search.tags && search.tags.length > 0 ) {
-                tests.tags = this.filterTags(txn, search.tags);
-            }
-
-            const useDate = ( !!search.fromDate && !!search.toDate ),
-                useDescription = !!search.description,
-                useTags = !!search.tags && search.tags.length > 0;
-
-                const truthy = [
-                useDate? tests.date: true,
-                useDescription? tests.description: true,
-                useTags? tests.tags: true
-            ];
-            /*
-            console.log([
-                {useDate, fromDate: search.fromDate, toDate: search.toDate },
-                {useDescription, description: search.description},
-                {useTags, tags: search.tags},
-                {truthy}
-            ]); //*/
-
-            return truthy.every(x => x);
-        });
+        let result = this.search((txn: Transaction) => this.searchTransaction(search, txn));
 
         if ( search.sort ) {
             result = result.sortBy(search.sort.column, search.sort.asc);

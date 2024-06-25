@@ -7,119 +7,23 @@
 @if ( showFilters ){ <transaction-filters [transactions]="transactions" [(filter)]="filters" (filterChange)="filtersChange.emit($event)"></transaction-filters> }
 @if ( txns.length > 0) {
     <table class="data item-list" [ngClass]="editable ? 'editable': ''">
-    @if ( showHeader ) {
         <thead>
             <tr>
-        @if ( txShow.id )              {<th>Transaction ID</th>}
-        @if ( txShow.datePending )     {<th (click)="sortBy('datePending');">Date Pending</th>}
+        @if ( txShow.id )               {<th>Transaction ID</th>}
+        @if ( txShow.datePending )      {<th (click)="sortBy('datePending');">Date Pending</th>}
        <!-- Always show post date -->    <th (click)="sortBy('datePosted');">Date Posted</th>
-        @if ( txShow.account )         {<th (click)="sortBy('accountId');">Account</th>}
-        <!-- Always show amount -->      <th (click)="sortBy('amount');">Amount</th>
+        @if ( txShow.account )          {<th (click)="sortBy('accountId');">Account</th>}
         <!-- Always show desc. -->       <th (click)="sortBy('description');">Description</th>
-        @if ( txShow.merchant )        {<th (click)="sortBy('merchant');">Merchant</th>}
-        @if ( txShow.transactionType ) {<th>Transaction Type</th>}
-        @if ( showTags )                {<th>Budgets</th>}
+        <!-- Always show amount -->      <th (click)="sortBy('amount');">Amount</th>
+        @if ( txShow.tax )              {<th>Tax</th>}
+        @if ( txShow.merchant )         {<th (click)="sortBy('merchant');">Merchant</th>}
+        @if ( txShow.transactionType )  {<th>Transaction Type</th>}
+        @if ( txShow.tags )             {<th>Budgets</th>}
             </tr>
         </thead>
-    }
         <tbody>
-    @for(txn of txns; track txn.id) {
-        <tr>
-            @if (txShow.id) {<td> <span class="md-truncate"> {{ txn.id }} </span> </td>}
-            @if (txShow.datePending) {<td [ngSwitch]="currentlyEditing.datePending">
-                <span *ngSwitchCase="false"> {{ txn.datePending | date:'yyyy-MM-dd' }} </span>
-                <div *ngSwitchCase="true">
-                    <input
-                    type="date"
-                    name="datePending"
-                    [(ngModel)]="txn.datePending"
-                    class="txn-edit-field"
-                    />
-                </div>
-            </td>}
-            <td [ngSwitch]="currentlyEditing.datePosted">
-                <span *ngSwitchCase="false"> {{ txn.datePosted | date:'yyyy-MM-dd' }} </span>
-                <div *ngSwitchCase="true">
-                    <input
-                      type="date"
-                      name="datePosted"
-                      [(ngModel)]="txn.datePosted"
-                      class="txn-edit-field"
-                    />
-                </div>
-            </td>
-
-            @if ( txShow.account ) {<td> <span> {{ accountId2name[txn.accountId] || '{!unknown account id!}' }} </span> </td>}
-
-            <td [ngSwitch]="currentlyEditing.amount">
-                <span *ngSwitchCase="false" [textContent]="txn.amount | currency" [ngClass]="{'negative': txn.amount < 0}"></span>
-                <span *ngSwitchCase="true">
-                    <input
-                    type="number"
-                    step="0.01"
-                    name="amount"
-                    [(ngModel)]="txn.amount"
-                    class="txn-edit-field"
-                    />
-                </span>
-            </td>
-            <td [ngSwitch]="currentlyEditing.description">
-                <!-- md-truncate has failed me here! :sob: -->
-                <span *ngSwitchCase="false" class="md-truncate"> {{ truncate ? txn.description.slice(0, 30): txn.description }}{{ txn.description.length > 30 ? '...' : '' }} </span>
-                <span *ngSwitchCase="true">
-                    <input
-                    type="text"
-                    name="description"
-                    [(ngModel)]="txn.description"
-                    class="txn-edit-field"
-                    />
-                </span>
-            </td>
-            @if ( txShow.merchant ) {<td [ngSwitch]="currentlyEditing.merchant">
-                <span *ngSwitchCase="false"> {{ txn.merchant }} </span>
-                <span *ngSwitchCase="true">
-                    <input
-                    type="text"
-                    name="merchant"
-                    [(ngModel)]="txn.merchant"
-                    class="txn-edit-field"
-                    />
-                </span>
-            </td>}
-            @if ( txShow.transactionType ) {<td [ngSwitch]="currentlyEditing.transactionType">
-                <span *ngSwitchCase="false"> {{ txn.transactionType }} </span>
-                <span *ngSwitchCase="true">
-                    <input
-                    type="text"
-                    name="transactionType"
-                    [(ngModel)]="txn.transactionType"
-                    class="txn-edit-field"
-                    />
-                </span>
-            </td>}
-            @if ( showTags ) {<td [ngSwitch]="currentlyEditing.tags">
-                <span *ngSwitchCase="false"> {{ txn.tags.join(", ") }} </span>
-                <span *ngSwitchCase="true">
-                    <mat-chip-grid #chipGrid aria-label="Enter hidden tags" *ngFor="let tag of txn.tags; track tag">
-                          <mat-chip-row
-                            (removed)="removeTag(txn, $event)"
-                            [editable]="true"
-                            [aria-description]="'press enter to edit tag'">
-                            <span [textContent]="tag"></span>
-                            <button matChipRemove [attr.aria-label]="'remove tag'">
-                              <mat-icon>cancel</mat-icon>
-                            </button>
-                          </mat-chip-row>
-                        <input placeholder="New tag..."
-                            name="tags"
-                               [matChipInputFor]="chipGrid"
-                               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                               [matChipInputAddOnBlur]="addOnBlur"
-                               (matChipInputTokenEnd)="addTag(txn, $event)"/>
-                      </mat-chip-grid>
-                </span>
-            </td>}
-        </tr>
+    @for(txn of txns; let i = $index; track txn.id) {
+        <tr class="yaba-txn-row" [(txn)]="txns[i]" [truncate]="truncate" [editable]="editable" ></tr>
     }
         </tbody>
     </table>
@@ -127,7 +31,7 @@
 @if ( showPaginate && transactions.length > 10 ){
     <mat-paginator 
         (page)="turnPage($event)"
-        [length]="transactions.length"
+        [length]="length"
         [pageSize]="10"
         [pageSizeOptions]="[10, 25, 50, 100]"
     ></mat-paginator>

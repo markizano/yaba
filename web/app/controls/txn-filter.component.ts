@@ -70,6 +70,7 @@ export class TransactionFilterComponent {
 
     description($event: DescriptionChange) {
         this.filter.description = $event.useRegexp ? new RegExp($event.description) : $event.description;
+        console.debug('description', this.filter.description);
         this.filterChange.emit(this.filter);
     }
 }
