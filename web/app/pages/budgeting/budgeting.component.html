@@ -5,9 +5,8 @@
         <yaba-transaction-list
             [transactions]="txns"
             [(filters)]="filters"
-            [showHeader]="true"
+            (budgets)="localBudgets($event)"
             [showFilters]="true"
-            [showTags]="true"
             [editable]="true"
         ></yaba-transaction-list>
         <yaba-budgets-table [budgets]="budgets" />

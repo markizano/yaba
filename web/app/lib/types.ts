@@ -62,6 +62,8 @@ export type TransactionShowHeaders = {
     account: boolean;
     transactionType: boolean;
     merchant: boolean;
+    tax: boolean;
+    tags: boolean;
 };
 
 

@@ -5,16 +5,22 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 
 import { Id2NameHashMap, TransactionShowHeaders } from 'app/lib/types';
-import { Transactions, EditPlaceholder, Transaction, TransactionFilter, TransactionFields, EMPTY_TRANSACTION_FILTER, TxnSortHeader } from 'app/lib/transactions';
+import { Transactions, Transaction, TransactionFilter, TransactionFields, EMPTY_TRANSACTION_FILTER, TxnSortHeader, Budgets } from 'app/lib/transactions';
 
 import { AccountsService } from 'app/services/accounts.service';
 import { ControlsModule } from 'app/controls/controls.module';
-import { TxnEditDirective } from 'app/tables/transactions/txn-edit.directive';
 import { TransactionFilterComponent } from 'app/controls/txn-filter.component';
 import { Accounts } from 'app/lib/accounts';
 import { Subscription } from 'rxjs';
 import { Settings } from 'app/lib/settings';
+import { TxnRowComponent } from './txn-row/txn-row.component';
 
+/**
+ * This component is a table that displays transactions. It can be filtered, sorted, and paginated.
+ * 
+ * @example
+ * <yaba-transaction-list [transactions]="transactions" [filters]="filters" [showFilters]="true" [showPaginate]="true" [editable]="true" [showTags]="true"></yaba-transaction-list>
+ */
 @Component({
     selector: 'yaba-transaction-list',
     templateUrl: './transactions-list.component.html',
@@ -24,7 +30,7 @@ import { Settings } from 'app/lib/settings';
         MatIconModule,
         ControlsModule,
         TransactionFilterComponent,
-        TxnEditDirective,
+        TxnRowComponent,
         MatPaginatorModule,
     ],
 })
@@ -38,55 +44,59 @@ export class TransactionsListComponent {
     }
     set transactions(value: Transactions) {
         this.#transactions = value;
-        this.refresh();
     }
     @Output() transactionsChange = new EventEmitter<Transactions>();
+    @Output() budgets = new EventEmitter<Budgets>();
 
-    // Filtering
+    /**
+     * Show the filter controls at the top of the table
+     */
     @Input() showFilters = true;
 
+    /**
+     * The filters to apply to the transactions.
+     */
     @Input() filters = EMPTY_TRANSACTION_FILTER;
     @Output() filtersChange = new EventEmitter<TransactionFilter>();
 
-    // Decorators
+    /**
+     * Show the pagination controls at the bottom of the table.
+     */
     @Input() showPaginate = true;
+    /**
+     * Truncate the description to 30 characters for neater display (since I can't figure out the css)
+     */
     @Input() truncate = false;
-    txShow: TransactionShowHeaders;
 
+    /**
+     * Show the transaction headers (date, description, etc.)
+     */
+    txShow: TransactionShowHeaders = Settings.fromLocalStorage().txShow;
+
+    /**
+     * Allow the user to edit the transactions in place.
+     */
     @Input() editable = false;
-    @Input() showHeader = true;
-    @Input() showTags = true;
 
-    currentlyEditing = <EditPlaceholder>{
-        datePending: false,
-        datePosted: false,
-        amount: false,
-        description: false,
-        merchant: false,
-        transactionType: false,
-        tags: false,
-    };
     txns = new Transactions();
     accountId2name = <Id2NameHashMap>{};
+    page: PageEvent = {pageIndex: 0, pageSize: 10, length: 0};
+    sort: TxnSortHeader = {column: 'datePosted', asc: true};
+    length = 0;
 
     #oldTxnLen = 0;
     #cachedUpdates?: Subscription;
+    #postFilterTxns = new Transactions();
 
     constructor(protected accountsService: AccountsService) {
-        console.log('new TransactionsListComponent()');
-        this.transactionsChange.subscribe(() => this.refresh());
-        this.filtersChange.subscribe(() => this.refresh());
-        this.txShow = Settings.fromLocalStorage().txShow;
+        this.transactionsChange.subscribe(() => this.postFilter());
+        this.filtersChange.subscribe(() => this.postFilter());
     }
 
     ngOnInit(): void {
-        console.log('TransactionsListComponent().ngOnInit()');
         console.debug(this.transactions);
-        const update = (acts: Accounts) => {
-            this.accountId2name = new Accounts(...acts).reduce((acc, x) => {
-                acc[x.id] = x.name;
-                return acc;
-            }, <Id2NameHashMap>{});
+        const update = (accounts: Accounts) => {
+            this.accountId2name = accounts.id2name;
         };
         update(this.accountsService.get());
         this.#cachedUpdates = this.accountsService.subscribe(update);
@@ -104,13 +114,24 @@ export class TransactionsListComponent {
     }
 
     /**
-     * I know there's a more efficient way of doing this, but I'm not sure how to refresh only updated
-     * records rather than iterating over the array again with the filter set.
+     * Post filter, store a copy of the filtered, sorted transactions so we don't have to recalculate indexes.
+     * This function will take the place of this.refresh() where the filter changes occur.
      */
-    refresh() {
-        console.log('TransactionListComponent().refresh()');
-        this.txns = new Transactions(...this.transactions.getTransactions(this.filters));
-        console.debug({filters: this.filters, transactions: this.transactions, txns: this.txns});
+    postFilter() {
+        this.#postFilterTxns = <Transactions>this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(this.filters, txn));
+        this.length = this.#postFilterTxns.length;
+        this.budgets.emit( this.#postFilterTxns.getBudgets() );
+        this.page0();
+    }
+
+    /**
+     * Post-paginate, we want to take the filtered, sorted transactions and paginate them, but don't recalculate the 
+     * set just for flipping the pages.
+     */
+    postPaginate() {
+        const offset = this.page.pageIndex * this.page.pageSize;
+        const end = offset + this.page.pageSize;
+        this.txns = <Transactions>this.#postFilterTxns.slice(offset, end);
     }
 
     filtation(filters: TransactionFilter): string {
@@ -121,18 +142,16 @@ export class TransactionsListComponent {
             budgets: filters.budgets,
             accounts: filters.accounts?.map(x => ({id: x.id, name: x.name})),
             tags: filters.tags,
-            sort: filters.sort,
+            sort: this.sort,
             page: filters.page,
         });
     }
 
     sortBy(header: TransactionFields): void {
-        const sortAgent = <TxnSortHeader>{
-            asc: this.filters.sort.column == header? !this.filters.sort.asc: true,
-            column: header,
-        };
-        this.filters.sort = sortAgent;
-        this.filtersChange.emit(this.filters);
+        this.sort.asc = this.sort.column == header? !this.sort.asc: true;
+        this.sort.column = header;
+        this.#postFilterTxns = this.#postFilterTxns.sortBy(this.sort.column, this.sort.asc);
+        this.page0();
     }
 
     removeTag(txn: Transaction, $event: MatChipEvent): void {
@@ -140,14 +159,16 @@ export class TransactionsListComponent {
     }
 
 
-    addTag(txn: Transaction, $event: MatChipInputEvent) {
+    addTag(txn: Transaction, $event: MatChipInputEvent): Transaction {
         return txn.addTag($event.value);
     }
 
-    turnPage($event: PageEvent) {
-        console.log('page turned:', $event);
-        this.filters.page = $event;
-        this.filtersChange.emit(this.filters);
-        this.refresh();
+    page0() {
+        this.turnPage({pageIndex: 0, pageSize: this.page.pageSize, length: this.length});
+    }
+
+    turnPage($event: PageEvent): void {
+        this.page = $event;
+        this.postPaginate();
     }
 }

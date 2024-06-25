@@ -122,9 +122,11 @@
             <div class="md-secondary additional-fields" layout="column">
                 <div><mat-checkbox [(ngModel)]="settings.txShow.id" (ngModelChange)="save()">Transaction ID</mat-checkbox></div>
                 <div><mat-checkbox [(ngModel)]="settings.txShow.datePending" (ngModelChange)="save()">Date Pending</mat-checkbox></div>
-                <div><mat-checkbox [(ngModel)]="settings.txShow.merchant" (ngModelChange)="save()">Merchant</mat-checkbox></div>
                 <div><mat-checkbox [(ngModel)]="settings.txShow.account" (ngModelChange)="save()">Account Name</mat-checkbox></div>
+                <div><mat-checkbox [(ngModel)]="settings.txShow.tax" (ngModelChange)="save()">Tax</mat-checkbox></div>
+                <div><mat-checkbox [(ngModel)]="settings.txShow.merchant" (ngModelChange)="save()">Merchant</mat-checkbox></div>
                 <div><mat-checkbox [(ngModel)]="settings.txShow.transactionType" (ngModelChange)="save()">Transaction Type</mat-checkbox></div>
+                <div><mat-checkbox [(ngModel)]="settings.txShow.tags" (ngModelChange)="save()">Tags</mat-checkbox></div>
             </div>
             <question class="md-secondary helper" helper="Checking these will include these columns in transaction list displays"></question>
         </div>

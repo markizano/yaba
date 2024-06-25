@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Description, DescriptionChange } from 'app/lib/types';
+import { Subscription, debounceTime } from 'rxjs';
 
 /**
  * Description component does not require any input since it is just a textbox to receive input from the user.
@@ -18,15 +19,27 @@ import { Description, DescriptionChange } from 'app/lib/types';
 })
 export class DescriptionFilterComponent {
     description: Description = '';
+    descriptionChanged = new EventEmitter<Description>();
+    #descriptionSub?: Subscription;
+
     useRegexp = false;
+    useRegexpChanged = new EventEmitter<boolean>();
+    #useRegexpSub?: Subscription;
 
     @Output() changed = new EventEmitter<DescriptionChange>();
 
-    onChanged(description: Description) {
-        this.description = description;
-        this.emit();
+    ngOnInit() {
+        this.#descriptionSub = this.descriptionChanged.pipe(debounceTime(2000)).subscribe(() => this.onChanged());
+        this.#useRegexpSub = this.useRegexpChanged.pipe(debounceTime(2000)).subscribe(() => this.onChanged());
     }
-    emit() {
+
+    ngOnDestroy() {
+        this.#descriptionSub?.unsubscribe();
+        this.#useRegexpSub?.unsubscribe();
+    }
+
+    onChanged() {
+        console.debug('DescriptionFilterComponent.onChanged()', this.description, this.useRegexp);
         this.changed.emit({description: this.description, useRegexp: this.useRegexp});
     }
 }
