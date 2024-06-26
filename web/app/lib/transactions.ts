@@ -95,8 +95,8 @@ export class Transaction extends aTransaction implements ITransaction {
         data.accountId          && (this.accountId = data.accountId);
         data.description        && (this.description = data.description);
         data.transactionType    && (this.transactionType = <TransactionType>data.transactionType);
-        data.amount             && (this.amount = <number>data.amount);
-        data.tax                && (this.tax = <number>data.tax);
+        data.amount             && (this.amount = typeof data.amount == 'string' ? parseFloat(data.amount) : <number>data.amount);
+        data.tax                && (this.tax = typeof data.tax == 'string'? parseFloat(data.tax): <number>data.tax);
         data.currency           && (this.currency = <CurrencyType>data.currency);
         data.merchant           && (this.merchant = data.merchant);
         data.tags               && (this.tags = <Tags>data.tags);
@@ -322,7 +322,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
         const papaOpts = { header: true, skipEmptyLines: true };
         const transactionCSV = await jszip.files[`transactions_${accountId}.csv`].async('text');
         const parsedTransactions = Papa.parse(transactionCSV, papaOpts);
-        this.add(...parsedTransactions.data as ITransaction[] );
+        this.add(...parsedTransactions.data.map((t) => Transaction.fromObject(t as ITransaction) ) );
         return this;
     }
 
