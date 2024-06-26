@@ -5,7 +5,9 @@ import { Settings } from 'app/lib/settings';
 import { InstitutionsService } from 'app/services/institutions.service';
 import { AccountsService } from 'app/services/accounts.service';
 import * as JSZip from 'jszip';
-// import { saveAs } from 'file-saver';
+import { saveAs } from 'file-saver';
+import { Institutions } from 'app/lib/institutions';
+import { Accounts } from 'app/lib/accounts';
 
 type TagType = 'incomeTags' | 'expenseTags' | 'transferTags' | 'hideTags';
 @Component({
@@ -18,6 +20,7 @@ export class SettingsComponent {
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
     settings = new Settings();
+    import?: File;
 
     constructor(protected institutionsService: InstitutionsService, protected accountsService: AccountsService) { }
 
@@ -37,6 +40,7 @@ export class SettingsComponent {
      */
     add(tagKey: TagType, $event: MatChipInputEvent) {
         // Add a new tags to respective list
+        if (!$event.value) { console.warn('ignoring empty tag'); return; }
         console.log('add: ', tagKey, $event);
         switch (tagKey) {
             case 'incomeTags':
@@ -119,19 +123,54 @@ export class SettingsComponent {
         localStorage.setItem('settings', this.settings.toString());
     }
 
+    /**
+     * Export settings and contents of all data to zip file.
+     */
     export2zip() {
-        // Export settings and contents of all data to zip file.
-        const zip = new JSZip();
-        this.institutionsService.get().toCSV(zip);
-        this.accountsService.get().toCSV(zip);
-        zip.file('settings.json', this.settings.toString());
-        // zip.generateAsync({ type: 'blob' }).then((content) => {
-        //     saveAs(content, `yaba-export-${new Date().toISOShortDate()}.zip`);
-        // });
+        const jzip = new JSZip();
+        this.institutionsService.get().toCSV(jzip);
+        this.accountsService.get().toCSV(jzip);
+        jzip.file('settings.json', this.settings.toString());
+        jzip.generateAsync({ type: 'blob' }).then((content) => {
+            saveAs(content, `yaba-export-${new Date().toISOShortDate()}.zip`);
+        });
     }
 
-    importFromZip() {
-        // Import settings from zip file
+    /**
+     * Import settings from zip file.
+     */
+    importFromZip($event: Event) {
+        const $element = $event.target as HTMLInputElement;
+        const file = $element.files?.item(0);
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = async (e: ProgressEvent) => {
+                console.log('importFromZip().e: ', e);
+                const jzip = new JSZip();
+
+                const zip = await jzip.loadAsync(<string>reader.result);
+                const settings: string = await zip.file('settings.json')?.async('string') ?? '{}';
+                console.log('Imported settings:', settings);
+                this.settings = Settings.fromString(settings);
+                localStorage.setItem('settings', settings);
+
+                const institutions = await new Institutions().fromZIP(zip);
+                console.log('Imported institutions:', institutions);
+                this.institutionsService.save(institutions);
+
+                const accounts = await new Accounts().fromZIP(zip);
+                console.log('Imported accounts:', accounts);
+                this.accountsService.save(accounts);
+
+                // @TODO: Notice to the end-user this was completed successfully.
+                // Something like this.messagingService.send(priority=,msg=) / localStorage.setItem('message', 'The message...') maybe?
+                $element.value = ''; // Clear the file input for the next upload.
+
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            console.log('No file selected');
+        }
     }
 
     deleteAll() {

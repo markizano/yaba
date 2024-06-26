@@ -136,7 +136,7 @@
         </div>
         <div class="yaba-item wide">
             <label>Import a previous export: </label>
-            <button (click)="importFromZip()" class="md-secondary">[IMPORT]</button>
+            <input type="file" [(ngModel)]="import" accept="*.zip" (change)="importFromZip($event)" class="md-secondary" value="[IMPORT]" />
         </div>
         <div class="yaba-item wide">
             <label>Delete all data: </label>

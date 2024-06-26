@@ -4,8 +4,9 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 
-import { Id2NameHashMap, TransactionShowHeaders } from 'app/lib/types';
-import { Transactions, Transaction, TransactionFilter, TransactionFields, EMPTY_TRANSACTION_FILTER, TxnSortHeader, Budgets } from 'app/lib/transactions';
+import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
+import { Budgets, Id2NameHashMap, TransactionShowHeaders, TransactionFilter, TxnSortHeader, TransactionFields } from 'app/lib/types';
+import { Transactions, Transaction } from 'app/lib/transactions';
 
 import { AccountsService } from 'app/services/accounts.service';
 import { ControlsModule } from 'app/controls/controls.module';

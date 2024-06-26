@@ -1,7 +1,8 @@
 import { Component, EventEmitter } from '@angular/core';
 import { AccountsFilterComponent } from 'app/controls/account-filter.component';
 
-import { EMPTY_TRANSACTION_FILTER, Transactions } from 'app/lib/transactions';
+import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
+import { Transactions } from 'app/lib/transactions';
 import { AccountsService } from 'app/services/accounts.service';
 import { TransactionsListComponent } from 'app/tables/transactions/transactions-list.component';
 import { NULLDATE } from 'app/lib/constants';

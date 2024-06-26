@@ -2,29 +2,12 @@
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
-import { NULLDATE, DEFAULT_DATERANGE } from 'app/lib/constants';
+
+import { NULLDATE } from 'app/lib/constants';
 import { TransactionDeltas, CurrencyType } from 'app/lib/structures';
 import { IAccount, Account, Accounts } from 'app/lib/accounts';
 import { IInstitution, InstitutionMappings, MapTypes, IMapping } from 'app/lib/institutions';
-import { Description, Id2NameHashMap, Tags, YabaPlural } from 'app/lib/types';
-import { PageEvent } from '@angular/material/paginator';
-import { Settings } from './settings';
-
-/**
- * Annotation type for a transaction type.
- */
-export enum TransactionType {
-    UNKNOWN = 'unknown', // Treated equivalant to `null`.
-    Credit = 'credit',
-    Debit = 'debit',
-    Transfer = 'transfer',
-    Payment = 'payment',
-}
-
-/**
- * @enum List of top-level member fields that represent a transaction.
- */
-export type TransactionFields = keyof ITransaction & string | 'UNKNOWN';
+import { Budgets, IBudget, Id2NameHashMap, Tags, TransactionFields, TransactionFilter, TransactionType, YabaPlural } from 'app/lib/types';
 
 /**
  * Transaction interface to define a transaction.
@@ -42,54 +25,6 @@ export interface ITransaction {
     currency: CurrencyType;
     merchant: string;
     tags: Tags;
-}
-
-/**
- * Budget interface to define a budget.
- */
-export type IBudget = { tag: string, amount: number };
-export type Budgets = IBudget[];
-
-/**
- * Transaction Sorting descriptor.
- */
-export interface TxnSortHeader {
-    column: TransactionFields;
-    asc: boolean;
-}
-
-/**
- * Transaction Filter structure that helps us collect and transmit txn filter data across components.
- */
-export type TransactionFilter = {
-    fromDate: Date;
-    toDate: Date;
-    description: Description;
-    budgets?: Budgets;
-    accounts?: Account[]|Accounts;
-    tags?: Tags;
-    sort: TxnSortHeader;
-    page: PageEvent,
-};
-
-export const EMPTY_TRANSACTION_FILTER = <TransactionFilter>{
-    fromDate: new Date(Date.now() - Settings.fromLocalStorage().txnDelta ?? DEFAULT_DATERANGE),
-    toDate: new Date(),
-    sort: { column: 'datePosted', asc: true },
-    page: { pageIndex: 0, pageSize: 10, length: 0 },
-};
-
-/**
- * Placeholders for editing transactions.
- */
-export interface EditPlaceholder {
-    datePending: boolean;
-    datePosted: boolean;
-    amount: boolean;
-    description: boolean;
-    merchant: boolean;
-    transactionType: boolean;
-    tags: boolean;
 }
 
 abstract class aTransaction implements ITransaction {
@@ -124,56 +59,30 @@ abstract class aTransaction implements ITransaction {
  */
 export class Transaction extends aTransaction implements ITransaction {
     readonly UNKNOWN = 'unknown'; // TS hack to make 'UNKNOWN' work as a member.
-    id: string;
-    accountId: string;
-    description: string;
-    datePending: Date;
-    datePosted: Date;
-    transactionType: TransactionType;
-    amount: number;
-    tax: number;
-    currency: CurrencyType;
-    merchant: string;
-    tags: Tags;
+    id = v4();
+    accountId = '';
+    description = '';
+    datePending = NULLDATE;
+    datePosted = NULLDATE;
+    transactionType = TransactionType.UNKNOWN;
+    amount = 0.0;
+    tax = 0.0;
+    currency = CurrencyType.USD;
+    merchant = '';
+    tags = <Tags>[];
 
-    constructor(id?: ITransaction);
-    constructor(id?: string|ITransaction,
-      accountId?: string,
-      description?: string,
-      datePending?: Date,
-      datePosted?: Date,
-      transactionType?: TransactionType,
-      amount?: number,
-      tax?: number,
-      currency?: CurrencyType,
-      merchant?: string,
-      tags?: Tags) {
-        super();
-        if ( typeof id === "string" || typeof id === "undefined" ) {
-            this.id = id ?? v4();
-            this.accountId = accountId ?? '';
-            this.description = description ?? '';
-            this.datePending = datePending ?? NULLDATE;
-            this.datePosted = datePosted ?? NULLDATE;
-            this.transactionType = transactionType ?? TransactionType.UNKNOWN;
-            this.amount = amount ?? 0.0;
-            this.tax = tax || 0.0;
-            this.currency = currency ?? CurrencyType.USD;
-            this.merchant = merchant ?? '';
-            this.tags = tags || <Tags>[];
-       } else {
-            this.id = id.id;
-            this.accountId = id.accountId;
-            this.description = id.description;
-            this.datePending = id.datePending;
-            this.datePosted = id.datePosted;
-            this.transactionType = id.transactionType;
-            this.amount = id.amount;
-            this.tax = id.tax;
-            this.currency = id.currency;
-            this.merchant = id.merchant;
-            this.tags = id.tags;
-        }
+    /**
+     * @factory Create a new Transaction instance from a string.
+     */
+    static fromString(loadString: string): Transaction {
+        return Transaction.fromObject(JSON.parse(loadString));
+    }
+
+    /**
+     * @factory Create a new Transaction instance from a given object.
+     */
+    static fromObject(data: ITransaction): Transaction {
+        return new Transaction().update(data);
     }
 
     /**
@@ -185,12 +94,12 @@ export class Transaction extends aTransaction implements ITransaction {
         data.id                 && (this.id = data.id);
         data.accountId          && (this.accountId = data.accountId);
         data.description        && (this.description = data.description);
-        data.transactionType    && (this.transactionType = data.transactionType);
-        data.amount             && (this.amount = data.amount);
-        data.tax                && (this.tax = data.tax);
-        data.currency           && (this.currency = data.currency);
+        data.transactionType    && (this.transactionType = <TransactionType>data.transactionType);
+        data.amount             && (this.amount = <number>data.amount);
+        data.tax                && (this.tax = <number>data.tax);
+        data.currency           && (this.currency = <CurrencyType>data.currency);
         data.merchant           && (this.merchant = data.merchant);
-        data.tags               && (this.tags = data.tags);
+        data.tags               && (this.tags = <Tags>data.tags);
         if ( data.datePending && data.datePending != NULLDATE ) this.datePending = new Date(data.datePending);
         if ( data.datePosted  && data.datePosted  != NULLDATE ) this.datePosted  = new Date(data.datePosted);
         return this;
@@ -267,21 +176,33 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      */
     id2name: Id2NameHashMap = {};
 
-    constructor(...items: Transaction[]) {
+    constructor(...items: ITransaction[]|Transaction[]|Transactions) {
         const id2name: Id2NameHashMap = {};
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
                 const item = items[i];
-                if ( ! ( item instanceof Transaction ) ) {
-                    const txn = new Transaction();
-                    txn.update(item);
-                    items[i] = txn;
-                }
+                item instanceof Transaction || (items[i] = Transaction.fromObject(item));
                 id2name[item.id] = item.description;
             }
         }
-        super(...items);
+        super(...items as Transaction[]);
         this.id2name = id2name;
+    }
+
+    /**
+     * From a JSON stringified object load them into a new instance of this collection.
+     * @param {String} loadString JSON string to load.
+     * @returns {Transactions} New instance of Transactions.
+     */
+    static fromString(loadString: string): Transactions {
+        return Transactions.fromList(JSON.parse(loadString));
+    }
+
+    /**
+     * @factory Function to generate an account from a list of ITransaction[]s.
+     */
+    static fromList(list: Transaction[]): Transactions {
+        return new Transactions().add(...list);
     }
 
     /**
@@ -289,13 +210,14 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param  {...Transaction} items 
      * @returns Number of items in the current set/array.
      */
-    add(...items: Transaction[]): number {
+    add(...items: ITransaction[]|Transaction[]|Transactions): Transactions {
         for ( const i in items ) {
-            const item = new Transaction();
-            items[i] instanceof Transaction || (items[i] = item.update(items[i]));
+            const item = items[i];
+            items[i] instanceof Transaction || (items[i] = Transaction.fromObject(item));
             this.id2name[items[i].id] = items[i].description;
         }
-        return super.push(...items);
+        super.push(...items as Transaction[]);
+        return this;
     }
 
     /**
@@ -372,10 +294,8 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
         if ( this.length == 0 ) {
             return '';
         }
-        const transactionsZIP = ['"id","accountId","description","datePending","datePosted"' +
-            ',"transactionType","amount","tax","currency","merchant","tags"'];
-        this.forEach(transaction => {
-            const tFields = [
+        return this.reduce((txnZip: string[], transaction: Transaction) => {
+            txnZip.push('"' + [
                 transaction.id,
                 transaction.accountId,
                 transaction.description,
@@ -387,10 +307,10 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
                 transaction.currency,
                 transaction.merchant,
                 transaction.tags.join("|")
-            ];
-            transactionsZIP.push(`"${tFields.join('","')}"`);
-        });
-        return transactionsZIP.join("\n");
+            ].join('","') + '"');
+            return txnZip;
+        }, ['"id","accountId","description","datePending","datePosted"' +
+            ',"transactionType","amount","tax","currency","merchant","tags"']).join("\n");
     }
 
     /**
@@ -402,21 +322,8 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
         const papaOpts = { header: true, skipEmptyLines: true };
         const transactionCSV = await jszip.files[`transactions_${accountId}.csv`].async('text');
         const parsedTransactions = Papa.parse(transactionCSV, papaOpts);
-        this.add(...parsedTransactions.data.map(txn => {
-            const result = new Transaction();
-            result.update(<Transaction>txn);
-            return result;
-        }));
+        this.add(...parsedTransactions.data as ITransaction[] );
         return this;
-    }
-
-    /**
-     * From a JSON stringified object load them into a new instance of this collection.
-     * @param {String} loadString JSON string to load.
-     * @returns {Transactions} New instance of Transactions.
-     */
-    static fromString(loadString: string): Transactions {
-        return new Transactions(...JSON.parse(loadString));
     }
 
     /**
@@ -1034,7 +941,7 @@ class TransactionGroup {
         if ( args.length > 0 && typeof args[0] != 'number' ) {
             // coerce the type on each entity coming in.
             this.append(
-                ...args.map((_txn: Transaction|ITransaction) => new Transaction(_txn))
+                ...args.map((_txn: Transaction|ITransaction) => Transaction.fromObject(_txn))
             );
         }
     }

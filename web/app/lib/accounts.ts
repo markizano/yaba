@@ -1,8 +1,8 @@
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
-import { ITransaction, TransactionFilter, Transactions } from 'app/lib/transactions';
-import { Id2NameHashMap, YabaPlural } from 'app/lib/types';
+import { ITransaction, Transactions } from 'app/lib/transactions';
+import { Id2NameHashMap, TransactionFilter, YabaPlural } from 'app/lib/types';
 
 /**
  * @enum {String} AccountTypes - Types of accounts for tracking.
@@ -13,7 +13,7 @@ export enum AccountTypes {
     Savings = 'savings',
     Credit = 'credit',
     Loan = 'loan',
-    /* To be supported...
+    /* @TODO: To be supported...
     Broker = 'broker',
     IRA = 'ira',
     k401: '401k',
@@ -31,9 +31,9 @@ export interface IAccount {
     institutionId: string;
     name: string;
     description: string;
-    balance: () => number;
     accountType: AccountTypes;
     transactions: Transactions;
+    balance: () => number;
     update: (data: IAccount) => Account;
 }
 
@@ -44,26 +44,25 @@ export interface IAccount {
  */
 export class Account implements IAccount {
 
-    id: string;
-    institutionId: string;
-    name: string;
-    description: string;
-    accountType: AccountTypes;
-    transactions: Transactions;
+    id = v4();
+    institutionId = '';
+    name = '';
+    description = '';
+    accountType = AccountTypes.UNKNOWN;
+    transactions = new Transactions();
 
-    constructor(id?: string,
-      institutionId?: string,
-      name?: string,
-      description?: string,
-      accountType?: AccountTypes,
-      transactions?: Transactions
-      ) {
-        this.id = id || v4();
-        this.institutionId = institutionId || '';
-        this.name = name || '';
-        this.description = description || '';
-        this.accountType = accountType || AccountTypes.UNKNOWN;
-        this.transactions = transactions || new Transactions();
+    /**
+     * @factory Parse a string into an instance of this object.
+     */
+    static fromString(loadString: string): Account {
+        return Account.fromObject(JSON.parse(loadString));
+    }
+
+    /**
+     * @factory Parse a JSON object into an instance of this object.
+     */
+    static fromObject(obj: IAccount): Account {
+        return new Account().update(obj);
     }
 
     /**
@@ -103,19 +102,33 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      */
     id2name: Id2NameHashMap = {};
 
-    constructor(...items: IAccount[]) {
+    constructor(...items: IAccount[]|Account[]|Accounts) {
         const id2name: Id2NameHashMap = {};
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
-                const item = new Account();
-                if ( false === items[i] instanceof Account ) {
-                    items[i] = item.update(items[i]);
-                    id2name[item.id] = item.name;
-                }
+                const item = items[i];
+                items[i] instanceof Account || (items[i] = Account.fromObject(item));
+                id2name[item.id] = item.name;
             }
         }
-        super(...items);
+        super(...items as Account[]);
         this.id2name = id2name;
+    }
+
+    /**
+     * Load accounts from a given JSON stringified object.
+     * @param {string} loadString The JSON string to parse and load into this object.
+     * @returns {Accounts}
+     */
+    static fromString(loadString: string): Accounts {
+        return Accounts.fromList(JSON.parse(loadString));
+    }
+
+    /**
+     * @factory Function to generate an account from a list of IAccount[]s.
+     */
+    static fromList(list: IAccount[]): Accounts {
+        return new Accounts().add(...list);
     }
 
     /**
@@ -123,13 +136,14 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      * @param  {...Account} items New Account(s) to add to this collection.
      * @returns {Number} Current number of items after adding.
      */
-    add(...items: Account[]): number {
+    add(...items: IAccount[]|Account[]|Accounts): Accounts {
         for ( const i in items ) {
-            const item = new Account();
-            items[i] instanceof Account || (items[i] = item.update(items[i]));
+            const item = items[i];
+            items[i] instanceof Account || (items[i] = Account.fromObject(item));
             this.id2name[item.id] = item.name;
         }
-        return super.push(...items);
+        super.push(...items as Account[]);
+        return this;
     }
 
     /**
@@ -148,11 +162,11 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
                     this.splice(i, 1);
                     break;
                 }
+                delete this.id2name[accountId];
             } catch (e) {
                 console.error(`Error removing item ${i} from Accounts: ${e}`);
             }
         }
-        delete this.id2name[accountId];
         return this;
     }
 
@@ -182,12 +196,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      * @returns {Boolean}
      */
     override includes(item: Account|string, fromIndex?: number|undefined): boolean {
-        let itemId: string;
-        if ( item instanceof Account ) {
-            itemId = item.id;
-        } else {
-            itemId = item;
-        }
+        const itemId = item instanceof Account? item.id: item;
         for ( const i in this ) {
             if ( typeof i !== 'number' ) continue; // eslint-disable-line no-continue
             if ( Number.isInteger(fromIndex) && i < Number(fromIndex) ) continue; // eslint-disable-line no-continue
@@ -296,14 +305,5 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      */
     selected(selectedAccounts: Accounts | Account[] | undefined): Accounts {
         return <Accounts>this.filter((a: Account) => this.filterSelected(a, selectedAccounts));
-    }
-
-    /**
-     * Load accounts from a given JSON stringified object.
-     * @param {string} loadString The JSON string to parse and load into this object.
-     * @returns {Accounts}
-     */
-    static fromString(loadString: string): Accounts {
-        return new Accounts(...JSON.parse(loadString));
     }
 }

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Account, Accounts } from 'app/lib/accounts';
-import { EMPTY_TRANSACTION_FILTER } from 'app/lib/transactions';
+import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { TransactionShowHeaders } from 'app/lib/types';
 import { AccountsService } from 'app/services/accounts.service';
 import { Subscription } from 'rxjs';

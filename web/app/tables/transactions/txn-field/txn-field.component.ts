@@ -3,12 +3,14 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { NgSelectModule } from '@ng-select/ng-select';
+
+import { Subscription } from 'rxjs';
+
+import { Id2NameHashMap, NgSelectable, TransactionType } from 'app/lib/types';
 import { ControlsModule } from 'app/controls/controls.module';
 import { Accounts } from 'app/lib/accounts';
-import { Transaction, TransactionType } from 'app/lib/transactions';
-import { Id2NameHashMap, NgSelectable } from 'app/lib/types';
+import { Transaction } from 'app/lib/transactions';
 import { AccountsService } from 'app/services/accounts.service';
-import { Subscription } from 'rxjs';
 
 /**
  * One field to rule them all.

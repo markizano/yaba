@@ -1,11 +1,12 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
-
-import { Accounts, Account } from 'app/lib/accounts';
-import { FormMode } from 'app/lib/structures';
-import { AccountsService } from 'app/services/accounts.service';
 import { Router } from '@angular/router';
-import { EMPTY_TRANSACTION_FILTER } from 'app/lib/transactions';
+
 import { Subscription } from 'rxjs';
+
+import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
+import { FormMode } from 'app/lib/structures';
+import { Accounts, Account } from 'app/lib/accounts';
+import { AccountsService } from 'app/services/accounts.service';
 
 @Component({
   selector: 'app-accounts',

@@ -1,8 +1,8 @@
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import { Papa, ParseConfig, ParseResult } from 'ngx-papaparse';
-import { TransactionFields } from 'app/lib/transactions';
-import { Id2NameHashMap, YabaPlural } from 'app/lib/types';
+
+import { Id2NameHashMap, YabaPlural, TransactionFields } from 'app/lib/types';
 
 /**
  * @enum MapTypes Valid mapping types. To later support function() types as well for things
@@ -15,6 +15,9 @@ export enum MapTypes {
     function = 'function', // @TODO: Support this
 }
 
+/**
+ * @interface IMapping Mapping objectlet for Institution().mappings. This has been used enough to make it a real
+ */
 export interface IMapping {
     fromField: string;
     toField: TransactionFields;
@@ -23,18 +26,42 @@ export interface IMapping {
 }
 
 /**
+ * @interface IInstitution Interface for the Institution object.
+ */
+export interface IInstitution {
+    id: string;
+    name: string;
+    description: string;
+    mappings: InstitutionMappings;
+    update(data: IInstitution): Institution;
+    addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): Institution;
+}
+
+/**
  * InstitutionMapping objectlet for Institution().mappings. This has been used enough to make it a real
  * thing we can use for importing/exporting and otherwise managing institution mappings.
  */
 export class InstitutionMapping implements IMapping {
-    fromField: string;
-    toField: TransactionFields;
-    mapType: MapTypes;
+    fromField = '';
+    toField: TransactionFields = 'UNKNOWN';
+    mapType: MapTypes = MapTypes.csv;
 
-    constructor(fromField: string, toField: TransactionFields, mapType: MapTypes) {
-        this.fromField = fromField;
-        this.toField = toField;
-        this.mapType = mapType;
+    /**
+     * @factory Parse a string to build a new mapping.
+     * @param {string} loadString JSON String to parse into a mapping.
+     * @returns {InstitutionMapping} a freshly loaded object.
+     */
+    static fromString(loadString: string): InstitutionMapping {
+        return InstitutionMapping.fromObject(JSON.parse(loadString));
+    }
+
+    /**
+     * @factory Parse an object into an instance.
+     * @param {IMapping} obj Object to parse.
+     * @returns {InstitutionMapping}
+     */
+    static fromObject(obj: IMapping): InstitutionMapping {
+        return new InstitutionMapping().update(obj);
     }
 
     /**
@@ -48,20 +75,36 @@ export class InstitutionMapping implements IMapping {
             mapType: this.mapType
         });
     }
+
+    /**
+     * Refresh this object with new data from an input object that has the same interface and data points.
+     * @param {IMapping} obj The data to update.
+     * @returns 
+     */
+    update(obj: IMapping): InstitutionMapping {
+        this.fromField = obj.fromField;
+        this.toField = obj.toField;
+        this.mapType = obj.mapType;
+        return this;
+    }
 }
 
-export class InstitutionMappings extends Array<IMapping> {
-    constructor(...items: IMapping[]|InstitutionMappings|number[]) {
-        if ( items.length > 0 && typeof items[0] !== 'number' ) {
-            for ( const i in items ) {
-                const item: IMapping = items[i] as IMapping;
-                if ( true === item instanceof InstitutionMapping ) {
-                    continue
-                }
-                items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType);
-            }
-        }
-        super(...<IMapping[]>items);
+export class InstitutionMappings extends Array<InstitutionMapping> {
+
+    /**
+     * @factory Parse a string to build a new mapping.
+     */
+    static fromString(loadString: string): InstitutionMappings {
+        return InstitutionMappings.fromList(JSON.parse(loadString));
+    }
+
+    /**
+     * @factory Function to generate a mapping from a list of IMapping.
+     * @param {InstitutionMappings|InstitutionMapping[]} list 
+     * @returns {InstitutionMappings}
+     */
+    static fromList(list: InstitutionMapping[]|InstitutionMappings): InstitutionMappings {
+        return new InstitutionMappings().add(...list);
     }
 
     /**
@@ -69,12 +112,13 @@ export class InstitutionMappings extends Array<IMapping> {
      * @param  {...InstitutionMapping|object} items Items to push onto the array.
      * @returns Number of items in the current set/array.
      */
-    add(...items: IMapping[]|InstitutionMappings ): number {
+    add(...items: InstitutionMapping[]|InstitutionMappings ): InstitutionMappings {
         for ( const i in items ) {
             const item = items[i];
-            item instanceof InstitutionMapping || (items[i] = new InstitutionMapping(item.fromField, item.toField, item.mapType));
+            item instanceof InstitutionMapping || (items[i] = InstitutionMapping.fromObject(item));
         }
-        return super.push(...items);
+        super.push(...items);
+        return this;
     }
 
     /**
@@ -101,31 +145,33 @@ export class InstitutionMappings extends Array<IMapping> {
     }
 }
 
-export interface IInstitution {
-    id: string;
-    name: string;
-    description: string;
-    mappings: InstitutionMappings;
-    update(data: IInstitution): Institution;
-    addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): IInstitution;
-}
-
 /**
  * Data model object to represent an institution.
  * Coerces a Hash/Object into something we can use as institution to at least typecast the
  * structure as we need it here.
  */
 export class Institution implements IInstitution {
-    id: string;
-    name: string;
-    description: string;
-    mappings: InstitutionMappings;
+    id = v4();
+    name = '';
+    description = '';
+    mappings = new InstitutionMappings();
 
-    constructor(id?: string, name?: string, description?: string, mappings?: IMapping[]) {
-        this.id          = id || v4();
-        this.name        = name || '';
-        this.description = description || '';
-        this.mappings    = mappings? new InstitutionMappings(...mappings): new InstitutionMappings({fromField: '', toField: 'UNKNOWN', mapType: MapTypes.csv});
+    /**
+     * @factory Parse a string into an object.
+     * @param {string} loadString JSON String to parse into an institution.
+     * @returns {Institution} a freshly loaded object.
+     */
+    static fromString(loadString: string): Institution {
+        return Institution.fromObject(JSON.parse(loadString));
+    }
+
+    /**
+     * @factory Parse an object into an instance.
+     * @param obj 
+     * @returns {Institution}
+     */
+    static fromObject(obj: IInstitution): Institution {
+        return new Institution().update(obj);
     }
 
     /**
@@ -133,13 +179,13 @@ export class Institution implements IInstitution {
      * having to set them all if we don't need to. Also can update by providing this object
      * to itself with overlayed updates.
      * @param {Object} data Data to use to update this object.
-     * @returns Institution
+     * @returns {Institution}
      */
     update(data: IInstitution): Institution {
         data.id && (this.id = data.id);
         data.name && (this.name = data.name);
         data.description && (this.description = data.description);
-        data.mappings && (this.mappings = new InstitutionMappings(...data.mappings));
+        data.mappings && (this.mappings = InstitutionMappings.fromList(data.mappings));
         return this;
     }
 
@@ -147,8 +193,8 @@ export class Institution implements IInstitution {
      * Add a mapping to this institution.
      * @returns {Institution} Returns this object for chaining.
      */
-    addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): IInstitution {
-        this.mappings.add(new InstitutionMapping(fromField, toField, mapType));
+    addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): Institution {
+        this.mappings.add(new InstitutionMapping().update({fromField, toField, mapType}));
         return this;
     }
 }
@@ -166,7 +212,7 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      */
     id2name: Id2NameHashMap = {};
 
-    constructor(...items: IInstitution[]) {
+    constructor(...items: IInstitution[]|Institution[]|Institutions) {
         const id2name: Id2NameHashMap = {};
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
@@ -177,8 +223,26 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
                 id2name[item.id] = item.name;
             }
         }
-        super(...items);
+        super(...items as Institution[]);
         this.id2name = id2name;
+    }
+
+    /**
+     * Load up institutions from a stringified JSON object.
+     * @param {String} loadString Institutions to load.
+     * @returns {Institutions}
+     */
+    static fromString(loadString: string): Institutions {
+        return Institutions.fromList(JSON.parse(loadString));
+    }
+
+    /**
+     * @factory Function to generate an institution from a list of IInstitutions.
+     * @param {IInstitution[]|Institutions} list
+     * @returns {Institutions}
+     */
+    static fromList(list: IInstitution[]|Institutions): Institutions {
+        return new Institutions().add(...list);
     }
 
     /**
@@ -186,13 +250,14 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      * @param items 
      * @returns Updated number of items in the list.
      */
-    add(...items: IInstitution[]): number {
+    add(...items: IInstitution[]|Institution[]|Institutions): Institutions {
         for ( const i in items ) {
-            const item = <Institution>items[i];
-            items[i] instanceof Institution || (items[i] = new Institution(item.id, item.name, item.description, item.mappings));
+            const item = items[i];
+            items[i] instanceof Institution || (items[i] = Institution.fromObject(item));
             this.id2name[item.id] = item.name;
         }
-        return super.push(...items);
+        super.push(...items as Institution[]);
+        return this;
     }
 
     /**
@@ -222,7 +287,17 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      */
     clear(): Institutions {
         this.length = 0;
+        this.id2name = {};
         return this;
+    }
+
+    /**
+     * Get an institution by ID.
+     * @param {String} ID Institution ID to fetch
+     * @returns {Institution}
+     */
+    byId(ID: string): Institution|undefined {
+        return this.filter(i => i.id == ID).shift();
     }
 
     /**
@@ -280,17 +355,17 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
                         complete: (parsedMappings: ParseResult, file?: File|undefined): void => {
                             if (parsedMappings.errors.length > 0) {
                                 console.error('Failed to parse Institution Mappings CSV file.', file, parsedMappings.errors);
-                                reject(parsedMappings.errors);
-                                return;
+                                return reject(parsedMappings.errors);
                             }
                             this.add(...parsedInstitutions.data);
-                            parsedMappings.data.forEach((mappings: CsvIMapping) =>
-                                (<IInstitution>this.byId(mappings.institutionId)).mappings.add({
-                                    fromField: mappings.fromField,
-                                    toField: mappings.toField,
-                                    mapType: mappings.mapType
-                                })
-                            );
+                            parsedMappings.data.forEach((mappings: CsvIMapping) => {
+                                const inst = this.byId(mappings.institutionId);
+                                if ( !inst ) {
+                                    console.error(`Institution ID not found for mapping: ${mappings.institutionId}`);
+                                    return reject(`Institution ID not found for mapping: ${mappings.institutionId}`);
+                                }
+                                inst.mappings.add(InstitutionMapping.fromObject(mappings));
+                            });
                             console.info(`Parsed ${this.length} Institutions from ZIP file for ${this.reduce((a,b) => a += b.mappings.length, 0)} mappings.`);
                             resolve(this);
                         }
@@ -298,24 +373,6 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
                 }
             });
         });
-    }
-
-    /**
-     * Get an institution by ID.
-     * @param {String} ID Institution ID to fetch
-     * @returns {Institution}
-     */
-    byId(ID: string): Institution|undefined {
-        return this.filter(i => i.id == ID).shift();
-    }
-
-    /**
-     * Load up institutions from a stringified JSON object.
-     * @param {String} loadString Institutions to load.
-     * @returns {Institutions}
-     */
-    static fromString(loadString: string): Institutions {
-        return new Institutions(...JSON.parse(loadString));
     }
 
     /**
@@ -340,7 +397,7 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
                         reject(parsedCSV.errors);
                     }
                     const headers = Object.keys(parsedCSV.data.shift());
-                    const imaps = new InstitutionMappings(...headers.map(h => new InstitutionMapping(h, 'UNKNOWN', MapTypes.csv)));
+                    const imaps = new InstitutionMappings(...headers.map(h => InstitutionMapping.fromObject({fromField: h, toField: 'UNKNOWN', mapType: MapTypes.csv})));
                     resolve(imaps);
                 },
             };

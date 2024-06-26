@@ -108,7 +108,9 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
     save(items: Yabadaba): Observable<Yabadaba> {
         // The act of setItem() will trigger the storage event in other tabs.
         this.next(items);
-        localStorage.setItem(this.name, JSON.stringify(this.cache));
+        localStorage.setItem(this.name, JSON.stringify(items));
+        this.cacheExpiry = false;
+        console.debug('BaseHttpService.save(): ', this.name, this.cache);
         return this.http.post<Yabadaba>(this.endpoint, this.cache, {headers: this.headers});
     }
 
@@ -132,7 +134,7 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
      * Clear the cache and force a reload from the server.
      */
     flush(): void {
-        this.cache.length = 0;
+        this.cache.clear();
         this.cacheExpiry = true;
     }
 

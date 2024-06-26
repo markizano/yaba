@@ -23,6 +23,7 @@ export class AccountsService extends BaseHttpService<Accounts> {
 
     next(value: Accounts): void {
         this.flush();
+        console.log('AccountsService().next(): ', value);
         this.cache.add(...value);
         this.cacheExpiry = false;
         this.setExpire();

@@ -4,9 +4,9 @@ import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from
 /* YABA Definitions */
 import { YabaAnimations } from 'app/lib/animations';
 import { FormMode } from 'app/lib/structures';
-import { NgSelectable } from 'app/lib/types';
-import { IInstitution, Institution, InstitutionMappings, MapTypes } from 'app/lib/institutions';
-import { Transaction, TransactionFields } from 'app/lib/transactions';
+import { NgSelectable, TransactionFields } from 'app/lib/types';
+import { IInstitution, Institution, MapTypes } from 'app/lib/institutions';
+import { Transaction } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 
 /* SubComponents */
@@ -25,7 +25,7 @@ import { InstitutionMappingComponent } from 'app/forms/institution/institution-m
     ],
 })
 export class InstitutionFormComponent {
-    @Input() institution = new Institution(undefined, '', '', new InstitutionMappings({fromField: '', toField: 'UNKNOWN', mapType: MapTypes.csv}));
+    @Input() institution = new Institution();
     @Output() institutionChange = new EventEmitter<IInstitution>();
 
     @Input() mode = FormMode.Create;
