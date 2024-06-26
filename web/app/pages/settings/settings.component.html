@@ -110,14 +110,14 @@
                   </mat-chip-row>
 }
                 <input placeholder="New tag..."
-                       [matChipInputFor]="hiddenChips"
-                       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                       [matChipInputAddOnBlur]="addOnBlur"
-                       (matChipInputTokenEnd)="add('hideTags', $event)"/>
-              </mat-chip-grid>
+                    [matChipInputFor]="hiddenChips"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                    [matChipInputAddOnBlur]="addOnBlur"
+                    (matChipInputTokenEnd)="add('hideTags', $event)"/>
+            </mat-chip-grid>
             <question class="md-secondary helper" helper="These transactions will be hidden from view and removed from calculations."></question>
         </div>
-        <div class="yaba-item wide">
+        <div class="yaba-item wide" layout="row">
             <label>What additional Fields do you want to see on transaction lists? </label>
             <div class="md-secondary additional-fields" layout="column">
                 <div><mat-checkbox [(ngModel)]="settings.txShow.id" (ngModelChange)="save()">Transaction ID</mat-checkbox></div>
@@ -126,7 +126,7 @@
                 <div><mat-checkbox [(ngModel)]="settings.txShow.tax" (ngModelChange)="save()">Tax</mat-checkbox></div>
                 <div><mat-checkbox [(ngModel)]="settings.txShow.merchant" (ngModelChange)="save()">Merchant</mat-checkbox></div>
                 <div><mat-checkbox [(ngModel)]="settings.txShow.transactionType" (ngModelChange)="save()">Transaction Type</mat-checkbox></div>
-                <div><mat-checkbox [(ngModel)]="settings.txShow.tags" (ngModelChange)="save()">Tags</mat-checkbox></div>
+                <div><mat-checkbox [(ngModel)]="settings.txShow.tags" (ngModelChange)="save()">Budgets</mat-checkbox></div>
             </div>
             <question class="md-secondary helper" helper="Checking these will include these columns in transaction list displays"></question>
         </div>

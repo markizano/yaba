@@ -99,7 +99,7 @@ export class Transaction extends aTransaction implements ITransaction {
         data.tax                && (this.tax = typeof data.tax == 'string'? parseFloat(data.tax): <number>data.tax);
         data.currency           && (this.currency = <CurrencyType>data.currency);
         data.merchant           && (this.merchant = data.merchant);
-        data.tags               && (this.tags = <Tags>data.tags);
+        data.tags               && (this.tags = typeof data.tags === 'string'? <Tags>(<string>data.tags).split('|'): <Tags>data.tags);
         if ( data.datePending && data.datePending != NULLDATE ) this.datePending = new Date(data.datePending);
         if ( data.datePosted  && data.datePosted  != NULLDATE ) this.datePosted  = new Date(data.datePosted);
         return this;
