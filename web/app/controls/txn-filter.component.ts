@@ -2,13 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { EventEmitter, Output } from '@angular/core';
 
-import { Budgets, EMPTY_TRANSACTION_FILTER, TransactionFilter, Transactions } from 'app/lib/transactions';
+import { DateRange, DescriptionChange, Budgets, TransactionFilter } from 'app/lib/types';
+import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
+import { Transactions } from 'app/lib/transactions';
+import { Accounts } from 'app/lib/accounts';
 import { DateRangeFilterComponent } from 'app/controls/daterange.component';
 import { AccountsFilterComponent } from 'app/controls/account-filter.component';
 import { DescriptionFilterComponent } from 'app/controls/description.component';
 import { BudgetsFilterComponent } from 'app/controls/budgets-filter.component';
-import { Accounts } from 'app/lib/accounts';
-import { DateRange, DescriptionChange } from 'app/lib/types';
 
 /**
  * This is a glue component that combines the various filters into a single component

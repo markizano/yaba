@@ -4,7 +4,8 @@ import { FormsModule } from "@angular/forms";
 
 import { NgSelectModule } from "@ng-select/ng-select";
 
-import { Budgets, Transactions } from "app/lib/transactions";
+import { Transactions } from "app/lib/transactions";
+import { Budgets } from "app/lib/types";
 
 /**
  * I needed a way to take a list of budgets and filter them by the end-user's selection.

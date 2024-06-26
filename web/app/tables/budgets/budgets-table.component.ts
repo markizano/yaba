@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ControlsModule } from 'app/controls/controls.module';
-import { Budgets } from 'app/lib/transactions';
+import { Budgets } from 'app/lib/types';
 
 @Component({
     selector: 'yaba-budgets-table',

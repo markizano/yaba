@@ -1,6 +1,8 @@
+import { PageEvent } from '@angular/material/paginator';
+
 import { Account, Accounts } from "app/lib/accounts";
 import { Institution, Institutions } from "app/lib/institutions";
-import { Transaction, Transactions } from "app/lib/transactions";
+import { ITransaction, Transaction, Transactions } from "app/lib/transactions";
 
 export type Yabable = Transaction | Account | Institution;
 export type Yabables = Transactions | Accounts | Institutions;
@@ -10,8 +12,7 @@ export type Yabables = Transactions | Accounts | Institutions;
  */
 export type YabaPlural<T> = Array<T> & {
     id2name: Id2NameHashMap;
-    add(...items: T[]): number;
-    add<A>(...items: A[]): number;
+    add(...items: T[]): YabaPlural<T>;
     remove(ID: T|string): YabaPlural<T>;
     clear(): YabaPlural<T>;
     byId(ID: string): T|undefined;
@@ -66,4 +67,47 @@ export type TransactionShowHeaders = {
     tags: boolean;
 };
 
+/**
+ * Annotation type for a transaction type.
+ */
+export enum TransactionType {
+    UNKNOWN = 'unknown', // Treated equivalant to `null`.
+    Credit = 'credit',
+    Debit = 'debit',
+    Transfer = 'transfer',
+    Payment = 'payment',
+}
+
+/**
+ * @enum List of top-level member fields that represent a transaction.
+ */
+export type TransactionFields = keyof ITransaction & string | 'UNKNOWN';
+
+/**
+ * Budget interface to define a budget.
+ */
+export type IBudget = { tag: string, amount: number };
+export type Budgets = IBudget[];
+
+/**
+ * Transaction Sorting descriptor.
+ */
+export type TxnSortHeader = {
+    column: TransactionFields,
+    asc: boolean
+};
+
+/**
+ * Transaction Filter structure that helps us collect and transmit txn filter data across components.
+ */
+export type TransactionFilter = {
+    fromDate: Date;
+    toDate: Date;
+    description: Description;
+    budgets?: Budgets;
+    accounts?: Account[]|Accounts;
+    tags?: Tags;
+    sort: TxnSortHeader;
+    page: PageEvent,
+};
 
