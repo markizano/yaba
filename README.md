@@ -32,3 +32,9 @@ There's no tracking software, no logins or passwords, no server to talk to, just
 and it's open-source so you can inspect it yourself!
 
 
+# How to Run
+
+## From Source
+
+    npm install && npm run start
+
