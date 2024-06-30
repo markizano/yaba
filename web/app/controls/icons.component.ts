@@ -1,8 +1,11 @@
 
-import { Component, Directive, HostListener, Injectable, Input } from '@angular/core';
-
+import { Component, Directive, ElementRef, EventEmitter, HostListener, Injectable, Input, Output } from '@angular/core';
+/**
+ * Most of these directives are here just to make Angular stop complaining about them because I don't want to use NG_CUSTOM_SCHEMA in all my templates.
+ * There are a few that have a few extra features and functions that help with aesthetics and functionality.
+ */
 @Injectable()
-abstract class IconBaseComponent {
+abstract class IconBaseInjectable {
   /**
    * Make it possible to use [Space] or [Enter] on these components to trigger a "click" event so we only have to listen for the click event.
    * @param $event 
@@ -21,61 +24,77 @@ abstract class IconBaseComponent {
 @Directive({
   selector: 'actions',
 })
-export class ActionsComponent { }
+export class ActionsDirective { }
 
-@Component({
+@Directive({
   selector: 'add',
-  template: '',
 })
-export class AddComponent extends IconBaseComponent { }
+export class AddDirective extends IconBaseInjectable { }
 
-@Component({
+@Directive({
   selector: 'close',
-  template: '',
 })
-export class CloseComponent extends IconBaseComponent { }
+export class CloseDirective extends IconBaseInjectable { }
 
-@Component({
+@Directive({
   selector: 'debug',
-  template: '',
 })
-export class DebugComponent { }
+export class DebugDirective { }
 
-@Component({
+@Directive({
   selector: 'edit',
-  template: '',
 })
-export class EditComponent extends IconBaseComponent { }
+export class EditDirective extends IconBaseInjectable { }
 
-@Component({
+@Directive({
   selector: 'inspect',
-  template: '',
 })
-export class InspectComponent extends IconBaseComponent { }
+export class InspectDirective extends IconBaseInjectable { }
 
-@Component({
+@Directive({
   selector: 'question',
-  template: '',
 })
-export class QuestionComponent { }
+export class QuestionDirective { }
 
-@Component({
+@Directive({
   selector: 'save',
-  template: '',
 })
-export class SaveComponent extends IconBaseComponent { }
+export class SaveDirective extends IconBaseInjectable { }
 
-@Component({
+@Directive({
   selector: 'trash',
-  template: '',
 })
-export class TrashComponent extends IconBaseComponent { }
+export class TrashDirective extends IconBaseInjectable { }
 
-@Component({
+@Directive({
   selector: 'settings',
-  template: '',
 })
-export class SettingsComponent extends IconBaseComponent { }
+export class SettingsDirective extends IconBaseInjectable { }
+
+@Directive({
+    selector: 'upload',
+})
+export class UploadComponent extends IconBaseInjectable {
+    @Output() upload = new EventEmitter<File[]>();
+    constructor(protected elemRef: ElementRef) {
+        super();
+    }
+    /**
+     * On Click, fabricate an input file element and trigger a click event on it.
+     * When the file is selected, trigger the upload event.
+     */
+    @HostListener('click', [])
+    onClick(): void {
+        const input: HTMLInputElement = document.createElement('input');
+        input.style.display = 'none';
+        input.type = 'file';
+        input.multiple = true;
+        input.addEventListener('change', () => {
+            this.upload.emit(Array.from(input.files ?? []) );
+        });
+        input.click();
+    }
+}
 
 @Component({
     selector: 'errors',

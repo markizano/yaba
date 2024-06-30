@@ -1,13 +1,14 @@
 
 import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
-import * as Papa from 'papaparse';
+import { Papa, ParseError, ParseResult } from 'ngx-papaparse';
 
 import { NULLDATE } from 'app/lib/constants';
 import { TransactionDeltas, CurrencyType } from 'app/lib/structures';
 import { IAccount, Account, Accounts } from 'app/lib/accounts';
-import { IInstitution, InstitutionMappings, MapTypes, IMapping } from 'app/lib/institutions';
+import { InstitutionMappings, MapTypes, IMapping, Institution } from 'app/lib/institutions';
 import { Budgets, IBudget, Id2NameHashMap, Tags, TransactionFields, TransactionFilter, TransactionType, YabaPlural } from 'app/lib/types';
+import { Subject } from 'rxjs';
 
 /**
  * Transaction interface to define a transaction.
@@ -321,8 +322,8 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
         // this.clear(); // @TODO: restore this from the old version
         const papaOpts = { header: true, skipEmptyLines: true };
         const transactionCSV = await jszip.files[`transactions_${accountId}.csv`].async('text');
-        const parsedTransactions = Papa.parse(transactionCSV, papaOpts);
-        this.add(...parsedTransactions.data.map((t) => Transaction.fromObject(t as ITransaction) ) );
+        const parsedTransactions = new Papa().parse(transactionCSV, papaOpts);
+        this.add(...parsedTransactions.data.map((t: unknown) => Transaction.fromObject(t as ITransaction) ) );
         return this;
     }
 
@@ -726,7 +727,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @todo Have the ability to accept or reject the changes as a result of dropping the CSV file on this account.
      *   Here is where we can implement some sort of "undo" function.
      */
-    static digest(institution: IInstitution, accountId: TransactionFields, transactions: Transactions): Transactions {
+    static digest(institution: Institution, accountId: string, transactions: Transactions|Transaction[]): Transactions {
         const results = new Transactions(), mappings: InstitutionMappings = <InstitutionMappings>institution.mappings.concat();
         transactions.map((transaction: Transaction) => {
             const cannonical: Transaction = new Transaction();
@@ -760,25 +761,37 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     }
 
     /**
-     * This is called twice in each of the account controllers to handle when a file upload is dropped.
-     * Avoid copy-paste code.
-     * @param {Yaba.models.Institutions} institutions Institutions Model Service.
-     * @param {Yaba.models.accounts} accounts Accounts Model Service
+     * Handle the drop of a CSV file on an account table.
      */
-    // static csvHandler($rootScope, $scope, institutions: Yaba.models.Institutions, accounts: Yaba.models.accounts) {
-    //     return (event, results) => {
-    //         // Get all the transactions back and fill up the table.
-    //         const transactions = Transactions.digest(
-    //             institutions.byId(results.institutionId),
-    //             results.accountId,
-    //             results.parsedCSV.data
-    //         );
-    //         const account = accounts.byId(results.accountId);
-    //         account.transactions.push(...transactions);
-    //         accounts.save($scope);
-    //         $rootScope.$broadcast('yaba.txn-change', {update: true});
-    //     };
-    // }
+    static csvHandler(files: File[]): Subject<Transactions> {
+        console.log('Transactions.csvHandler()', files);
+        const subscriber = new Subject<Transactions>();
+        if ( files.length == 0 ) {
+            console.warn('No files to process.');
+            subscriber.next( new Transactions() );
+        } else {
+            console.log('Processing files.');
+            files.forEach((csvFile) => {
+                const px = new Papa().parse(csvFile, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (parsedCSV: ParseResult): void => {
+                        // Loosly typed data from CSV file. It will be filtered and matched up later.
+                        console.log('Parsed CSV file.', csvFile, parsedCSV.data, subscriber);
+                        subscriber.next(parsedCSV.data as Transactions);
+                        subscriber.complete();
+                    },
+                    error: (error: ParseError, file?: File|undefined): void => {
+                        console.error('Failed to parse CSV file.', file, error);
+                        subscriber.error(error);
+                    }
+                });
+                console.log('Request CSV parsing: ', csvFile, px);
+            });
+        }
+        subscriber.complete();
+        return subscriber;
+    }
 
     /**
      * Linker function to join a transaction to the edit boxes we embed in a transaction listing.

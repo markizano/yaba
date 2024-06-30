@@ -544,7 +544,7 @@ save, .save {
 }
 
 /** Icons/Controls **/
-add, close, edit, inspect, question, save, trash {
+add, close, edit, inspect, question, save, trash, upload {
     background-size: 32px;
     width: 32px;
     height: 32px;
@@ -553,7 +553,7 @@ add, close, edit, inspect, question, save, trash {
     cursor: pointer;
 }
 
-add:hover, close:hover, edit:hover, inspect:hover, question:hover, save:hover, trash:hover { cursor: grab; border: 1px solid var(--topaz); }
+add:hover, close:hover, edit:hover, inspect:hover, question:hover, save:hover, trash:hover, upload:hover { cursor: grab; border: 1px solid var(--topaz); }
 
 add {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAGFBMVEVhcABT3kdk3mFt3mlu32p44nWA4338//u9xAiZAAAAAXRSTlMAQObYZgAAAM1JREFUSMe91s0NgzAMBWB7A78TZ0boCB2hI3SEnLI+KkjNjx07ohRf88UKEfhBVBf2olHhW9G6KRhNibvf6gH4gjWQYL0VMMtqsOScjBb1es5v1aI0+KwbLTqQFcAIQD1jD2QOYAzQ36ICcgmABzAB2AdyByjvQV+v45TVzr4KWE6CNQLP/4PHz4eMLipVYPBl7YB9IHcA8gFNAPaAXALIA+YASdGEUYDG4OScNGZxO4qNac72tJf5OIgDJYykONTiWIyDNYzmiXC3fw82l6MakgvgjQcAAAAASUVORK5CYII=');
@@ -586,6 +586,14 @@ question {
 save {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEUAAAAAAAD///+D3c/SAAAAAXRSTlMAQObYZgAAAIBJREFUOMvl0zEOgCAMhWE69Ajch8Xdgd7/KgKt9NnEhIXExC6ab/gTsKa0ZVjuKQp5whmhRhCDwuNdDosMqP1pEYdcA7AEII04JI0AaARAIwAaAdAIwogg8Dv0wzUgB72wZaB5Xwb+Bb4ONBfkebi2IOtgu8R/AIFZA0Y49/zoF6YJcMkbWlfuAAAAAElFTkSuQmCC');
     border: 1px solid #FFFFFF00;
+}
+
+upload {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAQMAAACQp+OdAAAABlBMVEWxYFUAAAAREPHCAAAAAXRSTlMAQObYZgAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAABlSURBVCjPY2CgImiA0swHoAz2B1AG/wcoQ/4HlGG7B8qonAdlfOyH0IwP2yEGMR9shhjE3tgIMYifsQFiEB9jQwFUNcxS6jAkQAwJIMMCxJAZBAwgIJ9h/x8I/iAz5EGMH1SLcgAEwzOro6eZggAAAABJRU5ErkJggg==');
+    border: 1px solid #FFFFFF00;
+}
+upload input[type=file] {
+    display: none;
 }
 
 trash {
@@ -628,7 +636,7 @@ settings {
     background-color: var(--navy);
     border-radius: 10px 10px 0 0;
     color: white;
-    trash, edit, inspect { filter: invert(100%); }
+    trash, edit, inspect, upload { filter: invert(100%); }
 }
 
 .yaba-item figcaption p {
