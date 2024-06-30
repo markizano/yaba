@@ -10,6 +10,14 @@ import { Institutions } from 'app/lib/institutions';
 import { Accounts } from 'app/lib/accounts';
 
 type TagType = 'incomeTags' | 'expenseTags' | 'transferTags' | 'hideTags';
+
+/**
+ * Settings help configure the application.
+ * Settings are also just stored in local storage. It's a simple configuration data structure with no sensitive information.
+ * Just preferences.
+ * 
+ * @FutureFeature Themes: Ability to change the color scheme of the application based on a few pre-defined themes.
+ */
 @Component({
     selector: 'yaba-settings',
     templateUrl: './settings.component.html',
