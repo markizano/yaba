@@ -94,6 +94,6 @@ export class YabaDropFileDirective {
         if (this.preventBodyDrop) {
             if ( typeof event.preventDefault !== 'undefined')
                 event.preventDefault();
-            }
+        }
     }
 }

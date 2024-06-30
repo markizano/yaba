@@ -1,12 +1,15 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Subscription } from 'rxjs';
+import { Subscription, map } from 'rxjs';
 
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { FormMode } from 'app/lib/structures';
 import { Accounts, Account } from 'app/lib/accounts';
 import { AccountsService } from 'app/services/accounts.service';
+import { Transactions } from 'app/lib/transactions';
+import { InstitutionsService } from 'app/services/institutions.service';
+import { Institution } from 'app/lib/institutions';
 
 @Component({
   selector: 'app-accounts',
@@ -31,7 +34,7 @@ export class AccountsComponent {
     #accountUpdate: Subscription;
     #cacheUpdate?: Subscription;
 
-    constructor( protected router: Router, protected accountsService: AccountsService, protected chgDet: ChangeDetectorRef) {
+    constructor( protected router: Router, protected institutionsService: InstitutionsService, protected accountsService: AccountsService) {
         console.log('new AccountsComponent()');
         this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
         this.#accountUpdate = this.accountsChange.subscribe((accounts: Accounts) => {
@@ -45,7 +48,6 @@ export class AccountsComponent {
         console.log('AccountsComponent().ngOnInit()');
         const update = (accounts: Accounts) => {
             this.accounts = accounts;
-            // this.chgDet.detectChanges();
         };
         update(this.accountsService.get());
         this.#cacheUpdate = this.accountsService.subscribe(update);
@@ -112,5 +114,27 @@ export class AccountsComponent {
         this.formVisible = false;
         this.formMode = FormMode.Create;
         this.account = new Account();
+    }
+
+    /**
+     * Parse the CSV file dropped on this account table.
+     */
+    parseCSVFiles(account: Account, $event: File[]) {
+        console.log('Parsing CSV files: ', account, $event);
+        const institution = <Institution>this.institutionsService.get().byId(account.institutionId);
+        const toAddTxns = new Transactions();
+        const next = (transactions: Transactions) => {
+            console.log('CSV Parsed transactions: ', transactions);
+            const txns = Transactions.digest(institution, account.name, transactions);
+            console.log('Digested transactions: ', txns);
+            toAddTxns.add(...txns);
+        };
+        const complete = () => {
+            console.log('CSV parse complete.');
+            sub.unsubscribe();
+            account.transactions.add(...toAddTxns);
+            this.accountChange.emit(account);
+        };
+        const sub: Subscription = Transactions.csvHandler($event).asObservable().pipe(map((txns: Transactions) => next(txns))).subscribe(complete);
     }
 }

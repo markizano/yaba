@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter } from '@angular/core';
 
 import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
 import { FormMode } from 'app/lib/structures';
@@ -10,10 +10,10 @@ import { Subscription } from 'rxjs';
     templateUrl: './institutions.component.html',
 })
 export class InstitutionsComponent {
-    @Input() institutions: Institutions;
-    @Output() institutionsChange = new EventEmitter<Institutions>();
+    institutions = new Institutions();
+    institutionsChange = new EventEmitter<Institutions>();
 
-    institution: IInstitution;
+    institution = new Institution();
 
     // Form controls
     formVisible = false;
@@ -23,8 +23,6 @@ export class InstitutionsComponent {
 
     // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
     constructor( protected institutionsService: InstitutionsService ) {
-        this.institutions = new Institutions();
-        this.institution = new Institution();
         this.#institutionChanges = this.institutionsChange.subscribe((institutions: Institutions) => {
             this.institutionsService.save(institutions).subscribe((response) => {
                 console.log('Institutions saved: ', response);
