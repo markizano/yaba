@@ -122,7 +122,7 @@
             <span [ngClass]="{'negative': txn.tax < 0}">{{ txn.tax | currency }} {{ txn.currency }}</span>
         }
         @case ( 'description' ) {
-            <span class="md-truncate"> {{ truncate ? txn.description.slice(0, 30): txn.description }}{{ truncate && txn.description.length > 30 ? '...' : '' }} </span>
+            <div class="description md-truncate"> {{ truncate ? txn.description.slice(0, 30): txn.description }}{{ truncate && txn.description.length > 30 ? '...' : '' }} </div>
         }
         @case ( 'merchant' ) {
             <span> {{ txn.merchant }} </span>

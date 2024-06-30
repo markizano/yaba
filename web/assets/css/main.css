@@ -1,43 +1,48 @@
 
 /**
  * Global content styling.
+ * https://paletton.com/#uid=4401m0krkuw7cUoj4ACuNkTNu6r
  */
 
 :root {
-    --black: #000200;
-    --spanish-orange: #E36C04;
-    --middle-yellow-red: #F08677;
-    --rich-black: #00020C;
-    --topaz: #F4CB89;
-    --liberty: #5B539E;
-    --sky-blue: #53a9e4;
-    --navy: #0f3079;
+    --text: #000000;
+    --border: #000000;
+    --txn-list-header: #FFDA67;
+    --menu: #17157490;
+    --titlebar: #17157480;
+    --links: #332700;
+    --link-hilite: #A67F06;
+    --shadow: #0302242F;
+    --light-shadow: #03022459;
+    --txn-odd: #FBC3CE50;
+    --txn-even: #DEFAC250;
+    --dropfile: #0583FA;
+    --helper: #FFEC77;
+    --form: #EEE;
+    --save: #55D25D;
+    --cancel: #FF7A77;
 }
+
+/*** Default HTML Elements that need styles set. ***/
 
 b, .bold { font-weight: bold; }
 i, .italic { font-style: italic; }
 u, .underline { text-decoration: underline; }
 
 a {
-    color: var(--spanish-orange);
+    color: var(--links);
     text-decoration: none;
 }
 a:visited {
-    color: var(--spanish-orange);
+    color: var(--links);
 }
 a:hover {
-    color: var(--middle-yellow-red);
+    color: var(--link-hilite);
     text-decoration: underline;
 }
 
 body {
     font-family: "Sans", "Arial", "Calibri";
-}
-
-app-root {
-    display: block;
-    margin: 5px auto;
-    width: 98%;
 }
 
 h1 {
@@ -75,7 +80,7 @@ h4 {
 
 table.data {
     border: 1px solid black;
-    box-shadow: 8px 8px #1c052c3c;
+    box-shadow: 8px 8px var(--shadow);
     margin: 5px 10px 5px 10px;
     max-height: 500px;
     table-layout: fixed;
@@ -90,8 +95,8 @@ table.data th {
     border-bottom: 1px solid black;
     cursor: pointer;
     margin: 5px auto;
-    background-color: var(--topaz);
-    color: var(--rich-black);
+    background-color: var(--txn-list-header);
+    color: var(--text);
 }
 table.data thead {
     position: sticky;
@@ -102,17 +107,13 @@ table.data td {
     overflow: auto;
 }
 table.data tr:nth-child(odd) {
-    background-color: #f1f1f1EF;
+    background-color: var(--txn-odd);
 }
 table.data tr:nth-child(even) {
-    background-color: #dbd7f0EF;
+    background-color: var(--txn-even);
 }
 table.data th:first-child {
     min-width: 120px;
-}
-
-.csvdrop.dragging {
-  border: 3px solid #11F;
 }
 
 form span.label, form label {
@@ -130,7 +131,7 @@ form span.label input[type=text] {
 button, input[type="submit"], input[type="button"], input[type="file"] {
     border-radius: 1rem;
     padding: 0.3rem 0.8rem;
-    box-shadow: #bcbcbc 5px 5px;
+    box-shadow: var(--light-shadow) 5px 5px;
     display: inline-flex;
     line-height: 1.2rem;
     font-size: 1.2rem;
@@ -142,7 +143,7 @@ input[type="text"], input[type=number], input[type="file"], select {
     border: 2px solid #000000AA;
     border-radius: 1rem;
     padding: 0.1rem 0.3rem;
-    box-shadow: #bcbcbc 5px 5px;
+    box-shadow: var(--light-shadow) 5px 5px;
     display: inline-block;
     line-height: 1.2rem;
     width: 85%;
@@ -150,7 +151,7 @@ input[type="text"], input[type=number], input[type="file"], select {
 
 input[type="text"]:focus, input[type=number]:focus, input[type="file"]:focus, select:focus {
     border: 2px solid #091222;
-    box-shadow: #cdcdcd 7px 7px;
+    box-shadow: var(--light-shadow) 7px 7px;
 }
 
 footer { margin: 5px; }
@@ -164,6 +165,12 @@ button {
     font-weight: bold;
 }
 
+app-root {
+    display: block;
+    margin: 5px auto;
+    width: 98%;
+}
+
 .helper:hover:after {
     opacity: 1;
     transition: all 300ms ease-in-out 500ms;
@@ -175,14 +182,14 @@ button {
     display: block;
     min-width: 200px;
     max-width: 450px;
-    background-color: #f7dc5f;
-    color: #111;
+    background-color: var(--helper);
+    color: var(--text);
     font-size: 120%;
     padding: 1px 5px 2px 10px;
     margin: 1px 1px 1px 5px;
-    box-shadow: 1px 1px 3px #362112;
+    box-shadow: 1px 1px 3px var(--shadow);
     opacity: 0;
-    border: 1px solid #4e3201;
+    border: 1px solid var(--border);
     z-index: 9999999;
     transition: all 500ms ease-in-out 500ms;
     visibility: hidden;
@@ -230,41 +237,8 @@ pre {
     border-radius: 1rem;
 }
 
-.pagination {
-    display: inline-block;
-    cursor: pointer;
-}
-.pagination li {
-    display: inline-block;
-    font-weight: bold;
-}
-.pagination li.page-item {
-    border: 1px solid #0f3079;
-    border-radius: 5px;
-    display: inline-block;
-    line-height: 20px;
-    font-size: 20px;
-    text-align: center;
-    vertical-align: middle;
-    width: 34px;
-    height: 28px;
-    margin: 2px;
-    padding: 5px 1px 1px 1px;
-}
-.pagination .active {
-    background-color: #789d12;
-    color: #195281;
-    font-size: 22px;
-}
-.pagination .disabled {
-    color: #630909;
-    font-size: 12px;
-    font-style: italic;
-    cursor: pointer;
-}
-
 .actively-editing {
-    background-color: var(--topaz);
+    background-color: var(--txn-list-header);
     border: 1px solid #000000;
     border-radius: 1rem;
 }
@@ -274,21 +248,21 @@ pre {
     height: 28px;
     background-color: #c4c4c4;
 }
+
 google-chart {
     display: block;
     min-width: 800px;
     min-height: 600px;
-    border: 1px solid black;
+    border: 1px solid var(--border);
 }
+
 .chart {
     display: block;
     width: 1024px;
     height: 768px;
-    border: 1px solid black;
+    border: 1px solid var(--border);
 }
-data-table {
-    font-size: 25px;
-}
+
 filters {
     display: block;
     width: 100%;
@@ -306,12 +280,11 @@ yaba-menu {
     justify-content: space-between;
     flex-direction: row;
     align-items: center;
-    background-color: #0f3079;
-    color: #ffffff;
+    background-color: var(--menu);
+    color: white;
     padding: 5px 10px;
     font-size: 20px;
     font-weight: bold;
-    border-bottom: 1px solid #ffffff;
 }
 yaba-menu menu {
     display: inline-block;
@@ -334,20 +307,6 @@ debug span {
     word-wrap: break-word;
 }
 
-#develop ul {
-    list-style-type: square;
-    margin-right: 10px;
-    font-size: 110%;
-    padding: 10px 10px 10px 20px;
-}
-#develop ul li {
-    margin-right: 20px;
-}
-
-#develop ul ul {
-    display: inline-block;
-    max-width: 400px;
-}
 .csv-content {
     max-height: 500px;
     overflow-y: auto;
@@ -355,7 +314,7 @@ debug span {
 
 .yaba-controls {
     display: flex;
-    border: 1px solid #191988C0;
+    border: 1px solid var(--border);
     border-radius: 10px;
     vertical-align: top;
     margin: 30px auto 15px auto;
@@ -363,7 +322,7 @@ debug span {
 }
 .yaba-controls:before {
     content: "Filters: ";
-    color: #0e1871;
+    color: var(--text);
     font-family: sans-serif, monospace;
     font-weight: bold;
     font-size: 150%;
@@ -461,19 +420,23 @@ wishlist-item {
     margin: 10px auto;
 }
 
-#prospect div {
-    display: flex;
-}
 
 .additional-fields {
     min-width: 400px;
+}
+
+.description {
+    text-wrap: wrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .negative {
     color: #b21717;
 }
 
-.drop-zone-active .yaba-form {
+.drop-zone-active {
     border: 5px #11F dotted;
 }
 
@@ -483,7 +446,7 @@ wishlist-item {
     justify-content: center;
     align-items: center;
     margin: 10px auto;
-    border: 2px solid var(--topaz);
+    border: 2px solid var(--border);
 
     position: absolute;
     top: 5%;
@@ -491,26 +454,18 @@ wishlist-item {
     width: 85%;
     height: auto;
     padding: 20px 5px;
-    box-shadow: 1rem 1rem #1c1c1c90;
-    background: #EEE;
+    box-shadow: 1rem 1rem var(--shadow);
+    background: var(--form);
     border-radius: 1.5rem;
     transition: all 400ms ease-in-out;
 }
 
-/* .yaba-form close {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 0;
-    padding: 0;
-}
- */
 .yaba-form form {
     width: 90%;
 }
 
 .mapping {
-    border: 1px solid #999;
+    border: 1px solid var(--border);
     display: block;
     padding: 5px;
     margin: 5px 5px 5px 20px;
@@ -520,24 +475,24 @@ wishlist-item {
 }
 
 cancel, .cancel {
-    background-color: #f00;
-    color: #fff;
+    background-color: var(--cancel);
+    color: var(--text);
     font-size: 1.2rem;
     border-radius: 1rem;
     padding: 0.3rem 0.8rem;
-    box-shadow: #bcbcbc 5px 5px;
+    box-shadow: var(--light-shadow) 5px 5px;
     display: inline-flex;
     line-height: 1.2rem;
     margin: 5px;
 }
 
 save, .save {
-    background-color: #108810;
-    color: #fff;
+    background-color: var(--save);
+    color: var(--text);
     font-size: 1.2rem;
     border-radius: 1rem;
     padding: 0.3rem 0.8rem;
-    box-shadow: #bcbcbc 5px 5px;
+    box-shadow: var(--light-shadow) 5px 5px;
     display: inline-flex;
     line-height: 1.2rem;
     margin: 5px;
@@ -553,7 +508,7 @@ add, close, edit, inspect, question, save, trash, upload {
     cursor: pointer;
 }
 
-add:hover, close:hover, edit:hover, inspect:hover, question:hover, save:hover, trash:hover, upload:hover { cursor: grab; border: 1px solid var(--topaz); }
+add:hover, close:hover, edit:hover, inspect:hover, question:hover, save:hover, trash:hover, upload:hover, view:hover { cursor: grab; border: 1px solid var(--txn-list-header); }
 
 add {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAGFBMVEVhcABT3kdk3mFt3mlu32p44nWA4338//u9xAiZAAAAAXRSTlMAQObYZgAAAM1JREFUSMe91s0NgzAMBWB7A78TZ0boCB2hI3SEnLI+KkjNjx07ohRf88UKEfhBVBf2olHhW9G6KRhNibvf6gH4gjWQYL0VMMtqsOScjBb1es5v1aI0+KwbLTqQFcAIQD1jD2QOYAzQ36ICcgmABzAB2AdyByjvQV+v45TVzr4KWE6CNQLP/4PHz4eMLipVYPBl7YB9IHcA8gFNAPaAXALIA+YASdGEUYDG4OScNGZxO4qNac72tJf5OIgDJYykONTiWIyDNYzmiXC3fw82l6MakgvgjQcAAAAASUVORK5CYII=');
@@ -633,10 +588,10 @@ settings {
     width: 99%;
     display: flex;
     flex-flow: row;
-    background-color: var(--navy);
+    background-color: var(--titlebar);
     border-radius: 10px 10px 0 0;
-    color: white;
-    trash, edit, inspect, upload { filter: invert(100%); }
+    color: var(--text);
+    /* trash, edit, inspect, upload { filter: invert(100%); } */
 }
 
 .yaba-item figcaption p {
