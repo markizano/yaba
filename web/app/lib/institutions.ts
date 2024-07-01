@@ -2,7 +2,8 @@ import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import { Papa, ParseConfig, ParseResult } from 'ngx-papaparse';
 
-import { Id2NameHashMap, YabaPlural, TransactionFields } from 'app/lib/types';
+import { Id2NameHashMap, YabaPlural } from 'app/lib/types';
+import { Transaction } from './transactions';
 
 /**
  * @enum MapTypes Valid mapping types. To later support function() types as well for things
@@ -20,7 +21,7 @@ export enum MapTypes {
  */
 export interface IMapping {
     fromField: string;
-    toField: TransactionFields;
+    toField: keyof Transaction;
     mapType: MapTypes;
     toString(): string;
 }
@@ -34,7 +35,7 @@ export interface IInstitution {
     description: string;
     mappings: InstitutionMappings;
     update(data: IInstitution): Institution;
-    addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): Institution;
+    addMapping(fromField: string, toField: keyof Transaction, mapType: MapTypes): Institution;
 }
 
 /**
@@ -43,7 +44,7 @@ export interface IInstitution {
  */
 export class InstitutionMapping implements IMapping {
     fromField = '';
-    toField: TransactionFields = 'UNKNOWN';
+    toField: keyof Transaction = 'UNKNOWN';
     mapType: MapTypes = MapTypes.csv;
 
     /**
@@ -140,7 +141,7 @@ export class InstitutionMappings extends Array<InstitutionMapping> {
         return this;
     }
 
-    hasToField(toField: TransactionFields): boolean {
+    hasToField(toField: keyof Transaction): boolean {
         return this.some(mapping => mapping.toField === toField);
     }
 }
@@ -193,7 +194,7 @@ export class Institution implements IInstitution {
      * Add a mapping to this institution.
      * @returns {Institution} Returns this object for chaining.
      */
-    addMapping(fromField: string, toField: TransactionFields, mapType: MapTypes): Institution {
+    addMapping(fromField: string, toField: keyof Transaction, mapType: MapTypes): Institution {
         this.mappings.add(new InstitutionMapping().update({fromField, toField, mapType}));
         return this;
     }

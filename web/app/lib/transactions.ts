@@ -7,7 +7,7 @@ import { NULLDATE } from 'app/lib/constants';
 import { TransactionDeltas, CurrencyType } from 'app/lib/structures';
 import { IAccount, Account, Accounts } from 'app/lib/accounts';
 import { InstitutionMappings, MapTypes, IMapping, Institution } from 'app/lib/institutions';
-import { Budgets, IBudget, Id2NameHashMap, Tags, TransactionFields, TransactionFilter, TransactionType, YabaPlural } from 'app/lib/types';
+import { Budgets, IBudget, Id2NameHashMap, Tags, TransactionFilter, TransactionType, YabaPlural } from 'app/lib/types';
 import { Subject } from 'rxjs';
 
 /**
@@ -597,7 +597,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @returns {Transactions} The sorted list of transactions by the specified key.
      */
     // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-    sortBy(key: TransactionFields, asc: boolean=true): Transactions {
+    sortBy(key: keyof Transaction, asc: boolean=true): Transactions {
         const result = <Transactions>this.concat();
         result.sort((a: Transaction, b: Transaction): number => {
             switch(true) {

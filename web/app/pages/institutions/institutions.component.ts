@@ -1,7 +1,6 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component } from '@angular/core';
 
-import { IInstitution, Institution, Institutions } from 'app/lib/institutions';
-import { FormMode } from 'app/lib/structures';
+import { Institution, Institutions } from 'app/lib/institutions';
 import { InstitutionsService } from 'app/services/institutions.service';
 import { Subscription } from 'rxjs';
 
@@ -10,75 +9,71 @@ import { Subscription } from 'rxjs';
     templateUrl: './institutions.component.html',
 })
 export class InstitutionsComponent {
+    // Local storage of the institutions list in this component.
     institutions = new Institutions();
-    institutionsChange = new EventEmitter<Institutions>();
 
+    // Local institution to pass to the form.
     institution = new Institution();
 
     // Form controls
     formVisible = false;
-    formMode: FormMode = FormMode.Create;
-    #institutionChanges: Subscription;
-    #cacheUpdates?: Subscription;
+
+    // Save the index for edits later.
+    #index?: number;
+
+    // Subscription to the institutions service.
+    #institutionUpdates?: Subscription;
 
     // @NOTE: Provider/services also assign the property to this object as defined by the name in the constructor.
-    constructor( protected institutionsService: InstitutionsService ) {
-        this.#institutionChanges = this.institutionsChange.subscribe((institutions: Institutions) => {
-            this.institutionsService.save(institutions).subscribe((response) => {
-                console.log('Institutions saved: ', response);
-            });
-        });
-    }
+    constructor( protected institutionsService: InstitutionsService ) { }
 
     ngOnInit() {
         const update = (institutions: Institutions) => {
             this.institutions = institutions;
         };
         update(this.institutionsService.get());
-        this.#cacheUpdates = this.institutionsService.subscribe(update);
+        this.#institutionUpdates = this.institutionsService.subscribe(update);
+
     }
 
     ngOnDestroy(): void {
-        this.#institutionChanges.unsubscribe();
-        this.#cacheUpdates?.unsubscribe();
+        this.#institutionUpdates?.unsubscribe();
     }
 
-    // user-clickable add button
+    /**
+     * Adds a new institution to the list of institutions.
+     */
     add(): void {
         this.institution = new Institution();
-        this.formMode = FormMode.Create;
         this.formVisible = true;
     }
 
-    remove($index: number, institutuion: IInstitution): void {
-        this.institutions.splice($index, 1);
-        this.institutionsChange.emit(this.institutions);
-        console.log('Removed institution: ', institutuion);
+    remove($index: number, institutuion: Institution): void {
+        const removed = this.institutions.splice($index, 1);
+        if ( removed[0] == institutuion) {
+            console.log('Removed institution: ', institutuion);
+            this.institutionsService.save(this.institutions);
+        }
     }
 
     // User clicked save button.
-    save(institution: IInstitution): void {
-        if ( this.formMode === FormMode.Create ) {
-            this.institutions.add(institution);
+    save(institution: Institution): void {
+        if ( this.#index !== undefined ) {
+            this.institutions[this.#index] = institution;
+        } else {
+            this.institutions.push(institution);
         }
-        this.institutionsChange.emit(this.institutions);
-        this.close()
+        this.institutionsService.save(this.institutions);
+        this.close();
+        this.reset();
     }
 
     // User wants to edit an institution.
-    edit($index: number, institution: IInstitution): void {
+    edit($index: number, institution: Institution): void {
         this.institution = institution;
-        this.formMode = FormMode.Edit;
         this.formVisible = true;
+        this.#index = $index;
         console.log('Editing institution: ', institution);
-    }
-
-    // User dropped a file on the form.
-    parseCSVFiles($event: File[]): void {
-        Institutions.csvHandler($event).then(mappings => {
-            this.institution.mappings = mappings;
-            this.institutionsChange.emit(this.institutions);
-        });
     }
 
     // User clicked cancel button.
@@ -93,5 +88,6 @@ export class InstitutionsComponent {
 
     reset(): void {
         this.institution = new Institution();
+        this.#index = undefined;
     }
 }

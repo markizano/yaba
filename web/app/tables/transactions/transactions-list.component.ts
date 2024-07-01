@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
-import { Budgets, Id2NameHashMap, TransactionShowHeaders, TransactionFilter, TxnSortHeader, TransactionFields } from 'app/lib/types';
+import { Budgets, Id2NameHashMap, TransactionShowHeaders, TransactionFilter, TxnSortHeader } from 'app/lib/types';
 import { Transactions, Transaction } from 'app/lib/transactions';
 
 import { AccountsService } from 'app/services/accounts.service';
@@ -148,7 +148,7 @@ export class TransactionsListComponent {
         });
     }
 
-    sortBy(header: TransactionFields): void {
+    sortBy(header: keyof Transaction): void {
         this.sort.asc = this.sort.column == header? !this.sort.asc: true;
         this.sort.column = header;
         this.#postFilterTxns = this.#postFilterTxns.sortBy(this.sort.column, this.sort.asc);

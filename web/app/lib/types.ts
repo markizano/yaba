@@ -2,7 +2,7 @@ import { PageEvent } from '@angular/material/paginator';
 
 import { Account, Accounts } from "app/lib/accounts";
 import { Institution, Institutions } from "app/lib/institutions";
-import { ITransaction, Transaction, Transactions } from "app/lib/transactions";
+import { Transaction, Transactions } from "app/lib/transactions";
 
 export type Yabable = Transaction | Account | Institution;
 export type Yabables = Transactions | Accounts | Institutions;
@@ -79,11 +79,6 @@ export enum TransactionType {
 }
 
 /**
- * @enum List of top-level member fields that represent a transaction.
- */
-export type TransactionFields = keyof ITransaction & string | 'UNKNOWN';
-
-/**
  * Budget interface to define a budget.
  */
 export type IBudget = { tag: string, amount: number };
@@ -93,7 +88,7 @@ export type Budgets = IBudget[];
  * Transaction Sorting descriptor.
  */
 export type TxnSortHeader = {
-    column: TransactionFields,
+    column: keyof Transaction,
     asc: boolean
 };
 

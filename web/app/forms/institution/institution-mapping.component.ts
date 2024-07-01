@@ -1,9 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
+import { NgSelectable } from 'app/lib/types';
 import { InstitutionMapping, MapTypes } from 'app/lib/institutions';
-import { TransactionFields } from 'app/lib/types';
-import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
+import { Transaction } from 'app/lib/transactions';
+import { ControlsModule } from 'app/controls/controls.module';
+
 
 @Component({
   selector: 'institution-mapping',
@@ -20,8 +22,8 @@ export class InstitutionMappingComponent {
     @Input() index = 0;
     @Input() mapping = new InstitutionMapping();
     @Output() mappingChange = new EventEmitter<InstitutionMapping>();
-    @Input() fields: {label: string, value: TransactionFields}[] = [];
-    @Output() fieldsChange = new EventEmitter<TransactionFields>();
+    @Input() fields: NgSelectable<keyof Transaction>[] = [];
+    @Output() fieldsChange = new EventEmitter<void>();
     @Output() remove = new EventEmitter<number>();
 
     protected _remove() {
@@ -33,9 +35,9 @@ export class InstitutionMappingComponent {
      * @param toFieldSelect 
      */
     onToField(toFieldSelect: HTMLSelectElement) {
-        this.mapping.toField = toFieldSelect.value as TransactionFields;
+        this.mapping.toField = toFieldSelect.value as keyof Transaction;
         this.mappingChange.emit(this.mapping);
-        this.fieldsChange.emit(this.mapping.toField);
+        this.fieldsChange.emit();
     }
 
     isField() {
