@@ -3,9 +3,8 @@ import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from
 
 /* YABA Definitions */
 import { YabaAnimations } from 'app/lib/animations';
-import { FormMode } from 'app/lib/structures';
-import { NgSelectable, TransactionFields } from 'app/lib/types';
-import { IInstitution, Institution, MapTypes } from 'app/lib/institutions';
+import { NgSelectable } from 'app/lib/types';
+import { Institution, Institutions, MapTypes } from 'app/lib/institutions';
 import { Transaction } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 
@@ -26,17 +25,13 @@ import { InstitutionMappingComponent } from 'app/forms/institution/institution-m
 })
 export class InstitutionFormComponent {
     @Input() institution = new Institution();
-    @Output() institutionChange = new EventEmitter<IInstitution>();
+    @Output() institutionChange = new EventEmitter<Institution>();
 
-    @Input() mode = FormMode.Create;
-    @Output() modeChange = new EventEmitter<FormMode>();
-
-    @Output() save = new EventEmitter<IInstitution>();
+    @Output() save = new EventEmitter<Institution>();
     @Output() cancel = new EventEmitter<void>();
-    @Output() drop = new EventEmitter<Array<File>>();
 
     errors: string[] = []; // List of array messages to render to end-user.
-    fields: NgSelectable<TransactionFields>[] = [];
+    fields: NgSelectable<keyof Transaction>[] = [];
 
     // Disable dropping on the body of the document. 
     // This prevents the browser from loading the dropped files
@@ -90,10 +85,10 @@ export class InstitutionFormComponent {
     /**
      * Get the list of transaction field types from the enum into a list of pairs for the name:value.
      */
-    getTransactionFields(): NgSelectable<TransactionFields>[] {
-        this.fields = Object.keys(Transaction)
-          .filter((x) => typeof x === 'string' && !this.institution.mappings.hasToField(x as TransactionFields))
-          .map((key: string) => ({ label: key, value: key as TransactionFields }));
+    getTransactionFields(): NgSelectable<keyof Transaction>[] {
+        this.fields = Object.keys(new Transaction())
+          .filter((x) => typeof x === 'string' && !this.institution.mappings.hasToField(x as keyof Transaction))
+          .map((key: string) => ({ label: key, value: key as keyof Transaction }));
           return this.fields;
     }
 
@@ -112,9 +107,8 @@ export class InstitutionFormComponent {
     /**
      * Edit the institution.
      */
-    edit(institution: IInstitution): void {
+    edit(institution: Institution): void {
         this.institutionChange.emit( this.institution = institution );
-        this.modeChange.emit( this.mode = FormMode.Edit );
     }
 
     /**
@@ -142,7 +136,6 @@ export class InstitutionFormComponent {
      */
     reset() {
         this.institution = new Institution();
-        this.mode = FormMode.Create;
         this.errors = [];
     }
 
@@ -153,4 +146,13 @@ export class InstitutionFormComponent {
         this.cancel.emit();
         this.reset();
     }
+
+    // User dropped a file on the form.
+    parseCSVFiles($event: File[]): void {
+        Institutions.csvHandler($event).then(mappings => {
+            this.institution.mappings = mappings;
+            this.institutionChange.emit(this.institution);
+        });
+    }
+
 }
