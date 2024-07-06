@@ -1,4 +1,4 @@
-<div id="account-detail" ng-controller="account" class="controller">
+<div id="account-detail" ng-controller="account" class="controller dropfile" (fileDrop)="parseCSVFIles($event)" [preventBodyDrop]="true">
     <div class="titlebar" >
         <h2 class="title">{{ account.name }}</h2>
         <!-- @TODO: Add edit button -->

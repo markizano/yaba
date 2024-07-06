@@ -2,8 +2,10 @@ import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Account, Accounts } from 'app/lib/accounts';
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
+import { Institution } from 'app/lib/institutions';
 import { TransactionShowHeaders } from 'app/lib/types';
 import { AccountsService } from 'app/services/accounts.service';
+import { InstitutionsService } from 'app/services/institutions.service';
 import { Subscription } from 'rxjs';
 
 /**
@@ -31,7 +33,7 @@ export class AccountDetailComponent {
 
     #cacheUpdate?: Subscription;
 
-    constructor(protected router: Router, protected accountsService: AccountsService) {
+    constructor(protected router: Router, protected institutionsService: InstitutionsService, protected accountsService: AccountsService) {
         console.log('AccountDetailComponent constructor');
         this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
         this.filters.accounts = undefined;
@@ -65,6 +67,14 @@ export class AccountDetailComponent {
     ngOnDestroy() {
         console.log('AccountDetailComponent() ngOnDestroy()');
         this.#cacheUpdate?.unsubscribe();
+    }
+
+    async parseCSVFIles($event: File[]) {
+        const txns = await Accounts.parseCSVFiles(this.account, $event, <Institution>this.institutionsService.get().byId(this.account.institutionId), this.errors);
+        console.log('parseCSVFiles() txns: ', this.account, txns);
+        this.account.transactions.add(...txns);
+        this.account.transactions.sorted();
+        this.accountsService.save(this.accounts);
     }
 
     // @TODO: Add form functions.

@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AccountTypes, Account } from 'app/lib/accounts';
 import { Institution, Institutions } from 'app/lib/institutions';
-import { FormMode } from 'app/lib/structures';
 import { NgSelectable } from 'app/lib/types';
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
@@ -24,11 +23,8 @@ export class AccountFormComponent {
     @Input() account = new Account();
     @Output() accountChange = new EventEmitter<Account>();
 
-    @Input() formMode = FormMode.Create;
-    @Output() formModeChange = new EventEmitter<FormMode>();
-
     @Output() save = new EventEmitter<Account>();
-    @Output() close = new EventEmitter<void>();
+    @Output() cancel = new EventEmitter<void>();
 
     institutions = new Institutions();
     institutionIds: NgSelectable<Institution>[] = [];
@@ -39,9 +35,7 @@ export class AccountFormComponent {
 
     #cachedUpdates?: Subscription;
 
-    constructor(protected institutionsService: InstitutionsService) {
-        console.log('new AccountFormComponent()');
-    }
+    constructor(protected institutionsService: InstitutionsService) { }
 
     ngOnInit(): void {
         console.log('AccountFormComponent().ngOnInit()');
@@ -92,21 +86,16 @@ export class AccountFormComponent {
             return;
         }
         this.accountChange.emit(this.account);
-        this.reset()
-        this.closeForm()
+        this.save.emit(this.account);
+        this.cancelForm()
     }
 
-    cancel(): void {
-        this.closeForm();
-    }
-
-    closeForm(): void {
+    cancelForm(): void {
+        this.cancel.emit();
         this.reset();
-        this.close.emit();
     }
 
     reset(): void {
-        this.formMode = FormMode.Create;
         this.account = new Account();
     }
 }

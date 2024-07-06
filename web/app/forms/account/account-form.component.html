@@ -1,5 +1,5 @@
 <div class="yaba-account-form yaba-form">
-    <close (click)="closeForm()"></close>
+    <close (click)="cancelForm()"></close>
     <h1>{{ account.name || "New" }} Account:</h1>
     <form (ngSubmit)="saveChanges()">
         <label>Name: <input type="text" maxlength="64" name="name" [(ngModel)]="account.name" tabindex="1" /></label>
@@ -29,7 +29,7 @@
         ></ng-select>
       </label>
       <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
-      <input type="button" name="cancel" value="Cancel" (click)="cancel()"  tabindex="9" class="cancel" />
+      <input type="button" name="cancel" value="Cancel" (click)="cancelForm()"  tabindex="9" class="cancel" />
       <input type="button" name="save" value="Save Account" (click)="saveChanges()"  tabindex="10" class="save" />
   </form>
 </div>

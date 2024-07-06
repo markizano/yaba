@@ -3,12 +3,12 @@ import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import { Papa, ParseError, ParseResult } from 'ngx-papaparse';
 
-import { NULLDATE } from 'app/lib/constants';
+import { CURRENCY_RE, NULLDATE } from 'app/lib/constants';
 import { TransactionDeltas, CurrencyType } from 'app/lib/structures';
 import { IAccount, Account, Accounts } from 'app/lib/accounts';
-import { InstitutionMappings, MapTypes, IMapping, Institution } from 'app/lib/institutions';
+import { InstitutionMappings, MapTypes, Institution } from 'app/lib/institutions';
 import { Budgets, IBudget, Id2NameHashMap, Tags, TransactionFilter, TransactionType, YabaPlural } from 'app/lib/types';
-import { Subject } from 'rxjs';
+import { Observable, forkJoin, mergeAll, of } from 'rxjs';
 
 /**
  * Transaction interface to define a transaction.
@@ -233,7 +233,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
         const overrideCallback = (value: Transaction, index: number, txns: Transaction[]): boolean => {
             return callback(value, index, new Transactions(...txns));
         };
-        return new Transactions(...this.filter(overrideCallback, thisArg));
+        return <Transactions>this.filter(overrideCallback, thisArg);
     }
 
     /**
@@ -249,7 +249,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
         const overrideCallback = (value: Transaction, index: number, txns: Transaction[]): any => {
             return callback(value, index, new Transactions(...txns));
         };
-        return new Transactions(...this.map(overrideCallback, thisArg));
+        return <Transactions>this.map(overrideCallback, thisArg);
     }
 
     /**
@@ -283,7 +283,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * For the account listing page, just return a sample of transactions as Transactions() not Transaction[].
      */
     sample(count?: number): Transactions {
-        return new Transactions(...this.concat().slice(0, count ?? 5));
+        return <Transactions>this.slice(0, count ?? 5);
     }
 
     /**
@@ -727,70 +727,114 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @todo Have the ability to accept or reject the changes as a result of dropping the CSV file on this account.
      *   Here is where we can implement some sort of "undo" function.
      */
-    static digest(institution: Institution, accountId: string, transactions: Transactions|Transaction[]): Transactions {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    static digest(institution: Institution, accountId: string, transactions: any): Transactions {
         const results = new Transactions(), mappings: InstitutionMappings = <InstitutionMappings>institution.mappings.concat();
-        transactions.map((transaction: Transaction) => {
-            const cannonical: Transaction = new Transaction();
-            mappings.map((mapping: IMapping) => {
+        console.log('Transactions.digest()', accountId, transactions, mappings);
+        for ( const transaction of transactions ) {
+            const cannonical = new Transaction();
+            // console.debug('new cannonical: ', cannonical, institution, transaction);
+            for ( const mapping of mappings ) {
+                const toField = mapping.toField as keyof ITransaction;
+                if ( toField === undefined || toField === 'UNKNOWN' ) {
+                    console.error(`Invalid mapping for institution "${institution.name}" attached to account "${accountId}" on transaction "${transaction.id}".`);
+                    continue;
+                }
                 switch(mapping.mapType) {
-                    case MapTypes.csv:
-                        Object.assign(cannonical, mapping.toField, mapping.fromField);
+                    case MapTypes.value:
+                        Object.assign(cannonical, toField, mapping.fromField);
+                        // cannonical[toField] = mapping.fromField; // string is not assignable to type `never' ?? fuck you typescript...
+                        // console.debug(cannonical);
                         break;
                     case MapTypes.dynamic:
-                        { // Braces here just to make TypeScript happy.
-                            const value = (<PropertyDescriptor>Object.getOwnPropertyDescriptor(transaction, mapping.fromField)).value;
-                            if ( mapping.toField == 'amount' ) {
-                                if ( Object.hasOwn(cannonical, 'amount') ) {
-                                    Object.assign(cannonical, 'amount', cannonical.amount + Number(value));
-                                } else {
-                                    Object.assign(cannonical, mapping.toField, value);
-                                }
-                                break;
+                        try {
+                            const value: string|number = transaction[mapping.fromField as keyof Transaction];
+                            switch(mapping.toField) {
+                                case 'id':
+                                    cannonical.id = value.toString() ?? v4();
+                                    break;
+                                case 'description':
+                                    cannonical.description = value.toString();
+                                    break;
+                                case 'datePending':
+                                    cannonical.datePending = new Date(value);
+                                    break;
+                                case 'datePosted':
+                                    cannonical.datePosted = new Date(value);
+                                    break;
+                                case 'transactionType':
+                                    cannonical.transactionType = <TransactionType>value || TransactionType.UNKNOWN;
+                                    break;
+                                case 'amount':
+                                    cannonical.amount = typeof value === 'number' ? value: parseFloat(value.toString().replaceAll(CURRENCY_RE, ''));
+                                    break;
+                                case 'tax':
+                                    cannonical.tax = typeof value === 'number' ? value: parseFloat(value.toString().replaceAll(CURRENCY_RE, ''));
+                                    break;
+                                case 'currency':
+                                    cannonical.currency = <CurrencyType>value || CurrencyType.USD;
+                                    break;
+                                case 'merchant':
+                                    cannonical.merchant = value.toString();
+                                    break;
+                                case 'tags':
+                                    cannonical.tags = <Tags>value.toString().split('|');
+                                    break;
                             }
-                            Object.assign(cannonical, mapping.toField, value);
+                            // console.log('Dynamic Mapping', cannonical, mapping.toField, value, transaction);
+                            // Object.assign(cannonical, mapping.toField, value);
+                        } catch(e) {
+                            console.error('Failed to map dynamic field.', e);
                         }
                         break;
                     default:
                         throw new Error(`Invalid mapType(${mapping.mapType}) for institution "${institution.name}" ` +
                         `attached to account "${accountId}" on transaction "${transaction.id}".`);
                 }
-            });
-            results.add( cannonical );
-        });
+            }
+            cannonical.accountId = accountId;
+            const txn = Transaction.fromObject(cannonical);
+            if ( txn.datePending == NULLDATE ) {
+                txn.datePending = new Date(txn.datePosted.getTime() - 86400000);
+            }
+            // console.log('post-mapping cannonical: ', cannonical);
+            results.add( txn );
+        }
         return results.sorted();
     }
 
     /**
      * Handle the drop of a CSV file on an account table.
      */
-    static csvHandler(files: File[]): Subject<Transactions> {
+    static csvHandler(files: File[]): Observable<Transactions> {
         console.log('Transactions.csvHandler()', files);
-        const subscriber = new Subject<Transactions>();
         if ( files.length == 0 ) {
             console.warn('No files to process.');
-            subscriber.next( new Transactions() );
+            return of( new Transactions() );
         } else {
             console.log('Processing files.');
+            const csvFiles: Observable<Transactions>[] = [];
             files.forEach((csvFile) => {
-                const px = new Papa().parse(csvFile, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: (parsedCSV: ParseResult): void => {
-                        // Loosly typed data from CSV file. It will be filtered and matched up later.
-                        console.log('Parsed CSV file.', csvFile, parsedCSV.data, subscriber);
-                        subscriber.next(parsedCSV.data as Transactions);
-                        subscriber.complete();
-                    },
-                    error: (error: ParseError, file?: File|undefined): void => {
-                        console.error('Failed to parse CSV file.', file, error);
-                        subscriber.error(error);
-                    }
-                });
-                console.log('Request CSV parsing: ', csvFile, px);
+                csvFiles.push(new Observable<Transactions>((parserSub) => {
+                    const px = new Papa().parse(csvFile, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: (parsedCSV: ParseResult): void => {
+                            // Loosly typed data from CSV file. It will be filtered and matched up later.
+                            console.log('observing CSV file.', csvFile, parsedCSV.data, parserSub);
+                            parserSub.next(parsedCSV.data as Transactions);
+                            parserSub.complete();
+                        },
+                        error: (error: ParseError, file?: File|undefined): void => {
+                            console.error('Failed to parse CSV file.', file, error);
+                            parserSub.error(error);
+                        }
+                    });
+                    console.log('Request CSV parsing: ', csvFile, px);
+                }));
             });
+            return forkJoin(csvFiles).pipe(mergeAll());
         }
-        subscriber.complete();
-        return subscriber;
     }
 
     /**
