@@ -29,8 +29,8 @@ export class DescriptionFilterComponent {
     @Output() changed = new EventEmitter<DescriptionChange>();
 
     ngOnInit() {
-        this.#descriptionSub = this.descriptionChanged.pipe(debounceTime(2000)).subscribe(() => this.onChanged());
-        this.#useRegexpSub = this.useRegexpChanged.pipe(debounceTime(2000)).subscribe(() => this.onChanged());
+        this.#descriptionSub = this.descriptionChanged.pipe(debounceTime(1385)).subscribe(() => this.onChanged());
+        this.#useRegexpSub = this.useRegexpChanged.pipe(debounceTime(1385)).subscribe(() => this.onChanged());
     }
 
     ngOnDestroy() {

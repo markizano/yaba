@@ -178,16 +178,13 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     id2name: Id2NameHashMap = {};
 
     constructor(...items: ITransaction[]|Transaction[]|Transactions) {
-        const id2name: Id2NameHashMap = {};
         if ( items.length > 0 && typeof items[0] !== 'number' ) {
             for ( const i in items ) {
                 const item = items[i];
                 item instanceof Transaction || (items[i] = Transaction.fromObject(item));
-                id2name[item.id] = item.description;
             }
         }
         super(...items as Transaction[]);
-        this.id2name = id2name;
     }
 
     /**
@@ -231,7 +228,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
     search(callback: Function, thisArg?: any): Transactions {
         const overrideCallback = (value: Transaction, index: number, txns: Transaction[]): boolean => {
-            return callback(value, index, new Transactions(...txns));
+            return callback(value, index, txns);
         };
         return <Transactions>this.filter(overrideCallback, thisArg);
     }
@@ -247,7 +244,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     it(callback: Function, thisArg?: any): Transactions {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const overrideCallback = (value: Transaction, index: number, txns: Transaction[]): any => {
-            return callback(value, index, new Transactions(...txns));
+            return callback(value, index, txns);
         };
         return <Transactions>this.map(overrideCallback, thisArg);
     }

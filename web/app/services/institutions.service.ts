@@ -22,7 +22,7 @@ export class InstitutionsService extends BaseHttpService<Institutions> {
     }
 
     next(value: Institutions): void {
-        console.log('InstitutionsService().next(): ', value);
+        // console.log('InstitutionsService().next(): ', value);
         this.cache = Institutions.fromList(value);
         this.cacheExpiry = false;
         this.setExpire();

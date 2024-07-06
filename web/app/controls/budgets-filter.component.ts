@@ -18,16 +18,16 @@ import { Budgets } from "app/lib/types";
     imports: [ CommonModule, FormsModule, NgSelectModule ],
 })
 export class BudgetsFilterComponent {
-    @Input() transactions = new Transactions();
+    #transactions = new Transactions();
+    @Input() get transactions() { return this.#transactions; }
+    set transactions(value: Transactions) {
+        this.#transactions = value;
+        this.budgets = value.getBudgets();
+        console.log('BudgetsFilterComponent().set transactions()', this.transactions.length);
+    }
 
     budgets = <Budgets>[];
     @Output() selectedBudgets = new EventEmitter<Budgets>();
-
-    ngOnChanges() {
-        console.log('BudgetsFilterComponent().ngOnChanges()', this.transactions.length);
-        this.budgets = this.transactions.getBudgets();
-        console.debug(this.budgets);
-    }
 
     ngOnInit() {
         console.log('BudgetsFilterComponent().ngOnInit()');

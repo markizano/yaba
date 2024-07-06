@@ -22,7 +22,7 @@ export class AccountsService extends BaseHttpService<Accounts> {
     }
 
     next(value: Accounts): void {
-        console.log('AccountsService().next(): ', value);
+        // console.log('AccountsService().next(): ', value);
         this.cache = Accounts.fromList(value)
         this.cacheExpiry = false;
         this.setExpire();

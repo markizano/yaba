@@ -4,7 +4,7 @@ import { EventEmitter, Output } from '@angular/core';
 
 import { DateRange, DescriptionChange, Budgets, TransactionFilter } from 'app/lib/types';
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
-import { Transactions } from 'app/lib/transactions';
+import { Transaction, Transactions } from 'app/lib/transactions';
 import { Accounts } from 'app/lib/accounts';
 import { DateRangeFilterComponent } from 'app/controls/daterange.component';
 import { AccountsFilterComponent } from 'app/controls/account-filter.component';
@@ -39,6 +39,7 @@ export class TransactionFilterComponent {
     @Input() filter = EMPTY_TRANSACTION_FILTER;
     @Output() filterChange = new EventEmitter<TransactionFilter>();
     @Input() transactions = new Transactions();
+    @Output() filteredTransactions = new EventEmitter<Transactions>();
     filterByAccount: boolean;
 
     constructor() {
@@ -48,8 +49,14 @@ export class TransactionFilterComponent {
         this.filterByAccount = this.filter.accounts !== undefined;
         this.filterChange.subscribe((filter: TransactionFilter) => {
             this.filterByAccount = filter.accounts !== undefined;
+            this.filteredTransactions.emit(this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(filter, txn)));
         });
         this.filterChange.emit(this.filter);
+    }
+
+    ngOnInit() {
+        this.filteredTransactions.emit(this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(this.filter, txn)));
+        console.log('TransactionFilterComponent().ngOnInit()', this.transactions.length);
     }
 
     daterange($event: DateRange) {

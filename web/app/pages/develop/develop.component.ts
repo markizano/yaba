@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component } from '@angular/core';
 import { AccountsFilterComponent } from 'app/controls/account-filter.component';
 
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
@@ -22,13 +22,12 @@ import { Subscription } from 'rxjs';
 })
 export class DevelopComponent {
     transactions = new Transactions();
-    transactionsChange = new EventEmitter<Transactions>();
     filters = EMPTY_TRANSACTION_FILTER;
     #cachedUpdate?: Subscription;
 
     constructor(protected accountsService: AccountsService) {
         this.filters.fromDate = NULLDATE;
-        // this.filters.accounts = undefined;
+        this.filters.accounts = [];
     }
 
     ngOnInit() {

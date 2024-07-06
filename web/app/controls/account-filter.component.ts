@@ -33,7 +33,7 @@ export class AccountsFilterComponent {
         const update = (accounts: Accounts) => {
             this.accounts = accounts;
             this.selectable = this.accounts.map((x: Account) => ({ label: x.name, value: x }));
-            console.log('AccountsFilterComponent().selectable:', this.selectable);
+            // console.log('AccountsFilterComponent().selectable:', this.selectable);
         };
         update(this.accountsService.get());
         this.#cacheUpdate = this.accountsService.subscribe(update);
