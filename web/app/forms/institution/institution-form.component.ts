@@ -5,7 +5,7 @@ import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from
 import { YabaAnimations } from 'app/lib/animations';
 import { NgSelectable } from 'app/lib/types';
 import { Institution, Institutions, MapTypes } from 'app/lib/institutions';
-import { Transaction } from 'app/lib/transactions';
+import { ITransaction, Transaction } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 
 /* SubComponents */
@@ -31,7 +31,7 @@ export class InstitutionFormComponent {
     @Output() cancel = new EventEmitter<void>();
 
     errors: string[] = []; // List of array messages to render to end-user.
-    fields: NgSelectable<keyof Transaction>[] = [];
+    fields: NgSelectable<keyof ITransaction>[] = [];
 
     // Disable dropping on the body of the document. 
     // This prevents the browser from loading the dropped files
@@ -87,8 +87,8 @@ export class InstitutionFormComponent {
      */
     getTransactionFields(): NgSelectable<keyof Transaction>[] {
         this.fields = Object.keys(new Transaction())
-          .filter((x) => typeof x === 'string' && !this.institution.mappings.hasToField(x as keyof Transaction))
-          .map((key: string) => ({ label: key, value: key as keyof Transaction }));
+          .filter((x) => typeof x === 'string' && !this.institution.mappings.hasToField(x as keyof ITransaction))
+          .map((key: string) => ({ label: key, value: key as keyof ITransaction }));
           return this.fields;
     }
 
@@ -105,19 +105,13 @@ export class InstitutionFormComponent {
     }
 
     /**
-     * Edit the institution.
-     */
-    edit(institution: Institution): void {
-        this.institutionChange.emit( this.institution = institution );
-    }
-
-    /**
      * Add a mapping to the list of mappings.
      * Trigger target events to notify the parent component of the changes.
      */
     addMapping(): void {
         if ( this.fields.length -1 > this.institution.mappings.length ) {
-            this.institution.addMapping('', 'UNKNOWN', MapTypes.csv);
+            this.institution.addMapping('', 'UNKNOWN', MapTypes.value);
+            this.institutionChange.emit(this.institution);
         }
         this.getTransactionFields();
     }

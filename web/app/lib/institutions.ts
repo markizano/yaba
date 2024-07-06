@@ -3,7 +3,7 @@ import * as JSZip from 'jszip';
 import { Papa, ParseConfig, ParseResult } from 'ngx-papaparse';
 
 import { Id2NameHashMap, YabaPlural } from 'app/lib/types';
-import { Transaction } from './transactions';
+import { ITransaction, Transaction } from 'app/lib/transactions';
 
 /**
  * @enum MapTypes Valid mapping types. To later support function() types as well for things
@@ -11,8 +11,8 @@ import { Transaction } from './transactions';
  * some calculation based on related fields in this transaction.
  */
 export enum MapTypes {
-    csv = 'static',
-    dynamic = 'dynamic',
+    value = 'static', // Value is a flat string. No processing needed. Used "value" because "static" is a reserved word.
+    dynamic = 'dynamic', // Value is derived from the CSV files.
     function = 'function', // @TODO: Support this
 }
 
@@ -21,7 +21,7 @@ export enum MapTypes {
  */
 export interface IMapping {
     fromField: string;
-    toField: keyof Transaction;
+    toField: keyof ITransaction;
     mapType: MapTypes;
     toString(): string;
 }
@@ -44,8 +44,8 @@ export interface IInstitution {
  */
 export class InstitutionMapping implements IMapping {
     fromField = '';
-    toField: keyof Transaction = 'UNKNOWN';
-    mapType: MapTypes = MapTypes.csv;
+    toField: keyof ITransaction = 'UNKNOWN';
+    mapType: MapTypes = MapTypes.value;
 
     /**
      * @factory Parse a string to build a new mapping.
@@ -194,7 +194,7 @@ export class Institution implements IInstitution {
      * Add a mapping to this institution.
      * @returns {Institution} Returns this object for chaining.
      */
-    addMapping(fromField: string, toField: keyof Transaction, mapType: MapTypes): Institution {
+    addMapping(fromField: string, toField: keyof ITransaction, mapType: MapTypes): Institution {
         this.mappings.add(new InstitutionMapping().update({fromField, toField, mapType}));
         return this;
     }
@@ -398,7 +398,7 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
                         reject(parsedCSV.errors);
                     }
                     const headers = Object.keys(parsedCSV.data.shift());
-                    const imaps = new InstitutionMappings(...headers.map(h => InstitutionMapping.fromObject({fromField: h, toField: 'UNKNOWN', mapType: MapTypes.csv})));
+                    const imaps = new InstitutionMappings(...headers.map(h => InstitutionMapping.fromObject({fromField: h, toField: 'UNKNOWN', mapType: MapTypes.value})));
                     resolve(imaps);
                 },
             };

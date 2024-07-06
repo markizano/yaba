@@ -45,6 +45,7 @@ export class TransactionsListComponent {
     }
     set transactions(value: Transactions) {
         this.#transactions = value;
+        this.postFilter();
     }
     @Output() transactionsChange = new EventEmitter<Transactions>();
     @Output() budgets = new EventEmitter<Budgets>();

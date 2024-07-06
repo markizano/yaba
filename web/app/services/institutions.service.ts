@@ -22,8 +22,8 @@ export class InstitutionsService extends BaseHttpService<Institutions> {
     }
 
     next(value: Institutions): void {
-        this.flush();
-        this.cache.add(...value);
+        console.log('InstitutionsService().next(): ', value);
+        this.cache = Institutions.fromList(value);
         this.cacheExpiry = false;
         this.setExpire();
         this.cacheSubject.emit(this.cache);

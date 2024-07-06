@@ -23,3 +23,7 @@ export const EMPTY_TRANSACTION_FILTER = <TransactionFilter>{
     page: { pageIndex: 0, pageSize: 10, length: 0 },
 };
 
+/**
+ * RegExp to match all currencies for us.
+ */
+export const CURRENCY_RE = /(\$|£|€|¥|₹|₽|₩|₴|₪|₦|₮|₱|₲|₳|₵|₸|₹|₺|₼|₽|₾|﷼|﹩|﷼|﷽|﹩|﹩)/g;

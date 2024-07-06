@@ -3,6 +3,7 @@ import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
 import { ITransaction, Transactions } from 'app/lib/transactions';
 import { Id2NameHashMap, TransactionFilter, YabaPlural } from 'app/lib/types';
+import { Institution } from './institutions';
 
 /**
  * @enum {String} AccountTypes - Types of accounts for tracking.
@@ -129,6 +130,36 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      */
     static fromList(list: IAccount[]): Accounts {
         return new Accounts().add(...list);
+    }
+
+    /**
+     * @factory Function to generate a list of transactions from a CSV dump.
+     */
+    static parseCSVFiles(account: Account, csvFiles: File[], institution: Institution, errors: string[]): Promise<Transactions> {
+        console.log('Parsing CSV files: ', account, csvFiles);
+        return new Promise((resolve, reject) => {
+            const toAddTxns = new Transactions();
+            const error = (e: unknown) => {
+                console.error('Error digesting transactions: ', e);
+                errors.push(<string>e);
+                reject(e);
+            }
+            const next = (transactions: Transactions) => {
+                console.log('CSV Parsed transactions: ', transactions);
+                try {
+                    const txns = Transactions.digest(institution, account.id, transactions);
+                    console.log('Digested transactions: ', txns);
+                    toAddTxns.add(...txns);
+                } catch (e) {
+                    error(e);
+                }
+            };
+            const complete = () => {
+                console.log('CSV parse complete.', toAddTxns);
+                resolve(toAddTxns);
+            };
+            Transactions.csvHandler(csvFiles).subscribe({next, complete, error});
+        });
     }
 
     /**
