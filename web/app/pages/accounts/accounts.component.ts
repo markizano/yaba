@@ -36,7 +36,7 @@ export class AccountsComponent {
         const update = (accounts: Accounts) => {
             console.log('AccountsComponent().#sub.update()');
             this.accounts = Accounts.fromList(accounts);
-            accounts.map((a, i) => this.tview[i] = a.transactions.sorted().sample());
+            this.tview = accounts.map((a) => a.transactions.sorted().sample());
         };
         update(this.accountsService.get());
         this.#cacheUpdate = this.accountsService.subscribe(update);

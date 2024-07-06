@@ -9,6 +9,7 @@ export interface UserPreferences {
     txShow: TransactionShowHeaders;
     payCycle: PayCycle;
     txnDelta: TransactionDeltas;
+    useServer: boolean;
 }
 
 /**
@@ -19,19 +20,10 @@ export class Settings implements UserPreferences {
     expenseTags: Tags = [];
     transferTags: Tags = [];
     hideTags: Tags = [];
-    txShow: TransactionShowHeaders;
-    payCycle: PayCycle;
-    txnDelta: TransactionDeltas;
-
-    constructor(incomeTags?: string[], expenseTags?: string[], transferTags?: string[], hideTags?: string[], txShow?: TransactionShowHeaders, payCycle?: PayCycle, txnDelta?: TransactionDeltas) {
-        this.incomeTags = incomeTags || [];
-        this.expenseTags = expenseTags || [];
-        this.transferTags = transferTags || [];
-        this.hideTags = hideTags || [];
-        this.txShow = txShow || <TransactionShowHeaders>{};
-        this.payCycle = payCycle || PayCycle.Weekly;
-        this.txnDelta = txnDelta || TransactionDeltas.days30;
-    }
+    txShow: TransactionShowHeaders = <TransactionShowHeaders>{};
+    payCycle: PayCycle = PayCycle.Weekly;
+    txnDelta: TransactionDeltas = TransactionDeltas.days30;
+    useServer: boolean = false;
 
     /**
      * Read the local storage for our settings.
@@ -47,6 +39,7 @@ export class Settings implements UserPreferences {
         if ( data.txShow )          this.txShow = data.txShow;
         if ( data.payCycle )        this.payCycle = data.payCycle;
         if ( data.txnDelta )        this.txnDelta = data.txnDelta;
+        if ( data.useServer )       this.useServer = data.useServer;
         return this;
     }
 
@@ -83,6 +76,7 @@ export class Settings implements UserPreferences {
             txShow: this.txShow,
             payCycle: this.payCycle,
             txnDelta: this.txnDelta,
+            useServer: this.useServer,
         });
     }
 

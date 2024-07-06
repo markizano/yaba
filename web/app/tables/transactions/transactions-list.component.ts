@@ -5,14 +5,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
-import { Budgets, Id2NameHashMap, TransactionShowHeaders, TransactionFilter, TxnSortHeader } from 'app/lib/types';
+import { Budgets, TransactionShowHeaders, TransactionFilter, TxnSortHeader } from 'app/lib/types';
 import { Transactions, Transaction } from 'app/lib/transactions';
 
 import { AccountsService } from 'app/services/accounts.service';
 import { ControlsModule } from 'app/controls/controls.module';
 import { TransactionFilterComponent } from 'app/tables/transactions/txn-filter/txn-filter.component';
-import { Accounts } from 'app/lib/accounts';
-import { Subscription } from 'rxjs';
 import { Settings } from 'app/lib/settings';
 import { TxnRowComponent } from './txn-row/txn-row.component';
 
@@ -38,15 +36,8 @@ import { TxnRowComponent } from './txn-row/txn-row.component';
 export class TransactionsListComponent {
     addOnBlur = true;
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
-    // Data
-    #transactions = new Transactions();
-    @Input() get transactions(): Transactions {
-        return this.#transactions;
-    }
-    set transactions(value: Transactions) {
-        this.#transactions = value;
-        this.postFilter();
-    }
+
+    @Input() transactions = new Transactions();
     @Output() transactionsChange = new EventEmitter<Transactions>();
     @Output() budgets = new EventEmitter<Budgets>();
 
@@ -80,60 +71,42 @@ export class TransactionsListComponent {
      */
     @Input() editable = false;
 
-    txns = new Transactions();
-    accountId2name = <Id2NameHashMap>{};
-    page: PageEvent = {pageIndex: 0, pageSize: 10, length: 0};
+    txns = this.transactions ?? new Transactions();
+    page: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
     sort: TxnSortHeader = {column: 'datePosted', asc: true};
     length = 0;
 
-    #oldTxnLen = 0;
-    #cachedUpdates?: Subscription;
-    #postFilterTxns = new Transactions();
-
     constructor(protected accountsService: AccountsService) {
-        this.transactionsChange.subscribe(() => this.postFilter());
-        this.filtersChange.subscribe(() => this.postFilter());
+        this.transactionsChange.subscribe((txns) => this.postFilter(txns));
     }
 
-    ngOnInit(): void {
-        console.debug(this.transactions);
-        const update = (accounts: Accounts) => {
-            this.accountId2name = accounts.id2name;
-        };
-        update(this.accountsService.get());
-        this.#cachedUpdates = this.accountsService.subscribe(update);
-    }
-
-    ngDoCheck() {
-        if (this.transactions.length != this.#oldTxnLen) {
-            this.#oldTxnLen = this.transactions.length;
-            this.transactionsChange.emit(this.transactions);
+    ngOnInit() {
+        if ( this.showFilters) {
+            this.txns = this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(this.filters, txn));
+        } else {
+            this.txns = this.transactions.sorted();
         }
+        this.length = this.txns.length;
+        this.budgets.emit( this.txns.getBudgets() );
+        this.page0();
     }
 
-    ngOnDestroy() {
-        this.#cachedUpdates?.unsubscribe();
+    /**
+     * Generate the list of rows to display on the current page based on page count.
+     */
+    genRows(): number[] {
+        return Array.from(Array(Math.min(this.length, this.page.pageSize)).keys()).map(x => x + (this.page.pageIndex * this.page.pageSize));
     }
 
     /**
      * Post filter, store a copy of the filtered, sorted transactions so we don't have to recalculate indexes.
      * This function will take the place of this.refresh() where the filter changes occur.
      */
-    postFilter() {
-        this.#postFilterTxns = <Transactions>this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(this.filters, txn));
-        this.length = this.#postFilterTxns.length;
-        this.budgets.emit( this.#postFilterTxns.getBudgets() );
+    postFilter(txns?: Transactions) {
+        this.txns = txns ?? this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(this.filters, txn));
+        this.length = this.txns.length;
+        this.budgets.emit( this.txns.getBudgets() );
         this.page0();
-    }
-
-    /**
-     * Post-paginate, we want to take the filtered, sorted transactions and paginate them, but don't recalculate the 
-     * set just for flipping the pages.
-     */
-    postPaginate() {
-        const offset = this.page.pageIndex * this.page.pageSize;
-        const end = offset + this.page.pageSize;
-        this.txns = <Transactions>this.#postFilterTxns.slice(offset, end);
     }
 
     filtation(filters: TransactionFilter): string {
@@ -152,7 +125,7 @@ export class TransactionsListComponent {
     sortBy(header: keyof Transaction): void {
         this.sort.asc = this.sort.column == header? !this.sort.asc: true;
         this.sort.column = header;
-        this.#postFilterTxns = this.#postFilterTxns.sortBy(this.sort.column, this.sort.asc);
+        this.txns = this.txns.sortBy(this.sort.column, this.sort.asc);
         this.page0();
     }
 
@@ -169,8 +142,15 @@ export class TransactionsListComponent {
         this.turnPage({pageIndex: 0, pageSize: this.page.pageSize, length: this.length});
     }
 
+    /**
+     * Turn page event handler.
+     * @param {PageEvent} $event
+     */
     turnPage($event: PageEvent): void {
+        // if the page size is changed, reset the page to 0.
+        if ($event.pageSize != this.page.pageSize) {
+            $event.pageIndex = 0;
+        }
         this.page = $event;
-        this.postPaginate();
     }
 }

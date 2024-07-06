@@ -3,6 +3,7 @@ import { EventEmitter, HostListener, Injectable } from "@angular/core";
 import { Observable, of, retry, Observer, Subscription } from 'rxjs';
 import { Yabables } from 'app/lib/types';
 import { CACHE_EXPIRY_SECONDS } from 'app/lib/constants';
+import { Settings } from "app/lib/settings";
 
 /**
  * This helped a lot in caching: https://borstch.com/blog/development/angulars-httpclient-caching-techniques
@@ -12,6 +13,7 @@ import { CACHE_EXPIRY_SECONDS } from 'app/lib/constants';
 export abstract class BaseHttpService<Yabadaba extends Yabables> {
     headers: HttpHeaders = new HttpHeaders({'Content-Type': 'application/json'});
     cacheExpiry = true;
+    useServer = Settings.fromLocalStorage().useServer ?? false;
 
     /**
      * The cached items from the server or localStorage.
@@ -76,22 +78,21 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
             // console.log('cache-hit: ', this.cache);
             return of(this.cache);
         }
+        if( ! this.useServer ) {
+            const cache = this.fetchLocal();
+            if ( cache ) {
+                this.next(cache);
+                return of(cache);
+            }
+        }
         // console.log('cache-miss and not loading: ', this.cache);
         const next = (value: Yabadaba) => this.next(value);
         const error = (err: unknown) => {
             console.warn('Error fetching data from the server:', err);
-            try {
-                console.log('Attempting to load from localStorage:', this.name);
-                const data = localStorage.getItem(this.name);
-                if (data) {
-                    const cache = JSON.parse(data);
-                    console.log('Loaded from localStorage:', this.name, cache)
-                    this.next(<Yabadaba>cache);
-                }
-            } catch(e) {
-                console.error('Error loading from localStorage:', e);
+            const cache = this.fetchLocal();
+            if ( cache ) {
+                this.next(cache);
             }
-            return of(this.cache);
         };
         const complete = () => sub.unsubscribe();
         const fetchable = <Observer<Yabadaba>>{next, error, complete};
@@ -112,6 +113,24 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
         this.cacheExpiry = false;
         console.debug('BaseHttpService.save(): ', this.name, this.cache);
         return this.http.post<Yabadaba>(this.endpoint, this.cache, {headers: this.headers});
+    }
+
+    /**
+     * Fetch from local storage.
+     */
+    fetchLocal(): Yabadaba {
+        try {
+            console.log('Attempting to load from localStorage:', this.name);
+            const data = localStorage.getItem(this.name);
+            if (data) {
+                const cache = <Yabadaba>JSON.parse(data);
+                console.log('Loaded from localStorage:', this.name, cache)
+                return cache;
+            }
+        } catch(e) {
+            console.error('Error loading from localStorage:', e);
+        }
+        return <Yabadaba>{};
     }
 
     /**

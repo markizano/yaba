@@ -4,7 +4,7 @@
         Transactions: {{ transactions.length }}<br />
         Txns: {{ txns.length }}<br />
     </div> -->
-@if ( showFilters ){ <transaction-filters [transactions]="transactions" [(filter)]="filters" (filterChange)="filtersChange.emit($event)"></transaction-filters> }
+@if ( showFilters ){ <transaction-filters [transactions]="transactions" [(filter)]="filters" (filterChange)="filtersChange.emit($event)" (filteredTransactions)="postFilter($event)"></transaction-filters> }
 @if ( txns.length > 0) {
     <table class="data item-list" [ngClass]="editable ? 'editable': ''">
         <thead>
@@ -22,13 +22,13 @@
             </tr>
         </thead>
         <tbody>
-    @for(txn of txns; let i = $index; track txn.id) {
-        <tr class="yaba-txn-row" [(txn)]="txns[i]" [truncate]="truncate" [editable]="editable" ></tr>
+    @for(row of genRows(); track row) {
+        <tr class="yaba-txn-row" [(txn)]="txns[row]" [truncate]="truncate" [editable]="editable" ></tr>
     }
         </tbody>
     </table>
 }
-@if ( showPaginate && transactions.length > 10 ){
+@if ( showPaginate && transactions.length > 10 ) {
     <mat-paginator 
         (page)="turnPage($event)"
         [length]="length"
