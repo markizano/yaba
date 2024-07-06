@@ -10,7 +10,7 @@ import { Transactions, Transaction } from 'app/lib/transactions';
 
 import { AccountsService } from 'app/services/accounts.service';
 import { ControlsModule } from 'app/controls/controls.module';
-import { TransactionFilterComponent } from 'app/controls/txn-filter.component';
+import { TransactionFilterComponent } from 'app/tables/transactions/txn-filter/txn-filter.component';
 import { Accounts } from 'app/lib/accounts';
 import { Subscription } from 'rxjs';
 import { Settings } from 'app/lib/settings';
