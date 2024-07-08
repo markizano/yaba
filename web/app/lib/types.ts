@@ -99,7 +99,6 @@ export type TransactionFilter = {
     fromDate: Date;
     toDate: Date;
     description: Description;
-    budgets?: Budgets;
     accounts?: Account[]|Accounts;
     tags?: Tags;
     sort: TxnSortHeader;

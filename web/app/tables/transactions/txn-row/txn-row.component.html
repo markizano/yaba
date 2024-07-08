@@ -1,3 +1,15 @@
+@if ( editable ) {
+    <td class="actions-cell">
+        @if ( editing ) {
+            <yes (click)="save(txn)" class="small"></yes>
+            <close (click)="cancel()" class="small"></close>
+        } @else {
+            <input type="checkbox" name="select_txn_{{ txn.id }}" #txnSelected [checked]="select" (change)="selectTxn(txnSelected.checked)" class="small" />
+            <edit (click)="edit()" class="small"></edit>
+            <trash (click)="dropTxn()" class="small"></trash>
+        }
+    </td>
+}
 @if ( txShow.id ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'id'" [truncate]="truncate" ></td> }
 @if ( txShow.datePending ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'datePending'" [truncate]="truncate" ></td> }
 <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'datePosted'" [truncate]="truncate" ></td>
@@ -7,4 +19,4 @@
 @if ( txShow.tax ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'tax'" [truncate]="truncate" ></td> }
 @if ( txShow.merchant ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'merchant'" [truncate]="truncate" ></td> }
 @if ( txShow.transactionType ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'transactionType'" [truncate]="truncate" ></td> }
-@if ( txShow.tags ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'tags'" [truncate]="truncate" ></td> }
+@if ( txShow.tags ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'tags'" [truncate]="truncate" (budgets)="budgets.emit()" ></td> }

@@ -10,7 +10,8 @@
     --background: #EEEEF0;
     --txn-list-header: #FFDA67;
     --menu: #17157490;
-    --titlebar: #17157480;
+    --titlebar: #C2C1EF;
+    --active-border: #9A0626;
     --links: #332700;
     --link-hilite: #A67F06;
     --shadow: #0302242F;
@@ -20,6 +21,7 @@
     --dropfile: #0583FA;
     --helper: #FFEC77;
     --form: #EEE;
+    --checked: #4F9606;
     --save: #55D25D;
     --cancel: #FF7A77;
 }
@@ -106,16 +108,15 @@ table.data thead {
 }
 table.data td {
     padding: 2px 5px 2px 5px;
-    overflow: auto;
+    overflow: visible;
+    vertical-align: middle;
+    transition: all 400ms ease-in-out;
 }
 table.data tr:nth-child(odd) {
     background-color: var(--txn-odd);
 }
 table.data tr:nth-child(even) {
     background-color: var(--txn-even);
-}
-table.data th:first-child {
-    min-width: 120px;
 }
 
 form span.label, form label {
@@ -131,7 +132,7 @@ form span.label input[type=text] {
 }
 
 button, input[type="submit"], input[type="button"], input[type="file"] {
-    border-radius: 1rem;
+    border-radius: 0.3rem;
     padding: 0.3rem 0.8rem;
     box-shadow: var(--light-shadow) 5px 5px;
     display: inline-flex;
@@ -143,7 +144,7 @@ button, input[type="submit"], input[type="button"], input[type="file"] {
 input[type="text"], input[type=number], input[type="file"], select {
     font-size: 1.2rem;
     border: 2px solid #000000AA;
-    border-radius: 1rem;
+    border-radius: 0.3rem;
     padding: 0.1rem 0.3rem;
     box-shadow: var(--light-shadow) 5px 5px;
     display: inline-block;
@@ -201,9 +202,9 @@ app-root {
 }
 
 .small-icon {
-    width: 24px;
-    height: 24px;
-    background-size: 24px;
+    width: 20px;
+    height: 20px;
+    background-size: 20px;
 }
 
 code {
@@ -230,7 +231,7 @@ pre {
     background-color: red;
     color: yellow;
     font-size: 20px;
-    border-radius: 1rem;
+    border-radius: 0.5rem;
 }
 
 /** Menu & Navigation **/
@@ -285,6 +286,12 @@ actions {
     left: 25px;
 }
 
+.small {
+    width: 24px;
+    height: 24px;
+    background-size: 24px;
+}
+
 /** Transaction Tables **/
 
 filters {
@@ -295,9 +302,19 @@ filters {
 
 
 .actively-editing {
-    background-color: var(--txn-list-header);
-    border: 1px solid #000000;
-    border-radius: 1rem;
+    background-color: var(--txn-edit) !important;
+    border: 1px solid var(--active-border);
+    border-radius: 0.3rem;
+    height: 50px;
+    transition: all 400ms ease-in-out;
+
+    input, .ng-select-container {
+        height: 20px !important;
+        box-shadow: none;
+        font-size: 16px;
+        margin: auto;
+        vertical-align: middle;
+    }
 }
 
 .txn-edit-field {
@@ -341,6 +358,17 @@ yaba-daterange {
     font-size: 16px;
     top: 0px;
     left: 0px;
+}
+
+.actions-cell {
+    text-align: right;
+    accent-color: var(--checked);
+}
+
+.actions-cell input[type=checkbox] {
+    width: 24px;
+    height: 24px;
+    margin: 5px;
 }
 
 .description {
@@ -492,20 +520,20 @@ wishlist-item {
 }
 
 /** Filter Controls box and control icons (view, edit, delete, new, etc...) **/
-.yaba-controls yaba-accounts {
+yaba-accounts {
     display: inline-block;
     min-width: 250px;
     margin: 10px auto;
     padding: 5px;
 }
-.yaba-controls yaba-description {
+yaba-description {
     display: inline-block;
     min-width: 250px;
     height: 40px;
     margin: 10px auto;
     padding: 5px;
 }
-.yaba-controls yaba-budgets {
+yaba-budgets {
     margin: 10px auto;
     display: inline-block;
     min-width: 200px;
@@ -525,7 +553,7 @@ yaba-budget {
 }
 
 /** Icons/Controls **/
-add, close, edit, inspect, question, save, trash, upload {
+add, close, edit, inspect, question, save, trash, yes, no, upload, tag-txns, untag-txns {
     background-size: 32px;
     width: 32px;
     height: 32px;
@@ -535,64 +563,92 @@ add, close, edit, inspect, question, save, trash, upload {
     margin: 1px;
 }
 
-add:hover, close:hover, edit:hover, inspect:hover, question:hover, save:hover, trash:hover, upload:hover, view:hover { cursor: grab; border: 1px solid var(--txn-list-header); }
+add:hover, close:hover, edit:hover, inspect:hover, question:hover, save:hover, trash:hover, yes:hover, no:hover, upload:hover, view:hover, tag-txns:hover, untag-txns:hover { cursor: grab; border: 1px solid var(--txn-list-header); }
 
 add {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAGFBMVEVhcABT3kdk3mFt3mlu32p44nWA4338//u9xAiZAAAAAXRSTlMAQObYZgAAAM1JREFUSMe91s0NgzAMBWB7A78TZ0boCB2hI3SEnLI+KkjNjx07ohRf88UKEfhBVBf2olHhW9G6KRhNibvf6gH4gjWQYL0VMMtqsOScjBb1es5v1aI0+KwbLTqQFcAIQD1jD2QOYAzQ36ICcgmABzAB2AdyByjvQV+v45TVzr4KWE6CNQLP/4PHz4eMLipVYPBl7YB9IHcA8gFNAPaAXALIA+YASdGEUYDG4OScNGZxO4qNac72tJf5OIgDJYykONTiWIyDNYzmiXC3fw82l6MakgvgjQcAAAAASUVORK5CYII=');
-    border: 1px solid var(--border);
 }
 
-close {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAFVBMVEVvcm3/AAD/9vb/+vr//Pz//v7///+vlWMoAAAAAXRSTlMAQObYZgAAAOZJREFUSMfllUEWwiAMRNsbMOgFqj72bnoPNx6g+rj/ESxtqbQhjFVXyiKbfCYhhFBV/7hqwBTcmBbzawRQJoAyUS8BQwSkxNovJASAYgZSAihL1DnAbAEAEoMBMYJrgrWdiDEB1g8u55s1EAV8cFnvLzrQRbtMAjFELzEYBRg2JwISCLsTAcg6uuDvRC2fgF0IZAC0qYCicC8BpxDirAO2zSc5H3PXB8gd8+VC0VLTy9rH6260hrmODXPTABzHljvItv64q7/wsujj5c+fDhApYbYOMT4G6SDlo5gP8zkP8/6H8rvrAYleX2kwKGFPAAAAAElFTkSuQmCC');
+close, no {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAA0lBMVEUA4AD/AAD/AQH/BAT/Bgb/Cgr/Fhb/GRn/Kyv/Li7/MTH/XV3/Y2P/ZWX/Zmb/amr/a2v/bW3/c3P/dHT/dXX/dnb/d3f/eHj/fHz/f3//hYX/hob/h4f/i4v/jo7/kZH/mpr/nJz/np7/xMT/ycn/y8v/zMz/zc3/zs7/z8//0ND/0tL/1NT/1dX/2Nj/2tr/29v/3d3/39//4OD/4eH/4uL/4+P/5+f/6ur/7Oz/8PD/8vL/9vb/9/f/+Pj/+fn/+vr/+/v//Pz//f3//v7///92xIZWAAAAAXRSTlMAQObYZgAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAG+SURBVFjDzZd9X4IwEMe9HkCzKEyTEk1Ns5TygbSycCDw/t9S5DAVGA4Pq/trtw+/L2M7bneZzF4NFoaQrhtWn4gADMOpORmw1bD6eAIAjgCAIgC/oQGA1UcRAHAEABwBAEnAAgCQhJQBByBWms2K6A0i/TAgiM4qumXpSjbg55hLCMyLysRyXWuiiBv+WGYBgvMV3XveU+gq9VXqf1wxAKHNaRB3Yfag9u3WBvbCNbvlaEIIUHqYUYLTrwJU+w71SBgAjDOUNMNfw1BVh/T9rqFJwAsQ8pq/BnM6NelopuUFbgAIUsfyv8Jfv9WRBOAHABRaPsHXtwrMYGTEabFNVnrSLrLDmRXp511jqf/sXUBywMnNm693JqeHyQFH1+OfXXg92wFQHa72YPYkJwUc3z5bztoh3MdsYjThbk4D0Nl+jNGB1KNKZ75TIHmhTFChjP2Zyl2C+52XgEBCMR7LvCmpNI1Iafb7JW9SBXlsOsGkahsvMjcgp4wI2UzrhjGKSesRF0ujsXmx1OtqzMXyD+7Gv68P8CUOvsjCl3n4QjMJYU/FdgrlPr7hwLc8+KYrhbYvnc41TPj15pvbvgCOA24xepvRuwAAAABJRU5ErkJggg==');
+}
+.yaba-form close {
     position: absolute;
     top: 10px;
     right: 10px;
-    border: 1px solid #FFFFFF00;
 }
 
 edit {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEUAAAAAAAD///+D3c/SAAAAAXRSTlMAQObYZgAAAN5JREFUOMvNk7sBBCEIBTGwg6OfTS4ngP5bOeEh4lZwJurIDn5Yoj9s9tzzabpXzLxjdL6CkRHjG0bkUJoAO1BpBBgCwJbDjCPj5wJDpwBwKmQoHAlWSkPwh3YuRr7axdphA1MAC/iupzRgCTeI6DyDvhQATQHQFAG6IkBXBOgK0pfCwaVwcCkcXAoHl2KBUuzj+8UEPOCBosCahWIDXvFGHZBhFwfwV24wUU0HjP4iut5u9hf5eHH1F+FddERSAPOspVnHzNG5iKqlKu1XXysrK5rQKe1oZc8Q/adf9Qd5Bzj5jcKSOAAAAABJRU5ErkJggg==');
-    border: 1px solid var(--border);
 }
 
 inspect {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAQMAAACQp+OdAAAABlBMVEWFY1UAAADJW86pAAAAAXRSTlMAQObYZgAAAJJJREFUKM/FkLsRxCAMROW5QOGV4FIozS7NpagEQgLGeyuYWQLnPgXwBrSrj9mfovR5f4BrwA60AQdw572BcRI8IQhfhKOmGOeGPnLNRnYeBSnq45u+LT0vqqsHlVTXvfHga5Tu/C8TOm3iuJ0eAkzAgmeO5DJUCRVVG2rMErLv1bzG0YAaWUvQWtaitDot8/34AewUoP8HNfvLAAAAAElFTkSuQmCC');
-    border: 1px solid var(--border);
 }
 
 question {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAD1BMVEUAAABMTEzh4eHi4uLj4+N3SbafAAAAAXRSTlMAQObYZgAAAQ9JREFUSMeV1esVgyAMBWDYINAJwAmU/XdrtRDIC5BfHvP1hlJrnBuWD89yxqplkwx1VZC6IlhdiF7Puqg341FKudJzDUpALP+VRASt1wwQAUdBwSJ6wJVzRgByB1eDdBcBO6R2QSI8gotGtYgG8PYdMYKAnzt5M2Ag1csPAX4CwhYI4m7fw9OjgZjxl8ZvcQPxpIwncvdQQD8oA/QtbIF5h98u5wEayGOAAvrjYoCDBOggzUCkARKwABWEKWAdBIgb4HwL/By4tyDIV9USuGkddoBfdFgD0uP390qsAwP0HEC8phlwe8CZAOQooIC/6zkAe5qIiWEe8zRCmzhWgBrxcuqt5+Z68q5n93r66+sLE3R/bdcNfTUAAAAASUVORK5CYII=');
-    border: 1px solid var(--border);
 }
 
 save {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEUAAAAAAAD///+D3c/SAAAAAXRSTlMAQObYZgAAAIBJREFUOMvl0zEOgCAMhWE69Ajch8Xdgd7/KgKt9NnEhIXExC6ab/gTsKa0ZVjuKQp5whmhRhCDwuNdDosMqP1pEYdcA7AEII04JI0AaARAIwAaAdAIwogg8Dv0wzUgB72wZaB5Xwb+Bb4ONBfkebi2IOtgu8R/AIFZA0Y49/zoF6YJcMkbWlfuAAAAAElFTkSuQmCC');
-    border: 1px solid var(--border);
+}
+
+yes {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABABAMAAABYR2ztAAAAD1BMVEUAAABfrAan21LL5qL8/vu/N2dcAAAAAXRSTlMAQObYZgAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAE3SURBVEjHjZbbkcMgDAANFaCQBrhxAzfnBmLTf02xzxIB9ApfibWzgmBJWZZ+wf9atAVtieEAYBJDHCAZftkBYBOBA8mJjwSIyxH0CgBbETQgfQsA2DmiDiQ7AwFSZKul5ZAy5Fr3pgiioN4KBTgFqEjyFi5BPWgTiqBWBIQMtQOSAKx3/NCABwp+NWAQnEAxBecuiyk4AfrwMxyxCRqw4aPtju8wARmlJCgzQFYmQIBuhwsQWPExFyBwB165v4Xhd8DDz0f8ALmPH8ABSs4FgJeVNUG7TU2Q6K1fZcEHeMiC67Uer3nn5VuGey4cCH0x7EL1hr4aigDErhxeYv3Tl+d8RGox7cX/K3IDcVuQ28T8Nhg9gFUX6+bRa+aKopsX0Rso7kjyh5o/FudtJHN0a/Pdi8t/D956zJ90CxHmhwAAAABJRU5ErkJggg==');
+}
+
+trash {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEUAAAAAAAD///+D3c/SAAAAAXRSTlMAQObYZgAAAJ1JREFUOMu909ENxCAIAFD8YAT2cQQ+YP9VDmyJEK+NaS9H/HohiAYARpCqQIqmFj0BOnACcpBbsHQsYAXbNowWZvQVsAKvGVBhVJ23jQc+BGvHzgmg3jWy938kq7/cgfehB7SAKPpbUAcNoAnyGDgAXwAcANuAE/gaOp5XfQcJoH+CfRw5yBj5C0CfMU6QtqTMpe5DXo4tgLI+C3wAPtZ/2wH5BkcAAAAASUVORK5CYII=');
 }
 
 upload {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAQMAAACQp+OdAAAABlBMVEWxYFUAAAAREPHCAAAAAXRSTlMAQObYZgAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAABlSURBVCjPY2CgImiA0swHoAz2B1AG/wcoQ/4HlGG7B8qonAdlfOyH0IwP2yEGMR9shhjE3tgIMYifsQFiEB9jQwFUNcxS6jAkQAwJIMMCxJAZBAwgIJ9h/x8I/iAz5EGMH1SLcgAEwzOro6eZggAAAABJRU5ErkJggg==');
-    border: 1px solid var(--border);
 }
 upload input[type=file] {
     display: none;
 }
 
-trash {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEUAAAAAAAD///+D3c/SAAAAAXRSTlMAQObYZgAAAJ1JREFUOMu909ENxCAIAFD8YAT2cQQ+YP9VDmyJEK+NaS9H/HohiAYARpCqQIqmFj0BOnACcpBbsHQsYAXbNowWZvQVsAKvGVBhVJ23jQc+BGvHzgmg3jWy938kq7/cgfehB7SAKPpbUAcNoAnyGDgAXwAcANuAE/gaOp5XfQcJoH+CfRw5yBj5C0CfMU6QtqTMpe5DXo4tgLI+C3wAPtZ/2wH5BkcAAAAASUVORK5CYII=');
-    border: 1px solid var(--border);
-}
-
 settings {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAARklEQVRIx+2TMQoAMAgDE+n/v2z3Cu1g3S6jQ46A58zUZELDAfDMqifbncbja+Jve22IO7+/wHiAB3iAB3iAB3gAAIAkaQOM6Sc3a6WnTQAAAABJRU5ErkJggg==');
-    border: 1px solid black;
 }
+
+tag-txns {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAQMAAACQp+OdAAAABlBMVEVsKVYAAAD45mvlAAAAAXRSTlMAQObYZgAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAABfSURBVCjPY2CgFuD/DwQfgAx7EOMPkFEPYvwDMgpA8nxA/ADEYB9loDPkYAz5AzDGHyhD4n8DlCH/A8pg/A9lMNh/ADMsGJj/QRkM9cdBAV4BjI9/yFEAjxR4NFEHAABmA0/Po9ZJOwAAAABJRU5ErkJggg==');
+}
+
+untag-txns {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAApVBMVEUAAAAAAAAmAAA4AAA7AABFAACOAACTAAC7AAC+AADbAACsFQb4AAD6AAD9AAD/AAD/AQH/DAz/HBz/HR3/RET/RUX/Rkb/R0f/SEj/SUn/TU3/bm7/b2//cHD/goL/k5P/lJT/mZn/mpr/nJz/x8f/yMj/ysr/zs7/0ND/0tL/09P/1dX/7+//8PD/8fH/8vL/8/P/9/f/+Pj/+/v//Pz//v7///8pYqm9AAAAAXRSTlMAQObYZgAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAFuSURBVFjD7dZtV4IwFAdwBkkBwiYPlaUlCmUPqKnc7//R4iT4QNvaZS/j/4Zz7tl+Z8PLnGH06dMK4Wbg+n5AaeD77uBQwUw3bWdIjxk6tikkuPMtN6AXCVxLJHCrlBPBUOX5IoFXo4KoAlQYUxewlYBmdDSdRufPKg4GiNLVKo0Oz9mo7gdLAWgW8FgAbOZhON8AvCd1N1wjgNt8B7BeLNYAuyxpWtJSB1ic7wG2W4B9HrO66F+pA5SNs0qo5mdjduxoGwFQ9vBRApSvd+xUu8EAYVrtH8rlfUeAPRXws4W82xZY/FJt4Kv7S0wyzZ8xeSubRiqXmEZqhNGsqFu5+HzGtPLvj2kywX1M2p+z/oGifaTpH6qiYx0BGNz5GKBNiAeL/zNPhnSwDFAa3AMXNfInpgDIDTVAfp2SA57nSQ0V4NwgHQFPuBAEwF+IHCAtgLMQPNAypBdFIgAuNkOUb9qiGJoC6rqvPL3PP843210/j5SLxZMAAAAASUVORK5CYII=')
+}
+
+div.txn-bulk {
+    width: 500px;
+    height: auto;
+    position: absolute;
+    z-index: 1;
+    border: 2px solid var(--border);
+    background-color: white;
+    border-radius: 10px 10px 0 0;
+    padding-bottom: 10px;
+}
+div.txn-bulk:before {
+    content: "Tag Transactions";
+    font-size: 120%;
+    font-weight: bold;
+    background-color: var(--titlebar);
+    color: var(--text);
+    border-radius: 10px 10px 0 0;
+    padding: 5px;
+    margin: 0;
+    display: block;
+}
+
 
 cancel, .cancel {
     background-color: var(--cancel);
     color: var(--text);
     font-size: 1.2rem;
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     padding: 0.3rem 0.8rem;
     box-shadow: var(--light-shadow) 5px 5px;
     display: inline-flex;
@@ -604,7 +660,7 @@ save, .save {
     background-color: var(--save);
     color: var(--text);
     font-size: 1.2rem;
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     padding: 0.3rem 0.8rem;
     box-shadow: var(--light-shadow) 5px 5px;
     display: inline-flex;
@@ -628,3 +684,7 @@ save, .save {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+/* Removes invisible space in md-chips box where tags are listed */
+.mdc-evolution-chip-set__chips { display: inline-block !important; }
+.mat-mdc-chip-input { margin-left: 0 !important; }

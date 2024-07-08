@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { EventEmitter, Output } from '@angular/core';
 
-import { DateRange, DescriptionChange, Budgets, TransactionFilter } from 'app/lib/types';
+import { DateRange, DescriptionChange, Budgets, TransactionFilter, Tags } from 'app/lib/types';
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { Transaction, Transactions } from 'app/lib/transactions';
 import { Accounts } from 'app/lib/accounts';
@@ -44,7 +44,6 @@ export class TransactionFilterComponent {
 
     constructor() {
         this.filter.description = '';
-        this.filter.budgets = <Budgets>[];
         this.filter.tags = [];
         this.filterByAccount = this.filter.accounts !== undefined;
         this.filterChange.subscribe((filter: TransactionFilter) => {
@@ -70,9 +69,8 @@ export class TransactionFilterComponent {
         this.filterChange.emit(this.filter);
     }
 
-    budgets($event: Budgets): void {
-        this.filter.budgets = $event;
-        this.filter.tags = this.filter.budgets.map(b => b.tag);
+    budgets($event: Tags): void {
+        this.filter.tags = $event;
         this.filterChange.emit(this.filter);
     }
 

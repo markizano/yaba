@@ -7,7 +7,8 @@
             <input
             type="date"
             name="datePending"
-            [(ngModel)]="txn.datePending"
+            [ngModel]="txn.datePending | date:'yyyy-MM-dd'"
+            (ngModelChange)="txn.datePending = $event; txnChange.emit(txn)"
             class="txn-edit-field"
             />
         }
@@ -15,7 +16,8 @@
             <input
             type="date"
             name="datePosted"
-            [(ngModel)]="txn.datePosted"
+            [ngModel]="txn.datePosted | date:'yyyy-MM-dd'"
+            (ngModelChange)="txn.datePosted = $event; txnChange.emit(txn)"
             class="txn-edit-field"
             />
         }
@@ -75,8 +77,7 @@
             ></ng-select>
         }
         @case ( 'tags' ) {
-        <label for="incomeTags">What are your income tags?: </label>
-        <mat-chip-grid #incomeChips aria-label="Enter income tags">
+        <mat-chip-grid #tags aria-label="Enter income tags">
 @for( tag of txn.tags; track tag ) {
             <mat-chip-row
                 (removed)="remove($event)"
@@ -90,20 +91,15 @@
             </mat-chip-row>
 }
             <input placeholder="New tag..."
-                [matChipInputFor]="incomeChips"
+                [matChipInputFor]="tags"
                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                 [matChipInputAddOnBlur]="false"
-                (matChipInputTokenEnd)="add($event)"/>
+                (matChipInputTokenEnd)="add($event)"
+                />
             </mat-chip-grid>
             
         }
     }
-    <input
-    type="date"
-    name="datePending"
-    [(ngModel)]="txn.datePending"
-    class="txn-edit-field"
-    />
 } @else {
     @switch ( field ) {
         @case ( 'id' ) {

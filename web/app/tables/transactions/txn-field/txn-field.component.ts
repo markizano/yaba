@@ -33,6 +33,7 @@ export class TxnFieldComponent {
     @Input() editing = false;
     @Input() txn = new Transaction();
     @Output() txnChange = new EventEmitter<Transaction>();
+    @Output() budgets = new EventEmitter<void>();
     @Input() field: keyof Transaction = 'id';
     @Input() truncate = false;
 
@@ -67,16 +68,20 @@ export class TxnFieldComponent {
     add($event: MatChipInputEvent) {
         this.txn.addTag($event.value);
         this.txnChange.emit(this.txn);
+        $event.chipInput.clear();
+        this.budgets.emit();
     }
 
     remove($event: MatChipEvent) {
         this.txn.removeTag($event.chip.value);
         this.txnChange.emit(this.txn);
+        this.budgets.emit();
     }
 
     edit(prevVal: string, $event: MatChipEvent) {
         this.txn.removeTag(prevVal);
         this.txn.addTag($event.chip.value);
         this.txnChange.emit(this.txn);
+        this.budgets.emit();
     }
 }

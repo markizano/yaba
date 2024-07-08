@@ -212,6 +212,14 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
     }
 
     /**
+     * Check to see if this collection has a transaction by ID.
+     */
+    has(ID: string|Account): boolean {
+        const accountId = ID instanceof Account? ID.id: ID;
+        return this.some((acct: Account) => acct.id == accountId);
+    }
+
+    /**
      * Gimmie this account by ID.
      * Since the ID is unique, this will only ever return 1 element.
      * @param {String} ID The account.id we want to find.
