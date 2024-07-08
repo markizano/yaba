@@ -3,7 +3,7 @@ import { Component, EventEmitter, HostListener, Output, Input } from '@angular/c
 import { Tags } from 'app/lib/types';
 import { YabaAnimations } from 'app/lib/animations';
 import { Transactions } from 'app/lib/transactions';
-import { BudgetsFilterComponent } from 'app/controls/budgets-filter.component';
+import { TagsFilterComponent } from 'app/controls/tags-filter.component';
 import { ControlsModule } from 'app/controls/controls.module';
 
 @Component({
@@ -13,7 +13,7 @@ import { ControlsModule } from 'app/controls/controls.module';
     animations: [ YabaAnimations.fadeSlideDown() ],
     imports: [
         ControlsModule,
-        BudgetsFilterComponent,
+        TagsFilterComponent,
     ]
 })
 export class UntagTransactionComponent {

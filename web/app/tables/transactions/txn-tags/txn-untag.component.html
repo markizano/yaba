@@ -1,7 +1,7 @@
 @if ( listening ) {
     <div class="txn-bulk fade-slide-down" @fade-slide-down (keypress)="checkInput($event)">
         <p>Select the tags you want to remove from the selected transactions.</p>
-        <yaba-budgets [transactions]="transactions" (selectedBudgets)="budget($event)" ></yaba-budgets>
+        <yaba-budgets [tags]="transactions.getTags()" (selected)="budget($event)" ></yaba-budgets>
         <yes (click)="confirm(tags)"></yes>
         <no (click)="cancelForm()"></no>
     </div>

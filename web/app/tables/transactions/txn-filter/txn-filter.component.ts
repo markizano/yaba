@@ -9,7 +9,7 @@ import { Accounts } from 'app/lib/accounts';
 import { DateRangeFilterComponent } from 'app/controls/daterange.component';
 import { AccountsFilterComponent } from 'app/controls/account-filter.component';
 import { DescriptionFilterComponent } from 'app/controls/description.component';
-import { BudgetsFilterComponent } from 'app/controls/budgets-filter.component';
+import { TagsFilterComponent } from 'app/controls/tags-filter.component';
 
 /**
  * This is a glue component that combines the various filters into a single component
@@ -32,7 +32,7 @@ import { BudgetsFilterComponent } from 'app/controls/budgets-filter.component';
         DateRangeFilterComponent,
         AccountsFilterComponent,
         DescriptionFilterComponent,
-        BudgetsFilterComponent,
+        TagsFilterComponent,
     ],
 })
 export class TransactionFilterComponent {
@@ -41,6 +41,7 @@ export class TransactionFilterComponent {
     @Input() transactions = new Transactions();
     @Output() filteredTransactions = new EventEmitter<Transactions>();
     filterByAccount: boolean;
+    tags: Tags = [];
 
     constructor() {
         this.filter.description = '';
@@ -51,6 +52,7 @@ export class TransactionFilterComponent {
             this.filteredTransactions.emit(this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(filter, txn)));
         });
         this.filterChange.emit(this.filter);
+        this.filteredTransactions.subscribe((txns: Transactions) => this.tags = txns.getTags());
     }
 
     ngOnInit() {
