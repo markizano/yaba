@@ -71,7 +71,7 @@ export class TransactionFilterComponent {
         this.filterChange.emit(this.filter);
     }
 
-    budgets($event: Tags): void {
+    selectedTags($event: Tags): void {
         this.filter.tags = $event;
         this.filterChange.emit(this.filter);
     }
