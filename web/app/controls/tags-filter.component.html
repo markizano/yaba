@@ -1,7 +1,7 @@
 <div>
     Budgets: <br />
     <ng-select
-        [items]="budgets"
+        [items]="tags"
         bindLabel="tag"
         bindValue="tag"
         [multiple]="true"
@@ -9,7 +9,7 @@
         [searchable]="true"
         [clearable]="true"
         [hideSelected]="true"
-        (change)="budgetsChange.next($event)"
+        (change)="tagsChange.next($event)"
         placeholder="Select budgets"
         class="budget-list"
     ></ng-select>
