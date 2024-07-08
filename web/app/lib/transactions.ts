@@ -144,7 +144,7 @@ export class Transaction extends aTransaction implements ITransaction {
      */
     removeTag(tag: string): Transaction {
         if ( this.hasTag(tag) ) {
-            this.tags = this.tags.filter(t => t != tag);
+            this.tags = this.tags.filter(t => t.toLowerCase() != tag.toLowerCase());
         }
         return this;
     }
@@ -173,7 +173,7 @@ export class Transaction extends aTransaction implements ITransaction {
 export class Transactions extends Array<Transaction> implements YabaPlural<Transaction> {
 
     /**
-     * @property {Id2NameHashMap} id2name Convenience mapping of account.id to account.name for quick lookups.
+     * @property {Id2NameHashMap} id2name Abstract implementation to make the classes happy.
      */
     id2name: Id2NameHashMap = {};
 
@@ -256,15 +256,18 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @returns New Mutated array no longer containing the transaction.
      */
     remove(ID: string|Transaction): Transactions {
+        const txId = ID instanceof Transaction? ID.id: ID;
         for ( const i in this ) {
-            if ( typeof i !== 'number' ) continue;
-            const item = this[i];
-            if ( ID instanceof Transaction && item.id == ID.id ) {
-                this.splice(i, 1);
-            } else if (typeof ID === 'string' && item.id == ID) {
-                this.splice(i, 1);
-            }
+            try {
+                const item = this[parseInt(i)];
+                if ( txId == item.id ) {
+                    console.log('txns.remove(): ', item);
+                    this.splice(parseInt(i), 1);
+                    return this;
+                }
+            } catch ( e ) { console.error(e); }
         }
+        console.log(`txns.remove(): ${txId} not found.`);
         return this;
     }
 
@@ -274,6 +277,14 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     clear(): Transactions {
         this.length = 0;
         return this;
+    }
+
+    /**
+     * Check to see if this collection has a transaction by ID.
+     */
+    has(ID: string|Transaction): boolean {
+        const txId = ID instanceof Transaction? ID.id: ID;
+        return this.some(txn => txn.id == txId);
     }
 
     /**
@@ -326,12 +337,50 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
 
     /**
      * Get the list of tags we have for this transaction collection.
-     * @returns {Array<String>} List of tags associated with this collection of transactions.
+     * @returns {Array<String>} List of *unique* tags associated with this collection of transactions.
      */
     getTags(): string[] {
         const tagCollection: string[] = this.map(txn => txn.tags).flat().sort();
-        return Array.from( new Set(tagCollection) );
+        return Array.from<string>( new Set(tagCollection) );
     }
+
+    /**
+     * Add a tag to this set of transactions.
+     * @param {string} tag The tag to add to this set of transactions.
+     */
+    addTag(tag: string): Transactions {
+        return this.it((txn: Transaction) => txn.addTag(tag));
+    }
+
+    /**
+     * In place mutation method to set a tag across all the selected transactions in this collection.
+     * @param {String} tag The Tag to associate with all these transactions.
+     * @returns {Transactions} Updated copy of transactions with this tag set on all of them.
+     */
+    setTag(tag: string): Transactions {
+        return this.it((txn: Transaction) => txn.setTag(tag));
+    }
+
+    /**
+     * Removes a tag from this transaction if it is set.
+     * @returns {Transaction}
+     */
+    removeTag(tag: string): Transactions {
+        return this.it((txn: Transaction) => txn.removeTag(tag));
+    }
+
+    /**
+     * Get me a copy of transactions that have a tag, any tag set.
+     * @returns {Transactions} new list of transactions that have a tag set.
+     */
+    haveTags(): Transactions {
+        return this.search((t: Transaction) => t.tags.length > 0);
+    }
+
+    /**
+     * Remove a tag from this set of transactions.
+     * @param {string} tag The tag to remove from this set of transactions.
+     */
 
     /**
      * Filter method for returning the date range specified.
@@ -476,31 +525,6 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     }
 
     /**
-     * In place mutation method to set a tag across all the selected transactions in this collection.
-     * @param {String} tag The Tag to associate with all these transactions.
-     * @returns {Transactions} Updated copy of transactions with this tag set on all of them.
-     */
-    setTag(tag: string): Transactions {
-        return this.it((txn: Transaction) => txn.setTag(tag));
-    }
-
-    /**
-     * Removes a tag from this transaction if it is set.
-     * @returns {Transaction}
-     */
-    removeTag(tag: string): Transactions {
-        return this.it((txn: Transaction) => txn.removeTag(tag));
-    }
-
-    /**
-     * Get me a copy of transactions that have a tag, any tag set.
-     * @returns {Transactions} new list of transactions that have a tag set.
-     */
-    haveTags(): Transactions {
-        return this.search((t: Transaction) => t.tags.length > 0);
-    }
-
-    /**
      * Reduce this set of transactions down to get the list of budgets in alpha order with
      * transaction amounts associated with them.
      * @returns {Array<IBudget>} List of budgets to render in the widget.
@@ -579,7 +603,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     }
 
     /**
-     * Sorts the array based on datePosted.
+     * Sorts the array based on  datePosted.
      * @param asc TRUE for Ascending; FALSE for Descending.
      * @returns {Transactions} The sorted list of transactions by datePosted.
      */

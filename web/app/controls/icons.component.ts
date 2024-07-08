@@ -1,11 +1,13 @@
 
 import { Component, Directive, ElementRef, EventEmitter, HostListener, Injectable, Input, Output } from '@angular/core';
+import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
+
 /**
  * Most of these directives are here just to make Angular stop complaining about them because I don't want to use NG_CUSTOM_SCHEMA in all my templates.
  * There are a few that have a few extra features and functions that help with aesthetics and functionality.
  */
 @Injectable()
-abstract class IconBaseInjectable {
+export abstract class IconBaseInjectable {
   /**
    * Make it possible to use [Space] or [Enter] on these components to trigger a "click" event so we only have to listen for the click event.
    * @param $event 
@@ -32,10 +34,10 @@ export class ActionsDirective { }
 export class AddDirective extends IconBaseInjectable { }
 
 @Directive({
-  selector: 'close',
-})
-export class CloseDirective extends IconBaseInjectable { }
-
+    selector: 'close, no',
+  })
+  export class CloseDirective extends IconBaseInjectable { }
+  
 @Directive({
   selector: 'debug',
 })
@@ -72,9 +74,14 @@ export class TrashDirective extends IconBaseInjectable { }
 export class SettingsDirective extends IconBaseInjectable { }
 
 @Directive({
+  selector: 'yes',
+})
+export class YesDirective extends IconBaseInjectable { }
+
+@Directive({
     selector: 'upload',
 })
-export class UploadComponent extends IconBaseInjectable {
+export class UploadDirective extends IconBaseInjectable {
     @Output() upload = new EventEmitter<File[]>();
     constructor(protected elemRef: ElementRef) {
         super();
@@ -89,9 +96,7 @@ export class UploadComponent extends IconBaseInjectable {
         input.style.display = 'none';
         input.type = 'file';
         input.multiple = true;
-        input.addEventListener('change', () => {
-            this.upload.emit(Array.from(input.files ?? []) );
-        });
+        input.addEventListener('change', () => this.upload.emit(Array.from(input.files ?? []) ) );
         input.click();
     }
 }
@@ -103,4 +108,21 @@ export class UploadComponent extends IconBaseInjectable {
 export class ErrorsDisplayComponent {
     @Input() errors: string[] = [];
 }
+
+export const components = [
+    ActionsDirective,
+    AddDirective,
+    CloseDirective,
+    DebugDirective,
+    EditDirective,
+    InspectDirective,
+    QuestionDirective,
+    SaveDirective,
+    SettingsDirective,
+    TrashDirective,
+    YesDirective,
+    UploadDirective,
+    ErrorsDisplayComponent,
+    YabaDropFileDirective,
+  ];
   

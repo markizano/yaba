@@ -18,38 +18,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 
-import {
-  ActionsDirective,
-  AddDirective,
-  CloseDirective,
-  DebugDirective,
-  EditDirective,
-  InspectDirective,
-  QuestionDirective,
-  SaveDirective,
-  SettingsDirective,
-  TrashDirective,
-  ErrorsDisplayComponent,
-  UploadComponent,
-} from 'app/controls/icons.component';
-
-import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
-
-const components = [
-  ActionsDirective,
-  AddDirective,
-  CloseDirective,
-  DebugDirective,
-  EditDirective,
-  InspectDirective,
-  QuestionDirective,
-  SaveDirective,
-  SettingsDirective,
-  TrashDirective,
-  UploadComponent,
-  ErrorsDisplayComponent,
-  YabaDropFileDirective,
-];
+import { components } from 'app/controls/icons.component';
 
 @NgModule({
     declarations: components,

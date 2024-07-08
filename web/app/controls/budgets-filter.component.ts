@@ -5,7 +5,8 @@ import { FormsModule } from "@angular/forms";
 import { NgSelectModule } from "@ng-select/ng-select";
 
 import { Transactions } from "app/lib/transactions";
-import { Budgets } from "app/lib/types";
+import { Tags } from "app/lib/types";
+import { debounceTime, Subject, Subscription } from "rxjs";
 
 /**
  * I needed a way to take a list of budgets and filter them by the end-user's selection.
@@ -22,20 +23,27 @@ export class BudgetsFilterComponent {
     @Input() get transactions() { return this.#transactions; }
     set transactions(value: Transactions) {
         this.#transactions = value;
-        this.budgets = value.getBudgets();
+        this.budgets = value.getTags();
         console.log('BudgetsFilterComponent().set transactions()', this.transactions.length);
     }
 
-    budgets = <Budgets>[];
-    @Output() selectedBudgets = new EventEmitter<Budgets>();
+    budgets = <Tags>[];
+    budgetsChange = new Subject<Tags>();
+    #budgetsSub?: Subscription;
+    @Output() selectedBudgets = new EventEmitter<Tags>();
 
     ngOnInit() {
-        console.log('BudgetsFilterComponent().ngOnInit()');
-        this.budgets = this.transactions.getBudgets();
+        // console.log('BudgetsFilterComponent().ngOnInit()');
+        this.budgets = this.transactions.getTags();
+        this.#budgetsSub = this.budgetsChange.pipe(debounceTime(500)).subscribe(($event) => this.changed($event));
     }
 
-    changed($event: Budgets) {
-        console.log('BudgetsFilterComponent().changed()', $event);
+    ngOnDestroy() {
+        this.#budgetsSub?.unsubscribe();
+    }
+
+    changed($event: Tags) {
+        // console.log('BudgetsFilterComponent().changed()', $event);
         this.selectedBudgets.emit( $event );
     }
 }

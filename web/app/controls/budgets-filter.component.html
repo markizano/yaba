@@ -9,7 +9,7 @@
         [searchable]="true"
         [clearable]="true"
         [hideSelected]="true"
-        (change)="changed($event)"
+        (change)="budgetsChange.next($event)"
         placeholder="Select budgets"
         class="budget-list"
     ></ng-select>

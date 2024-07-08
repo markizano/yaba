@@ -1,7 +1,7 @@
 <h1>DEBUGGING!</h1><br />
 <div>
     <label>Filters: <input type="checkbox" name="showFilters" #showFilters checked /></label> |
-    <label>Editable: <input type="checkbox" name="editable" #editable /></label> |
+    <label>Editable: <input type="checkbox" name="editable" #editable checked /></label> |
     <label>Paginate: <input type="checkbox" name="showPaginate" #showPaginate checked /> </label> |
     <label>Header: <input type="checkbox" name="showHeader" #showHeader checked /> </label> |
     <br />
@@ -13,6 +13,8 @@
         Merchant: <input type="checkbox" name="txShow_merchant" [(ngModel)]="txShow.merchant" /> |
         Type: <input type="checkbox" name="txShow_type" [(ngModel)]="txShow.transactionType" /> |
     </p> -->
+    
+    <textarea></textarea>
 </div>
 <yaba-transaction-list
     [(transactions)]="transactions"

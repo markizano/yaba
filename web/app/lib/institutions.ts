@@ -293,6 +293,15 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
     }
 
     /**
+     * Check to see if this collection has a transaction by ID.
+     */
+    has(ID: string|Institution): boolean {
+        const institutionId = (ID instanceof Institution)? ID.id: ID;
+        return this.some(institution => institution.id == institutionId);
+    }
+
+
+    /**
      * Get an institution by ID.
      * @param {String} ID Institution ID to fetch
      * @returns {Institution}

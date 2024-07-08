@@ -5,11 +5,20 @@
         Txns: {{ txns.length }}<br />
     </div> -->
 @if ( showFilters ){ <transaction-filters [transactions]="transactions" [(filter)]="filters" (filterChange)="filtersChange.emit($event)" (filteredTransactions)="postFilter($event)"></transaction-filters> }
+@if ( selected.length > 0 ) {
+    <div class="selected-transactions" @fade-slide-down>
+        <h3>Selected Transactions ( {{selected.length}} )</h3>
+        <tag-txns (tags)="tagTxns($event)" (cancel)="cancelSelected()" title="Add a tag to {{ selected.length }} transactions."></tag-txns>
+        @if ( selected.haveTags().length > 0 ) { <untag-txns [transactions]="selected" (untag)="untagTxns($event)" (cancel)="cancelSelected()" title="Untag selected {{ selected.length }} transactions"></untag-txns> }
+        <trash (click)="deleteSelected()" title="Delete all {{ selected.length }} transactions."></trash>
+    </div>
+}
 @if ( txns.length > 0) {
     <table class="data item-list" [ngClass]="editable ? 'editable': ''">
         <thead>
             <tr>
-        @if ( txShow.id )               {<th>Transaction ID</th>}
+       @if ( editable )                 { <th>Actions</th> }
+       @if ( txShow.id )                {<th>Transaction ID</th>}
         @if ( txShow.datePending )      {<th (click)="sortBy('datePending');">Date Pending</th>}
        <!-- Always show post date -->    <th (click)="sortBy('datePosted');">Date Posted</th>
         @if ( txShow.account )          {<th (click)="sortBy('accountId');">Account</th>}
@@ -23,7 +32,15 @@
         </thead>
         <tbody>
     @for(row of genRows(); track row) {
-        <tr class="yaba-txn-row" [(txn)]="txns[row]" [truncate]="truncate" [editable]="editable" ></tr>
+        <tr class="yaba-txn-row" @fade-slide-down
+          [select]="selected.has(txns[row])"
+          [(txn)]="txns[row]"
+          [truncate]="truncate"
+          [editable]="editable"
+          (drop)="deleteTxn(txns[row])"
+          (selected)="$event && selected.add(txns[row]) || selected.remove(txns[row])"
+          (budgets)="budgets.emit( txns.getBudgets() )"
+          ></tr>
     }
         </tbody>
     </table>
@@ -31,7 +48,7 @@
 @if ( showPaginate && transactions.length > 10 ) {
     <mat-paginator 
         (page)="turnPage($event)"
-        [length]="length"
+        [length]="txns.length"
         [pageSize]="10"
         [pageSizeOptions]="[10, 25, 50, 100]"
     ></mat-paginator>
