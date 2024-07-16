@@ -12,6 +12,7 @@ import { Subscription } from "rxjs";
 })
 export class InstitutionSelectComponent {
     @Input() multiple = false;
+    @Input() required = false;
     @Output() selected = new EventEmitter<string[]|string>();
     institutions = new Institutions();
     #sub?: Subscription;

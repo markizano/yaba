@@ -79,6 +79,10 @@ export class AccountFormComponent {
         return this.errors.length === 0;
     }
 
+    pickInstitution(institutionId: string|string[]): void {
+        this.account.institutionId = <string>institutionId;
+    }
+
     saveChanges(): void {
         // Perform form validation to ensure fields are not empty.
         // If they are, display a message to the user.

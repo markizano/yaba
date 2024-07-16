@@ -43,6 +43,7 @@ export class InstitutionFormComponent {
 
     ngOnInit() {
         this.getTransactionFields();
+        this.addMapping();
     }
 
     /**
