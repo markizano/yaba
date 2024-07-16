@@ -17,11 +17,11 @@ import { Subscription } from "rxjs";
  */
 @Component({
     selector: 'yaba-accounts',
-    templateUrl: './account-filter.component.html',
+    templateUrl: './account-select.component.html',
     standalone: true,
     imports: [ CommonModule, FormsModule, NgSelectModule ],
 })
-export class AccountsFilterComponent {
+export class AccountsSelectComponent {
     accounts = new Accounts();
     selectable: NgSelectable<Account>[] = [];
     @Output() selectedAccounts = new EventEmitter<Accounts>();
