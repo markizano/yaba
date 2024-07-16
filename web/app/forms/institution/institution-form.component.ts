@@ -4,7 +4,7 @@ import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from
 /* YABA Definitions */
 import { YabaAnimations } from 'app/lib/animations';
 import { NgSelectable } from 'app/lib/types';
-import { Institution, Institutions, MapTypes } from 'app/lib/institutions';
+import { Institution, InstitutionMapping, InstitutionMappings, Institutions, MapTypes } from 'app/lib/institutions';
 import { ITransaction, Transaction } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 
@@ -110,7 +110,7 @@ export class InstitutionFormComponent {
      */
     addMapping(): void {
         if ( this.fields.length -1 > this.institution.mappings.length ) {
-            this.institution.addMapping('', 'UNKNOWN', MapTypes.value);
+            this.institution.addMapping('', 'description', MapTypes.value);
             this.institutionChange.emit(this.institution);
         }
         this.getTransactionFields();
@@ -143,8 +143,8 @@ export class InstitutionFormComponent {
 
     // User dropped a file on the form.
     parseCSVFiles($event: File[]): void {
-        Institutions.csvHandler($event).then(mappings => {
-            this.institution.mappings = mappings;
+        Institutions.csvHandler($event).then((csvHeaders: string[]) => {
+            this.institution.mappings = InstitutionMappings.fromList(csvHeaders.map((m) => InstitutionMapping.fromObject({ fromField: m, mapType: MapTypes.value })));
             this.institutionChange.emit(this.institution);
         });
     }

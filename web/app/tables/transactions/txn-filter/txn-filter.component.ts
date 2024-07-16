@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { EventEmitter, Output } from '@angular/core';
 
-import { DateRange, DescriptionChange, Budgets, TransactionFilter, Tags } from 'app/lib/types';
+import { DateRange, DescriptionChange, TransactionFilter, Tags } from 'app/lib/types';
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { Transaction, Transactions } from 'app/lib/transactions';
 import { Accounts } from 'app/lib/accounts';

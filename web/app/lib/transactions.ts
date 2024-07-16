@@ -14,7 +14,6 @@ import { Observable, forkJoin, mergeAll, of } from 'rxjs';
  * Transaction interface to define a transaction.
  */
 export interface ITransaction {
-    readonly UNKNOWN: string; // TS hack to make 'UNKNOWN' work as a member.
     id: string;
     accountId: string;
     description: string;
@@ -29,7 +28,6 @@ export interface ITransaction {
 }
 
 abstract class aTransaction implements ITransaction {
-    abstract readonly UNKNOWN: string; // TS hack to make 'UNKNOWN' work as a member.
     abstract id: string;
     abstract accountId: string;
     abstract description: string;
@@ -59,7 +57,6 @@ abstract class aTransaction implements ITransaction {
  * Number() types for numeric fields, etc.
  */
 export class Transaction extends aTransaction implements ITransaction {
-    readonly UNKNOWN = 'unknown'; // TS hack to make 'UNKNOWN' work as a member.
     id = v4();
     accountId = '';
     description = '';
@@ -757,10 +754,6 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
             // console.debug('new cannonical: ', cannonical, institution, transaction);
             for ( const mapping of mappings ) {
                 const toField = mapping.toField as keyof ITransaction;
-                if ( toField === undefined || toField === 'UNKNOWN' ) {
-                    console.error(`Invalid mapping for institution "${institution.name}" attached to account "${accountId}" on transaction "${transaction.id}".`);
-                    continue;
-                }
                 switch(mapping.mapType) {
                     case MapTypes.value:
                         Object.assign(cannonical, toField, mapping.fromField);

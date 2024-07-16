@@ -6,6 +6,7 @@
         <label>Description: <input type="text" maxlength="255" name="description" [(ngModel)]="account.description" tabindex="2" /></label>
       <label>
         Institution:
+        <institution-select (selected)="account.institutionId = $event[0]" [multiple]="false" ></institution-select>
         <ng-select
             [items]="institutionIds"
             name="institution"

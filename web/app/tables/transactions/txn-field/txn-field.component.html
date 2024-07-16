@@ -103,34 +103,34 @@
 } @else {
     @switch ( field ) {
         @case ( 'id' ) {
-            <span class="md-truncate"> {{ txn.id }} </span>
+            <span class="id-field"> {{ txn.id }} </span>
         }
         @case ( 'datePending' ) {
-            <span class="md-truncate"> {{ txn.datePending | date:'yyyy-MM-dd' }} </span>
+            <span class="date-field"> {{ txn.datePending | date:'yyyy-MM-dd' }} </span>
         }
         @case ( 'datePosted' ) {
-            <span class="md-truncate"> {{ txn.datePosted | date:'yyyy-MM-dd' }} </span>
+            <span class="date-field"> {{ txn.datePosted | date:'yyyy-MM-dd' }} </span>
         }
         @case ( 'amount' ) {
-            <span [ngClass]="{'negative': txn.amount < 0}">{{ txn.amount | currency }} {{ txn.currency }}</span>
+            <span class="amount-field number-field" [ngClass]="{'negative': txn.amount < 0}">{{ txn.amount | currency }} {{ txn.currency }}</span>
         }
         @case ( 'tax' ) {
-            <span [ngClass]="{'negative': txn.tax < 0}">{{ txn.tax | currency }} {{ txn.currency }}</span>
+            <span class="tax-field number-field" [ngClass]="{'negative': txn.tax < 0}">{{ txn.tax | currency }} {{ txn.currency }}</span>
         }
         @case ( 'description' ) {
-            <div class="description md-truncate"> {{ truncate ? txn.description.slice(0, 30): txn.description }}{{ truncate && txn.description.length > 30 ? '...' : '' }} </div>
+            <div class="description-field"> {{ truncate ? txn.description.slice(0, 30): txn.description }}{{ truncate && txn.description.length > 30 ? '...' : '' }} </div>
         }
         @case ( 'merchant' ) {
-            <span> {{ txn.merchant }} </span>
+            <span class="merchant-field"> {{ txn.merchant }} </span>
         }
         @case ( 'accountId' ) {
-            <span> {{ accounts.id2name[txn.accountId] || '{!unknown account id!}' }} </span>
+            <span class="account-name-field"> {{ accounts.id2name[txn.accountId] || '{!unknown account id!}' }} </span>
         }
         @case ( 'transactionType' ) {
-            <span> {{ txn.transactionType }} </span>
+            <span class="txn-type-field"> {{ txn.transactionType }} </span>
         }
         @case ( 'tags' ) {
-            <span> {{ txn.tags.join(', ') }} </span>
+            <span class="tags-field"> {{ txn.tags.join(', ') }} </span>
         }
     }
 }
