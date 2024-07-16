@@ -1,0 +1,12 @@
+<div class="institution-select-wrapper">
+  <ng-select [items]="institutions" 
+      name="institution"
+      bindLabel="name"
+      bindValue="id"
+      [multiple]="multiple"
+      [clearable]="true"
+      [closeOnSelect]="true"
+      placeholder="Select Institution: "
+      (change)="selected.emit($event)"
+      ></ng-select>
+</div>

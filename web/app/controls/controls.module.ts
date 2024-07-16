@@ -24,6 +24,8 @@ import { components } from 'app/controls/icons.component';
     declarations: components,
     imports: [
         CommonModule,
+        NgSelectModule,
+        FormsModule,
     ],
     providers: [ ],
     exports: [
