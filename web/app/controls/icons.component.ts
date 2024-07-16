@@ -1,6 +1,5 @@
 
 import { Component, Directive, ElementRef, EventEmitter, HostListener, Injectable, Input, Output } from '@angular/core';
-import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
 
 /**
  * Most of these directives are here just to make Angular stop complaining about them because I don't want to use NG_CUSTOM_SCHEMA in all my templates.
@@ -109,6 +108,9 @@ export class ErrorsDisplayComponent {
     @Input() errors: string[] = [];
 }
 
+import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
+import { InstitutionSelectComponent } from 'app/controls/institution-select.component';
+
 export const components = [
     ActionsDirective,
     AddDirective,
@@ -124,5 +126,6 @@ export const components = [
     UploadDirective,
     ErrorsDisplayComponent,
     YabaDropFileDirective,
+    InstitutionSelectComponent,
   ];
   
