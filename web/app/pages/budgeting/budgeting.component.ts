@@ -29,8 +29,9 @@ export class BudgetingComponent {
 
     ngOnInit() {
         const update = (accounts: Accounts) => {
-            this.txns = new Transactions(...accounts.map(a => a.transactions).flat());
+            this.txns = Transactions.fromList(accounts.map(a => a.transactions).flat());
             this.budgets = this.txns.getBudgets();
+            console.log('BudgetingComponent ngOnInit()', this.txns, this.budgets);
         };
         update(this.accountsService.get());
         this.#cachedUpdates = this.accountsService.subscribe(update);

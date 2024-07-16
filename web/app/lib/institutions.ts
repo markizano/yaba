@@ -21,7 +21,7 @@ export enum MapTypes {
  */
 export interface IMapping {
     fromField: string;
-    toField: keyof ITransaction;
+    toField?: keyof ITransaction;
     mapType: MapTypes;
     toString(): string;
 }
@@ -30,12 +30,19 @@ export interface IMapping {
  * @interface IInstitution Interface for the Institution object.
  */
 export interface IInstitution {
-    id: string;
     name: string;
     description: string;
     mappings: InstitutionMappings;
-    update(data: IInstitution): Institution;
-    addMapping(fromField: string, toField: keyof Transaction, mapType: MapTypes): Institution;
+}
+
+abstract class aInstitution implements IInstitution {
+    abstract id: string;
+    abstract name: string;
+    abstract description: string;
+    abstract mappings: InstitutionMappings;
+
+    abstract update(data: IInstitution): Institution;
+    abstract addMapping(fromField: string, toField: keyof Transaction, mapType: MapTypes): Institution;
 }
 
 /**
@@ -44,7 +51,7 @@ export interface IInstitution {
  */
 export class InstitutionMapping implements IMapping {
     fromField = '';
-    toField: keyof ITransaction = 'UNKNOWN';
+    toField?: keyof ITransaction;
     mapType: MapTypes = MapTypes.value;
 
     /**
@@ -113,12 +120,12 @@ export class InstitutionMappings extends Array<InstitutionMapping> {
      * @param  {...InstitutionMapping|object} items Items to push onto the array.
      * @returns Number of items in the current set/array.
      */
-    add(...items: InstitutionMapping[]|InstitutionMappings ): InstitutionMappings {
+    add(...items: InstitutionMapping[]|InstitutionMappings|IMapping[] ): InstitutionMappings {
         for ( const i in items ) {
             const item = items[i];
             item instanceof InstitutionMapping || (items[i] = InstitutionMapping.fromObject(item));
         }
-        super.push(...items);
+        super.push(...<InstitutionMapping[]>items);
         return this;
     }
 
@@ -151,7 +158,7 @@ export class InstitutionMappings extends Array<InstitutionMapping> {
  * Coerces a Hash/Object into something we can use as institution to at least typecast the
  * structure as we need it here.
  */
-export class Institution implements IInstitution {
+export class Institution extends aInstitution implements IInstitution {
     id = v4();
     name = '';
     description = '';
@@ -183,10 +190,12 @@ export class Institution implements IInstitution {
      * @returns {Institution}
      */
     update(data: IInstitution): Institution {
-        data.id && (this.id = data.id);
-        data.name && (this.name = data.name);
-        data.description && (this.description = data.description);
-        data.mappings && (this.mappings = InstitutionMappings.fromList(data.mappings));
+        if ( 'id' in data && typeof data.id !== 'undefined' ) {
+            this.id = <string>data.id ?? v4();
+        }
+        this.name = data.name ?? '';
+        this.description = data.description ?? '';
+        this.mappings = InstitutionMappings.fromList(data.mappings ?? []);
         return this;
     }
 
@@ -255,7 +264,7 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
         for ( const i in items ) {
             const item = items[i];
             items[i] instanceof Institution || (items[i] = Institution.fromObject(item));
-            this.id2name[item.id] = item.name;
+            this.id2name[(<Institution>items[i]).id ?? v4()] = item.name;
         }
         super.push(...items as Institution[]);
         return this;
@@ -392,12 +401,13 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      * @param {File[]} files Files to parse.
      * @returns {Promise<InstitutionMappings>} Function to handle the results of the CSV file.
      */
-    static async csvHandler(files: File[]): Promise<InstitutionMappings> {
-        const csvFile = files.shift();
-        if ( !csvFile ) {
-            return new InstitutionMappings();
-        }
+    static csvHandler(files: File[]): Promise<string[]> {
         return new Promise((resolve, reject) => {
+            const csvFile = files.shift();
+            if ( !csvFile ) {
+                resolve([]);
+                return;
+            }
             const papaOpts: ParseConfig = {
                 header: true,
                 skipEmptyLines: true,
@@ -406,9 +416,8 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
                         console.error('Failed to parse CSV file.', file, parsedCSV.errors);
                         reject(parsedCSV.errors);
                     }
-                    const headers = Object.keys(parsedCSV.data.shift());
-                    const imaps = new InstitutionMappings(...headers.map(h => InstitutionMapping.fromObject({fromField: h, toField: 'UNKNOWN', mapType: MapTypes.value})));
-                    resolve(imaps);
+                    const headers = Array.from(Object.keys(parsedCSV.data.shift()));
+                    resolve(headers);
                 },
             };
             new Papa().parse(csvFile, papaOpts);

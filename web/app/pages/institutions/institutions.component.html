@@ -1,4 +1,4 @@
-<div id="institutions">
+<div id="institutions" class="controller">
     <h1> Institutions </h1>
     <p>
         This is where you configure your Banks and
@@ -10,7 +10,7 @@
     <div class="institution-list yaba-list-wrapper">
 @for( institution of institutions; let i = $index; track institution.id ) {
         <div class="institution yaba-item">
-            <figcaption>
+            <div class="titlebar">
                 <div>
                     <h2>{{ institution.name }}</h2>
                     <p> {{ institution.description }} </p>
@@ -19,7 +19,7 @@
                     <edit (click)="edit(i, institution)" class="helper" attr.helper="Edit Institution &quot;{{ institution.name }}&quot;."></edit>
                     <trash (click)="remove(i, institution)" class="helper" attr.helper="Delete Institution &quot;{{ institution.name }}&quot;."></trash>
                 </actions>
-            </figcaption>
+            </div>
             <table id="{{ institution.id }}" class="institution-mappings data item-list">
                 <thead>
                     <th>From Field</th>

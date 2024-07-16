@@ -28,14 +28,22 @@ export enum AccountTypes {
  * @interface IAccount - Data model object to represent an account.
  */
 export interface IAccount {
-    id: string;
-    institutionId: string;
     name: string;
     description: string;
+    institutionId: string;
     accountType: AccountTypes;
     transactions: Transactions;
-    balance: () => number;
-    update: (data: IAccount) => Account;
+}
+
+abstract class oAccount implements IAccount {
+    abstract id: string;
+    abstract institutionId: string;
+    abstract name: string;
+    abstract description: string;
+    abstract accountType: AccountTypes;
+    abstract transactions: Transactions;
+    abstract balance(): number;
+    abstract update(data: IAccount): Account;
 }
 
 /**
@@ -43,8 +51,7 @@ export interface IAccount {
  * Coerces a Hash/Object into something we can use as institution to at least typecast the
  * structure as we need it here.
  */
-export class Account implements IAccount {
-
+export class Account extends oAccount implements IAccount {
     id = v4();
     institutionId = '';
     name = '';
@@ -71,12 +78,14 @@ export class Account implements IAccount {
      * @param {Object} data Input data to update for this object.
      */
     update(data: IAccount): Account {
-        data.id                 && (this.id = data.id);
-        data.institutionId      && (this.institutionId = data.institutionId);
-        data.name               && (this.name = data.name);
-        data.description        && (this.description = data.description);
-        data.accountType        && (this.accountType = data.accountType);
-        if (  Object.hasOwn(data, 'transactions') && data.transactions instanceof Array ) {
+        if ( 'id' in data && data.id ) {
+            this.id = <string>data.id ?? v4();
+        }
+        this.institutionId = data.institutionId ?? '';
+        this.name = data.name ?? '';
+        this.description = data.description ?? '';
+        this.accountType = data.accountType ?? AccountTypes.UNKNOWN;
+        if ( 'transactions' in data && data.transactions instanceof Array ) {
             this.transactions.add(...data.transactions);
         }
         return this;
@@ -96,7 +105,7 @@ export class Account implements IAccount {
  * Allows for operations on a per-account basis.
  * Also allows for defining handy functions that we'd use as filters.
  */
-export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
+export class Accounts extends Array<Account> implements YabaPlural<Account> {
 
     /**
      * @property {Id2NameHashMap} id2name Convenience mapping of account.id to account.name for quick lookups.
@@ -109,7 +118,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
             for ( const i in items ) {
                 const item = items[i];
                 items[i] instanceof Account || (items[i] = Account.fromObject(item));
-                id2name[item.id] = item.name;
+                id2name[(<Account>items[i]).id] = item.name;
             }
         }
         super(...items as Account[]);
@@ -128,7 +137,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
     /**
      * @factory Function to generate an account from a list of IAccount[]s.
      */
-    static fromList(list: IAccount[]): Accounts {
+    static fromList(list: IAccount[]|Accounts): Accounts {
         return new Accounts().add(...list);
     }
 
@@ -171,7 +180,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
         for ( const i in items ) {
             const item = items[i];
             items[i] instanceof Account || (items[i] = Account.fromObject(item));
-            this.id2name[item.id] = item.name;
+            this.id2name[(<Account>items[i]).id] = item.name;
         }
         super.push(...items as Account[]);
         return this;
@@ -226,7 +235,7 @@ export class Accounts extends Array<Account> implements YabaPlural<IAccount> {
      * @returns {Account} The Account object by reference removed from the list.
      */
     byId(ID: string): Account|undefined {
-        return this.filter((acct: IAccount) => acct.id == ID).shift();
+        return this.filter((acct: Account) => acct.id == ID).shift();
     }
 
     /**

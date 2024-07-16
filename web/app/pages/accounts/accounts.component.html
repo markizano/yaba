@@ -6,8 +6,8 @@
     <add (click)="add()" class="right"></add><br clear="all" />
     <div class="account-list yaba-list-wrapper">
 @for(account of accounts; let i = $index; track account.id) {
-    <div class="account yaba-item dropfile" (fileDrop)="parseCSVFiles(account, $event)" [preventBodyDrop]="true">
-        <figcaption>
+    <div class="account yaba-item dropfile" (fileDrop)="parseCSVFiles(account, $event)" [preventBodyDrop]="true" [id]="account.id">
+        <div class="titlebar">
             <div>
                 <h2 class="title md-truncate"><a [routerLink]="['/accounts', account.id]">{{account.name}}</a></h2>
                 <div class="account-balance">{{ account.balance() | currency }}</div>
@@ -18,7 +18,7 @@
                 <edit (click)="edit(account)" class="helper" title="Edit Account &quot;{{ account.name }}&quot;."></edit>
                 <trash (click)="remove(account)" class="helper" title="Delete Account &quot;{{ account.name }}&quot;."></trash>
             </actions>
-        </figcaption>
+        </div>
         <yaba-transaction-list
             [transactions]="tview[i]"
             [filters]="filters"

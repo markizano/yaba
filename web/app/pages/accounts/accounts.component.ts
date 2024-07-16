@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -26,7 +26,7 @@ export class AccountsComponent {
 
     #cacheUpdate?: Subscription;
 
-    constructor( protected router: Router, protected chgDet: ChangeDetectorRef, protected institutionsService: InstitutionsService, protected accountsService: AccountsService) {
+    constructor( protected router: Router, protected institutionsService: InstitutionsService, protected accountsService: AccountsService) {
         console.log('new AccountsComponent()');
         this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
     }

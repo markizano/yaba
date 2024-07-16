@@ -1,12 +1,14 @@
-<div id="account-detail" ng-controller="account" class="controller dropfile" (fileDrop)="parseCSVFIles($event)" [preventBodyDrop]="true">
+<div id="account-detail" class="controller dropfile" (fileDrop)="parseCSVFIles($event)" [preventBodyDrop]="true">
     <div class="titlebar" >
         <h2 class="title">{{ account.name }}</h2>
         <!-- @TODO: Add edit button -->
         <close routerLink="/accounts"></close>
     </div>
-    <p><b>Balance</b>: <span>{{ account.balance() | currency }}</span></p>
-    <p><b>Account Type</b>: <span>{{ account.accountType }}</span></p>
-    <p>{{ account.description }}</p>
+    <div class="account-details-text-wrapper">
+        <p><b>Balance</b>: <span>{{ account.balance() | currency }}</span></p>
+        <p><b>Account Type</b>: <span>{{ account.accountType }}</span></p>
+        <p>{{ account.description }}</p>
+    </div>
     <yaba-transaction-list
         [(transactions)]="account.transactions"
         [filters]="filters"
