@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MatGridListModule } from '@angular/material/grid-list';
 
 import { AccountsComponent } from 'app/pages/accounts/accounts.component';
 import { AccountDetailComponent } from 'app/pages/accounts/account-detail/account.component';
@@ -16,7 +15,6 @@ import { TransactionsModule } from 'app/transactions/transactions.module';
     ],
     imports: [
         ControlsModule,
-        MatGridListModule,
         RouterModule,
         TransactionsModule,
         AccountFormComponent,

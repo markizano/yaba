@@ -1,6 +1,4 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 import { BudgetingComponent } from 'app/pages/budgeting/budgeting.component';
 import { TransactionsModule } from 'app/transactions/transactions.module';
@@ -12,8 +10,6 @@ import { YabaTableBudgetsComponent } from 'app/tables/budgets/budgets-table.comp
     BudgetingComponent,
   ],
   imports: [
-    CommonModule,
-    FormsModule,
     ControlsModule,
     TransactionsModule,
     YabaTableBudgetsComponent,
