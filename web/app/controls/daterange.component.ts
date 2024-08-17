@@ -1,7 +1,4 @@
-
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
 import { Subscription, debounceTime } from "rxjs";
 import { DEFAULT_DATERANGE } from "app/lib/constants";
 import { DateRange } from "app/lib/types";
@@ -9,8 +6,6 @@ import { DateRange } from "app/lib/types";
 @Component({
     selector: 'yaba-daterange',
     templateUrl: './daterange.component.html',
-    standalone: true,
-    imports: [ CommonModule, FormsModule ],
 })
 export class DateRangeFilterComponent {
     @Input() fromDate: Date;

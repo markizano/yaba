@@ -1,7 +1,4 @@
 import { Component, EventEmitter, Output } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgSelectModule } from "@ng-select/ng-select";
 
 import { Account, Accounts } from "app/lib/accounts";
 import { AccountsService } from "app/services/accounts.service";
@@ -18,8 +15,6 @@ import { Subscription } from "rxjs";
 @Component({
     selector: 'yaba-accounts',
     templateUrl: './account-select.component.html',
-    standalone: true,
-    imports: [ CommonModule, FormsModule, NgSelectModule ],
 })
 export class AccountsSelectComponent {
     accounts = new Accounts();

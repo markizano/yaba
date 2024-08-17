@@ -4,4 +4,8 @@ import { Component } from '@angular/core';
   selector: 'yaba-charts',
   templateUrl: './charts.component.html',
 })
-export class ChartsComponent { }
+export class ChartsComponent {
+    constructor() {
+        console.log('new ChartsComponent()');
+    }
+}

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { EventEmitter, Output } from '@angular/core';
 
@@ -6,10 +5,8 @@ import { DateRange, DescriptionChange, TransactionFilter, Tags } from 'app/lib/t
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { Transaction, Transactions } from 'app/lib/transactions';
 import { Accounts } from 'app/lib/accounts';
-import { DateRangeFilterComponent } from 'app/controls/daterange.component';
-import { AccountsFilterComponent } from 'app/controls/account-filter.component';
-import { DescriptionFilterComponent } from 'app/controls/description.component';
 import { TagsFilterComponent } from 'app/controls/tags-filter.component';
+import { ControlsModule } from 'app/controls/controls.module';
 
 /**
  * This is a glue component that combines the various filters into a single component
@@ -28,10 +25,7 @@ import { TagsFilterComponent } from 'app/controls/tags-filter.component';
     templateUrl: './txn-filter.component.html',
     standalone: true,
     imports: [
-        CommonModule,
-        DateRangeFilterComponent,
-        AccountsFilterComponent,
-        DescriptionFilterComponent,
+        ControlsModule,
         TagsFilterComponent,
     ],
 })
