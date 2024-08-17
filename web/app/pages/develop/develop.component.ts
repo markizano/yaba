@@ -12,7 +12,6 @@ import { Institution, InstitutionMapping, Institutions, MapTypes } from 'app/lib
 import { Account, Accounts, AccountTypes } from 'app/lib/accounts';
 import { Transaction, Transactions } from 'app/lib/transactions';
 
-import { AccountsFilterComponent } from 'app/controls/account-filter.component';
 import { ControlsModule } from 'app/controls/controls.module';
 import { AccountsService } from 'app/services/accounts.service';
 import { TransactionsListComponent } from 'app/tables/transactions/transactions-list.component';
@@ -24,7 +23,6 @@ import { TransactionsListComponent } from 'app/tables/transactions/transactions-
     imports: [
         ControlsModule,
         TransactionsListComponent,
-        AccountsFilterComponent,
     ],
     templateUrl: './develop.component.html',
 })

@@ -1,6 +1,4 @@
 import { Component, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Description, DescriptionChange } from 'app/lib/types';
 import { Subscription, debounceTime } from 'rxjs';
 
@@ -12,10 +10,6 @@ import { Subscription, debounceTime } from 'rxjs';
 @Component({
     selector: 'yaba-description',
     templateUrl: './description.component.html',
-    styles: [  ],
-    standalone: true,
-    imports: [ CommonModule, FormsModule ],
-
 })
 export class DescriptionFilterComponent {
     description: Description = '';

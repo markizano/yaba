@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ChartsComponent } from 'app/pages/charts/charts.component';
+import { ControlsModule } from 'app/controls/controls.module';
 
 
 @NgModule({
@@ -8,7 +9,7 @@ import { ChartsComponent } from 'app/pages/charts/charts.component';
     ChartsComponent,
   ],
   imports: [
-    CommonModule
+    ControlsModule,
   ],
   exports: [
     ChartsComponent,
