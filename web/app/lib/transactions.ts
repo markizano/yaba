@@ -190,14 +190,23 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @returns {Transactions} New instance of Transactions.
      */
     static fromString(loadString: string): Transactions {
+        try {
         return Transactions.fromList(JSON.parse(loadString));
+        } catch (e) {
+            console.error('Transactions.fromString(): ', e);
+            return new Transactions();
+        }
     }
 
     /**
      * @factory Function to generate an account from a list of ITransaction[]s.
      */
     static fromList(list: Transaction[]): Transactions {
-        return new Transactions().add(...list);
+        const result = new Transactions();
+        if ( list instanceof Transactions || list instanceof Array ) {
+            result.add(...list);
+        }
+        return result;
     }
 
     /**
@@ -747,7 +756,8 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static digest(institution: Institution, accountId: string, transactions: any): Transactions {
-        const results = new Transactions(), mappings: InstitutionMappings = <InstitutionMappings>institution.mappings.concat();
+        console.log(institution);
+        const results = new Transactions(), mappings: InstitutionMappings = InstitutionMappings.fromList(institution.mappings);
         console.log('Transactions.digest()', accountId, transactions, mappings);
         for ( const transaction of transactions ) {
             const cannonical = new Transaction();

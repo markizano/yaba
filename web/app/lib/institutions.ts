@@ -243,7 +243,12 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      * @returns {Institutions}
      */
     static fromString(loadString: string): Institutions {
-        return Institutions.fromList(JSON.parse(loadString));
+        try {
+            return Institutions.fromList(JSON.parse(loadString));
+        } catch(e) {
+            console.error('Failed to parse JSON string.', e);
+            return new Institutions();
+        }
     }
 
     /**
@@ -252,7 +257,11 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      * @returns {Institutions}
      */
     static fromList(list: IInstitution[]|Institutions): Institutions {
-        return new Institutions().add(...list);
+        const result = new Institutions();
+        if ( list instanceof Institutions || list instanceof Array ) {
+            result.add(...list);
+        }
+        return result;
     }
 
     /**
@@ -279,13 +288,18 @@ export class Institutions extends Array<Institution> implements YabaPlural<IInst
      */
     remove(ID: Institution|string): Institutions {
         const institutionId = (ID instanceof Institution)? ID.id: ID;
-        for ( const i in this ) {
-            // Skip properties, only iterate over array indexes.
-            if ( typeof i !== 'number' ) continue;
-            const item = this[i];
-            if ( item.id == institutionId ) {
-                this.splice(i, 1);
-                break;
+        if ( this.length == 0 ) {
+            console.log('No items to remove from Institutions.');
+            return this;
+        }
+        for ( let i = 0, item = this[i]; i < this.length; i++, item = this[i] ) {
+            try{
+                if ( item.id == institutionId ) {
+                    this.splice(i, 1);
+                    break;
+                }
+            } catch (e) {
+                console.error('Failed to remove Institution.', e);
             }
         }
         return this;

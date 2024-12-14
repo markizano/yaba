@@ -16,8 +16,8 @@
                     <p> {{ institution.description }} </p>
                 </div>
                 <actions>
-                    <edit (click)="edit(i, institution)" class="helper" attr.helper="Edit Institution &quot;{{ institution.name }}&quot;."></edit>
-                    <trash (click)="remove(i, institution)" class="helper" attr.helper="Delete Institution &quot;{{ institution.name }}&quot;."></trash>
+                    <edit (click)="edit(institution)" class="helper" attr.helper="Edit Institution &quot;{{ institution.name }}&quot;."></edit>
+                    <trash (click)="remove(institution)" class="helper" attr.helper="Delete Institution &quot;{{ institution.name }}&quot;."></trash>
                 </actions>
             </div>
             <table id="{{ institution.id }}" class="institution-mappings data item-list">

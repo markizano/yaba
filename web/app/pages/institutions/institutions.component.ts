@@ -18,9 +18,6 @@ export class InstitutionsComponent {
     // Form controls
     formVisible = false;
 
-    // Save the index for edits later.
-    #index?: number;
-
     // Subscription to the institutions service.
     #institutionUpdates?: Subscription;
 
@@ -48,20 +45,19 @@ export class InstitutionsComponent {
         this.formVisible = true;
     }
 
-    remove($index: number, institutuion: Institution): void {
-        const removed = this.institutions.splice($index, 1);
-        if ( removed[0] == institutuion) {
-            console.log('Removed institution: ', institutuion);
-            this.institutionsService.save(this.institutions);
-        }
+    remove(institutuion: Institution): void {
+        console.log(`InsitituionsComponent().remove(${institutuion.id})`);
+        this.institutions.remove(institutuion);
+        this.institutionsService.save(this.institutions);
     }
 
     // User clicked save button.
     save(institution: Institution): void {
-        if ( this.#index !== undefined ) {
-            this.institutions[this.#index] = institution;
+        const oldInstitution = this.institutions.byId(institution.id);
+        if ( oldInstitution ) {
+            oldInstitution.update(institution);
         } else {
-            this.institutions.push(institution);
+            this.institutions.add(institution);
         }
         this.institutionsService.save(this.institutions);
         this.close();
@@ -69,10 +65,9 @@ export class InstitutionsComponent {
     }
 
     // User wants to edit an institution.
-    edit($index: number, institution: Institution): void {
+    edit(institution: Institution): void {
         this.institution = institution;
         this.formVisible = true;
-        this.#index = $index;
         console.log('Editing institution: ', institution);
     }
 
@@ -88,6 +83,5 @@ export class InstitutionsComponent {
 
     reset(): void {
         this.institution = new Institution();
-        this.#index = undefined;
     }
 }

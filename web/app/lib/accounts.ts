@@ -131,14 +131,23 @@ export class Accounts extends Array<Account> implements YabaPlural<Account> {
      * @returns {Accounts}
      */
     static fromString(loadString: string): Accounts {
-        return Accounts.fromList(JSON.parse(loadString));
+        try {
+            return Accounts.fromList(JSON.parse(loadString));
+        } catch (e) {
+            console.error(`Error parsing JSON string: ${e}`);
+            return new Accounts();
+        }
     }
 
     /**
      * @factory Function to generate an account from a list of IAccount[]s.
      */
     static fromList(list: IAccount[]|Accounts): Accounts {
-        return new Accounts().add(...list);
+        const result = new Accounts();
+        if ( list instanceof Accounts || list instanceof Array ) {
+            result.add(...list);
+        }
+        return result;
     }
 
     /**
@@ -194,19 +203,24 @@ export class Accounts extends Array<Account> implements YabaPlural<Account> {
      */
     remove(ID: Account|string): Accounts {
         const accountId = ID instanceof Account? ID.id: ID;
-        for ( const i in this ) {
+        if ( this.length == 0 ) {
+            console.log('No items to remove from Accounts.');
+            return this;
+        }
+        for ( let i = 0, item = this[i]; i < this.length; i++, item = this[i] ) {
             try {
-                if ( typeof i !== 'number' ) continue;
-                const item = this[i];
                 if ( item.id == accountId ) {
+                    console.log(`Removing item ${i} from Accounts: `, item);
                     this.splice(i, 1);
                     break;
                 }
                 delete this.id2name[accountId];
+                return this;
             } catch (e) {
                 console.error(`Error removing item ${i} from Accounts: ${e}`);
             }
         }
+        console.log(`Account ${accountId} not found in Accounts.`);
         return this;
     }
 
