@@ -7,7 +7,6 @@ import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { Accounts, Account } from 'app/lib/accounts';
 import { AccountsService } from 'app/services/accounts.service';
 import { InstitutionsService } from 'app/services/institutions.service';
-import { Institution } from 'app/lib/institutions';
 import { Transactions } from 'app/lib/transactions';
 
 @Component({
@@ -68,7 +67,9 @@ export class AccountsComponent {
      * @param account {Account} The account to remove.
      */
     remove(account: Account): void {
-        this.accounts.remove(account);
+        console.log(`AccountsComponent().remove(${account.id})`);
+        this.accounts.remove(account.id);
+        this.accountsService.save(this.accounts);
     }
 
     /**
@@ -81,8 +82,9 @@ export class AccountsComponent {
         } else {
             this.accounts.add(account);
         }
-        this.formVisible = false;
         this.accountsService.save(this.accounts);
+        this.close();
+        this.reset();
     }
 
     /**
@@ -90,6 +92,12 @@ export class AccountsComponent {
      */
     close(): void {
         this.formVisible = false;
+    }
+
+    /**
+     * Close the form.
+     */
+    reset(): void {
         this.account = new Account();
     }
 
@@ -99,7 +107,11 @@ export class AccountsComponent {
      * it's attached to the Accounts class.
      */
     async parseCSVFiles(account: Account, $event: File[]) {
-        const txns = await Accounts.parseCSVFiles(account, $event, <Institution>this.institutionsService.get().byId(account.institutionId), this.errors);
+        const institution = this.institutionsService.get().byId(account.institutionId);
+        if ( institution === undefined ) {
+            throw new Error(`Institution not found for account: ${account.id}`);
+        }
+        const txns = await Accounts.parseCSVFiles(account, $event, institution, this.errors);
         console.log('AccountsComponent().parseCSVFiles() txns: ', txns);
         account.transactions.add(...txns);
         console.debug('AccountsComponent().parseCSVFiles() saving accounts: ', this.accounts);
