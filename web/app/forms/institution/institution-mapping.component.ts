@@ -41,6 +41,6 @@ export class InstitutionMappingComponent {
     }
 
     isField() {
-        return this.mapping.mapType == MapTypes.value
+        return this.mapping.mapType == MapTypes.dynamic;
     }
 }
