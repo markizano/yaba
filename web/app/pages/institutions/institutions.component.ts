@@ -41,8 +41,16 @@ export class InstitutionsComponent {
      * Adds a new institution to the list of institutions.
      */
     add(): void {
-        this.institution = new Institution();
         this.formVisible = true;
+    }
+
+    /**
+     * User wants to edit an institution.
+     */
+    edit(institution: Institution): void {
+        this.institution.update(institution);
+        this.formVisible = true;
+        console.log('Editing institution: ', institution);
     }
 
     remove(institutuion: Institution): void {
@@ -51,7 +59,9 @@ export class InstitutionsComponent {
         this.institutionsService.save(this.institutions);
     }
 
-    // User clicked save button.
+    /**
+     * User clicked save button.
+     */
     save(institution: Institution): void {
         const oldInstitution = this.institutions.byId(institution.id);
         if ( oldInstitution ) {
@@ -62,13 +72,6 @@ export class InstitutionsComponent {
         this.institutionsService.save(this.institutions);
         this.close();
         this.reset();
-    }
-
-    // User wants to edit an institution.
-    edit(institution: Institution): void {
-        this.institution.update(institution);
-        this.formVisible = true;
-        console.log('Editing institution: ', institution);
     }
 
     // User clicked cancel button.

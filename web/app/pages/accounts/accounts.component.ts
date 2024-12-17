@@ -58,7 +58,7 @@ export class AccountsComponent {
      * @param account {Account} The account to edit.
      */
     edit(account: Account): void {
-        this.account = account;
+        this.account.update(account);
         this.formVisible = true;
     }
 
@@ -83,6 +83,14 @@ export class AccountsComponent {
             this.accounts.add(account);
         }
         this.accountsService.save(this.accounts);
+        this.close();
+        this.reset();
+    }
+
+    /**
+     * User clicked cancel button.
+     */
+    cancel(): void {
         this.close();
         this.reset();
     }
