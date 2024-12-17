@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { Institutions } from "app/lib/institutions";
+import { Institution, Institutions } from "app/lib/institutions";
 import { InstitutionsService } from "app/services/institutions.service";
 import { Subscription } from "rxjs";
 
@@ -11,9 +11,8 @@ import { Subscription } from "rxjs";
     templateUrl: './institution-select.component.html',
 })
 export class InstitutionSelectComponent {
-    @Input() multiple = false;
     @Input() required = false;
-    @Output() selected = new EventEmitter<string[]|string>();
+    @Output() selected = new EventEmitter<Institution>();
     institutions = new Institutions();
     #sub?: Subscription;
     constructor(protected institutionsService: InstitutionsService) { }
