@@ -34,7 +34,7 @@
     <yaba-account-form
       [account]="account"
       (cancel)="cancel()"
-      (save)="save(account)"
+      (save)="save($event)"
       [ngClass]="{ 'ng-hide': !formVisible }"
       class="suave"></yaba-account-form>
 </div>

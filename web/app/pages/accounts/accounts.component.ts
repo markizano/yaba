@@ -76,6 +76,7 @@ export class AccountsComponent {
      * Save changes to the account list.
      */
     save(account: Account): void {
+        console.log('AccountsComponent().save()', account);
         const oldaccount = this.accounts.byId(account.id);
         if ( oldaccount ) {
             oldaccount.update(account);

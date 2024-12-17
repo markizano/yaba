@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AccountTypes, Account } from 'app/lib/accounts';
-import { Institution, Institutions } from 'app/lib/institutions';
+import { Institutions } from 'app/lib/institutions';
 import { NgSelectable } from 'app/lib/types';
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
@@ -27,7 +27,6 @@ export class AccountFormComponent {
     @Output() cancel = new EventEmitter<void>();
 
     institutions = new Institutions();
-    institutionIds: NgSelectable<Institution>[] = [];
     accountTypes = this.getAccountTypes();
 
     // User feedback.
@@ -41,8 +40,6 @@ export class AccountFormComponent {
         console.log('AccountFormComponent().ngOnInit()');
         const update = (institutions: Institutions) => {
             this.institutions = institutions;
-            this.institutionIds = institutions.map((x: Institution) => ({ label: x.name, value: x }));
-            console.log('AccountFormComponent().ngOnInit().institutionIds: ', this.institutionIds);
         }
         update(this.institutionsService.get());
         this.#cachedUpdates = this.institutionsService.subscribe(update);
@@ -79,8 +76,9 @@ export class AccountFormComponent {
         return this.errors.length === 0;
     }
 
-    pickInstitution(institutionId: string|string[]): void {
-        this.account.institutionId = <string>institutionId;
+    pickInstitution(institutionId: string): void {
+        console.log(`AccountFormComponent().pickInstitution(${institutionId})`);
+        this.account.institutionId = institutionId;
     }
 
     saveChanges(): void {
@@ -89,9 +87,10 @@ export class AccountFormComponent {
         if ( !this.validate() ) {
             return;
         }
+        console.log('AccountFormComponent.save()', this.account);
         this.accountChange.emit(this.account);
         this.save.emit(this.account);
-        this.cancelForm()
+        this.reset();
     }
 
     cancelForm(): void {
@@ -101,5 +100,6 @@ export class AccountFormComponent {
 
     reset(): void {
         this.account = new Account();
+        this.errors = [];
     }
 }
