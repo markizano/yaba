@@ -828,7 +828,11 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     }
 
     /**
-     * Handle the drop of a CSV file on an account table.
+     * Handle the drop of a CSV file on an account or institution.
+     * The idea is to use an observable to handle the parsing of the CSV file and then
+     * return the results as a list of transactions.
+     * @param {File[]} files List of files to process.
+     * @returns {Observable<Transactions>} List of transactions from the CSV file.
      */
     static csvHandler(files: File[]): Observable<Transactions> {
         console.log('Transactions.csvHandler()', files);
@@ -843,6 +847,11 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
                     const px = new Papa().parse(csvFile, {
                         header: true,
                         skipEmptyLines: true,
+                        // Papaparse now supports skipping first "N" lines if you configure it as such.
+                        // ngx-papaparse does not support this feature yet, so we have to club it in.
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        skipFirstNLines: 0,
                         complete: (parsedCSV: ParseResult): void => {
                             // Loosly typed data from CSV file. It will be filtered and matched up later.
                             console.log('observing CSV file.', csvFile, parsedCSV.data, parserSub);

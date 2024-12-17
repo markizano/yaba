@@ -42,7 +42,7 @@ abstract class aInstitution implements IInstitution {
     abstract mappings: InstitutionMappings;
 
     abstract update(data: IInstitution): Institution;
-    abstract addMapping(fromField: string, toField: keyof Transaction, mapType: MapTypes): Institution;
+    abstract addMapping(fromField: string, toField: keyof Transaction|undefined, mapType: MapTypes): Institution;
 }
 
 /**
@@ -203,7 +203,7 @@ export class Institution extends aInstitution implements IInstitution {
      * Add a mapping to this institution.
      * @returns {Institution} Returns this object for chaining.
      */
-    addMapping(fromField: string, toField: keyof ITransaction, mapType: MapTypes): Institution {
+    addMapping(fromField: string, toField: keyof ITransaction|undefined, mapType: MapTypes): Institution {
         this.mappings.add(new InstitutionMapping().update({fromField, toField, mapType}));
         return this;
     }

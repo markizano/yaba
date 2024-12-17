@@ -66,7 +66,7 @@ export class InstitutionsComponent {
 
     // User wants to edit an institution.
     edit(institution: Institution): void {
-        this.institution = institution;
+        this.institution.update(institution);
         this.formVisible = true;
         console.log('Editing institution: ', institution);
     }

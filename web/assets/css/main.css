@@ -505,10 +505,6 @@ wishlist-item {
 }
 
 
-.drop-zone-active {
-    border: 5px #11F dotted;
-}
-
 .yaba-form {
     display: flex;
     flex-direction: column;
@@ -698,6 +694,10 @@ save, .save {
     display: inline-flex;
     line-height: 1.2rem;
     margin: 5px;
+}
+
+.drop-zone-active {
+    border: 5px #11F dotted !important;
 }
 
 /* My Angular Customizations/Overrides */
