@@ -74,7 +74,9 @@ export class InstitutionsComponent {
         this.reset();
     }
 
-    // User clicked cancel button.
+    /**
+     * User clicked cancel button.
+     */
     cancel(): void {
         this.close();
         this.reset();
