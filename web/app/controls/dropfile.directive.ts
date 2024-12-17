@@ -69,31 +69,32 @@ export class YabaDropFileDirective {
 
     @HostListener('dragover', ['$event'])
     onDragOver(event: DragEvent) {
-        if ( typeof event.preventDefault !== 'undefined')
-            event.preventDefault();
+        if ( typeof event.preventDefault !== 'undefined') event.preventDefault();
+        if ( typeof event.stopPropagation !== 'undefined' ) event.stopPropagation();
         this.active = true;
     }
 
     @HostListener('dragleave', ['$event'])
     onDragLeave(event: DragEvent) {
-        if ( typeof event.preventDefault !== 'undefined')
-            event.preventDefault();
-        this.active = false;
+    if ( typeof event.preventDefault !== 'undefined') event.preventDefault();
+    if ( typeof event.stopPropagation !== 'undefined' ) event.stopPropagation();
+    this.active = false;
     }
 
     @HostListener('body:dragover', ['$event'])
     onBodyDragOver(event: DragEvent) {
         if (this.preventBodyDrop) {
-            if ( typeof event.preventDefault !== 'undefined')
-                event.preventDefault();
+            if ( typeof event.preventDefault !== 'undefined') event.preventDefault();
+            if ( typeof event.stopPropagation !== 'undefined' ) event.stopPropagation();
         }
+        this.active = true;
     }
 
     @HostListener('body:drop', ['$event'])
     onBodyDrop(event: DragEvent) {
         if (this.preventBodyDrop) {
-            if ( typeof event.preventDefault !== 'undefined')
-                event.preventDefault();
+            if ( typeof event.preventDefault !== 'undefined') event.preventDefault();
+            if ( typeof event.stopPropagation !== 'undefined' ) event.stopPropagation();
         }
     }
 }

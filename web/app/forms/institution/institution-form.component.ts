@@ -110,9 +110,11 @@ export class InstitutionFormComponent {
      * Trigger target events to notify the parent component of the changes.
      */
     addMapping(): void {
-        if ( this.fields.length -1 > this.institution.mappings.length ) {
-            this.institution.addMapping('', 'description', MapTypes.value);
+        if ( this.fields.length > 0 ) {
+            this.institution.addMapping('', undefined, MapTypes.dynamic);
             this.institutionChange.emit(this.institution);
+        } else {
+            console.log('No more institution fields permitted.');
         }
         this.getTransactionFields();
     }
@@ -122,8 +124,9 @@ export class InstitutionFormComponent {
      */
     removeMapping(i: number): void {
         const removed = this.institution.mappings.splice(i, 1);
-        console.log(`InstitutionFormComponent().removeMapping(): Removed mapping ${removed} from the list of mappings.`);
         this.institutionChange.emit(this.institution);
+        this.getTransactionFields();
+        console.log(`InstitutionFormComponent().removeMapping(): Removed mapping ${removed} from the list of mappings.`);
     }
 
     /**
@@ -145,7 +148,7 @@ export class InstitutionFormComponent {
     // User dropped a file on the form.
     parseCSVFiles($event: File[]): void {
         Institutions.csvHandler($event).then((csvHeaders: string[]) => {
-            this.institution.mappings = InstitutionMappings.fromList(csvHeaders.map((m) => InstitutionMapping.fromObject({ fromField: m, mapType: MapTypes.value })));
+            this.institution.mappings = InstitutionMappings.fromList(csvHeaders.map((m) => InstitutionMapping.fromObject({ fromField: m, mapType: MapTypes.dynamic })));
             this.institutionChange.emit(this.institution);
         });
     }
