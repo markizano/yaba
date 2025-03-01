@@ -1,11 +1,11 @@
 <div class="transaction-list-wrapper">
-    <!-- <div class="debug">
-        Filters: {{ filtation(filters) }}<br />
-        Transactions: {{ transactions.length }}<br />
+    <div class="debug">
+        Filters: {{ filtration(filters) }}<br />
         Txns: {{ txns.length }}<br />
-    </div> -->
-@if ( showFilters ){ <transaction-filters [transactions]="transactions" [(filter)]="filters" (filterChange)="filtersChange.emit($event)" (filteredTransactions)="postFilter($event)"></transaction-filters> }
+    </div>
+@if ( showFilters ){ <transaction-filters [(filter)]="filters" (filterChange)="filtersChange.emit($event)"></transaction-filters> }
 @if ( selected.length > 0 ) {
+    <!-- @TODO: Convert this to a <bulk-action /> component -->
     <div class="selected-transactions" @fade-slide-down>
         <h3>Selected Transactions ( {{selected.length}} )</h3>
         <tag-txns (tags)="tagTxns($event)" (cancel)="cancelSelected()" title="Add a tag to {{ selected.length }} transactions."></tag-txns>
@@ -45,7 +45,7 @@
         </tbody>
     </table>
 }
-@if ( showPaginate && transactions.length > 10 ) {
+@if ( showPaginate && txns.length > 10 ) {
     <mat-paginator 
         (page)="turnPage($event)"
         [length]="txns.length"

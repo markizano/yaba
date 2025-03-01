@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Account, Accounts } from 'app/lib/accounts';
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
-import { Institution } from 'app/lib/institutions';
+import { Transactions } from 'app/lib/transactions';
 import { TransactionShowHeaders } from 'app/lib/types';
 import { AccountsService } from 'app/services/accounts.service';
 import { InstitutionsService } from 'app/services/institutions.service';
@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 
 /**
  * This component is responsible for displaying the details of a single account.
+ * It accepts a CSV file as a drop target to import transactions.
  */
 @Component({
     selector: 'yaba-account',
@@ -27,22 +28,20 @@ export class AccountDetailComponent {
         merchant: true,
         transactionType: true
     };
+    editing: boolean = false;
+    accountTypes = Account.Types();
     errors: string[] = [];
-
-    // @TODO: Add form headers/variables.
-
     #cacheUpdate?: Subscription;
 
     constructor(protected router: Router, protected institutionsService: InstitutionsService, protected accountsService: AccountsService) {
         console.log('AccountDetailComponent constructor');
-        this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
-        this.filters.accounts = undefined;
     }
 
     ngOnInit() {
         console.log('AccountDetailComponent() ngOnInit()');
         const update = (accounts: Accounts) => {
             this.errors.length = 0;
+            this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
             this.accounts = accounts;
             try {
                 const account = this.accounts.byId(this.id);
@@ -69,13 +68,48 @@ export class AccountDetailComponent {
         this.#cacheUpdate?.unsubscribe();
     }
 
-    async parseCSVFIles($event: File[]) {
-        const txns = await Accounts.parseCSVFiles(this.account, $event, <Institution>this.institutionsService.get().byId(this.account.institutionId), this.errors);
-        console.log('parseCSVFiles() txns: ', this.account, txns);
-        this.account.transactions.add(...txns);
-        this.account.transactions.sorted();
-        this.accountsService.save(this.accounts);
+    parseCSVFiles($event: File[]) {
+        const institution = this.institutionsService.get().byId(this.account.institutionId);
+        if ( !institution ) {
+            throw new Error(`Institution ${this.account.institutionId} not found.`);
+        }
+        Accounts.parseCSVFiles(this.account, $event, institution, this.errors).then((txns: Transactions) => {
+            console.log('parseCSVFiles() txns: ', this.account, txns);
+            this.account.transactions.add(...txns);
+            this.account.transactions.sorted();
+            this.accounts.byId(this.id)?.update(this.account);
+            this.accountsService.save(this.accounts);
+        }).catch((e) => {
+            console.error('Error parsing CSV files', e);
+            this.errors.push(<string>e);
+        });
     }
 
-    // @TODO: Add form functions.
+    /**
+     * Save the account changes.
+     */
+    save(): void {
+        console.log('AccountDetailComponent() save()');
+        this.accounts.byId(this.id)?.update(this.account);
+        this.accountsService.save(this.accounts);
+        this.editing = false;
+    }
+
+    /**
+     * Cancel the account changes.
+     */
+    cancel(): void {
+        console.log('AccountDetailComponent() cancel()');
+        this.editing = false;
+    }
+
+    /**
+     * Delete the account.
+     */
+    remove(): void {
+        console.log('AccountDetailComponent() delete()');
+        this.accounts.remove(this.id);
+        this.accountsService.save(this.accounts);
+        this.router.navigate(['/accounts']);
+    }
 }

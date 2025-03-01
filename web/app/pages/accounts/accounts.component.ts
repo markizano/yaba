@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -7,7 +7,6 @@ import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { Accounts, Account } from 'app/lib/accounts';
 import { AccountsService } from 'app/services/accounts.service';
 import { InstitutionsService } from 'app/services/institutions.service';
-import { Transactions } from 'app/lib/transactions';
 
 @Component({
   selector: 'app-accounts',
@@ -16,26 +15,23 @@ import { Transactions } from 'app/lib/transactions';
 export class AccountsComponent {
     accounts = new Accounts();
     account = new Account();
-    tview: Transactions[] = [];
 
     // Form controls.
     formVisible = false;
-    filters = EMPTY_TRANSACTION_FILTER;
+    filters = Object.assign(EMPTY_TRANSACTION_FILTER, {limit: 5, fromDate: new Date('2000-01-01 00:00:00 UTC')});
     errors: string[] = [];
 
     #cacheUpdate?: Subscription;
 
-    constructor( protected router: Router, protected institutionsService: InstitutionsService, protected accountsService: AccountsService) {
+    constructor( protected router: Router, protected institutionsService: InstitutionsService, protected accountsService: AccountsService, protected chgDet: ChangeDetectorRef) {
         console.log('new AccountsComponent()');
-        this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
     }
 
     ngOnInit() {
         console.log('AccountsComponent().ngOnInit()');
         const update = (accounts: Accounts) => {
             console.log('AccountsComponent().#sub.update()');
-            this.accounts = Accounts.fromList(accounts);
-            this.tview = accounts.map((a) => a.transactions.sorted().sample());
+            this.accounts = accounts;
         };
         update(this.accountsService.get());
         this.#cacheUpdate = this.accountsService.subscribe(update);
@@ -115,15 +111,17 @@ export class AccountsComponent {
      * Because this function is used in both account details and account listing page,
      * it's attached to the Accounts class.
      */
-    async parseCSVFiles(account: Account, $event: File[]) {
+    parseCSVFiles(account: Account, $event: File[]) {
         const institution = this.institutionsService.get().byId(account.institutionId);
         if ( institution === undefined ) {
             throw new Error(`Institution not found for account: ${account.id}`);
         }
-        const txns = await Accounts.parseCSVFiles(account, $event, institution, this.errors);
-        console.log('AccountsComponent().parseCSVFiles() txns: ', txns);
-        account.transactions.add(...txns);
-        console.debug('AccountsComponent().parseCSVFiles() saving accounts: ', this.accounts);
-        this.save(account);
+        Accounts.parseCSVFiles(account, $event, institution, this.errors).then((txns) => {
+            console.log('AccountsComponent().parseCSVFiles() txns: ', txns);
+            account.transactions.add(...txns);
+            console.debug('AccountsComponent().parseCSVFiles() saving accounts: ', this.accounts);
+            this.save(account);
+            this.chgDet.detectChanges();
+        });
     }
 }

@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { AccountTypes, Account } from 'app/lib/accounts';
+import { Account } from 'app/lib/accounts';
 import { Institutions } from 'app/lib/institutions';
-import { NgSelectable } from 'app/lib/types';
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
 import { InstitutionsService } from 'app/services/institutions.service';
@@ -27,7 +26,7 @@ export class AccountFormComponent {
     @Output() cancel = new EventEmitter<void>();
 
     institutions = new Institutions();
-    accountTypes = this.getAccountTypes();
+    accountTypes = Account.Types();
 
     // User feedback.
     errors: string[] = [];
@@ -50,10 +49,6 @@ export class AccountFormComponent {
         console.log('AccountFormComponent().ngOnDestroy()');
         this.#cachedUpdates?.unsubscribe();
         this.reset();
-    }
-
-    getAccountTypes(): NgSelectable<AccountTypes>[] {
-        return Object.keys(AccountTypes).filter((x) => typeof x === 'string').map((y) => ({ label: y, value: AccountTypes[y as keyof typeof AccountTypes] }));
     }
 
     validate() {

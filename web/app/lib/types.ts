@@ -102,6 +102,7 @@ export type TransactionFilter = {
     accounts?: Account[]|Accounts;
     tags?: Tags;
     sort: TxnSortHeader;
-    page: PageEvent,
+    page: PageEvent;
+    limit?: number;
 };
 

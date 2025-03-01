@@ -17,7 +17,7 @@ export const CACHE_EXPIRY_SECONDS = 120;
 export const DEFAULT_DATERANGE = 90 * 24 * 60 * 60 * 1000;
 
 export const EMPTY_TRANSACTION_FILTER = <TransactionFilter>{
-    fromDate: new Date(Date.now() - Settings.fromLocalStorage().txnDelta ?? DEFAULT_DATERANGE),
+    fromDate: new Date(Date.now() - (Settings.fromLocalStorage().txnDelta ?? DEFAULT_DATERANGE)),
     toDate: new Date(),
     sort: { column: 'datePosted', asc: true },
     page: { pageIndex: 0, pageSize: 10, length: 0 },
