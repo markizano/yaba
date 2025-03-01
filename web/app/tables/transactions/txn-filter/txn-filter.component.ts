@@ -3,10 +3,10 @@ import { EventEmitter, Output } from '@angular/core';
 
 import { DateRange, DescriptionChange, TransactionFilter, Tags } from 'app/lib/types';
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
-import { Transaction, Transactions } from 'app/lib/transactions';
 import { Accounts } from 'app/lib/accounts';
 import { TagsFilterComponent } from 'app/controls/tags-filter.component';
 import { ControlsModule } from 'app/controls/controls.module';
+import { Subscription } from 'rxjs';
 
 /**
  * This is a glue component that combines the various filters into a single component
@@ -14,11 +14,13 @@ import { ControlsModule } from 'app/controls/controls.module';
  * 
  * In this way, you can <transaction-filters> and have a single event handler for all the filters.
  * Each time a filter component changes, the filter object will also change and allow subscriptions
- * to changes.
+ * to changes. Changes are bubbled up to the parent component thru this transitory component.
+ * 
+ * This is just a view to render the transaction filters to the end user. This is also input from
+ * the user to identify the filters. In this way, no transactions need to be filtered from here and
+ * can only transmit the filter object to the parent component.
  * 
  * @Input/@Output {TransactionFilter} filter - The filter object to be updated by the filters.
- * @Input {Transactions} transactions - The list of transactions after filtering. This is used
- *    to determine the list of budgets and accounts to display in the filters.
  */
 @Component({
     selector: 'transaction-filters',
@@ -30,28 +32,21 @@ import { ControlsModule } from 'app/controls/controls.module';
     ],
 })
 export class TransactionFilterComponent {
-    @Input() filter = EMPTY_TRANSACTION_FILTER;
+    @Input()  filter = EMPTY_TRANSACTION_FILTER;
     @Output() filterChange = new EventEmitter<TransactionFilter>();
-    @Input() transactions = new Transactions();
-    @Output() filteredTransactions = new EventEmitter<Transactions>();
-    filterByAccount: boolean;
+    filterByAccount: boolean = this.filter.accounts !== undefined;
     tags: Tags = [];
-
-    constructor() {
-        this.filter.description = '';
-        this.filter.tags = [];
-        this.filterByAccount = this.filter.accounts !== undefined;
-        this.filterChange.subscribe((filter: TransactionFilter) => {
-            this.filterByAccount = filter.accounts !== undefined;
-            this.filteredTransactions.emit(this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(filter, txn)));
-        });
-        this.filterChange.emit(this.filter);
-        this.filteredTransactions.subscribe((txns: Transactions) => this.tags = txns.getTags());
-    }
+    #subChg?: Subscription;
 
     ngOnInit() {
-        this.filteredTransactions.emit(this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(this.filter, txn)));
-        console.log('TransactionFilterComponent().ngOnInit()', this.transactions.length);
+        this.#subChg = this.filterChange.subscribe((filter: TransactionFilter) => {
+            this.filterByAccount = filter.accounts !== undefined;
+        });
+        console.log('TransactionFilterComponent().ngOnInit()');
+    }
+
+    ngOnDestroy() {
+        this.#subChg?.unsubscribe();
     }
 
     daterange($event: DateRange) {

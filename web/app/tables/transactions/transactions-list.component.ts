@@ -17,6 +17,8 @@ import { TransactionFilterComponent } from 'app/tables/transactions/txn-filter/t
 import { TxnRowComponent } from 'app/tables/transactions//txn-row/txn-row.component';
 import { TagTransactionsComponent } from 'app/tables/transactions/txn-tags/txn-tag.component';
 import { UntagTransactionComponent } from 'app/tables/transactions/txn-tags/txn-untag.component';
+import { Subscription } from 'rxjs';
+import { Accounts } from 'app/lib/accounts';
 
 /**
  * This component is a table that displays transactions. It can be filtered, sorted, and paginated.
@@ -46,9 +48,9 @@ export class TransactionsListComponent {
     addOnBlur = true;
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
-    @Input() transactions = new Transactions();
-    @Output() transactionsChange = new EventEmitter<Transactions>();
     @Output() budgets = new EventEmitter<Budgets>();
+
+    @Input() accountId?: string;
 
     /**
      * Show the filter controls at the top of the table
@@ -81,23 +83,24 @@ export class TransactionsListComponent {
      */
     @Input() editable = false;
 
-    txns = this.transactions ?? new Transactions();
+    txns = new Transactions();
     page: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
     sort: TxnSortHeader = {column: 'datePosted', asc: true};
     selected = new Transactions();
+    #acctChg?: Subscription;
 
     constructor(protected accountsService: AccountsService, protected chgDet: ChangeDetectorRef) {
-        this.transactionsChange.subscribe((txns) => this.postFilter(txns));
+        console.log('new TransactionsListComponent()');
     }
 
     ngOnInit() {
-        if ( this.showFilters) {
-            this.txns = this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(this.filters, txn)).sortBy(this.sort.column, this.sort.asc);
-        } else {
-            this.txns = this.transactions.sortBy(this.sort.column, this.sort.asc);
-        }
-        this.budgets.emit( this.txns.getBudgets() );
-        this.page0();
+        console.log('TransactionsListComponent().ngOnInit()');
+        this.accountsChange(this.accountsService.get());
+        this.#acctChg = this.accountsService.subscribe((accounts: Accounts) => this.accountsChange(accounts));
+    }
+
+    ngOnDestroy() {
+        this.#acctChg?.unsubscribe();
     }
 
     /**
@@ -108,17 +111,29 @@ export class TransactionsListComponent {
     }
 
     /**
-     * Post filter, store a copy of the filtered, sorted transactions so we don't have to recalculate indexes.
-     * This function will take the place of this.refresh() where the filter changes occur.
+     * Anytime the accounts are updated, trigger a re-render of the transactions.
      */
-    postFilter(txns?: Transactions) {
-        console.log('TransactionListComponent().postFilter()', this.filters, txns?.length);
-        this.txns = txns ?? this.transactions.search((txn: Transaction) => this.transactions.searchTransaction(this.filters, txn)).sortBy(this.sort.column, this.sort.asc);
-        this.budgets.emit( this.txns.getBudgets() );
+    accountsChange(accounts: Accounts) {
+        console.log('TransactionListComponent().accountsChange()', { filters: this.filters, accts: accounts });
         this.page0();
+        if ( this.accountId ) {
+            const account = this.accountsService.get().byId(this.accountId);
+            if ( account ) {
+                this.txns = account.transactions.getTransactions(this.filters);
+            } else {
+                throw new Error(`Account ${this.accountId} not found.`);
+            }
+        } else {
+            this.txns = Transactions.fromList(this.accountsService.get().map(a => a.transactions.getTransactions(this.filters)).flat()).sorted();
+        }
+        this.budgets.emit( this.txns.getBudgets() );
     }
 
-    filtation(filters: TransactionFilter): string {
+    /**
+     * Just used for debugging.
+     * Render the filters for us to see in the dashboard.
+     */
+    filtration(filters: TransactionFilter): string {
         return JSON.stringify({
             fromDate: filters.fromDate,
             toDate: filters.toDate,
@@ -130,6 +145,9 @@ export class TransactionsListComponent {
         });
     }
 
+    /**
+     * Sort the transactions by the given header.
+     */
     sortBy(header: keyof Transaction): void {
         this.sort.asc = this.sort.column == header? !this.sort.asc: true;
         this.sort.column = header;
@@ -137,12 +155,18 @@ export class TransactionsListComponent {
         this.page0();
     }
 
+    /**
+     * Tag the selected transactions with the given tag.
+     */
     tagTxns(tag: string): void {
         this.selected.setTag(tag);
         this.selected = new Transactions();
         this.budgets.emit( this.txns.getBudgets() );
     }
 
+    /**
+     * Untag the selected transactions with the given tag.
+     */
     untagTxns(tags: string[]): void {
         console.log('untag-txns', tags);
         tags.forEach(tag => this.selected.removeTag(tag));
@@ -150,15 +174,22 @@ export class TransactionsListComponent {
         this.budgets.emit( this.txns.getBudgets() );
     }
 
+    /**
+     * Delete the given transaction.
+     */
     deleteTxn(txn: Transaction): void {
         if ( this.editable ) {
             console.log('delete-txn', txn);
-            this.transactions.remove(txn);
-            this.transactionsChange.emit(this.transactions);
-            this.chgDet.detectChanges();
+            this.txns.remove(txn);
+            this.accountsService.get().byId(txn.accountId)?.transactions.remove(txn);
+            this.accountsService.save(this.accountsService.get());
+            this.budgets.emit( this.txns.getBudgets() );
         }
     }
 
+    /**
+     * Deletes all selected transactions.
+     */
     deleteSelected(): void {
         if ( this.editable ) {
             console.log('delete-selected', this.selected);
@@ -176,6 +207,9 @@ export class TransactionsListComponent {
         this.selected = new Transactions();
     }
 
+    /**
+     * Return to page 0.
+     */
     page0() {
         this.turnPage({pageIndex: 0, pageSize: this.page.pageSize, length: this.txns.length});
     }

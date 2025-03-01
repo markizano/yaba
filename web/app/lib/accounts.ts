@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
 import { ITransaction, Transactions } from 'app/lib/transactions';
-import { Id2NameHashMap, TransactionFilter, YabaPlural } from 'app/lib/types';
+import { Id2NameHashMap, NgSelectable, TransactionFilter, YabaPlural } from 'app/lib/types';
 import { Institution } from './institutions';
 
 /**
@@ -71,6 +71,13 @@ export class Account extends oAccount implements IAccount {
      */
     static fromObject(obj: IAccount): Account {
         return new Account().update(obj);
+    }
+
+    /**
+     * Gimmie a list of account types I can use in the drop-down for what kind of account type to choose.
+     */
+    static Types(): NgSelectable<AccountTypes>[] {
+        return Object.keys(AccountTypes).filter((x) => typeof x === 'string').map((y) => ({ label: y, value: AccountTypes[y as keyof typeof AccountTypes] }));
     }
 
     /**
