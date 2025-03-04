@@ -20,7 +20,7 @@ export class AccountDetailComponent {
     @Input() id = this.router.url.split('/').pop() ?? '';
     accounts = new Accounts();
     account = new Account();
-    filters = EMPTY_TRANSACTION_FILTER;
+    filters = Object.assign(EMPTY_TRANSACTION_FILTER, {fromDate: new Date('2000-01-01 00:00:00 UTC')});
     txShow = <TransactionShowHeaders>{
         id: false,
         account: true,
@@ -41,7 +41,6 @@ export class AccountDetailComponent {
         console.log('AccountDetailComponent() ngOnInit()');
         const update = (accounts: Accounts) => {
             this.errors.length = 0;
-            this.filters.fromDate = new Date('2000-01-01 00:00:00 UTC');
             this.accounts = accounts;
             try {
                 const account = this.accounts.byId(this.id);
