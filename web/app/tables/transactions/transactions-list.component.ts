@@ -24,7 +24,7 @@ import { Accounts } from 'app/lib/accounts';
  * This component is a table that displays transactions. It can be filtered, sorted, and paginated.
  * 
  * @example
- * <yaba-transaction-list [transactions]="transactions" [filters]="filters" [showFilters]="true" [showPaginate]="true" [editable]="true" [showTags]="true"></yaba-transaction-list>
+ * <yaba-transaction-list [accountId]="account.id" [filters]="filters" [showFilters]="true" [showPaginate]="true" [editable]="true" [showTags]="true"></yaba-transaction-list>
  */
 @Component({
     selector: 'yaba-transaction-list',
@@ -156,6 +156,20 @@ export class TransactionsListComponent {
     }
 
     /**
+     * Handles selection event.
+     * If checked, add to the selection list.
+     * If unchecked, remove from the list.
+     */
+    selectionHandler(checked: boolean, txn: Transaction): void {
+        console.log(`TransactionListComponent().select(${checked})`, txn);
+        if ( checked ) {
+            this.selected.add(txn);
+        } else {
+            this.selected.remove(txn);
+        }
+    }
+
+    /**
      * Tag the selected transactions with the given tag.
      */
     tagTxns(tag: string): void {
@@ -198,6 +212,16 @@ export class TransactionsListComponent {
             });
             this.selected = new Transactions();
         }
+    }
+
+    /**
+     * Edit the given transaction.
+     */
+    editTxn(txn: Transaction): void {
+        console.log('TransactionListComponent().editTxn()', txn);
+        this.accountsService.get().byId(txn.accountId)?.transactions.byId(txn.id)?.update(txn)
+        this.accountsService.save(this.accountsService.get());
+        this.budgets.emit( this.txns.getBudgets() );
     }
 
     /**

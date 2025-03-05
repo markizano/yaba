@@ -22,6 +22,7 @@ import { TxnFieldComponent } from 'app/tables/transactions/txn-field/txn-field.c
 export class TxnRowComponent {
     @Input() txn = new Transaction();
     @Output() txnChange = new EventEmitter<Transaction>();
+    // Backup transaction if we decide to cancel the edit.
     #bTxn = new Transaction();
 
     @Output() drop = new EventEmitter<Transaction>();
@@ -59,23 +60,16 @@ export class TxnRowComponent {
     }
 
     edit() {
-        if ( this.editable ) {
-            this.selected.emit(this.select = false);
-            // create a backup transaction with a different JS reference.
-            this.#bTxn = Transaction.fromObject(this.txn);
-            this.editing = true;
-        }
+        // create a backup transaction with a different JS reference.
+        this.#bTxn = Transaction.fromObject(this.txn);
+        this.editing = true;
     }
 
     dropTxn() {
-        if ( this.editable ) {
-            this.drop.emit(this.txn);
-        }
+        this.drop.emit(this.txn);
     }
 
     selectTxn(selected: boolean) {
-        if ( this.editable ) {
-            this.selected.emit(selected);
-        }
+        this.selected.emit(selected);
     }
 }

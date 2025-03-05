@@ -34,11 +34,12 @@
     @for(row of genRows(); track row) {
         <tr class="yaba-txn-row" @fade-slide-down
           [select]="selected.has(txns[row])"
-          [(txn)]="txns[row]"
+          [txn]="txns[row]"
+          (txnChange)="editTxn($event)"
           [truncate]="truncate"
           [editable]="editable"
           (drop)="deleteTxn(txns[row])"
-          (selected)="$event && selected.add(txns[row]) || selected.remove(txns[row])"
+          (selected)="selectionHandler($event, txns[row])"
           (budgets)="budgets.emit( txns.getBudgets() )"
           ></tr>
     }
