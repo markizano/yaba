@@ -18,7 +18,6 @@ import { TxnRowComponent } from 'app/tables/transactions//txn-row/txn-row.compon
 import { TagTransactionsComponent } from 'app/tables/transactions/txn-tags/txn-tag.component';
 import { UntagTransactionComponent } from 'app/tables/transactions/txn-tags/txn-untag.component';
 import { Subscription } from 'rxjs';
-import { Accounts } from 'app/lib/accounts';
 
 /**
  * This component is a table that displays transactions. It can be filtered, sorted, and paginated.
@@ -95,8 +94,8 @@ export class TransactionsListComponent {
 
     ngOnInit() {
         console.log('TransactionsListComponent().ngOnInit()');
-        this.accountsChange(this.accountsService.get());
-        this.#acctChg = this.accountsService.subscribe((accounts: Accounts) => this.accountsChange(accounts));
+        this.accountsChange();
+        this.#acctChg = this.accountsService.subscribe(() => this.accountsChange());
     }
 
     ngOnDestroy() {
@@ -113,8 +112,8 @@ export class TransactionsListComponent {
     /**
      * Anytime the accounts are updated, trigger a re-render of the transactions.
      */
-    accountsChange(accounts: Accounts) {
-        console.log('TransactionListComponent().accountsChange()', { filters: this.filters, accts: accounts });
+    accountsChange() {
+        console.log('TransactionListComponent().accountsChange()', { filters: this.filters });
         this.page0();
         if ( this.accountId ) {
             const account = this.accountsService.get().byId(this.accountId);
@@ -151,8 +150,8 @@ export class TransactionsListComponent {
     sortBy(header: keyof Transaction): void {
         this.sort.asc = this.sort.column == header? !this.sort.asc: true;
         this.sort.column = header;
-        this.txns = this.txns.sortBy(this.sort.column, this.sort.asc);
         this.page0();
+        this.accountsChange();
     }
 
     /**
