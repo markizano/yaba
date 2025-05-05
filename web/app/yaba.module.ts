@@ -15,6 +15,7 @@ import { DevelopComponent } from 'app/pages/develop/develop.component';
 // import { SessionManagementService } from './session.service';
 import { HttpClientModule } from '@angular/common/http';
 import { ControlsModule } from 'app/controls/controls.module';
+import { ProspectingModule } from './pages/prospecting/prospecting.module';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { ControlsModule } from 'app/controls/controls.module';
     InstitutionsModule,
     AccountsModule,
     ChartsModule,
+    ProspectingModule,
     BudgetingModule,
     SettingsModule,
     DevelopComponent,

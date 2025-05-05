@@ -384,6 +384,14 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
     }
 
     /**
+     * Average out the transactions in this list.
+     * @returns {number} Average of the transactions.
+     */
+    average(): number {
+        return this.sum() / this.length;
+    }
+
+    /**
      * Remove a tag from this set of transactions.
      * @param {string} tag The tag to remove from this set of transactions.
      */

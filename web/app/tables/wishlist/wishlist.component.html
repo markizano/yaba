@@ -1,0 +1,34 @@
+<div layout="row">
+    <table class="data item-list">
+        <thead>
+            <th>Desired Purchase Date</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </thead>
+        <tbody>
+@for ( txn of wishlist; track txn ) {
+            <tr class="slide-down">
+                <td> {{ txn.datePosted | date:'yyyy-MM-dd' }}&nbsp;</td>
+                <td> {{ txn.amount | currency }}&nbsp;</td>
+                <td> {{ txn.description }}&nbsp;</td>
+                <td>
+                    <edit ng-click="edit($index)" class="small-icon"></edit>&nbsp;
+                    <trash ng-click="remove($index)" class="small-icon"></trash>
+                </td>
+            </tr>
+}
+        </tbody>
+    </table>
+    <div layout="column">
+        <label for="description">I want to buy </label><input type="text" placeholder="(Product) e.g. PlayStation" ng-model="description" />
+        <label for="amount">which costs $</label><input type="number" placeholder="0.00" ng-model="amount" />
+        <label for="date"> &nbsp; by &nbsp;</label><input type="date" ng-model="datePurchase" />
+        <div ng-switch on="mode" layout="row">
+            <add ng-switch-when="add" ng-click="add();"></add>
+            <close ng-switch-when="edit" ng-click="cancel();"></close>
+            <save ng-switch-when="edit" ng-click="save();"></save>
+        </div>
+        <input type="hidden" ng-model="$index" />
+    </div>
+</div>

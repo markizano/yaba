@@ -5,5 +5,4 @@ import { Component } from '@angular/core';
     selector: 'app-root',
     templateUrl: './yaba.component.html',
 })
-export class YabaComponent {
-}
+export class YabaComponent { }
