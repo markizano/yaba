@@ -5,6 +5,7 @@ import { Transactions } from 'app/lib/transactions';
 @Component({
   selector: 'yaba-prospecting',
   templateUrl: './prospecting.component.html',
+  standalone: false,
 })
 export class ProspectingComponent {
     prospect: Transactions = new Transactions();

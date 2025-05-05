@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'yaba-account',
     templateUrl: './account.component.html',
+    standalone: false,
 })
 export class AccountDetailComponent {
     @Input() id = this.router.url.split('/').pop() ?? '';

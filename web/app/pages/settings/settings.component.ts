@@ -21,6 +21,7 @@ type TagType = 'incomeTags' | 'expenseTags' | 'transferTags' | 'hideTags';
 @Component({
     selector: 'yaba-settings',
     templateUrl: './settings.component.html',
+    standalone: false,
 })
 export class SettingsComponent {
     title = 'Settings';

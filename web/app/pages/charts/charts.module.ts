@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 
 import { ChartsComponent } from 'app/pages/charts/charts.component';
 import { ControlsModule } from 'app/controls/controls.module';
+import { TransactionsModule } from 'app/transactions/transactions.module';
 
 
 @NgModule({
@@ -10,6 +11,7 @@ import { ControlsModule } from 'app/controls/controls.module';
   ],
   imports: [
     ControlsModule,
+    TransactionsModule,
   ],
   exports: [
     ChartsComponent,

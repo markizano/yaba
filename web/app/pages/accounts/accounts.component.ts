@@ -11,6 +11,7 @@ import { InstitutionsService } from 'app/services/institutions.service';
 @Component({
   selector: 'app-accounts',
   templateUrl: './accounts.component.html',
+  standalone: false,
 })
 export class AccountsComponent {
     accounts = new Accounts();

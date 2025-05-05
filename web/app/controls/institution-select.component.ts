@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { NgSelectComponent } from "@ng-select/ng-select";
 import { Institution, Institutions } from "app/lib/institutions";
 import { InstitutionsService } from "app/services/institutions.service";
 import { Subscription } from "rxjs";
@@ -9,6 +10,9 @@ import { Subscription } from "rxjs";
 @Component({
     selector: 'institution-select',
     templateUrl: './institution-select.component.html',
+    imports: [
+        NgSelectComponent
+    ],
 })
 export class InstitutionSelectComponent {
     @Input() required = false;

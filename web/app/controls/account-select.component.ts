@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output } from "@angular/core";
+import { NgSelectComponent } from "@ng-select/ng-select";
 
 import { Account, Accounts } from "app/lib/accounts";
 import { AccountsService } from "app/services/accounts.service";
@@ -15,6 +16,9 @@ import { Subscription } from "rxjs";
 @Component({
     selector: 'yaba-accounts',
     templateUrl: './account-select.component.html',
+    imports: [
+        NgSelectComponent
+    ]
 })
 export class AccountsSelectComponent {
     accounts = new Accounts();

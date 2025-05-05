@@ -13,7 +13,7 @@ import { SettingsModule } from 'app/pages/settings/settings.module';
 import { DevelopComponent } from 'app/pages/develop/develop.component';
 
 // import { SessionManagementService } from './session.service';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ControlsModule } from 'app/controls/controls.module';
 import { ProspectingModule } from './pages/prospecting/prospecting.module';
 
@@ -28,7 +28,6 @@ import { ProspectingModule } from './pages/prospecting/prospecting.module';
 
     // Yaba Modules and global standalone components.
     YabaRoutingModule,
-    HttpClientModule,
     ControlsModule,
     MenuComponent,
 
@@ -41,9 +40,9 @@ import { ProspectingModule } from './pages/prospecting/prospecting.module';
     SettingsModule,
     DevelopComponent,
   ],
-//   providers: [
-//     SessionManagementService,
-//   ],
+  providers: [
+    provideHttpClient(withInterceptorsFromDi()),
+  ],
   bootstrap: [ YabaComponent ],
   exports: [
     YabaComponent,

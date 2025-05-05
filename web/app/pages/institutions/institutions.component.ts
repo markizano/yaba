@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'yaba-institutions',
     templateUrl: './institutions.component.html',
+    standalone: false,
 })
 export class InstitutionsComponent {
     // Local storage of the institutions list in this component.

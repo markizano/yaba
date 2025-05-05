@@ -18,22 +18,21 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 
-import { components } from 'app/controls/icons.component';
+import { directives } from 'app/controls/icons.component';
 
 @NgModule({
-    declarations: components,
     imports: [
         CommonModule,
         NgSelectModule,
         FormsModule,
+        directives,
     ],
-    providers: [ ],
     exports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         NgSelectModule,
-        ...components,
+        ...directives,
     ],
 })
 export class ControlsModule { }

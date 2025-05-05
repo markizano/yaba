@@ -114,7 +114,7 @@ import { DateRangeFilterComponent } from 'app/controls/daterange.component';
 import { DescriptionFilterComponent } from 'app/controls/description.component';
 import { AccountsSelectComponent } from 'app/controls/account-select.component';
 
-export const components = [
+export const directives = [
     ActionsDirective,
     AddDirective,
     CloseDirective,

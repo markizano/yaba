@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'yaba-budgeting',
     templateUrl: './budgeting.component.html',
+    standalone: false,
 })
 export class BudgetingComponent {
     txns = new Transactions();
