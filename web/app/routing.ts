@@ -8,6 +8,7 @@ import { AccountDetailComponent } from 'app/pages/accounts/account-detail/accoun
 import { InstitutionsComponent } from 'app/pages/institutions/institutions.component';
 import { SettingsComponent } from 'app/pages/settings/settings.component';
 import { ChartsComponent } from 'app/pages/charts/charts.component';
+import { ProspectingComponent } from 'app/pages/prospecting/prospecting.component';
 import { DevelopComponent } from 'app/pages/develop/develop.component';
 
 export const routeConfig: Routes = [{
@@ -40,6 +41,10 @@ export const routeConfig: Routes = [{
     path: 'charts',
     title: 'Charts and Graphs',
     component: ChartsComponent,
+}, {
+    path: 'prospect',
+    title: 'Planning and Prospecting',
+    component: ProspectingComponent,
 }, {
     path: 'settings',
     title: 'Settings',
