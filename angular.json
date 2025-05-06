@@ -54,12 +54,16 @@
               "outputHashing": "all"
             },
             "development": {
-              "buildOptimizer": false,
-              "optimization": false,
-              "vendorChunk": true,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true
+                "sourceMap": false,
+                "optimization": false,
+                "outputHashing": "none",
+                "namedChunks": false,
+                "aot": true,
+                "extractLicenses": false,
+                "statsJson": false,
+                "progress": false,
+                "vendorChunk": true,
+                "buildOptimizer": false
             }
           },
           "defaultConfiguration": "development"
