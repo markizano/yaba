@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { GoogleChartsModule } from 'angular-google-charts';
 
 import { ChartsComponent } from 'app/pages/charts/charts.component';
 import { ControlsModule } from 'app/controls/controls.module';
@@ -14,6 +15,7 @@ import { TransactionFilterComponent } from 'app/tables/transactions/txn-filter/t
     ControlsModule,
     TransactionsModule,
     TransactionFilterComponent,
+    GoogleChartsModule,
   ],
   exports: [
     ChartsComponent,
