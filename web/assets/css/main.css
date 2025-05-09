@@ -499,6 +499,19 @@ wishlist-item {
     margin: 10px auto;
 }
 
+yaba-wishlist {
+    display: flex;
+    flex-direction: row;
+    border: 2px solid var(--border);
+    border-radius: 1rem;
+    box-shadow: 0.5rem 0.5rem var(--shadow);
+    padding: 1rem;
+    margin: 1rem auto;
+    div {
+        display: block;
+        margin: 0 auto;
+    }
+}
 
 .additional-fields {
     min-width: 400px;
@@ -689,7 +702,6 @@ save, .save {
     color: var(--text);
     font-size: 1.2rem;
     border-radius: 0.5rem;
-    padding: 0.3rem 0.8rem;
     box-shadow: var(--light-shadow) 5px 5px;
     display: inline-flex;
     line-height: 1.2rem;
