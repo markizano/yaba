@@ -6,6 +6,7 @@
             [(filters)]="filters"
             (budgets)="localBudgets($event)"
             [showFilters]="true"
+            [showPaginate]="true"
             [editable]="true"
         ></yaba-transaction-list>
         <yaba-budgets-table [budgets]="budgets" />

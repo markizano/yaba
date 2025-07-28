@@ -461,18 +461,18 @@ google-chart {
 
 
 /** Debugging **/
-debug {
+debug, .debug {
     display: block;
     max-width: 800px;
     max-height: 300px;
     overflow: auto;
     border: 2px solid blue;
-}
-debug span {
-    display: inline-block;
-    font-family: "Liberation Mono", "DejaVu Sans Mono", monospace;
-    font-size: 16px;
-    word-wrap: break-word;
+    span {
+        display: inline-block;
+        font-family: "Liberation Mono", "DejaVu Sans Mono", monospace;
+        font-size: 16px;
+        word-wrap: break-word;
+    }
 }
 
 /** Budget Panel **/
