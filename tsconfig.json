@@ -19,5 +19,10 @@
   },
   "include": [
     "window/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "karma.conf.js"
   ]
 }

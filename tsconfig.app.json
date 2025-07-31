@@ -11,4 +11,9 @@
   "include": [
     "web/**/*.d.ts"
   ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "karma.conf.js"
+  ]
 }

@@ -1,8 +1,8 @@
-import { DropfileDirective } from './dropfile.directive';
+import { YabaDropFileDirective } from './dropfile.directive';
 
-describe('DropfileDirective', () => {
+describe('YabaDropFileDirective', () => {
   it('should create an instance', () => {
-    const directive = new DropfileDirective();
+    const directive = new YabaDropFileDirective();
     expect(directive).toBeTruthy();
   });
 });
