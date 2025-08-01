@@ -6,7 +6,7 @@
         their CSV/Excel formats and Yaba representation of transactions.
         Your institutions and their CSV associations are listed below.
     </p>
-    <add (click)="add()" class="right"></add><br clear="all" />
+    <add (click)="add()" class="right helper" helper="Click to add a new institution"></add><br clear="all" />
     <div class="institution-list yaba-list-wrapper">
 @for( institution of institutions; let i = $index; track institution.id ) {
         <div class="institution yaba-item">

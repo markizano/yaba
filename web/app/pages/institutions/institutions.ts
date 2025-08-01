@@ -6,7 +6,8 @@ import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'yaba-institutions',
-    templateUrl: './institutions.component.html',
+    templateUrl: './institutions.html',
+    styleUrls: ['./institutions.css'],
     standalone: false,
 })
 export class InstitutionsComponent {

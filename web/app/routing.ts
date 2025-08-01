@@ -4,7 +4,7 @@ import { HomeComponent } from 'app/pages/home/home.component';
 import { BudgetingComponent } from 'app/pages/budgeting/budgeting.component';
 import { AccountsComponent } from 'app/pages/accounts/accounts.component';
 import { AccountDetailComponent } from 'app/pages/accounts/account-detail/account.component';
-import { InstitutionsComponent } from 'app/pages/institutions/institutions.component';
+import { InstitutionsComponent } from 'app/pages/institutions/institutions';
 import { SettingsComponent } from 'app/pages/settings/settings.component';
 import { ChartsComponent } from 'app/pages/charts/charts.component';
 import { ProspectingComponent } from 'app/pages/prospecting/prospecting.component';
