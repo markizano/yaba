@@ -1,5 +1,4 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { Routes } from '@angular/router';
 
 import { HomeComponent } from 'app/pages/home/home.component';
 import { BudgetingComponent } from 'app/pages/budgeting/budgeting.component';
@@ -57,8 +56,3 @@ export const routeConfig: Routes = [{
     path: '**',
     redirectTo: '/'
 }];
-@NgModule({
-  imports: [ RouterModule.forRoot(routeConfig) ],
-  exports: [ RouterModule ],
-})
-export class YabaRoutingModule { }
