@@ -7,7 +7,6 @@ import { Settings } from "app/lib/settings";
 
 /**
  * This helped a lot in caching: https://borstch.com/blog/development/angulars-httpclient-caching-techniques
- * 
  */
 @Injectable()
 export abstract class BaseHttpService<Yabadaba extends Yabables> {

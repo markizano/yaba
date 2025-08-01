@@ -48,7 +48,6 @@
     "@angular/router": "^20.1.4",
     "@ng-select/ng-select": "^20.0.1",
     "@types/uuid": "^10.0.0",
-    "child_process": "^1.0.2",
     "copy-webpack-plugin": "^11.0.0",
     "file-saver": "^2.0.5",
     "google": "^2.1.0",
@@ -57,7 +56,6 @@
     "papaparse": "^5.4.1",
     "path-browserify": "^1.0.1",
     "rxjs": "^7.8.1",
-    "tslib": "^2.5.3",
     "uuid": "^9.0.0",
     "zone.js": "^0.15.0"
   },
@@ -87,7 +85,6 @@
     "eslint-plugin-prettier": "^5.5.3",
     "fork-ts-checker-webpack-plugin": "^7.3.0",
     "jasmine-core": "~4.6.0",
-    "jszip": "^3.10.1",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
@@ -97,10 +94,28 @@
     "style-loader": "^3.3.4",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "tslib": "^2.6.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
-    "uuid": "^9.0.1",
     "webpack-stream": "^7.0.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "moduleNameMapper": {
+      "^app/(.*)$": "<rootDir>/$1"
+    },
+    "rootDir": "web/app",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "app/**/*.(t|j)s"
+    ],
+    "coverageDirectory": "coverage",
+    "testEnvironment": "node"
   }
 }
