@@ -32,9 +32,9 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-                "papaparse",
-                "jszip",
-                "file-saver"
+              "papaparse",
+              "jszip",
+              "file-saver"
             ]
           },
           "configurations": {
@@ -54,16 +54,16 @@
               "outputHashing": "all"
             },
             "development": {
-                "sourceMap": false,
-                "optimization": false,
-                "outputHashing": "none",
-                "namedChunks": false,
-                "aot": true,
-                "extractLicenses": false,
-                "statsJson": false,
-                "progress": false,
-                "vendorChunk": true,
-                "buildOptimizer": false
+              "sourceMap": false,
+              "optimization": false,
+              "outputHashing": "none",
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": false,
+              "statsJson": false,
+              "progress": false,
+              "vendorChunk": true,
+              "buildOptimizer": false
             }
           },
           "defaultConfiguration": "development"
@@ -104,6 +104,15 @@
             ],
             "scripts": []
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "./web/**/*.ts",
+              "./web/**/*.html"
+            ]
+          }
         }
       }
     }
@@ -133,5 +142,10 @@
     "@schematics/angular:resolver": {
       "typeSeparator": "."
     }
+  },
+  "cli": {
+    "schematicCollections": [
+      "angular-eslint"
+    ]
   }
 }
