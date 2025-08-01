@@ -4,7 +4,7 @@
     top: 0;
     left: 0;
     height: 100vh;
-    background-color: var(--primary-dark);
+    background-color: var(--primary-lightest);
     color: var(--text);
     box-shadow: 2px 0 8px var(--shadow);
     transition: width 0.3s ease;
@@ -14,7 +14,7 @@
 
 /* Toolbar */
 .sidebar-toolbar {
-    background-color: var(--primary-darkest);
+    background-color: var(--primary-lightest);
     color: var(--text);
     height: 80px;
     padding: 0 16px;
@@ -61,7 +61,7 @@
 .app-title {
     font-size: 24px;
     font-weight: bold;
-    color: var(--complimentary-light);
+    color: var(--text);
     white-space: nowrap;
     overflow: hidden;
     transition: opacity 0.3s ease;
@@ -69,7 +69,7 @@
 }
 
 .toggle-button {
-    color: var(--complimentary-light);
+    color: var(--text);
     transition: all 0.3s ease;
     flex-shrink: 0;
 }
@@ -80,13 +80,13 @@
 
 .toggle-button:hover {
     background-color: var(--primary-light-trans);
-    color: var(--complimentary-lightest);
+    color: var(--text);
 }
 
 /* Navigation List */
 .sidebar-nav {
     padding: 16px 0;
-    background-color: var(--primary-dark);
+    background-color: var(--primary-lightest);
 }
 
 .nav-item {
@@ -99,7 +99,7 @@
 
 .nav-item:hover {
     background-color: var(--primary-light-trans);
-    color: var(--complimentary-light);
+    color: var(--text);
 }
 
 .nav-item.active-link {
@@ -125,7 +125,7 @@
     overflow: hidden;
     transition: opacity 0.3s ease;
     opacity: 1;
-    color: var(--complimentary-lightest);
+    color: var(--text);
 }
 
 /* Main Content */
