@@ -4,7 +4,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { YabaRoutingModule } from 'app/routing';
 import { YabaComponent } from 'app/yaba.component';
-import { MenuComponent } from 'app/menu/menu.component';
+import { MenuComponent } from 'app/menu/menu';
 import { InstitutionsModule } from 'app/pages/institutions/institutions.module';
 import { AccountsModule } from 'app/pages/accounts/accounts.module';
 import { ChartsModule } from 'app/pages/charts/charts.module';

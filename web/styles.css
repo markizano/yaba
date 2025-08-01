@@ -21,3 +21,94 @@ $theme: mat.define-theme((
 ));
 
 */
+
+/**
+ * Global content styling.
+ * https://paletton.com/#uid=4401m0krkuw7cUoj4ACuNkTNu6r
+ */
+
+:root {
+  /* Controls Colors */
+  --text: #000000;
+  --border: #000000;
+  --background: #EEEEF0;
+  --txn-list-header: #FFDA67;
+  --menu: #17157490;
+  --titlebar: #C2C1EF;
+  --active-border: #9A0626;
+  --links: #332700;
+  --link-hilite: #A67F06;
+  --shadow: #0302242F;
+  --light-shadow: #03022459;
+  --txn-odd: #FBC3CE50;
+  --txn-even: #DEFAC250;
+  --dropfile: #0583FA;
+  --helper: #FFEC77;
+  --form: #EEE;
+  --checked: #4F9606;
+  --save: #55D25D;
+  --cancel: #FF7A77;
+
+  /* General color pallete */
+  --primary-lightest-trans: #C2C1EF11;
+  --primary-lightest: #C2C1EF;
+  --primary-light-trans: #605EC011;
+  --primary-light: #605EC0;
+  --primary-normal-trans: #312EAA11;
+  --primary-normal: #312EAA;
+  --primary-dark-trans: #17157411;
+  --primary-dark: #171574;
+  --primary-darkest-trans: #03022411;
+  --primary-darkest: #030224;
+  --secondary-lightest-trans: #DEFAC211;
+  --secondary-lightest: #DEFAC2;
+  --secondary-light-trans: #A5EA5F11;
+  --secondary-light: #A5EA5F;
+  --secondary-normal-trans: #7EDB2011;
+  --secondary-normal: #7EDB20;
+  --secondary-dark-trans: #4E960611;
+  --secondary-dark: #4E9606;
+  --secondary-darkest-trans: #172E0011;
+  --secondary-darkest: #172E00;
+  --tertiary-lightest-trans: #FBC3CF11;
+  --tertiary-lightest: #FBC3CF;
+  --tertiary-light-trans: #EF617F11;
+  --tertiary-light: #EF617F;
+  --tertiary-normal-trans: #E1214A11;
+  --tertiary-normal: #E1214A;
+  --tertiary-dark-trans: #9A062611;
+  --tertiary-dark: #9A0626;
+  --tertiary-darkest-trans: #2F000A11;
+  --tertiary-darkest: #2F000A;
+  --complimentary-lightest-trans: #FFF1C611;
+  --complimentary-lightest: #FFF1C6;
+  --complimentary-light-trans: #FFDA6711;
+  --complimentary-light: #FFDA67;
+  --complimentary-normal-trans: #F3C02411;
+  --complimentary-normal: #F3C024;
+  --complimentary-dark-trans: #A67F0611;
+  --complimentary-dark: #A67F06;
+  --complimentary-darkest-trans: #33270011;
+  --complimentary-darkest: #332700;
+}
+/*** Default HTML Elements that need styles set. ***/
+
+b, .bold { font-weight: bold; }
+i, .italic { font-style: italic; }
+u, .underline { text-decoration: underline; }
+
+a {
+  color: var(--links);
+  text-decoration: none;
+}
+a:visited {
+  color: var(--links);
+}
+a:hover {
+  color: var(--link-hilite);
+  text-decoration: underline;
+}
+
+body {
+  font-family: "Sans", "Arial", "Calibri";
+}

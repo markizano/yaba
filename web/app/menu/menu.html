@@ -1,0 +1,39 @@
+<div class="sidebar-container" [class.expanded]="isExpanded" [style.width]="getSidebarWidth()">
+  <mat-toolbar class="sidebar-toolbar">
+    <div class="logo-container">
+      <img
+        src="/assets/images/logo.png"
+        alt="Yaba Logo"
+        class="logo"
+        (error)="onLogoError($event)" />
+      <span class="app-title" *ngIf="isExpanded">Yaba</span>
+    </div>
+    <button
+      mat-icon-button
+      class="toggle-button"
+      (click)="toggleSidebar()"
+      [attr.aria-label]="isExpanded ? 'Collapse sidebar' : 'Expand sidebar'">
+      <mat-icon>{{ isExpanded ? 'menu_open' : 'menu' }}</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <mat-nav-list class="sidebar-nav">
+    <a
+      mat-list-item
+      *ngFor="let route of routes; trackBy: trackByRoute"
+      [routerLink]="[route.path]"
+      routerLinkActive="active-link"
+      class="nav-item">
+      <mat-icon matListItemIcon class="nav-icon">
+        {{ getRouteIcon(route.path ?? '') }}
+      </mat-icon>
+      <span matListItemTitle *ngIf="isExpanded" class="nav-text">
+        {{ route.title }}
+      </span>
+    </a>
+  </mat-nav-list>
+</div>
+
+<div class="main-content" [style.margin-left]="getSidebarWidth()">
+  <ng-content></ng-content>
+</div>
