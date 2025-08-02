@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 
 import { InstitutionsComponent } from 'app/pages/institutions/institutions';
-import { InstitutionFormComponent } from 'app/forms/institution/institution-form.component';
+import { InstitutionFormComponent } from 'app/forms/institution/institution-form';
 import { ControlsModule } from 'app/controls/controls.module';
 
 

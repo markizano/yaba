@@ -2,7 +2,7 @@
 
 /* Main container styling */
 #institutions.controller {
-    border: 5px solid var(--border);
+    border: 0.25rem solid var(--border);
     border-radius: 1.2rem;
     box-shadow: var(--shadow) 15px 15px;
     background-color: var(--background);

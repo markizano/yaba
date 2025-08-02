@@ -1,0 +1,41 @@
+.mapping {
+    border: 1px solid var(--border);
+    display: block;
+    padding: 10px;
+    margin: 5px 5px 5px 20px;
+    line-height: 20px;
+    height: auto;
+    transition: all 400ms ease-in-out;
+    background-color: var(--background);
+    border-radius: 0.3rem;
+}
+
+.mapping-data {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.mapping label {
+    display: block;
+    margin: 8px 0;
+    font-weight: bold;
+    text-align: left;
+}
+
+.mapping input[type="text"] {
+    width: 99%;
+    margin-top: 5px;
+    font-size: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 0.3rem;
+    padding: 0.3rem;
+    box-shadow: var(--light-shadow) 2px 2px;
+}
+
+.mapping input[type="text"]:focus {
+    border: 2px solid var(--active-border);
+    box-shadow: var(--light-shadow) 3px 3px;
+}
+
+

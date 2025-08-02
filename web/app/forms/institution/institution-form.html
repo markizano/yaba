@@ -1,0 +1,41 @@
+<div class="yaba-institution-form yaba-form dropfile" (fileDrop)="parseCSVFiles($event)">
+    <div class="titlebar">
+        <h1>{{ institution.name || 'New' }} Institution</h1>
+        <close (click)="cancelForm.emit()"></close>
+    </div>
+    <form (ngSubmit)="saveChanges()">
+        <div class="institution-metadata">
+            <label for="name">Name: <input type="text" tabindex="1" name="name" [(ngModel)]="institution.name" required maxlength="64" /></label>
+            <label for="description">Description: <input type="text" tabindex="2" name="description" [(ngModel)]="institution.description" required maxlength="255" /></label>
+            <label for="addMapping">Mapping ( {{ institution.mappings.length }} ): <add name="addMapping" tabindex="3" (click)="addMapping()"></add></label>
+        </div>
+        <ul>
+@for(mapping of institution.mappings; track institution.mappings[index]; let index = $index) {
+            <li>
+                <yaba-institution-mapping
+                    [index]="index"
+                    [(mapping)]="institution.mappings[index]"
+                    [(fields)]="fields"
+                    (fieldsChange)="getTransactionFields()"
+                    (removeMapping)="removeMapping(index)"
+                    class="suave"
+                    ></yaba-institution-mapping>
+            </li>
+}
+        </ul>
+        <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
+        <div class="submission">
+            <input type="button"
+            tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +1 }}"
+            name="cancelBtn"
+            value="Cancel" (click)="doCancelForm()"
+            class="cancel" />
+        <input type="button"
+            name="saveBtn"
+            tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +2 }}"
+            value="Save Institution"
+            (click)="saveChanges()"
+            class="save" />
+        </div>
+    </form>
+</div>

@@ -450,40 +450,6 @@ yaba-wishlist {
 }
 
 
-.yaba-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 10px auto;
-    border: 2px solid var(--border);
-
-    position: absolute;
-    top: 5%;
-    left: 5%;
-    width: 85%;
-    height: auto;
-    padding: 20px 5px;
-    box-shadow: 1rem 1rem var(--shadow);
-    background: var(--form);
-    border-radius: 1.5rem;
-    transition: all 400ms ease-in-out;
-}
-
-.yaba-form form {
-    width: 90%;
-}
-
-.mapping {
-    border: 1px solid var(--border);
-    display: block;
-    padding: 5px;
-    margin: 5px 5px 5px 20px;
-    line-height: 20px;
-    height: auto;
-    transition: all 400ms ease-in-out;
-}
-
 /** Filter Controls box and control icons (view, edit, delete, new, etc...) **/
 yaba-accounts {
     display: inline-block;
@@ -545,11 +511,7 @@ add {
 close, no {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAA0lBMVEUA4AD/AAD/AQH/BAT/Bgb/Cgr/Fhb/GRn/Kyv/Li7/MTH/XV3/Y2P/ZWX/Zmb/amr/a2v/bW3/c3P/dHT/dXX/dnb/d3f/eHj/fHz/f3//hYX/hob/h4f/i4v/jo7/kZH/mpr/nJz/np7/xMT/ycn/y8v/zMz/zc3/zs7/z8//0ND/0tL/1NT/1dX/2Nj/2tr/29v/3d3/39//4OD/4eH/4uL/4+P/5+f/6ur/7Oz/8PD/8vL/9vb/9/f/+Pj/+fn/+vr/+/v//Pz//f3//v7///92xIZWAAAAAXRSTlMAQObYZgAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAG+SURBVFjDzZd9X4IwEMe9HkCzKEyTEk1Ns5TygbSycCDw/t9S5DAVGA4Pq/trtw+/L2M7bneZzF4NFoaQrhtWn4gADMOpORmw1bD6eAIAjgCAIgC/oQGA1UcRAHAEABwBAEnAAgCQhJQBByBWms2K6A0i/TAgiM4qumXpSjbg55hLCMyLysRyXWuiiBv+WGYBgvMV3XveU+gq9VXqf1wxAKHNaRB3Yfag9u3WBvbCNbvlaEIIUHqYUYLTrwJU+w71SBgAjDOUNMNfw1BVh/T9rqFJwAsQ8pq/BnM6NelopuUFbgAIUsfyv8Jfv9WRBOAHABRaPsHXtwrMYGTEabFNVnrSLrLDmRXp511jqf/sXUBywMnNm693JqeHyQFH1+OfXXg92wFQHa72YPYkJwUc3z5bztoh3MdsYjThbk4D0Nl+jNGB1KNKZ75TIHmhTFChjP2Zyl2C+52XgEBCMR7LvCmpNI1Iafb7JW9SBXlsOsGkahsvMjcgp4wI2UzrhjGKSesRF0ujsXmx1OtqzMXyD+7Gv68P8CUOvsjCl3n4QjMJYU/FdgrlPr7hwLc8+KYrhbYvnc41TPj15pvbvgCOA24xepvRuwAAAABJRU5ErkJggg==');
 }
-.yaba-form close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
+
 
 edit {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEUAAAAAAAD///+D3c/SAAAAAXRSTlMAQObYZgAAAN5JREFUOMvNk7sBBCEIBTGwg6OfTS4ngP5bOeEh4lZwJurIDn5Yoj9s9tzzabpXzLxjdL6CkRHjG0bkUJoAO1BpBBgCwJbDjCPj5wJDpwBwKmQoHAlWSkPwh3YuRr7axdphA1MAC/iupzRgCTeI6DyDvhQATQHQFAG6IkBXBOgK0pfCwaVwcCkcXAoHl2KBUuzj+8UEPOCBosCahWIDXvFGHZBhFwfwV24wUU0HjP4iut5u9hf5eHH1F+FddERSAPOspVnHzNG5iKqlKu1XXysrK5rQKe1oZc8Q/adf9Qd5Bzj5jcKSOAAAAABJRU5ErkJggg==');
@@ -645,22 +607,6 @@ save, .save {
 }
 
 /* My Angular Customizations/Overrides */
-.ng-fade, .fade { transition: all 400ms ease-in-out; transition-behavior: allow-discrete; }
-
-.suave { transition: all 400ms ease-in-out; transition-behavior: allow-discrete; }
-
-.ng-hide { opacity: 0; height: 0; visibility: hidden; }
-
-.wide {
-    width: 99%;
-}
-
-.md-truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 /* Removes invisible space in md-chips box where tags are listed */
 .mdc-evolution-chip-set__chips { display: inline-block !important; }
 .mat-mdc-chip-input { margin-left: 0 !important; }

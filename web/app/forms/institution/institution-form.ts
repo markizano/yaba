@@ -1,5 +1,5 @@
 /* Angular Definitions */
-import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener, ElementRef, inject, OnInit } from '@angular/core';
 
 /* YABA Definitions */
 import { YabaAnimations } from 'app/lib/animations';
@@ -9,11 +9,12 @@ import { ITransaction, Transaction } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 
 /* SubComponents */
-import { InstitutionMappingComponent } from 'app/forms/institution/institution-mapping.component';
+import { InstitutionMappingComponent } from 'app/forms/institution/institution-mapping';
 
 @Component({
     selector: 'yaba-institution-form',
-    templateUrl: './institution-form.component.html',
+    templateUrl: './institution-form.html',
+    styleUrls: ['./institution-form.css'],
     animations: [
         YabaAnimations.fadeSlideDown()
     ],
@@ -23,23 +24,22 @@ import { InstitutionMappingComponent } from 'app/forms/institution/institution-m
         InstitutionMappingComponent,
     ],
 })
-export class InstitutionFormComponent {
+export class InstitutionFormComponent implements OnInit {
     @Input() institution = new Institution();
     @Output() institutionChange = new EventEmitter<Institution>();
 
-    @Output() save = new EventEmitter<Institution>();
-    @Output() cancel = new EventEmitter<void>();
+    @Output() saveForm = new EventEmitter<Institution>();
+    @Output() cancelForm = new EventEmitter<void>();
 
     errors: string[] = []; // List of array messages to render to end-user.
     fields: NgSelectable<keyof ITransaction>[] = [];
+    protected $element = inject(ElementRef);
 
-    // Disable dropping on the body of the document. 
+    // Disable dropping on the body of the document.
     // This prevents the browser from loading the dropped files
     // using it's default behaviour if the user misses the drop zone.
     // Set this input to false if you want the browser default behaviour.
     preventBodyDrop = true;
-
-    constructor(protected $element: ElementRef) { }
 
     ngOnInit() {
         this.getTransactionFields();
@@ -75,7 +75,7 @@ export class InstitutionFormComponent {
     @HostListener('document:keydown', ['$event'])
     escKey($event: KeyboardEvent): void {
         if ( $event.key === 'Escape' ) {
-            this.cancelForm();
+            this.doCancelForm();
         }
         // If Ctrl+Enter is pressed, submit the form.
         if ( $event.ctrlKey && $event.key === 'Enter' ) {
@@ -88,9 +88,9 @@ export class InstitutionFormComponent {
      */
     getTransactionFields(): NgSelectable<keyof Transaction>[] {
         this.fields = Object.keys(new Transaction())
-          .filter((x) => typeof x === 'string' && !this.institution.mappings.hasToField(x as keyof ITransaction))
-          .map((key: string) => ({ label: key, value: key as keyof ITransaction }));
-          return this.fields;
+            .filter((x) => typeof x === 'string' && !this.institution.mappings.hasToField(x as keyof ITransaction))
+            .map((key: string) => ({ label: key, value: key as keyof ITransaction }));
+        return this.fields;
     }
 
     /**
@@ -101,7 +101,7 @@ export class InstitutionFormComponent {
     saveChanges(): void {
         if ( ! this.validate() ) return;
         this.institutionChange.emit(this.institution);
-        this.save.emit(this.institution);
+        this.saveForm.emit(this.institution);
         this.reset();
     }
 
@@ -123,6 +123,9 @@ export class InstitutionFormComponent {
      * Remove a mapping from the list of mappings.
      */
     removeMapping(i: number): void {
+        if ( i < 0 || i >= this.institution.mappings.length ) {
+            throw new Error(`InstitutionFormComponent().removeMapping(): Invalid index ${i} for the list of mappings.`);
+        }
         const removed = this.institution.mappings.splice(i, 1);
         this.institutionChange.emit(this.institution);
         this.getTransactionFields();
@@ -132,7 +135,7 @@ export class InstitutionFormComponent {
     /**
      * Reset the form to its initial state behind the scenes.
      */
-    reset() {
+    reset(): void {
         this.institution = new Institution();
         this.errors = [];
     }
@@ -140,8 +143,8 @@ export class InstitutionFormComponent {
     /**
      * Cancel the form and close it.
      */
-    cancelForm() {
-        this.cancel.emit();
+    doCancelForm(): void {
+        this.cancelForm.emit();
         this.reset();
     }
 

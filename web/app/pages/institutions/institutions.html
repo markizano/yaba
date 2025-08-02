@@ -41,8 +41,8 @@
     </div>
     <yaba-institution-form
         [institution]="institution"
-        (save)="save($event)"
-        (cancel)="cancel()"
+        (saveForm)="save($event)"
+        (cancelForm)="cancel()"
         [ngClass]="{ 'ng-hide': !formVisible }"
         class="suave"
     ></yaba-institution-form>

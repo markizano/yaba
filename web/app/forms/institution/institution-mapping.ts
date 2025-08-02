@@ -8,8 +8,9 @@ import { ControlsModule } from 'app/controls/controls.module';
 
 
 @Component({
-  selector: 'institution-mapping',
-  templateUrl: './institution-mapping.component.html',
+  selector: 'yaba-institution-mapping',
+  templateUrl: './institution-mapping.html',
+  styleUrls: ['./institution-mapping.css'],
   standalone: true,
   animations: [
     YabaAnimations.fadeSlideDown()
@@ -24,15 +25,15 @@ export class InstitutionMappingComponent {
     @Output() mappingChange = new EventEmitter<InstitutionMapping>();
     @Input() fields: NgSelectable<keyof ITransaction>[] = [];
     @Output() fieldsChange = new EventEmitter<void>();
-    @Output() remove = new EventEmitter<number>();
+    @Output() removeMapping = new EventEmitter<number>();
 
     protected _remove() {
-        this.remove.emit(this.index);
+        this.removeMapping.emit(this.index);
     }
 
     /**
      * When a field is selected, inform the parent Component so that it can update the related variable.
-     * @param toFieldSelect 
+     * @param toFieldSelect
      */
     onToField(toFieldSelect: HTMLSelectElement) {
         this.mapping.toField = toFieldSelect.value as keyof ITransaction;

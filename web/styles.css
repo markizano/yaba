@@ -112,3 +112,23 @@ a:hover {
 body {
   font-family: "Sans", "Arial", "Calibri";
 }
+
+.right {
+  float: right;
+}
+
+.ng-fade, .fade { transition: all 400ms ease-in-out; transition-behavior: allow-discrete; }
+
+.suave { transition: all 400ms ease-in-out; transition-behavior: allow-discrete; }
+
+.ng-hide { opacity: 0; height: 0; visibility: hidden; }
+
+.wide {
+    width: 99%;
+}
+
+.md-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
