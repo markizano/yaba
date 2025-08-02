@@ -1,0 +1,12 @@
+:host {
+    display: inline-block;
+    min-width: 250px;
+    margin: 10px auto;
+    padding: 5px;
+}
+
+:host ng-select {
+    min-width: 100px;
+    width:99%;
+    min-height: 100px;
+}

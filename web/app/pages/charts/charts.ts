@@ -2,9 +2,10 @@ import { Component, Input } from '@angular/core';
 import { TransactionFilter } from 'app/lib/types';
 
 @Component({
-  selector: 'yaba-charts',
-  templateUrl: './charts.component.html',
-  standalone: false,
+    selector: 'yaba-charts',
+    templateUrl: './charts.html',
+    styleUrls: ['./charts.css'],
+    standalone: false,
 })
 export class ChartsComponent {
     @Input() filter: TransactionFilter = <TransactionFilter>{};

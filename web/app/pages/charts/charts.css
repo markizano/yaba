@@ -1,0 +1,13 @@
+:host {
+    display: block;
+    width: 1024px;
+    height: 768px;
+    border: 1px solid var(--border);
+}
+
+google-chart {
+    display: block;
+    min-width: 800px;
+    min-height: 600px;
+    border: 1px solid var(--border);
+}

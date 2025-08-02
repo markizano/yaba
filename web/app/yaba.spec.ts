@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { YabaComponent } from 'app/yaba.component';
+import { YabaComponent } from 'app/yaba';
 
 describe('YabaComponent', () => {
   beforeEach(() => TestBed.configureTestingModule({

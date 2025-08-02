@@ -5,7 +5,7 @@
     <label>Description: <input type="text" maxlength="255" name="description" [(ngModel)]="account.description" tabindex="2" /></label>
     <label>
     Institution:
-    <institution-select (selected)="pickInstitution($event.id)" [required]="true" tabindex="3"></institution-select>
+    <yaba-institution-select (selected)="pickInstitution($event.id)" [required]="true" tabindex="3"></yaba-institution-select>
     </label>
     <label>
     Account Type:

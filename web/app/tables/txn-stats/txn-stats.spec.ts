@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TxnStatsComponent } from './txn-stats.component';
+import { TxnStatsComponent } from './txn-stats';
 
 describe('TxnStatsComponent', () => {
   let component: TxnStatsComponent;
@@ -11,7 +11,7 @@ describe('TxnStatsComponent', () => {
       imports: [TxnStatsComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(TxnStatsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

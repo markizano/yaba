@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { NgSelectComponent } from "@ng-select/ng-select";
 import { Institution, Institutions } from "app/lib/institutions";
 import { InstitutionsService } from "app/services/institutions.service";
@@ -8,18 +8,20 @@ import { Subscription } from "rxjs";
  * NgSelect front for selecting institution(s).
  */
 @Component({
-    selector: 'institution-select',
-    templateUrl: './institution-select.component.html',
+    selector: 'yaba-institution-select',
+    templateUrl: './institution-select.html',
     imports: [
         NgSelectComponent
     ],
 })
-export class InstitutionSelectComponent {
+export class InstitutionSelectComponent implements OnInit, OnDestroy {
     @Input() required = false;
     @Output() selected = new EventEmitter<Institution>();
     institutions = new Institutions();
     #sub?: Subscription;
-    constructor(protected institutionsService: InstitutionsService) { }
+
+    protected institutionsService = inject(InstitutionsService);
+
     ngOnInit() {
         const update = (institutions: Institutions) => {
             this.institutions = institutions;
@@ -27,6 +29,7 @@ export class InstitutionSelectComponent {
         update(this.institutionsService.get());
         this.#sub = this.institutionsService.subscribe(update);
     }
+
     ngOnDestroy() {
         this.#sub?.unsubscribe();
     }

@@ -1,5 +1,5 @@
-<div>
-    Budgets: <br />
+<div class="yaba-tags-filter">
+    <label for="tags">Budgets: <br /></label>
     <ng-select
         [items]="tags"
         bindLabel="tag"
@@ -11,6 +11,5 @@
         [hideSelected]="true"
         (change)="tagsChange.next($event)"
         placeholder="Select budgets"
-        class="budget-list"
     ></ng-select>
 </div>

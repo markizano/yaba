@@ -1,14 +1,14 @@
 import { Routes } from '@angular/router';
 
-import { HomeComponent } from 'app/pages/home/home.component';
-import { BudgetingComponent } from 'app/pages/budgeting/budgeting.component';
+import { HomeComponent } from 'app/pages/home/home';
+import { BudgetingComponent } from 'app/pages/budgeting/budgeting';
 import { AccountsComponent } from 'app/pages/accounts/accounts';
 import { AccountDetailComponent } from 'app/pages/accounts/account-detail/account';
 import { InstitutionsComponent } from 'app/pages/institutions/institutions';
-import { SettingsComponent } from 'app/pages/settings/settings.component';
-import { ChartsComponent } from 'app/pages/charts/charts.component';
-import { ProspectingComponent } from 'app/pages/prospecting/prospecting.component';
-import { DevelopComponent } from 'app/pages/develop/develop.component';
+import { SettingsComponent } from 'app/pages/settings/settings';
+import { ChartsComponent } from 'app/pages/charts/charts';
+import { ProspectingComponent } from 'app/pages/prospecting/prospecting';
+import { DevelopComponent } from 'app/pages/develop/develop';
 
 export const routeConfig: Routes = [{
     path: '',

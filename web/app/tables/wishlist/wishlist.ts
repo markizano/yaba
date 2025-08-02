@@ -9,12 +9,12 @@ import { Transaction, Transactions } from 'app/lib/transactions';
  */
 @Component({
     selector: 'yaba-wishlist',
-    standalone: true,
+    templateUrl: './wishlist.html',
+    styleUrls: ['./wishlist.css'],
     imports: [
         ControlsModule,
         MatIconModule,
     ],
-    templateUrl: './wishlist.html',
 })
 export class WishlistComponent {
     @Input() wishlist: Transactions = new Transactions();

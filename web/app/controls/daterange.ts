@@ -8,7 +8,8 @@ import { DateRange } from "app/lib/types";
 
 @Component({
     selector: 'yaba-daterange',
-    templateUrl: './daterange.component.html',
+    templateUrl: './daterange.html',
+    styleUrls: ['./daterange.css'],
     imports: [
         CommonModule,
         FormsModule

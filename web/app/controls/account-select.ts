@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Output } from "@angular/core";
 import { NgSelectComponent } from "@ng-select/ng-select";
+import { Subscription } from "rxjs";
 
+import { NgSelectable } from "app/lib/types";
 import { Account, Accounts } from "app/lib/accounts";
 import { AccountsService } from "app/services/accounts.service";
-import { NgSelectable } from "app/lib/types";
-import { Subscription } from "rxjs";
+
 /**
  * I needed a way to take a list of accounts and filter them by the end-user's selection.
  * This is a space or gap in the operation, a transitor of sorts, that will enable me to display a list of
@@ -15,7 +16,8 @@ import { Subscription } from "rxjs";
  */
 @Component({
     selector: 'yaba-accounts',
-    templateUrl: './account-select.component.html',
+    templateUrl: './account-select.html',
+    styleUrls: ['./account-select.css'],
     imports: [
         NgSelectComponent
     ]

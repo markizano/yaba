@@ -10,7 +10,8 @@ import { Subscription, debounceTime } from 'rxjs';
  */
 @Component({
     selector: 'yaba-description',
-    templateUrl: './description.component.html',
+    templateUrl: './description.html',
+    styleUrls: ['./description.css'],
     imports: [
         FormsModule
     ]

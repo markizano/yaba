@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TxnFieldComponent } from './txn-field.component';
+import { TxnFieldComponent } from './txn-field';
 
 describe('TxnFieldComponent', () => {
     let component: TxnFieldComponent;
@@ -11,7 +11,7 @@ describe('TxnFieldComponent', () => {
     imports: [TxnFieldComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(TxnFieldComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

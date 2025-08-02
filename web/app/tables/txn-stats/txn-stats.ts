@@ -4,12 +4,11 @@ import { Transactions } from 'app/lib/transactions';
 
 @Component({
   selector: 'yaba-txn-stats',
-  standalone: true,
   imports: [
     ControlsModule
   ],
-  templateUrl: './txn-stats.component.html',
-  styleUrl: './txn-stats.component.css'
+  templateUrl: './txn-stats.html',
+  styleUrls: ['./txn-stats.css']
 })
 export class TxnStatsComponent {
     @Input() transactions: Transactions = new Transactions();

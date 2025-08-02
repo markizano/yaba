@@ -1,11 +1,11 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { debounceTime, Subject, Subscription } from "rxjs";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
 import { NgSelectModule } from "@ng-select/ng-select";
 
 import { Tags } from "app/lib/types";
-import { debounceTime, Subject, Subscription } from "rxjs";
 
 /**
  * I needed a way to take a list of budgets and filter them by the end-user's selection.
@@ -13,11 +13,11 @@ import { debounceTime, Subject, Subscription } from "rxjs";
  */
 @Component({
     selector: 'yaba-budgets, yaba-tags',
-    templateUrl: './tags-filter.component.html',
-    standalone: true,
+    templateUrl: './tags-filter.html',
+    styleUrls: ['./tags-filter.css'],
     imports: [ CommonModule, FormsModule, NgSelectModule ],
 })
-export class TagsFilterComponent {
+export class TagsFilterComponent implements OnInit, OnDestroy {
     @Input() tags = <Tags>[];
     tagsChange = new Subject<Tags>();
     #tagSub?: Subscription;

@@ -1,0 +1,19 @@
+:host {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    vertical-align: top;
+    margin: 30px auto 15px auto;
+    position: relative;
+}
+
+:host:before {
+    content: "Filters: ";
+    color: var(--text);
+    font-family: sans-serif, monospace;
+    font-weight: bold;
+    font-size: 150%;
+    position: absolute;
+    top: -25px;
+    left: 25px;
+}

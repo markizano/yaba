@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,37 +13,39 @@ import { YabaAnimations } from 'app/lib/animations';
 import { AccountsService } from 'app/services/accounts.service';
 import { ControlsModule } from 'app/controls/controls.module';
 
-import { TransactionFilterComponent } from 'app/tables/transactions/txn-filter/txn-filter.component';
-import { TxnRowComponent } from 'app/tables/transactions//txn-row/txn-row.component';
-import { TagTransactionsComponent } from 'app/tables/transactions/txn-tags/txn-tag.component';
-import { UntagTransactionComponent } from 'app/tables/transactions/txn-tags/txn-untag.component';
+import { TransactionFilterComponent } from 'app/tables/transactions/txn-filter/txn-filter';
+import { TxnRowComponent } from 'app/tables/transactions/txn-row/txn-row';
+import { TagTransactionsComponent } from 'app/tables/transactions/txn-tags/txn-tag';
+import { UntagTransactionComponent } from 'app/tables/transactions/txn-tags/txn-untag';
 import { Subscription } from 'rxjs';
+import { AccountsModule } from "app/pages/accounts/accounts.module";
 
 /**
  * This component is a table that displays transactions. It can be filtered, sorted, and paginated.
- * 
+ *
  * @example
  * <yaba-transaction-list [accountId]="account.id" [filters]="filters" [showFilters]="true" [showPaginate]="true" [editable]="true" [showTags]="true"></yaba-transaction-list>
  */
 @Component({
     selector: 'yaba-transaction-list',
-    templateUrl: './transactions-list.component.html',
-    standalone: true,
+    templateUrl: './transactions-list.html',
+    styleUrls: ['./transactions-list.css'],
     animations: [
         YabaAnimations.fadeSlideDown()
     ],
     imports: [
-        MatChipsModule,
-        MatIconModule,
-        ControlsModule,
-        TransactionFilterComponent,
-        TxnRowComponent,
-        TagTransactionsComponent,
-        UntagTransactionComponent,
-        MatPaginatorModule,
-    ],
+    MatChipsModule,
+    MatIconModule,
+    MatPaginatorModule,
+    ControlsModule,
+    TransactionFilterComponent,
+    TxnRowComponent,
+    TagTransactionsComponent,
+    UntagTransactionComponent,
+    AccountsModule
+],
 })
-export class TransactionsListComponent {
+export class TransactionsListComponent implements OnInit, OnDestroy {
     addOnBlur = true;
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
 

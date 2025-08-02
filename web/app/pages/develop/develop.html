@@ -50,7 +50,7 @@
 
         <form id="account">
             <input type="button" (click)="genAccount()" value="Generate an Account" />
-            Bound to institution: <institution-select (selected)="bindInstitution($event.toString())"></institution-select> <br />
+            Bound to institution: <yaba-institution-select (selected)="bindInstitution($event.toString())"></yaba-institution-select> <br />
 @if ( account ) {
             <div>
                 <ul>

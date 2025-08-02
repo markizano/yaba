@@ -5,13 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 
 import { ControlsModule } from 'app/controls/controls.module';
-import { TransactionsComponent } from 'app/transactions/transactions.component';
-import { TransactionsListComponent } from 'app/tables/transactions/transactions-list.component';
+import { TransactionsListComponent } from 'app/tables/transactions/transactions-list';
 
 @NgModule({
-  declarations: [
-    TransactionsComponent,
-  ],
   imports: [
     CommonModule,
     MatChipsModule,
@@ -21,7 +17,6 @@ import { TransactionsListComponent } from 'app/tables/transactions/transactions-
     TransactionsListComponent,
   ],
   exports: [
-    TransactionsComponent,
     TransactionsListComponent,
   ]
 })

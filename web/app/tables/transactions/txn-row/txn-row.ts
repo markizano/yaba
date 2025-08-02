@@ -5,7 +5,7 @@ import { Settings } from 'app/lib/settings';
 
 import { Transaction } from 'app/lib/transactions';
 import { TransactionShowHeaders } from 'app/lib/types';
-import { TxnFieldComponent } from 'app/tables/transactions/txn-field/txn-field.component';
+import { TxnFieldComponent } from 'app/tables/transactions/txn-field/txn-field';
 
 /**
  * A row in a table that represents a transaction.
@@ -19,7 +19,8 @@ import { TxnFieldComponent } from 'app/tables/transactions/txn-field/txn-field.c
         TxnFieldComponent,
         MatIconModule,
     ],
-    templateUrl: './txn-row.component.html',
+    templateUrl: './txn-row.html',
+    styleUrls: ['./txn-row.css'],
 })
 export class TxnRowComponent {
     @Input() txn = new Transaction();

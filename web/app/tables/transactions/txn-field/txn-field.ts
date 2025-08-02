@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,16 +19,16 @@ import { AccountsService } from 'app/services/accounts.service';
  */
 @Component({
     selector: '.yaba-txn-field',
-    standalone: true,
     imports: [
         ControlsModule,
         NgSelectModule,
         MatChipsModule,
         MatIconModule,
     ],
-    templateUrl: './txn-field.component.html',
+    templateUrl: './txn-field.html',
+    styleUrls: ['./txn-field.css'],
 })
-export class TxnFieldComponent {
+export class TxnFieldComponent implements OnInit, OnDestroy {
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
     @Input() editing = false;
     @Input() txn = new Transaction();

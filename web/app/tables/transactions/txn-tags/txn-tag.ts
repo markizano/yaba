@@ -1,13 +1,14 @@
 import { Component, EventEmitter, HostListener, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
 
 @Component({
-    selector: 'tag-txns',
-    templateUrl: './txn-tag.component.html',
+    selector: 'yaba-tag-txns',
+    templateUrl: './txn-tag.html',
+    styleUrls: ['./txn-tag.css'],
     animations: [ YabaAnimations.fadeSlideDown() ],
-    standalone: true,
     imports: [
         ControlsModule,
         MatIconModule,

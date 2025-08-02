@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TxnRowComponent } from './txn-row.component';
+import { TxnRowComponent } from './txn-row';
 
 describe('TxnRowComponent', () => {
     let component: TxnRowComponent;
@@ -11,7 +11,7 @@ describe('TxnRowComponent', () => {
             imports: [TxnRowComponent]
         })
         .compileComponents();
-        
+
         fixture = TestBed.createComponent(TxnRowComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

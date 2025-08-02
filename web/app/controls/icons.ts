@@ -64,12 +64,12 @@ export class ErrorsDisplayComponent {
 }
 
 import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
-import { InstitutionSelectComponent } from 'app/controls/institution-select.component';
-import { DateRangeFilterComponent } from 'app/controls/daterange.component';
-import { DescriptionFilterComponent } from 'app/controls/description.component';
-import { AccountsSelectComponent } from 'app/controls/account-select.component';
+import { InstitutionSelectComponent } from 'app/controls/institution-select';
+import { DateRangeFilterComponent } from 'app/controls/daterange';
+import { DescriptionFilterComponent } from 'app/controls/description';
+import { AccountsSelectComponent } from 'app/controls/account-select';
 
-export const directives = [
+export const icons = [
     DebugDirective,
     QuestionDirective,
     UploadDirective,

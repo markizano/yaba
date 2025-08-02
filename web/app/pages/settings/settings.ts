@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatChipInputEvent, MatChipEvent, MatChipEditedEvent } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Settings } from 'app/lib/settings';
@@ -15,12 +15,13 @@ type TagType = 'incomeTags' | 'expenseTags' | 'transferTags' | 'hideTags';
  * Settings help configure the application.
  * Settings are also just stored in local storage. It's a simple configuration data structure with no sensitive information.
  * Just preferences.
- * 
+ *
  * @FutureFeature Themes: Ability to change the color scheme of the application based on a few pre-defined themes.
  */
 @Component({
     selector: 'yaba-settings',
-    templateUrl: './settings.component.html',
+    templateUrl: './settings.html',
+    styleUrls: ['./settings.css'],
     standalone: false,
 })
 export class SettingsComponent {
@@ -31,7 +32,8 @@ export class SettingsComponent {
     settings = new Settings();
     import?: File;
 
-    constructor(protected institutionsService: InstitutionsService, protected accountsService: AccountsService) { }
+    protected institutionsService = inject(InstitutionsService);
+    protected accountsService = inject(AccountsService);
 
     ngOnInit() {
         // Load settings from local storage

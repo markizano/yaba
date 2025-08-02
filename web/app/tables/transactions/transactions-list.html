@@ -3,13 +3,13 @@
         Filters: {{ filtration(filters) }}<br />
         Txns: {{ txns.length }}<br />
     </div>
-@if ( showFilters ){ <transaction-filters [(filter)]="filters" (filterChange)="filtersChange.emit($event)"></transaction-filters> }
+@if ( showFilters ){ <yaba-transaction-filters [(filter)]="filters" (filterChange)="filtersChange.emit($event)"></yaba-transaction-filters> }
 @if ( selected.length > 0 ) {
     <!-- @TODO: Convert this to a <bulk-action /> component -->
     <div class="selected-transactions" @fade-slide-down>
         <h3>Selected Transactions ( {{selected.length}} )</h3>
-        <tag-txns (tags)="tagTxns($event)" (cancel)="cancelSelected()" title="Add a tag to {{ selected.length }} transactions."></tag-txns>
-        @if ( selected.haveTags().length > 0 ) { <untag-txns [transactions]="selected" (untag)="untagTxns($event)" (cancel)="cancelSelected()" title="Untag selected {{ selected.length }} transactions"></untag-txns> }
+        <yaba-tag-txns (tags)="tagTxns($event)" (cancel)="cancelSelected()" title="Add a tag to {{ selected.length }} transactions."></yaba-tag-txns>
+        @if ( selected.haveTags().length > 0 ) { <yaba-untag-txns [transactions]="selected" (untag)="untagTxns($event)" (cancel)="cancelSelected()" title="Untag selected {{ selected.length }} transactions"></yaba-untag-txns> }
         <mat-icon (click)="deleteSelected()" [attr.helper]="`Delete all ${selected.length} transactions.`" class="helper delete-icon">delete</mat-icon>
     </div>
 }

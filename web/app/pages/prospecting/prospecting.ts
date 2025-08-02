@@ -3,9 +3,10 @@ import { Settings } from 'app/lib/settings';
 import { Transactions } from 'app/lib/transactions';
 
 @Component({
-  selector: 'yaba-prospecting',
-  templateUrl: './prospecting.component.html',
-  standalone: false,
+    selector: 'yaba-prospecting',
+    templateUrl: './prospecting.html',
+    styleUrls: ['./prospecting.css'],
+    standalone: false,
 })
 export class ProspectingComponent {
     prospect: Transactions = new Transactions();
@@ -41,7 +42,7 @@ export class ProspectingComponent {
             undefined,
             tags,
             -1
-          );
+        );
         $scope.incomeTxns = handyGetByTag(Settings.incomeTags);
         let income = $scope.incomeTxns.monthly();
         $scope.income = income.items();
@@ -55,7 +56,7 @@ export class ProspectingComponent {
         if ( $scope.incomeTxns.length ) {
             $scope.leftovers = expense.subtract(income);
             $scope.leftoverItems = $scope.leftovers.items();
-    
+
             $scope.projections = $scope.leftovers.project(prospects);
             $scope.projectionItems = $scope.projections.items();
         } else {

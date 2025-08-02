@@ -1,6 +1,4 @@
-
-import { Component, Inject, DOCUMENT } from '@angular/core';
-
+import { Component, DOCUMENT, inject } from '@angular/core';
 
 import { Subscription } from 'rxjs';
 import * as saveAs from 'file-saver';
@@ -14,21 +12,26 @@ import { Transaction, Transactions } from 'app/lib/transactions';
 
 import { ControlsModule } from 'app/controls/controls.module';
 import { AccountsService } from 'app/services/accounts.service';
-import { TransactionsListComponent } from 'app/tables/transactions/transactions-list.component';
+import { TransactionsListComponent } from 'app/tables/transactions/transactions-list';
+import { AccountsModule } from "../accounts/accounts.module";
 
 
 @Component({
     selector: 'yaba-develop',
-    standalone: true,
+    templateUrl: './develop.html',
+    styleUrls: ['./develop.css'],
     imports: [
-        ControlsModule,
-        TransactionsListComponent,
-    ],
-    templateUrl: './develop.component.html',
+    ControlsModule,
+    TransactionsListComponent,
+    AccountsModule
+],
 })
 export class DevelopComponent {
     transactions = new Transactions();
-    filters = EMPTY_TRANSACTION_FILTER;
+    filters = Object.assign(EMPTY_TRANSACTION_FILTER, {
+        fromDate: NULLDATE,
+        accounts: [],
+    });
     #cachedUpdate?: Subscription;
 
     // SeedList and CSV file generation testing
@@ -37,16 +40,18 @@ export class DevelopComponent {
     account?: Account;
     transaction?: Transaction;
     csvFile = '';
+    protected accountsService = inject(AccountsService);
+    protected document = inject(DOCUMENT);
 
-    constructor(protected accountsService: AccountsService, @Inject(DOCUMENT) protected document: Document ) {
-        this.filters.fromDate = NULLDATE;
-        this.filters.accounts = [];
+    constructor() {
+        // **DEBUGGING**
         const Yaba = {
             Institution, Institutions,
             Account, Accounts,
             Transaction, Transactions,
         };
         Object.assign(this.document, {Yaba: Yaba});
+        // **DEBUGGING**
     }
 
     ngOnInit() {
@@ -72,8 +77,8 @@ export class DevelopComponent {
         const institution = this.seedlist.genInstitution();
         const account = this.seedlist.genAccount(institution.id);
         const mapFields = institution.mappings.filter(m => m.mapType == MapTypes.dynamic);
-        const oneYear = new Date(Date.now() - Settings.fromLocalStorage().txnDelta).setDate(15),
-          today = new Date();
+        const oneYear = new Date(Date.now() - Settings.fromLocalStorage().txnDelta).setDate(15);
+        const today = new Date();
         const nextDay = (dt: Date): number => {
             const day = dt.getDate();
             if ( day <= 10 ) return 15;
@@ -125,7 +130,7 @@ export class DevelopComponent {
         }
         account.transactions.sorted();
         this.csvFile = '"' + mapFields.map(m => m.fromField).join('","') + '"\n"'
-          + account.transactions
+            + account.transactions
             .map((t: Transaction) => mapFields.map(map2string(t))
             .join('","') )
             .join('"\n"') + '"';

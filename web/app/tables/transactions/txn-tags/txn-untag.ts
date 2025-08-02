@@ -4,13 +4,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { Tags } from 'app/lib/types';
 import { YabaAnimations } from 'app/lib/animations';
 import { Transactions } from 'app/lib/transactions';
-import { TagsFilterComponent } from 'app/controls/tags-filter.component';
+import { TagsFilterComponent } from 'app/controls/tags-filter';
 import { ControlsModule } from 'app/controls/controls.module';
 
 @Component({
-    selector: 'untag-txns',
-    templateUrl: './txn-untag.component.html',
-    standalone: true,
+    selector: 'yaba-untag-txns',
+    templateUrl: './txn-untag.html',
+    styleUrls: ['./txn-untag.css'],
     animations: [ YabaAnimations.fadeSlideDown() ],
     imports: [
         ControlsModule,

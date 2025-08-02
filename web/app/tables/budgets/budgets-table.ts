@@ -1,18 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+
 import { ControlsModule } from 'app/controls/controls.module';
 import { Budgets } from 'app/lib/types';
 
 @Component({
     selector: 'yaba-budgets-table',
-    templateUrl: './budgets-table.component.html',
+    templateUrl: './budgets-table.html',
+    styleUrls: ['./budgets-table.css'],
     imports: [
         CommonModule,
         FormsModule,
         ControlsModule,
     ],
-    standalone: true,
 })
 export class YabaTableBudgetsComponent {
     @Input() budgets: Budgets;
