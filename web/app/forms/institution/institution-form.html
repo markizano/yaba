@@ -1,13 +1,18 @@
 <div class="dropfile" (fileDrop)="parseCSVFiles($event)">
     <div class="titlebar">
         <h1>{{ institution.name || 'New' }} Institution</h1>
-        <mat-icon (click)="cancelForm.emit()" class="close-icon">close</mat-icon>
+        <mat-icon (click)="cancelForm.emit()" fontIcon="cancel" class="big cancel-icon"></mat-icon>
     </div>
     <form (ngSubmit)="saveChanges()">
-        <div class="institution-metadata">
-            <label for="name">Name: <input type="text" tabindex="1" name="name" [(ngModel)]="institution.name" required maxlength="64" /></label>
-            <label for="description">Description: <input type="text" tabindex="2" name="description" [(ngModel)]="institution.description" required maxlength="255" /></label>
-            <label for="addMapping">Mapping ( {{ institution.mappings.length }} ): <mat-icon name="addMapping" tabindex="3" (click)="addMapping()" class="add-icon">add</mat-icon></label>
+        <div class="column wide">
+            <label for="name">Name: </label>
+            <input type="text" id="name" name="name" tabindex="1" [(ngModel)]="institution.name" required maxlength="64" />
+            <label for="description">Description: </label>
+            <input type="text" id="description" name="description" tabindex="2" [(ngModel)]="institution.description" required maxlength="255" />
+            <div class="row wide">
+                <label for="addMapping">Mapping ( {{ institution.mappings.length }} ): </label>
+                <mat-icon id="addMapping" name="addMapping" tabindex="3" (click)="addMapping()" fontIcon="add" class="add-icon"></mat-icon>
+            </div>
         </div>
         <ul>
 @for(mapping of institution.mappings; track institution.mappings[index]; let index = $index) {
@@ -26,16 +31,16 @@
         <errors [errors]="errors"></errors>
         <div class="submission">
             <input type="button"
-            tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +1 }}"
-            name="cancelBtn"
-            value="Cancel" (click)="doCancelForm()"
-            class="cancel" />
-        <input type="button"
-            name="saveBtn"
-            tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +2 }}"
-            value="Save Institution"
-            (click)="saveChanges()"
-            class="save" />
+                tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +1 }}"
+                name="cancelBtn"
+                value="Cancel" (click)="doCancelForm()"
+                class="cancel" />
+            <input type="button"
+                name="saveBtn"
+                tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +2 }}"
+                value="Save Institution"
+                (click)="saveChanges()"
+                class="save" />
         </div>
     </form>
 </div>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 import { Account } from 'app/lib/accounts';
@@ -73,6 +73,21 @@ export class AccountFormComponent {
         return this.errors.length === 0;
     }
 
+    /**
+     * Checks to see if ESC was pressed in this key event.
+     * If so, we cancel and close the form.
+     */
+    @HostListener('document:keydown', ['$event'])
+    escKey($event: KeyboardEvent): void {
+        if ( $event.key === 'Escape' ) {
+            this.doCancelForm();
+        }
+        // If Ctrl+Enter is pressed, submit the form.
+        if ( $event.ctrlKey && $event.key === 'Enter' ) {
+            this.saveChanges();
+        }
+    }
+
     pickInstitution(institutionId: string): void {
         console.log(`AccountFormComponent().pickInstitution(${institutionId})`);
         this.account.institutionId = institutionId;
@@ -90,7 +105,7 @@ export class AccountFormComponent {
         this.reset();
     }
 
-    cancelForm(): void {
+    doCancelForm(): void {
         this.cancel.emit();
         this.reset();
     }

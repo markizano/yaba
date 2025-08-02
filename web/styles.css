@@ -115,6 +115,8 @@ $theme: mat.define-theme((
   word-wrap: normal;
   direction: ltr;
   cursor: pointer;
+  align-items: center;
+  padding: 0.5rem;
 }
 /* END: Google Angular Material Fonts */
 
@@ -124,11 +126,11 @@ $theme: mat.define-theme((
   font-size: 2rem;
 }
 
-.close-icon {
-  color: var(--text);
+.close-icon, .cancel-icon, .delete-icon {
+  color: var(--tertiary-dark);
 }
 
-.close-icon:hover {
+.close-icon:hover, .cancel-icon:hover, .delete-icon:hover {
   color: var(--tertiary-normal);
 }
 
@@ -146,14 +148,6 @@ $theme: mat.define-theme((
 
 .edit-icon:hover {
   color: var(--primary-dark);
-}
-
-.delete-icon {
-    color: var(--tertiary-normal);
-}
-
-.delete-icon:hover {
-    color: var(--tertiary-dark);
 }
 
 /* END: Angular Material Icon Overrides */
@@ -262,6 +256,43 @@ table.data tr:nth-child(even) {
   background-color: var(--txn-even);
 }
 
+form {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+form .submission {
+  display: flex;
+  flex-direction: row;
+  margin: 1rem 0.5rem 1rem auto;
+}
+
+form label {
+  text-align: left;
+  font-weight: bold;
+  width: 99%;
+  display: block;
+  box-sizing: border-box;
+  margin: 0.8rem auto;
+}
+
+form input[type="text"], from ng-select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+form input[type="button"] {
+  border-radius: 0.3rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 .right {
   float: right;
 }
@@ -332,6 +363,16 @@ table.data tr:nth-child(even) {
 }
 
 /* Common styles for all pages */
+errors {
+  margin: 10px 0;
+  border-radius: 0.3rem;
+  color: var(--tertiary-dark);
+}
+
+errors p {
+  font-weight: bold;
+}
+
 .titlebar {
   display: flex;
   flex-flow: row;

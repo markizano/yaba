@@ -8,13 +8,13 @@
         (error)="onLogoError($event)" />
       <span class="app-title" *ngIf="isExpanded">Yaba</span>
     </div>
-    <button
-      mat-icon-button
+    <mat-icon
       class="toggle-button"
+      [fontIcon]="isExpanded ? 'menu_open' : 'menu'"
+      [attr.aria-label]="isExpanded ? 'Collapse sidebar' : 'Expand sidebar'"
       (click)="toggleSidebar()"
-      [attr.aria-label]="isExpanded ? 'Collapse sidebar' : 'Expand sidebar'">
-      <mat-icon>{{ isExpanded ? 'menu_open' : 'menu' }}</mat-icon>
-    </button>
+    >
+    </mat-icon>
   </mat-toolbar>
 
   <mat-nav-list class="sidebar-nav">

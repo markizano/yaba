@@ -1,104 +1,10 @@
 /* Main container styling */
 :host {
-    width: 75vw;
-    max-height: 88vh;
     position: fixed;
     top: 5vh;
+    width: 75vw;
     background-color: var(--form);
     border: 0.2rem solid var(--border);
-    border-radius: 1.5rem;
-    padding: 10px;
+    border-radius: 0.5rem;
     box-shadow: 2rem 2rem 1rem var(--shadow);
-}
-
-/* Header and title */
-h1 {
-    font-size: 200%;
-    font-weight: bold;
-    text-decoration: underline;
-    width: fit-content;
-    display: inline-block;
-    margin: 10px auto 10px 5px;
-    color: var(--text);
-}
-
-/* Form styling */
-form {
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    max-height: 80vh;
-    overflow-y: scroll;
-    scrollbar-width: thin;
-}
-
-/* Form labels */
-label {
-    display: block;
-    margin: 10px 0;
-    font-weight: bold;
-    color: var(--text);
-}
-
-/* Form inputs */
-input[type="text"] {
-    width: 90%;
-    margin-top: 5px;
-    font-size: 1.2rem;
-    border: 2px solid var(--border);
-    border-radius: 0.3rem;
-    padding: 0.1rem 0.3rem;
-    box-shadow: var(--light-shadow) 5px 5px;
-    line-height: 1.2rem;
-}
-
-input[type="text"]:focus {
-    border: 2px solid var(--active-border);
-    box-shadow: var(--light-shadow) 7px 7px;
-}
-
-/* Form buttons */
-input[type="button"] {
-    margin: 10px 5px;
-    padding: 0.5rem 1rem;
-    border-radius: 0.3rem;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 400ms ease-in-out;
-    border: none;
-    display: inline-flex;
-    line-height: 1.2rem;
-}
-
-/* Error display */
-.errors {
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 0.3rem;
-    background-color: var(--tertiary-lightest);
-    border: 1px solid var(--tertiary-normal);
-}
-
-.errors p {
-    color: var(--tertiary-dark);
-    margin: 5px 0;
-    font-weight: bold;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    :host {
-        width: 95vw;
-        max-height: 95vh;
-        top: 2.5vh;
-    }
-
-    form {
-        max-height: 85vh;
-    }
-
-    input[type="text"] {
-        width: 95%;
-    }
 }

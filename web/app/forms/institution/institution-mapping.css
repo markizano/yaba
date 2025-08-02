@@ -1,4 +1,4 @@
-.mapping {
+:host {
     border: 1px solid var(--border);
     display: block;
     padding: 10px;

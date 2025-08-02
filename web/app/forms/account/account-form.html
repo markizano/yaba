@@ -1,25 +1,35 @@
-<mat-icon class="close-icon" (click)="cancelForm()">close</mat-icon>
-<h1>{{ account.name || "New" }} Account:</h1>
+<div class="titlebar">
+    <h1>{{ account.name || "New" }} Account:</h1>
+    <mat-icon (click)="doCancelForm()" fontIcon="cancel" class="big cancel-icon"></mat-icon>
+</div>
 <form (ngSubmit)="saveChanges()">
-    <label>Name: <input type="text" maxlength="64" name="name" [(ngModel)]="account.name" tabindex="1" /></label>
-    <label>Description: <input type="text" maxlength="255" name="description" [(ngModel)]="account.description" tabindex="2" /></label>
-    <label>
-    Institution:
-    <yaba-institution-select (selected)="pickInstitution($event.id)" [required]="true" tabindex="3"></yaba-institution-select>
-    </label>
-    <label>
-    Account Type:
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" maxlength="64" [(ngModel)]="account.name" tabindex="1" />
+    <label for="description">Description: </label>
+    <input type="text" id="description" name="description" maxlength="255" [(ngModel)]="account.description" tabindex="2" />
+    <label for="institution">Institution: </label>
+    <yaba-institution-select
+        id="institution"
+        name="institution"
+        (selected)="pickInstitution($event.id)"
+        [required]="true"
+        [(ngModel)]="account.institutionId"
+        tabindex="3"
+    ></yaba-institution-select>
+    <label for="accountType">Account Type: </label>
     <ng-select
+        id="accountType"
+        name="accountType"
         [items]="accountTypes"
         bindLabel="label"
         bindValue="value"
         placeholder="Select Account Type: "
-        name="accountType"
         [(ngModel)]="account.accountType"
         tabindex="4"
     ></ng-select>
-    </label>
     <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
-    <input type="button" name="cancel" value="Cancel" (click)="cancelForm()"  tabindex="9" class="cancel" />
-    <input type="button" name="save" value="Save Account" (click)="saveChanges()"  tabindex="10" class="save" />
+    <div class="submission">
+        <input type="button" name="cancel" value="Cancel" (click)="doCancelForm()"  tabindex="9" class="cancel" />
+        <input type="button" name="save" value="Save Account" (click)="saveChanges()"  tabindex="10" class="save" />
+    </div>
 </form>
