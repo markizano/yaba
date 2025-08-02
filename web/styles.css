@@ -49,6 +49,7 @@ $theme: mat.define-theme((
   --checked: #4F9606;
   --save: #55D25D;
   --cancel: #FF7A77;
+  --negative-digit: #b21717;
 
   /* General color pallete */
   --primary-lightest-trans: #C2C1EF11;
@@ -192,6 +193,10 @@ body {
 .column {
   display: flex;
   flex-direction: column;
+}
+
+.negative {
+  color: var(--negative-digit);
 }
 
 .ng-fade, .fade { transition: all 400ms ease-in-out; transition-behavior: allow-discrete; }

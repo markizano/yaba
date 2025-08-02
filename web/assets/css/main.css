@@ -179,24 +179,6 @@ actions {
     margin: 10px auto;
 }
 
-.yaba-controls {
-    display: flex;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    vertical-align: top;
-    margin: 30px auto 15px auto;
-    position: relative;
-}
-.yaba-controls:before {
-    content: "Filters: ";
-    color: var(--text);
-    font-family: sans-serif, monospace;
-    font-weight: bold;
-    font-size: 150%;
-    position: absolute;
-    top: -25px;
-    left: 25px;
-}
 
 .small {
     width: 24px;
@@ -217,11 +199,6 @@ transaction-filters {
     margin: 0 auto;
 }
 
-yaba-daterange {
-    display: inline-block;
-    margin: 10px auto;
-    padding: 5px;
-}
 .date-range-wrapper {
     min-width: 250px;
     display: flex;
@@ -304,9 +281,6 @@ yaba-daterange {
 .account-list .description-field { max-width: 180px; }
 
 
-.negative {
-    color: #b21717;
-}
 
 .yaba-item {
     display: block;
@@ -340,23 +314,6 @@ yaba-daterange {
     display: flex;
     flex-flow: column;
 }
-
-
-/** Charts & Trends **/
-google-chart {
-    display: block;
-    min-width: 800px;
-    min-height: 600px;
-    border: 1px solid var(--border);
-}
-
-.chart {
-    display: block;
-    width: 1024px;
-    height: 768px;
-    border: 1px solid var(--border);
-}
-
 
 /** Debugging **/
 debug, .debug {
@@ -397,51 +354,11 @@ wishlist-item {
     margin: 10px auto;
 }
 
-yaba-wishlist {
-    display: flex;
-    flex-direction: row;
-    border: 2px solid var(--border);
-    border-radius: 1rem;
-    box-shadow: 0.5rem 0.5rem var(--shadow);
-    padding: 1rem;
-    margin: 1rem auto;
-    div {
-        display: block;
-        margin: 0 auto;
-    }
-}
 
 .additional-fields {
     min-width: 400px;
 }
 
-
-/** Filter Controls box and control icons (view, edit, delete, new, etc...) **/
-yaba-accounts {
-    display: inline-block;
-    min-width: 250px;
-    margin: 10px auto;
-    padding: 5px;
-}
-yaba-description {
-    display: inline-block;
-    min-width: 250px;
-    height: 40px;
-    margin: 10px auto;
-    padding: 5px;
-}
-yaba-budgets {
-    margin: 10px auto;
-    display: inline-block;
-    min-width: 200px;
-    min-height: 120px;
-    vertical-align: top;
-}
-.yaba-controls yaba-accounts ng-select, controls budgets ng-select {
-    min-width: 100px;
-    width:99%;
-    min-height: 100px;
-}
 
 yaba-budget {
     display: block;
