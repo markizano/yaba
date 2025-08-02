@@ -1,49 +1,62 @@
-<div id="institutions" class="controller">
+<div class="row">
     <h1> Institutions </h1>
-    <p>
-        This is where you configure your Banks and
-        institutions for the associations between
-        their CSV/Excel formats and Yaba representation of transactions.
-        Your institutions and their CSV associations are listed below.
-    </p>
-    <add (click)="add()" class="right helper" helper="Click to add a new institution"></add><br clear="all" />
-    <div class="institution-list yaba-list-wrapper">
-@for( institution of institutions; let i = $index; track institution.id ) {
-        <div class="institution yaba-item">
-            <div class="titlebar">
-                <div>
-                    <h2>{{ institution.name }}</h2>
-                    <p> {{ institution.description }} </p>
-                </div>
-                <actions>
-                    <edit (click)="edit(institution)" class="helper" attr.helper="Edit Institution &quot;{{ institution.name }}&quot;."></edit>
-                    <trash (click)="remove(institution)" class="helper" attr.helper="Delete Institution &quot;{{ institution.name }}&quot;."></trash>
-                </actions>
-            </div>
-            <table id="{{ institution.id }}" class="institution-mappings data item-list">
-                <thead>
-                    <th>From Field</th>
-                    <th>To Field</th>
-                    <th>Map Type</th>
-                </thead>
-                <tbody>
-    @for( mapping of institution.mappings; track mapping ) {
-                    <tr>
-                        <td>{{ mapping.fromField }}</td>
-                        <td>{{ mapping.toField }}</td>
-                        <td>{{ mapping.mapType }}</td>
-                    </tr>
-    }
-                </tbody>
-            </table>
-        </div>
-}
-    </div>
-    <yaba-institution-form
-        [institution]="institution"
-        (saveForm)="save($event)"
-        (cancelForm)="cancel()"
-        [ngClass]="{ 'ng-hide': !formVisible }"
-        class="suave"
-    ></yaba-institution-form>
+    <mat-icon
+        (click)="add()"
+        class="helper right add-icon"
+        [attr.helper]="'Click to add a new institution'">
+    </mat-icon>
+    <br clear="all" />
 </div>
+<p>
+    This is where you configure your Banks and
+    institutions for the associations between
+    their CSV/Excel formats and Yaba representation of transactions.
+    Your institutions and their CSV associations are listed below.
+</p>
+<div class="institution-list">
+@for( institution of institutions; let i = $index; track institution.id ) {
+    <div class="institution">
+        <div class="titlebar">
+            <div class="column">
+                <h2>{{ institution.name }}</h2>
+                <p> {{ institution.description }} </p>
+            </div>
+            <div class="actions">
+                <mat-icon
+                    (click)="edit(institution)"
+                    class="helper edit-icon"
+                    [attr.helper]="`Edit Institution &quot;${institution.name}&quot;.`">
+                </mat-icon>
+                <mat-icon
+                    (click)="remove(institution)"
+                    class="helper delete-icon"
+                    [attr.helper]="`Delete Institution &quot;${institution.name}&quot;.`">
+                </mat-icon>
+            </div>
+        </div>
+        <table id="{{ institution.id }}" class="institution-mappings data item-list">
+            <thead>
+                <th>From Field</th>
+                <th>To Field</th>
+                <th>Map Type</th>
+            </thead>
+            <tbody>
+@for( mapping of institution.mappings; track mapping ) {
+                <tr>
+                    <td>{{ mapping.fromField }}</td>
+                    <td>{{ mapping.toField }}</td>
+                    <td>{{ mapping.mapType }}</td>
+                </tr>
+}
+            </tbody>
+        </table>
+    </div>
+}
+</div>
+<yaba-institution-form
+    [institution]="institution"
+    (saveForm)="save($event)"
+    (cancelForm)="cancel()"
+    [ngClass]="{ 'ng-hide': !formVisible }"
+    class="suave"
+></yaba-institution-form>

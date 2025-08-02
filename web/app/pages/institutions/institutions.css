@@ -1,7 +1,5 @@
-/* Institutions Page Styles */
-
 /* Main container styling */
-#institutions.controller {
+:host {
     border: 0.25rem solid var(--border);
     border-radius: 1.2rem;
     box-shadow: var(--shadow) 15px 15px;
@@ -9,10 +7,12 @@
     width: 95%;
     padding: 1rem;
     margin: 10px auto;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header and description */
-#institutions h1 {
+h1 {
     font-size: 200%;
     font-weight: bold;
     text-decoration: underline;
@@ -22,7 +22,7 @@
     color: var(--text);
 }
 
-#institutions p {
+p {
     color: var(--text);
     line-height: 1.4;
     margin: 10px 5px;
@@ -35,6 +35,7 @@
     margin: 0 auto;
     display: flex;
     flex-flow: wrap;
+    flex-direction: row;
     margin-top: 20px;
 }
 
@@ -125,10 +126,6 @@
 .institution-mappings tr:nth-child(even) {
     background-color: var(--txn-even);
 }
-
-
-
-
 
 /* Responsive design */
 @media (max-width: 768px) {

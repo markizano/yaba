@@ -1,5 +1,6 @@
 /* Angular Definitions */
 import { Component, Input, Output, EventEmitter, HostListener, ElementRef, inject, OnInit } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 
 /* YABA Definitions */
 import { YabaAnimations } from 'app/lib/animations';
@@ -22,6 +23,7 @@ import { InstitutionMappingComponent } from 'app/forms/institution/institution-m
     imports: [
         ControlsModule,
         InstitutionMappingComponent,
+        MatIconModule,
     ],
 })
 export class InstitutionFormComponent implements OnInit {

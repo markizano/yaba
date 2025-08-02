@@ -1,5 +1,5 @@
 <div class="mapping">
-    <trash class="right" (click)="_remove()" tabindex="{{ (index * 4) + 7 }}" ></trash>
+    <mat-icon class="right delete-icon" (click)="_remove()" tabindex="{{ (index * 4) + 7 }}">delete</mat-icon>
     <div class="mapping-data">
         <label for="fromField">
             From {{ isField() ? 'Field': 'Value' }}:<br />

@@ -1,13 +1,13 @@
-<div class="yaba-institution-form yaba-form dropfile" (fileDrop)="parseCSVFiles($event)">
+<div class="dropfile" (fileDrop)="parseCSVFiles($event)">
     <div class="titlebar">
         <h1>{{ institution.name || 'New' }} Institution</h1>
-        <close (click)="cancelForm.emit()"></close>
+        <mat-icon (click)="cancelForm.emit()" class="close-icon">close</mat-icon>
     </div>
     <form (ngSubmit)="saveChanges()">
         <div class="institution-metadata">
             <label for="name">Name: <input type="text" tabindex="1" name="name" [(ngModel)]="institution.name" required maxlength="64" /></label>
             <label for="description">Description: <input type="text" tabindex="2" name="description" [(ngModel)]="institution.description" required maxlength="255" /></label>
-            <label for="addMapping">Mapping ( {{ institution.mappings.length }} ): <add name="addMapping" tabindex="3" (click)="addMapping()"></add></label>
+            <label for="addMapping">Mapping ( {{ institution.mappings.length }} ): <mat-icon name="addMapping" tabindex="3" (click)="addMapping()" class="add-icon">add</mat-icon></label>
         </div>
         <ul>
 @for(mapping of institution.mappings; track institution.mappings[index]; let index = $index) {
@@ -23,7 +23,7 @@
             </li>
 }
         </ul>
-        <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
+        <errors [errors]="errors"></errors>
         <div class="submission">
             <input type="button"
             tabindex="{{ 3 + ((institution.mappings.length || 0)*4) +1 }}"

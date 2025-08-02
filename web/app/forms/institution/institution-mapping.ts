@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 
 import { NgSelectable } from 'app/lib/types';
 import { InstitutionMapping, MapTypes } from 'app/lib/institutions';
@@ -17,6 +18,7 @@ import { ControlsModule } from 'app/controls/controls.module';
   ],
   imports: [
     ControlsModule,
+    MatIconModule,
   ],
 })
 export class InstitutionMappingComponent {
