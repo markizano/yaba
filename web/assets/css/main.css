@@ -124,33 +124,6 @@ app-root {
     width: 98%;
 }
 
-.helper:hover:after {
-    opacity: 1;
-    transition: all 300ms ease-in-out 500ms;
-    visibility: visible;
-}
-
-.helper:after {
-    content: attr(helper);
-    display: block;
-    min-width: 200px;
-    max-width: 450px;
-    background-color: var(--helper);
-    color: var(--text);
-    font-size: 120%;
-    padding: 1px 5px 2px 10px;
-    margin: 1px 1px 1px 5px;
-    box-shadow: 1px 1px 3px var(--shadow);
-    opacity: 0;
-    border: 1px solid var(--border);
-    z-index: 9999999;
-    transition: all 500ms ease-in-out 500ms;
-    visibility: hidden;
-    position: absolute;
-    top: 5px;
-    right: 30px;
-}
-
 .small-icon {
     width: 20px;
     height: 20px;
@@ -333,13 +306,6 @@ yaba-daterange {
 
 .negative {
     color: #b21717;
-}
-
-.yaba-list-wrapper {
-    width: 100%;
-    margin: 0 auto;
-    display: flex;
-    flex-flow: wrap;
 }
 
 .yaba-item {

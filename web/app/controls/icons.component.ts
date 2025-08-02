@@ -23,34 +23,9 @@ export abstract class IconBaseInjectable {
 }
 
 @Directive({
-  selector: 'actions',
-})
-export class ActionsDirective { }
-
-@Directive({
-  selector: 'add',
-})
-export class AddDirective extends IconBaseInjectable { }
-
-@Directive({
-  selector: 'close, no',
-})
-export class CloseDirective extends IconBaseInjectable { }
-
-@Directive({
   selector: 'debug',
 })
 export class DebugDirective { }
-
-@Directive({
-  selector: 'edit',
-})
-export class EditDirective extends IconBaseInjectable { }
-
-@Directive({
-  selector: 'inspect',
-})
-export class InspectDirective extends IconBaseInjectable { }
 
 @Directive({
   selector: 'question',
@@ -58,27 +33,7 @@ export class InspectDirective extends IconBaseInjectable { }
 export class QuestionDirective { }
 
 @Directive({
-  selector: 'save',
-})
-export class SaveDirective extends IconBaseInjectable { }
-
-@Directive({
-  selector: 'trash',
-})
-export class TrashDirective extends IconBaseInjectable { }
-
-@Directive({
-  selector: 'settings',
-})
-export class SettingsDirective extends IconBaseInjectable { }
-
-@Directive({
-  selector: 'yes',
-})
-export class YesDirective extends IconBaseInjectable { }
-
-@Directive({
-    selector: 'upload',
+    selector: 'upload, .upload',
 })
 export class UploadDirective extends IconBaseInjectable {
     @Output() upload = new EventEmitter<File[]>();
@@ -115,17 +70,8 @@ import { DescriptionFilterComponent } from 'app/controls/description.component';
 import { AccountsSelectComponent } from 'app/controls/account-select.component';
 
 export const directives = [
-    ActionsDirective,
-    AddDirective,
-    CloseDirective,
     DebugDirective,
-    EditDirective,
-    InspectDirective,
     QuestionDirective,
-    SaveDirective,
-    SettingsDirective,
-    TrashDirective,
-    YesDirective,
     UploadDirective,
     ErrorsDisplayComponent,
     YabaDropFileDirective,
@@ -133,5 +79,4 @@ export const directives = [
     AccountsSelectComponent,
     DescriptionFilterComponent,
     InstitutionSelectComponent,
-  ];
-  
+];
