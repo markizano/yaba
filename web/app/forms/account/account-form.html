@@ -1,27 +1,25 @@
-<div class="yaba-account-form yaba-form">
-    <close (click)="cancelForm()"></close>
-    <h1>{{ account.name || "New" }} Account:</h1>
-    <form (ngSubmit)="saveChanges()">
-        <label>Name: <input type="text" maxlength="64" name="name" [(ngModel)]="account.name" tabindex="1" /></label>
-        <label>Description: <input type="text" maxlength="255" name="description" [(ngModel)]="account.description" tabindex="2" /></label>
-      <label>
-        Institution:
-        <institution-select (selected)="pickInstitution($event.id)" [required]="true" tabindex="3"></institution-select>
-      </label>
-      <label>
-        Account Type:
-        <ng-select
-            [items]="accountTypes"
-            bindLabel="label"
-            bindValue="value"
-            placeholder="Select Account Type: "
-            name="accountType"
-            [(ngModel)]="account.accountType"
-            tabindex="4"
-        ></ng-select>
-      </label>
-      <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
-      <input type="button" name="cancel" value="Cancel" (click)="cancelForm()"  tabindex="9" class="cancel" />
-      <input type="button" name="save" value="Save Account" (click)="saveChanges()"  tabindex="10" class="save" />
-  </form>
-</div>
+<mat-icon class="close-icon" (click)="cancelForm()">close</mat-icon>
+<h1>{{ account.name || "New" }} Account:</h1>
+<form (ngSubmit)="saveChanges()">
+    <label>Name: <input type="text" maxlength="64" name="name" [(ngModel)]="account.name" tabindex="1" /></label>
+    <label>Description: <input type="text" maxlength="255" name="description" [(ngModel)]="account.description" tabindex="2" /></label>
+    <label>
+    Institution:
+    <institution-select (selected)="pickInstitution($event.id)" [required]="true" tabindex="3"></institution-select>
+    </label>
+    <label>
+    Account Type:
+    <ng-select
+        [items]="accountTypes"
+        bindLabel="label"
+        bindValue="value"
+        placeholder="Select Account Type: "
+        name="accountType"
+        [(ngModel)]="account.accountType"
+        tabindex="4"
+    ></ng-select>
+    </label>
+    <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
+    <input type="button" name="cancel" value="Cancel" (click)="cancelForm()"  tabindex="9" class="cancel" />
+    <input type="button" name="save" value="Save Account" (click)="saveChanges()"  tabindex="10" class="save" />
+</form>
