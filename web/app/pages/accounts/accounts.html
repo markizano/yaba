@@ -1,0 +1,68 @@
+<div class="titlebar">
+    <h1>Accounts</h1>
+    <p>
+        This is where you view and manage accounts associated with each institution.
+    </p>
+    <mat-icon
+        (click)="add()"
+        class="helper right"
+        [attr.helper]="'Add a new account.'"
+    >
+        add
+    </mat-icon>
+</div>
+<div class="account-list">
+@for(account of accounts; let i = $index; track account.id) {
+<div class="account dropfile" (fileDrop)="parseCSVFiles(account, $event)" [preventBodyDrop]="true" [id]="account.id">
+    <div class="titlebar">
+        <div>
+            <h2 class="title md-truncate"><a [routerLink]="['/accounts', account.id]">{{account.name}}</a></h2>
+            <div class="account-balance">{{ account.balance() | currency }}</div>
+        </div>
+        <div class="actions">
+            <mat-icon
+                [routerLink]="['/accounts', account.id]"
+                class="helper preview-icon"
+                [attr.helper]="`View &quot;${account.name}&quot; details &amp; Transactions.`"
+            >
+                visibility
+            </mat-icon>
+            <mat-icon
+                (upload)="parseCSVFiles(account, $event)"
+                class="helper upload upload-icon"
+                [attr.helper]="`Upload transactions for &quot;${account.name}&quot;.`">
+            </mat-icon>
+            <mat-icon
+                (click)="edit(account)"
+                class="helper edit-icon"
+                [attr.helper]="`Edit Account &quot;${account.name}&quot;.`"
+            >
+                edit
+            </mat-icon>
+            <mat-icon
+                (click)="remove(account)"
+                class="helper delete-icon"
+                [attr.helper]="`Delete Account &quot;${account.name}&quot;.`"
+            >
+                delete
+            </mat-icon>
+        </div>
+    </div>
+    <yaba-transaction-list
+        [accountId]="account.id"
+        [filters]="filters"
+        [showFilters]="false"
+        [showPaginate]="false"
+        [truncate]="true"
+        [editable]="false"
+    ></yaba-transaction-list>
+</div>
+}
+</div>
+<errors [errors]="errors"></errors>
+<yaba-account-form
+    [account]="account"
+    (cancel)="cancel()"
+    (save)="save($event)"
+    [ngClass]="{ 'ng-hide': !formVisible }"
+    class="suave"></yaba-account-form>

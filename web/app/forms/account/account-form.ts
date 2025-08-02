@@ -8,15 +8,16 @@ import { InstitutionsService } from 'app/services/institutions.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'yaba-account-form',
-  templateUrl: './account-form.component.html',
-  standalone: true,
-  imports: [
-    ControlsModule,
-  ],
-  animations: [
-    YabaAnimations.fadeSlideDown(),
-  ]
+    selector: 'yaba-account-form',
+    templateUrl: './account-form.html',
+    styleUrls: ['./account-form.css'],
+    standalone: true,
+    imports: [
+        ControlsModule,
+    ],
+    animations: [
+        YabaAnimations.fadeSlideDown(),
+    ]
 })
 export class AccountFormComponent {
     @Input() account = new Account();

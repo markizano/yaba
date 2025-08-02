@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 
-import { AccountsComponent } from 'app/pages/accounts/accounts.component';
-import { AccountDetailComponent } from 'app/pages/accounts/account-detail/account.component';
-import { AccountFormComponent } from 'app/forms/account/account-form.component';
+import { AccountsComponent } from 'app/pages/accounts/accounts';
+import { AccountDetailComponent } from 'app/pages/accounts/account-detail/account';
+import { AccountFormComponent } from 'app/forms/account/account-form';
 
 import { ControlsModule } from 'app/controls/controls.module';
 import { TransactionsModule } from 'app/transactions/transactions.module';
@@ -15,6 +16,7 @@ import { TransactionsModule } from 'app/transactions/transactions.module';
     ],
     imports: [
         ControlsModule,
+        MatIconModule,
         RouterModule,
         TransactionsModule,
         AccountFormComponent,

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -9,9 +9,10 @@ import { AccountsService } from 'app/services/accounts.service';
 import { InstitutionsService } from 'app/services/institutions.service';
 
 @Component({
-  selector: 'app-accounts',
-  templateUrl: './accounts.component.html',
-  standalone: false,
+    selector: 'app-accounts',
+    templateUrl: './accounts.html',
+    styleUrls: ['./accounts.css'],
+    standalone: false,
 })
 export class AccountsComponent {
     accounts = new Accounts();
@@ -24,7 +25,13 @@ export class AccountsComponent {
 
     #cacheUpdate?: Subscription;
 
-    constructor( protected router: Router, protected institutionsService: InstitutionsService, protected accountsService: AccountsService, protected chgDet: ChangeDetectorRef) {
+    // Dependency injection using inject() method
+    protected router = inject(Router);
+    protected institutionsService = inject(InstitutionsService);
+    protected accountsService = inject(AccountsService);
+    protected chgDet = inject(ChangeDetectorRef);
+
+    constructor() {
         console.log('new AccountsComponent()');
     }
 

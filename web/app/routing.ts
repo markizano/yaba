@@ -2,8 +2,8 @@ import { Routes } from '@angular/router';
 
 import { HomeComponent } from 'app/pages/home/home.component';
 import { BudgetingComponent } from 'app/pages/budgeting/budgeting.component';
-import { AccountsComponent } from 'app/pages/accounts/accounts.component';
-import { AccountDetailComponent } from 'app/pages/accounts/account-detail/account.component';
+import { AccountsComponent } from 'app/pages/accounts/accounts';
+import { AccountDetailComponent } from 'app/pages/accounts/account-detail/account';
 import { InstitutionsComponent } from 'app/pages/institutions/institutions';
 import { SettingsComponent } from 'app/pages/settings/settings.component';
 import { ChartsComponent } from 'app/pages/charts/charts.component';

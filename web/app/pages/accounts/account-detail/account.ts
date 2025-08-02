@@ -1,12 +1,13 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+
 import { Account, Accounts } from 'app/lib/accounts';
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { Transactions } from 'app/lib/transactions';
 import { TransactionShowHeaders } from 'app/lib/types';
 import { AccountsService } from 'app/services/accounts.service';
 import { InstitutionsService } from 'app/services/institutions.service';
-import { Subscription } from 'rxjs';
 
 /**
  * This component is responsible for displaying the details of a single account.
@@ -14,10 +15,12 @@ import { Subscription } from 'rxjs';
  */
 @Component({
     selector: 'yaba-account',
-    templateUrl: './account.component.html',
+    templateUrl: './account.html',
+    styleUrls: ['./account.css'],
     standalone: false,
 })
 export class AccountDetailComponent {
+    protected router = inject(Router);
     @Input() id = this.router.url.split('/').pop() ?? '';
     accounts = new Accounts();
     account = new Account();
@@ -34,7 +37,10 @@ export class AccountDetailComponent {
     errors: string[] = [];
     #cacheUpdate?: Subscription;
 
-    constructor(protected router: Router, protected institutionsService: InstitutionsService, protected accountsService: AccountsService) {
+    protected institutionsService = inject(InstitutionsService);
+    protected accountsService = inject(AccountsService);
+
+    constructor() {
         console.log('AccountDetailComponent constructor');
     }
 

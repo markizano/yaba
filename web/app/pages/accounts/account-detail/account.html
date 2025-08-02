@@ -1,0 +1,78 @@
+<div class="dropfile" (fileDrop)="parseCSVFiles($event)" [preventBodyDrop]="true">
+    <div class="titlebar">
+@if ( editing ) {
+            <input type="text" [(ngModel)]="account.name" tabindex="1" class="bigedit" />
+            <mat-icon
+                (click)="save()"
+                class="helper save-icon"
+                [attr.helper]="`Save changes to &quot;${account.name}&quot;`"
+            >
+                check
+            </mat-icon>
+            <mat-icon
+                (click)="cancel()"
+                class="helper cancel-icon"
+                [attr.helper]="`Cancel changes to &quot;${account.name}&quot;`"
+            >
+                close
+            </mat-icon>
+} @else {
+            <h2 class="title">{{ account.name }}</h2>
+            <div class="actions">
+                <mat-icon
+                    class="helper upload upload-icon"
+                    [attr.helper]="`Upload transactions for &quot;${account.name}&quot;`"
+                >
+                    upload
+                </mat-icon>
+                <mat-icon
+                    (click)="editing = true"
+                    class="helper edit-icon"
+                    [attr.helper]="`Edit this account &quot;${account.name}&quot;`"
+                >
+                    edit
+                </mat-icon>
+                <mat-icon
+                    (click)="remove()"
+                    class="helper delete-icon"
+                    [attr.helper]="`Delete this account &quot;${account.name}&quot;`"
+                >
+                    delete
+                </mat-icon>
+            </div>
+}
+        <mat-icon routerLink="/accounts" class="helper close-icon">close</mat-icon>
+    </div>
+    <div class="account-details-text-wrapper">
+        <p><b>Balance</b>: <span>{{ account.balance() | currency }}</span></p>
+@if ( editing ) {
+        <label>
+            Account Type:
+            <ng-select
+                [items]="accountTypes"
+                bindLabel="label"
+                bindValue="value"
+                placeholder="Select Account Type: "
+                name="accountType"
+                [(ngModel)]="account.accountType"
+                tabindex="2"
+            ></ng-select>
+        </label><br />
+        <label>Description: <input type="text" maxlength="255" name="description" [(ngModel)]="account.description" tabindex="3" /></label>
+        <mat-icon (click)="save()" class="helper save-icon" title="Save changes to &quot;{{ account.name }}&quot;">check</mat-icon>
+        <mat-icon (click)="cancel()" class="helper cancel-icon" title="Cancel changes to &quot;{{ account.name }}&quot;">close</mat-icon>
+} @else {
+        <p><b>Account Type</b>: <span>{{ account.accountType }}</span></p>
+        <p>{{ account.description }}</p>
+}
+    </div>
+    <yaba-transaction-list
+        [accountId]="account.id"
+        [filters]="filters"
+        [showFilters]="true"
+        [showPaginate]="true"
+        [editable]="true"
+        class="detail"
+    ></yaba-transaction-list>
+    <errors [errors]="errors"></errors>
+</div>
