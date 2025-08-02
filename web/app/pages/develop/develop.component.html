@@ -38,7 +38,7 @@
     @for ( mapping of institution.mappings; track mapping ) {
                         <ul>
                             <li>From Field: <span> {{ mapping.fromField }} </span></li>
-                            <li>To {{ mapping.mapType == 'dynamic'? 'Field': 'Value' }}: <span> {{ mapping.toField }} </span></li>
+                            <li>To {{ mapping.mapType === 'dynamic'? 'Field': 'Value' }}: <span> {{ mapping.toField }} </span></li>
                             <li>Map Type: <span> {{ mapping.mapType }} </span></li>
                         </ul>
     }

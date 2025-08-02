@@ -18,7 +18,7 @@ import { TransactionsListComponent } from 'app/tables/transactions/transactions-
 
 
 @Component({
-    selector: 'debugging',
+    selector: 'yaba-develop',
     standalone: true,
     imports: [
         ControlsModule,

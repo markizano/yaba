@@ -24,8 +24,10 @@ import { ProspectingModule } from 'app/pages/prospecting/prospecting.module';
         ProspectingModule,
         BudgetingModule,
         SettingsModule,
-        DevelopComponent,
         ControlsModule,
+    ],
+    providers: [
+        DevelopComponent,
     ]
 })
 export class YabaComponent { }
