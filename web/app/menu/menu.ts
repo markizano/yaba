@@ -9,19 +9,19 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'yaba-menu',
-  templateUrl: './menu.html',
-  styleUrl: './menu.css',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSidenavModule,
-    MatListModule,
-    MatToolbarModule,
-  ],
+    selector: 'yaba-menu',
+    templateUrl: './menu.html',
+    styleUrl: './menu.css',
+    standalone: true,
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatIconModule,
+        MatButtonModule,
+        MatSidenavModule,
+        MatListModule,
+        MatToolbarModule,
+    ],
 })
 export class MenuComponent {
     public routes: Route[] = routeConfig.filter(route => route.path !== '**' && route.path !== '');

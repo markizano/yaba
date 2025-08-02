@@ -2,73 +2,11 @@
     display: block;
     width: 100%;
     height: 100%;
-    padding: 1rem;
     box-sizing: border-box;
-}
-
-/* Header and description */
-h1 {
-    font-size: 200%;
-    font-weight: bold;
-    text-decoration: underline;
-    width: fit-content;
-    display: inline-block;
-    margin: 10px auto 10px 5px;
-    color: var(--text);
-}
-
-p {
-    color: var(--text);
-    line-height: 1.4;
-    margin: 10px 5px;
-    font-size: 1.1rem;
-}
-
-/* Account list wrapper */
-.account-list {
-    width: 100%;
-    margin: 0 auto;
-    display: flex;
-    flex-flow: wrap;
-    flex-direction: row;
-    margin-top: 20px;
-}
-
-/* Individual account item */
-.account {
-    display: block;
-    margin: 5px;
-    border: 2px solid var(--border);
+    border: 0.2rem solid var(--border);
     border-radius: 0.5rem;
     box-shadow: 0.5rem 0.3rem var(--shadow);
     background-color: var(--background);
-    min-width: 300px;
-    flex: 1 1 400px;
-}
-
-/* Account title bar */
-.account .titlebar {
-    display: flex;
-    flex-flow: row;
-    background-color: var(--titlebar);
-    border-radius: 0.5rem 0.5rem 0 0;
-    color: var(--text);
-    padding: 10px;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.account .titlebar > div {
-    flex: 1;
-}
-
-.account .titlebar h2 {
-    font-size: 150%;
-    font-weight: bold;
-    width: fit-content;
-    display: inline-block;
-    margin: 8px auto 6px 5px;
-    color: var(--text);
 }
 
 .account-balance {
@@ -76,24 +14,4 @@ p {
     margin: 0 auto 5px 5px;
     color: var(--text);
     font-weight: bold;
-}
-
-/* Actions section */
-.actions {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .account {
-        flex: 1 1 100%;
-        min-width: 250px;
-    }
-
-    .account .titlebar {
-        flex-direction: column;
-        align-items: flex-start;
-    }
 }

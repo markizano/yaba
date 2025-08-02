@@ -133,11 +133,11 @@ $theme: mat.define-theme((
 }
 
 .add-icon {
-  color: var(--secondary-normal);
+  color: var(--secondary-dark);
 }
 
 .add-icon:hover {
-  color: var(--secondary-dark);
+  color: var(--secondary-normal);
 }
 
 .edit-icon {
@@ -157,6 +157,25 @@ $theme: mat.define-theme((
 }
 
 /* END: Angular Material Icon Overrides */
+
+/** BEGIN: Debugging **/
+/*
+@DEBUG: To enable debugging, set display=block; to disable debugging, set display=none.
+*/
+debug, .debug {
+  display: none;
+  max-width: 800px;
+  max-height: 300px;
+  overflow: auto;
+  border: 2px solid blue;
+  span {
+      display: inline-block;
+      font-family: "Liberation Mono", "DejaVu Sans Mono", monospace;
+      font-size: 16px;
+      word-wrap: break-word;
+  }
+}
+/** END: Debugging **/
 
 /*** Default HTML Elements that need styles set. ***/
 
@@ -179,6 +198,68 @@ a:hover {
 body {
   font-family: "Sans", "Arial", "Calibri";
   font-size: 14px;
+}
+
+h1 {
+  font-size: 200%;
+  font-weight: bold;
+  text-decoration: underline;
+  width: fit-content;
+  display: inline-block;
+  margin: 10px auto 10px 5px;
+  color: var(--text);
+}
+
+h2 {
+  font-size: 150%;
+  font-weight: bold;
+  width: fit-content;
+  display: inline-block;
+  margin: 8px auto 6px 5px;
+  color: var(--text);
+}
+
+p {
+  color: var(--text);
+  line-height: 1.4;
+  margin: 0.8rem 0.5rem;
+  font-size: 1rem;
+}
+
+table.data {
+  border: 1px solid var(--border);
+  max-height: 500px;
+  margin: 5px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  border-radius: 0.3rem;
+  overflow-y: auto;
+}
+table.data th {
+  font-weight: bold;
+  text-align: left;
+  padding: 5px;
+  border-bottom: 1px solid black;
+  cursor: pointer;
+  margin: 5px auto;
+  background-color: var(--txn-list-header);
+  color: var(--text);
+}
+table.data thead {
+  position: sticky;
+  top: 0px;
+}
+table.data td {
+  padding: 2px 5px 2px 5px;
+  overflow: visible;
+  vertical-align: middle;
+  transition: all 400ms ease-in-out;
+}
+table.data tr:nth-child(odd) {
+  background-color: var(--txn-odd);
+}
+table.data tr:nth-child(even) {
+  background-color: var(--txn-even);
 }
 
 .right {
@@ -207,6 +288,14 @@ body {
 
 .wide {
     width: 99%;
+}
+
+.small {
+  transform: scale(0.5);
+}
+
+.big {
+  transform: scale(2);
 }
 
 .md-truncate {
@@ -240,4 +329,47 @@ body {
   position: fixed;
   top: 5px;
   right: 30px;
+}
+
+/* Common styles for all pages */
+.titlebar {
+  display: flex;
+  flex-flow: row;
+  background-color: var(--titlebar);
+  border-radius: 0.5rem 0.5rem 0 0;
+  color: var(--text);
+  padding: 10px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.add-container {
+  margin: 0.5rem;
+}
+
+.titlebar h2 {
+  font-size: 150%;
+  font-weight: bold;
+  width: fit-content;
+  display: inline-block;
+  margin: 8px auto 6px 5px;
+  color: var(--text);
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+}
+
+.data-card-container {
+  border: 0.2rem solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0.5rem 0.3rem var(--shadow);
+  background-color: var(--background);
+  box-sizing: border-box;
+  margin: 1rem;
+  flex-wrap: wrap;
 }

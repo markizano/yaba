@@ -1,40 +1,50 @@
-<div class="row">
-    <h1> Institutions </h1>
-    <mat-icon
+<div class="titlebar">
+    <div class="column">
+        <h1> Institutions </h1>
+        <p>
+            This is where you configure your Banks and
+            institutions for the associations between
+            their CSV/Excel formats and Yaba representation of transactions.
+            Your institutions and their CSV associations are listed below.
+        </p>
+    </div>
+    <div class="add-container helper" helper="Add a new institution.">
+        <mat-icon
         (click)="add()"
-        class="helper right add-icon"
-        [attr.helper]="'Click to add a new institution'">
+        class="right big add-icon"
+    >
+        add
     </mat-icon>
-    <br clear="all" />
+    </div>
 </div>
-<p>
-    This is where you configure your Banks and
-    institutions for the associations between
-    their CSV/Excel formats and Yaba representation of transactions.
-    Your institutions and their CSV associations are listed below.
-</p>
-<div class="institution-list">
+<div class="row">
 @for( institution of institutions; let i = $index; track institution.id ) {
-    <div class="institution">
+    <div class="column data-card-container">
         <div class="titlebar">
             <div class="column">
                 <h2>{{ institution.name }}</h2>
                 <p> {{ institution.description }} </p>
             </div>
             <div class="actions">
-                <mat-icon
-                    (click)="edit(institution)"
-                    class="helper edit-icon"
-                    [attr.helper]="`Edit Institution &quot;${institution.name}&quot;.`">
-                </mat-icon>
-                <mat-icon
-                    (click)="remove(institution)"
-                    class="helper delete-icon"
-                    [attr.helper]="`Delete Institution &quot;${institution.name}&quot;.`">
-                </mat-icon>
+                <div class="helper" [attr.helper]="`Edit Institution &quot;${institution.name}&quot;.`">
+                    <mat-icon
+                        (click)="edit(institution)"
+                        class="edit-icon"
+                    >
+                        edit
+                    </mat-icon>
+                </div>
+                <div class="helper" [attr.helper]="`Delete Institution &quot;${institution.name}&quot;.`">
+                    <mat-icon
+                        (click)="remove(institution)"
+                        class="delete-icon"
+                    >
+                        delete
+                    </mat-icon>
+                </div>
             </div>
         </div>
-        <table id="{{ institution.id }}" class="institution-mappings data item-list">
+        <table id="{{ institution.id }}" class="institution-mappings data">
             <thead>
                 <th>From Field</th>
                 <th>To Field</th>

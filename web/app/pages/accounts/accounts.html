@@ -1,51 +1,61 @@
 <div class="titlebar">
-    <h1>Accounts</h1>
-    <p>
-        This is where you view and manage accounts associated with each institution.
-    </p>
-    <mat-icon
+    <div class="column">
+        <h1>Accounts</h1>
+        <p>
+            This is where you view and manage accounts associated with each institution.
+        </p>
+    </div>
+    <div class="add-container helper" helper="Add a new account.">
+        <mat-icon
         (click)="add()"
-        class="helper right"
+        class="helper right big add-icon"
         [attr.helper]="'Add a new account.'"
     >
         add
     </mat-icon>
+    </div>
 </div>
-<div class="account-list">
+<div class="row">
 @for(account of accounts; let i = $index; track account.id) {
-<div class="account dropfile" (fileDrop)="parseCSVFiles(account, $event)" [preventBodyDrop]="true" [id]="account.id">
+<div class="column dropfile data-card-container" (fileDrop)="parseCSVFiles(account, $event)" [preventBodyDrop]="true" [id]="account.id">
     <div class="titlebar">
         <div>
             <h2 class="title md-truncate"><a [routerLink]="['/accounts', account.id]">{{account.name}}</a></h2>
             <div class="account-balance">{{ account.balance() | currency }}</div>
         </div>
         <div class="actions">
-            <mat-icon
-                [routerLink]="['/accounts', account.id]"
-                class="helper preview-icon"
-                [attr.helper]="`View &quot;${account.name}&quot; details &amp; Transactions.`"
-            >
-                visibility
-            </mat-icon>
-            <mat-icon
-                (upload)="parseCSVFiles(account, $event)"
-                class="helper upload upload-icon"
-                [attr.helper]="`Upload transactions for &quot;${account.name}&quot;.`">
-            </mat-icon>
-            <mat-icon
-                (click)="edit(account)"
-                class="helper edit-icon"
-                [attr.helper]="`Edit Account &quot;${account.name}&quot;.`"
-            >
-                edit
-            </mat-icon>
-            <mat-icon
-                (click)="remove(account)"
-                class="helper delete-icon"
-                [attr.helper]="`Delete Account &quot;${account.name}&quot;.`"
-            >
-                delete
-            </mat-icon>
+            <div class="helper" [attr.helper]="`View &quot;${account.name}&quot; details &amp; Transactions.`">
+                <mat-icon
+                    [routerLink]="['/accounts', account.id]"
+                    class="preview-icon"
+                >
+                    visibility
+                </mat-icon>
+            </div>
+            <div class="helper" [attr.helper]="`Upload transactions for &quot;${account.name}&quot;.`">
+                <mat-icon
+                    (upload)="parseCSVFiles(account, $event)"
+                    class="upload upload-icon"
+                >
+                    upload
+                </mat-icon>
+            </div>
+            <div class="helper" [attr.helper]="`Edit Account &quot;${account.name}&quot;.`">
+                <mat-icon
+                    (click)="edit(account)"
+                    class="edit-icon"
+                >
+                    edit
+                </mat-icon>
+            </div>
+            <div class="helper" [attr.helper]="`Delete Account &quot;${account.name}&quot;.`">
+                <mat-icon
+                    (click)="remove(account)"
+                    class="delete-icon"
+                >
+                    delete
+                </mat-icon>
+            </div>
         </div>
     </div>
     <yaba-transaction-list

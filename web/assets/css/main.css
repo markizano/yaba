@@ -33,42 +33,6 @@ h4 {
     margin: 5px auto 5px 5px;
 }
 
-table.data {
-    border: 1px solid var(--border);
-    max-height: 500px;
-    margin: 5px;
-    table-layout: fixed;
-    border-collapse: collapse;
-    border-radius: 0.3rem;
-    overflow-y: auto;
-}
-table.data th {
-    font-weight: bold;
-    text-align: left;
-    padding: 5px;
-    border-bottom: 1px solid black;
-    cursor: pointer;
-    margin: 5px auto;
-    background-color: var(--txn-list-header);
-    color: var(--text);
-}
-table.data thead {
-    position: sticky;
-    top: 0px;
-}
-table.data td {
-    padding: 2px 5px 2px 5px;
-    overflow: visible;
-    vertical-align: middle;
-    transition: all 400ms ease-in-out;
-}
-table.data tr:nth-child(odd) {
-    background-color: var(--txn-odd);
-}
-table.data tr:nth-child(even) {
-    background-color: var(--txn-even);
-}
-
 form span.label, form label {
     text-align: right;
     width: 100%;
@@ -180,12 +144,6 @@ actions {
 }
 
 
-.small {
-    width: 24px;
-    height: 24px;
-    background-size: 24px;
-}
-
 /** Transaction Tables **/
 
 yaba-transaction-list {
@@ -288,46 +246,6 @@ transaction-filters {
     border: 2px solid var(--border);
     border-radius: 0.5rem;
     box-shadow: 0.5rem 0.3rem var(--shadow);
-}
-
-
-.titlebar {
-    display: flex;
-    flex-flow: row;
-    background-color: var(--titlebar);
-    border-radius: 0.5rem 0.5rem 0 0;
-    color: var(--text);
-    /* trash, edit, inspect, upload { filter: invert(100%); } */
-}
-
-.account-balance {
-    font-size: 120%;
-    margin: 0 auto 5px 5px;
-}
-
-/** Accounts and Insitution **/
-
-.account-details-text-wrapper {
-    margin: 10px 20px;
-    line-height: 1.2;
-    font-size: 1.1rem;
-    display: flex;
-    flex-flow: column;
-}
-
-/** Debugging **/
-debug, .debug {
-    display: block;
-    max-width: 800px;
-    max-height: 300px;
-    overflow: auto;
-    border: 2px solid blue;
-    span {
-        display: inline-block;
-        font-family: "Liberation Mono", "DejaVu Sans Mono", monospace;
-        font-size: 16px;
-        word-wrap: break-word;
-    }
 }
 
 /** Budget Panel **/

@@ -131,7 +131,6 @@
 /* Main Content */
 .main-content {
     transition: margin-left 0.3s ease;
-    min-height: 100vh;
 }
 
 /* Responsive adjustments for 4K screens */
