@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 
 import { Budgets } from 'app/lib/types';
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
@@ -13,20 +13,21 @@ import { Subscription } from 'rxjs';
  */
 @Component({
     selector: 'yaba-budgeting',
-    templateUrl: './budgeting.component.html',
+    templateUrl: './budgeting.html',
+    styleUrls: ['./budgeting.css'],
     standalone: false,
 })
-export class BudgetingComponent {
+export class BudgetingComponent implements OnInit, OnDestroy {
     txns = new Transactions();
-    filters = EMPTY_TRANSACTION_FILTER;
+    filters = Object.assign(EMPTY_TRANSACTION_FILTER, {
+        description: '',
+        accounts: [],
+    });
     budgets: Budgets = [];
     errors: string[] = [];
     #cachedUpdates?: Subscription;
 
-    constructor(protected accountsService: AccountsService) {
-        this.filters.description = '';
-        this.filters.accounts = [];
-    }
+    protected accountsService = inject(AccountsService);
 
     ngOnInit() {
         const update = (accounts: Accounts) => {

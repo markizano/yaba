@@ -7,14 +7,14 @@
             <th>Actions</th>
         </thead>
         <tbody>
-@for ( txn of wishlist; let index = $index; track txn ) {
+@for ( txn of wishlist; track txn.id; let index = $index ) {
             <tr class="slide-down">
                 <td> {{ txn.datePosted | date:'yyyy-MM-dd' }}&nbsp;</td>
                 <td> {{ txn.amount | currency }}&nbsp;</td>
                 <td> {{ txn.description }}&nbsp;</td>
                 <td>
-                    <edit (click)="edit(index)" class="small-icon"></edit>&nbsp;
-                    <trash (click)="remove(txn.id)" class="small-icon"></trash>
+                    <mat-icon (click)="edit(index)" class="small edit-icon">edit</mat-icon>&nbsp;
+                    <mat-icon (click)="remove(txn.id)" class="small delete-icon">delete</mat-icon>
                 </td>
             </tr>
 }
@@ -26,8 +26,11 @@
     <label for="amount">which costs $</label><input type="number" placeholder="0.00" [(ngModel)]="item.amount" />
     <label for="date"> &nbsp; by &nbsp;</label><input type="date" [(ngModel)]="item.datePosted" />
     <div>
-        <add *ngIf="!editing" (click)="add();"></add>
-        <save *ngIf="editing" (click)="save();"></save>
-        <close *ngIf="editing" (click)="cancel();"></close>
+@if (editing) {
+    <mat-icon (click)="save();" class="check_circle-icon">yes</mat-icon>
+    <mat-icon (click)="cancel();" class="cancel-icon">no</mat-icon>
+} @else {
+    <mat-icon (click)="add();" class="add-icon">add</mat-icon>
+}
     </div>
 </div>

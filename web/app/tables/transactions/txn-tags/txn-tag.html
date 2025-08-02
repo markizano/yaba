@@ -1,7 +1,7 @@
 @if ( listening ) {
     <div class="txn-bulk fade-slide-down" @fade-slide-down>
         <input type="text" name="tagName" [(ngModel)]="name" (keypress)="checkInput($event)" placeholder="Enter Tag to be associated with these transactions: " />
-        <yes class="small" (click)="confirm(name)"></yes>
-        <no class="small" (click)="cancelForm()"></no>
+        <mat-icon class="small check_circle-icon" (click)="confirm(name)">yes</mat-icon>
+        <mat-icon class="small cancel-icon" (click)="cancelForm()">no</mat-icon>
     </div>
 }

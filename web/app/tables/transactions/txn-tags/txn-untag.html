@@ -2,7 +2,7 @@
     <div class="txn-bulk fade-slide-down" @fade-slide-down (keypress)="checkInput($event)">
         <p>Select the tags you want to remove from the selected transactions.</p>
         <yaba-budgets [tags]="transactions.getTags()" (selected)="budget($event)" ></yaba-budgets>
-        <yes (click)="confirm(tags)"></yes>
-        <no (click)="cancelForm()"></no>
+        <mat-icon class="small check_circle-icon" (click)="confirm(tags)">yes</mat-icon>
+        <mat-icon class="small cancel-icon" (click)="cancelForm()">no</mat-icon>
     </div>
 }

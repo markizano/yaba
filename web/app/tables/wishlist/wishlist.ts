@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { ControlsModule } from 'app/controls/controls.module';
 import { Transaction, Transactions } from 'app/lib/transactions';
 
@@ -7,12 +8,13 @@ import { Transaction, Transactions } from 'app/lib/transactions';
  * Helps the user edit stuff for their wishlist on the prospecting page.
  */
 @Component({
-  selector: 'yaba-wishlist',
-  standalone: true,
-  imports: [
-    ControlsModule,
-  ],
-  templateUrl: './wishlist.component.html',
+    selector: 'yaba-wishlist',
+    standalone: true,
+    imports: [
+        ControlsModule,
+        MatIconModule,
+    ],
+    templateUrl: './wishlist.html',
 })
 export class WishlistComponent {
     @Input() wishlist: Transactions = new Transactions();

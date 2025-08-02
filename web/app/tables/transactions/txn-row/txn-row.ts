@@ -1,4 +1,5 @@
-import { Component, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, HostListener, Input, Output, inject } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { ControlsModule } from 'app/controls/controls.module';
 import { Settings } from 'app/lib/settings';
 
@@ -16,6 +17,7 @@ import { TxnFieldComponent } from 'app/tables/transactions/txn-field/txn-field.c
     imports: [
         ControlsModule,
         TxnFieldComponent,
+        MatIconModule,
     ],
     templateUrl: './txn-row.component.html',
 })

@@ -1,12 +1,12 @@
 @if ( editable ) {
     <td class="actions-cell">
         @if ( editing ) {
-            <yes (click)="save(txn)" class="small"></yes>
-            <close (click)="cancel()" class="small"></close>
+            <mat-icon (click)="save(txn)" class="small check_circle-icon">yes</mat-icon>
+            <mat-icon (click)="cancel()" class="small cancel-icon">no</mat-icon>
         } @else {
             <input type="checkbox" name="select_txn_{{ txn.id }}" #txnSelected [checked]="select" (change)="selectTxn(txnSelected.checked)" class="small" />
-            <edit (click)="edit()" class="small"></edit>
-            <trash (click)="dropTxn()" class="small"></trash>
+            <mat-icon (click)="edit()" class="small edit-icon">edit</mat-icon>
+            <mat-icon (click)="dropTxn()" class="small delete-icon">delete</mat-icon>
         }
     </td>
 }

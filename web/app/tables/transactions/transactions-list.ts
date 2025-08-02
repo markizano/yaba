@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
@@ -88,7 +88,10 @@ export class TransactionsListComponent {
     selected = new Transactions();
     #acctChg?: Subscription;
 
-    constructor(protected accountsService: AccountsService, protected chgDet: ChangeDetectorRef) {
+    protected accountsService = inject(AccountsService);
+    protected chgDet = inject(ChangeDetectorRef);
+
+    constructor() {
         console.log('new TransactionsListComponent()');
     }
 

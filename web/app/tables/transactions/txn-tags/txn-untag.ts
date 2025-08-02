@@ -1,4 +1,5 @@
-import { Component, EventEmitter, HostListener, Output, Input } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 
 import { Tags } from 'app/lib/types';
 import { YabaAnimations } from 'app/lib/animations';
@@ -14,6 +15,7 @@ import { ControlsModule } from 'app/controls/controls.module';
     imports: [
         ControlsModule,
         TagsFilterComponent,
+        MatIconModule,
     ]
 })
 export class UntagTransactionComponent {
