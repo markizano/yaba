@@ -148,7 +148,7 @@ export class SettingsComponent {
     }
 
     /**
-     * Import settings from zip file.
+     * Imports settings from zip file.
      */
     importFromZip($event: Event) {
         const $element = $event.target as HTMLInputElement;

@@ -12,7 +12,7 @@ import { Transaction, Transactions } from 'app/lib/transactions';
 
 import { ControlsModule } from 'app/controls/controls.module';
 import { AccountsService } from 'app/services/accounts.service';
-import { TransactionsListComponent } from 'app/tables/transactions/transactions-list';
+import { TransactionsModule } from 'app/transactions/transactions.module';
 import { AccountsModule } from "../accounts/accounts.module";
 
 
@@ -22,7 +22,7 @@ import { AccountsModule } from "../accounts/accounts.module";
     styleUrls: ['./develop.css'],
     imports: [
     ControlsModule,
-    TransactionsListComponent,
+    TransactionsModule,
     AccountsModule
 ],
 })

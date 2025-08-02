@@ -1,4 +1,14 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { Subscription } from 'rxjs';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    inject
+} from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,8 +27,6 @@ import { TransactionFilterComponent } from 'app/tables/transactions/txn-filter/t
 import { TxnRowComponent } from 'app/tables/transactions/txn-row/txn-row';
 import { TagTransactionsComponent } from 'app/tables/transactions/txn-tags/txn-tag';
 import { UntagTransactionComponent } from 'app/tables/transactions/txn-tags/txn-untag';
-import { Subscription } from 'rxjs';
-import { AccountsModule } from "app/pages/accounts/accounts.module";
 
 /**
  * This component is a table that displays transactions. It can be filtered, sorted, and paginated.
@@ -42,7 +50,6 @@ import { AccountsModule } from "app/pages/accounts/accounts.module";
     TxnRowComponent,
     TagTransactionsComponent,
     UntagTransactionComponent,
-    AccountsModule
 ],
 })
 export class TransactionsListComponent implements OnInit, OnDestroy {
