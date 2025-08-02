@@ -9,7 +9,7 @@ import { Component, Directive, ElementRef, EventEmitter, HostListener, Injectabl
 export abstract class IconBaseInjectable {
   /**
    * Make it possible to use [Space] or [Enter] on these components to trigger a "click" event so we only have to listen for the click event.
-   * @param $event 
+   * @param $event
    */
     @HostListener('keypress')
     onKeyPress($event: KeyboardEvent) {
@@ -33,10 +33,10 @@ export class ActionsDirective { }
 export class AddDirective extends IconBaseInjectable { }
 
 @Directive({
-    selector: 'close, no',
-  })
-  export class CloseDirective extends IconBaseInjectable { }
-  
+  selector: 'close, no',
+})
+export class CloseDirective extends IconBaseInjectable { }
+
 @Directive({
   selector: 'debug',
 })

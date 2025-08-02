@@ -104,15 +104,6 @@
             ],
             "scripts": []
           }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": [
-              "./web/**/*.ts",
-              "./web/**/*.html"
-            ]
-          }
         }
       }
     }
@@ -142,10 +133,5 @@
     "@schematics/angular:resolver": {
       "typeSeparator": "."
     }
-  },
-  "cli": {
-    "schematicCollections": [
-      "angular-eslint"
-    ]
   }
 }

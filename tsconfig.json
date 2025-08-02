@@ -23,7 +23,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "karma.conf.js",
-    "eslint.config.mjs"
+    "karma.conf.js"
   ]
 }
