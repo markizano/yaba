@@ -35,7 +35,8 @@
               "papaparse",
               "jszip",
               "file-saver"
-            ]
+            ],
+            "deployUrl": "/"
           },
           "configurations": {
             "production": {

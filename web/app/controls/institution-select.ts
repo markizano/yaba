@@ -17,7 +17,7 @@ import { Subscription } from "rxjs";
         FormsModule,
         NgSelectComponent,
     ],
-    providers: [{
+    providers: [{ // Enables the use of [(ngModel)] to be passed to this component. (Binds to institutionId)
         provide: NG_VALUE_ACCESSOR,
         useExisting: forwardRef(() => InstitutionSelectComponent),
         multi: true
