@@ -300,12 +300,15 @@ form input[type="button"] {
 .row {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
 }
 
 .column {
   display: flex;
   flex-direction: column;
+}
+
+.wrap {
+  flex-wrap: wrap;
 }
 
 .negative {
@@ -361,6 +364,29 @@ form input[type="button"] {
   position: fixed;
   top: 5px;
   right: 30px;
+}
+
+.cancel {
+  background-color: var(--cancel);
+  color: var(--text);
+  font-size: 1.2rem;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  box-shadow: var(--light-shadow) 5px 5px;
+  display: inline-flex;
+  line-height: 1.2rem;
+  margin: 5px;
+}
+
+.save {
+  background-color: var(--save);
+  color: var(--text);
+  font-size: 1.2rem;
+  border-radius: 0.5rem;
+  box-shadow: var(--light-shadow) 5px 5px;
+  display: inline-flex;
+  line-height: 1.2rem;
+  margin: 5px;
 }
 
 /* Common styles for all pages */

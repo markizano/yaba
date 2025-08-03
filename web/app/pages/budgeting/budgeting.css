@@ -1,4 +1,3 @@
-/* Main container styling */
 :host {
     border: 0.25rem solid var(--border);
     border-radius: 0.5rem;

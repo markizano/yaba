@@ -14,7 +14,7 @@
     </mat-icon>
     </div>
 </div>
-<div class="row">
+<div class="row wrap">
 @for(account of accounts; let i = $index; track account.id) {
 <div class="column dropfile data-card-container" (fileDrop)="parseCSVFiles(account, $event)" [preventBodyDrop]="true" [id]="account.id">
     <div class="titlebar">

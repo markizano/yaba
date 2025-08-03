@@ -18,7 +18,9 @@
 
     <div class="row wide">
         <label for="incomeTags">What are your income tags?: </label>
-        <question class="helper" helper="Income tags will tell this app how to treat things you deem as income per defined pay period as defined above."></question>
+        <div class="helper" helper="Income tags will tell this app how to treat things you deem as income per defined pay period as defined above.">
+            <mat-icon fontIcon="question_mark"></mat-icon>
+        </div>
     </div>
     <mat-form-field class="wide">
         <mat-chip-grid #incomeChips aria-label="Enter income tags">
@@ -45,7 +47,9 @@
 
     <div class="row wide">
         <label for="expenseTags">What are your expense tags?: </label>
-        <question class="helper" helper="Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses."></question>
+        <div class="helper" helper="Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses.">
+            <mat-icon fontIcon="question_mark"></mat-icon>
+        </div>
     </div>
     <mat-form-field class="wide">
         <mat-chip-grid #expenseChips aria-label="Enter expense tags">
@@ -72,7 +76,9 @@
 
     <div class="row wide">
         <label for="transferTags">What is your transfer tag?: </label>
-        <question class="helper" helper="Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions."></question>
+        <div class="helper" helper="Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions.">
+            <mat-icon fontIcon="question_mark"></mat-icon>
+        </div>
     </div>
     <mat-form-field class="wide">
         <mat-chip-grid #transferChips aria-label="Enter transfer tags">
@@ -99,7 +105,9 @@
 
     <div class="row wide">
         <label for="hideTags">What is your hide tag?: </label>
-        <question class="helper" helper="These transactions will be hidden from view and removed from calculations."></question>
+        <div class="helper" helper="These transactions will be hidden from view and removed from calculations.">
+            <mat-icon fontIcon="question_mark"></mat-icon>
+        </div>
     </div>
     <mat-form-field class="wide">
         <mat-chip-grid #hiddenChips aria-label="Enter hidden tags">
@@ -126,7 +134,9 @@
 
     <div class="row wide">
         <label for="additionalFields">What additional Fields do you want to see on transaction lists? </label>
-        <question class="helper" helper="Checking these will include these columns in transaction list displays"></question>
+        <div class="helper" helper="Checking these will include these columns in transaction list displays">
+            <mat-icon fontIcon="question_mark"></mat-icon>
+        </div>
     </div>
     <div id="additionalFields" class="column " layout="column">
         <div><mat-checkbox [(ngModel)]="settings.txShow.id" (ngModelChange)="save()">Transaction ID</mat-checkbox></div>
