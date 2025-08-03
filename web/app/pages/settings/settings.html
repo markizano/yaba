@@ -1,148 +1,153 @@
-<div class="settings controller">
-    <h1>Settings</h1>
-    <p>Where you control the app behaviours.</p>
-    <div class="yaba-list-wrapper">
-        <div class="yaba-item wide">
-            <label for="payCycle">What is your pay cycle?</label>
-            <ng-select [(ngModel)]="settings.payCycle" (change)="save()" [clearable]="false" class="md-secondary">
-                <ng-option [value]="'weekly'">Weekly</ng-option>
-                <ng-option [value]="'bi-weekly'">Bi-Weekly</ng-option>
-                <ng-option [value]="'bi-monthly'">Bi-Monthly</ng-option>
-                <ng-option [value]="'monthly'">Monthly</ng-option>
-                <ng-option [value]="'quarterly'">Quarterly</ng-option>
-                <ng-option [value]="'annually'">Annually</ng-option>
-            </ng-select>
-        </div>
-        <div class="yaba-item wide">
-            <label for="txnDelta">How many months do you want in a transaction view by default?</label>
-            <ng-select [(ngModel)]="settings.txnDelta" (change)="save()" [clearable]="false" class="md-secondary">
-                <ng-option [value]="2592000000">30 days</ng-option>
-                <ng-option [value]="5184000000">60 days</ng-option>
-                <ng-option [value]="7776000000">90 days</ng-option>
-                <ng-option [value]="15552000000">6 months</ng-option>
-                <ng-option [value]="31104000000">1 year</ng-option>
-                <ng-option [value]="62208000000">2 years</ng-option>
-            </ng-select>
-        </div>
-        <div class="yaba-item wide">
-            <label for="incomeTags">What are your income tags?: </label>
-            <mat-chip-grid #incomeChips aria-label="Enter income tags">
+<div class="titlebar">
+    <div class="column">
+        <h1>Settings</h1>
+        <p>Where you control the app behaviours and preferences.</p>
+    </div>
+</div>
+<div class="column settings-section">
+    <label for="txnDelta">How many months do you want in a transaction view by default?</label>
+    <ng-select id="txnDelta" [(ngModel)]="settings.txnDelta" (change)="save()" [clearable]="false" class="">
+        <ng-option [value]="2592000000">30 days</ng-option>
+        <ng-option [value]="5184000000">60 days</ng-option>
+        <ng-option [value]="7776000000">90 days</ng-option>
+        <ng-option [value]="15552000000">6 months</ng-option>
+        <ng-option [value]="31104000000">1 year</ng-option>
+        <ng-option [value]="62208000000">2 years</ng-option>
+    </ng-select>
+    <hr />
+
+    <div class="row wide">
+        <label for="incomeTags">What are your income tags?: </label>
+        <question class="helper" helper="Income tags will tell this app how to treat things you deem as income per defined pay period as defined above."></question>
+    </div>
+    <mat-form-field class="wide">
+        <mat-chip-grid #incomeChips aria-label="Enter income tags">
 @for( tag of settings.incomeTags; track tag ) {
+            <mat-chip-row
+                (removed)="remove('incomeTags', $event)"
+                (edited)="edit('incomeTags', tag, $event)"
+                [editable]="true"
+                [aria-description]="'press enter to edit tag'">
+            <span>{{ tag }}</span>
+            <button matChipRemove [attr.aria-label]="'remove tag'">
+                <mat-icon>cancel</mat-icon>
+            </button>
+            </mat-chip-row>
+}
+            <input #incomeInput id="incomeTags" placeholder="New tag..."
+                [matChipInputFor]="incomeChips"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                [matChipInputAddOnBlur]="addOnBlur"
+                (matChipInputTokenEnd)="add('incomeTags', $event)"/>
+        </mat-chip-grid>
+    </mat-form-field>
+    <hr />
+
+    <div class="row wide">
+        <label for="expenseTags">What are your expense tags?: </label>
+        <question class="helper" helper="Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses."></question>
+    </div>
+    <mat-form-field class="wide">
+        <mat-chip-grid #expenseChips aria-label="Enter expense tags">
+@for ( tag of settings.expenseTags; track tag ) {
+            <mat-chip-row
+                (removed)="remove('expenseTags', $event)"
+                (edited)="edit('expenseTags', tag, $event)"
+                [editable]="true"
+                [aria-description]="'press enter to edit tag'">
+                <span>{{ tag }}</span>
+                <button matChipRemove [attr.aria-label]="'remove tag'">
+                    <mat-icon>cancel</mat-icon>
+                </button>
+            </mat-chip-row>
+}
+            <input #expenseInput id="expenseTags" placeholder="New tag..."
+                [matChipInputFor]="expenseChips"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                [matChipInputAddOnBlur]="addOnBlur"
+                (matChipInputTokenEnd)="add('expenseTags', $event)"/>
+        </mat-chip-grid>
+    </mat-form-field>
+    <hr />
+
+    <div class="row wide">
+        <label for="transferTags">What is your transfer tag?: </label>
+        <question class="helper" helper="Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions."></question>
+    </div>
+    <mat-form-field class="wide">
+        <mat-chip-grid #transferChips aria-label="Enter transfer tags">
+@for( tag of settings.transferTags; track tag ) {
                 <mat-chip-row
-                    (removed)="remove('incomeTags', $event)"
-                    (edited)="edit('incomeTags', tag, $event)"
-                    [editable]="true"
-                    [aria-description]="'press enter to edit tag'">
+                (removed)="remove('transferTags', $event)"
+                (edited)="edit('transferTags', tag, $event)"
+                [editable]="true"
+                [aria-description]="'press enter to edit tag'">
                 <span>{{ tag }}</span>
                 <button matChipRemove [attr.aria-label]="'remove tag'">
                     <mat-icon>cancel</mat-icon>
                 </button>
                 </mat-chip-row>
 }
-                <input placeholder="New tag..."
-                    [matChipInputFor]="incomeChips"
+            <input #transferInput id="transferTags" placeholder="New tag..."
+                    [matChipInputFor]="transferChips"
                     [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                     [matChipInputAddOnBlur]="addOnBlur"
-                    (matChipInputTokenEnd)="add('incomeTags', $event)"/>
-              </mat-chip-grid>
-            <question class="md-secondary helper" helper="Income tags will tell this app how to treat things you deem as income per defined pay period as defined above."></question>
-        </div>
-        <div class="yaba-item wide">
-            <label>What are your expense tags?: </label>
-            <mat-chip-grid #expenseChips aria-label="Enter expense tags">
-@for ( tag of settings.expenseTags; track tag ) {
-                <mat-chip-row
-                    (removed)="remove('expenseTags', $event)"
-                    (edited)="edit('expenseTags', tag, $event)"
-                    [editable]="true"
-                    [aria-description]="'press enter to edit tag'">
-                    <span>{{ tag }}</span>
-                    <button matChipRemove [attr.aria-label]="'remove tag'">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
-                </mat-chip-row>
-}
-                <input placeholder="New tag..."
-                    [matChipInputFor]="expenseChips"
-                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                    [matChipInputAddOnBlur]="addOnBlur"
-                    (matChipInputTokenEnd)="add('expenseTags', $event)"/>
-              </mat-chip-grid>
-            <question class="md-secondary helper" helper="Expense tags will tell me how to handle things that are bills. This is best suited for recurring expenses rather than 1-time expenses."></question>
-        </div>
-        <div class="yaba-item wide">
-            <label>What is your transfer tag?: </label>
-            <mat-chip-grid #transferChips aria-label="Enter transfer tags">
-@for( tag of settings.transferTags; track tag ) {
-                  <mat-chip-row
-                    (removed)="remove('transferTags', $event)"
-                    (edited)="edit('transferTags', tag, $event)"
-                    [editable]="true"
-                    [aria-description]="'press enter to edit tag'">
-                    <span>{{ tag }}</span>
-                    <button matChipRemove [attr.aria-label]="'remove tag'">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
-                  </mat-chip-row>
-}
-                <input placeholder="New tag..."
-                       [matChipInputFor]="transferChips"
-                       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                       [matChipInputAddOnBlur]="addOnBlur"
-                       (matChipInputTokenEnd)="add('transferTags', $event)"/>
-              </mat-chip-grid>
-            <question class="md-secondary helper" helper="Tags with this transfer will be marked as such and I will attempt to marry them to matching transactions.">
-            </question>
-        </div>
-        <div class="yaba-item wide">
-            <label>What is your hide tag?: </label>
-            <mat-chip-grid #hiddenChips aria-label="Enter hidden tags">
-@for ( tag of settings.hideTags; track tag ) {
-                <mat-chip-row
-                    (removed)="remove('hideTags', $event)"
-                    (edited)="edit('hideTags', tag, $event)"
-                    [editable]="true"
-                    [aria-description]="'press enter to edit tag'">
-                    <span>{{ tag }}</span>
-                    <button matChipRemove [attr.aria-label]="'remove tag'">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
-                  </mat-chip-row>
-}
-                <input placeholder="New tag..."
-                    [matChipInputFor]="hiddenChips"
-                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                    [matChipInputAddOnBlur]="addOnBlur"
-                    (matChipInputTokenEnd)="add('hideTags', $event)"/>
-            </mat-chip-grid>
-            <question class="md-secondary helper" helper="These transactions will be hidden from view and removed from calculations."></question>
-        </div>
-        <div class="yaba-item wide" layout="row">
-            <label>What additional Fields do you want to see on transaction lists? </label>
-            <div class="md-secondary additional-fields" layout="column">
-                <div><mat-checkbox [(ngModel)]="settings.txShow.id" (ngModelChange)="save()">Transaction ID</mat-checkbox></div>
-                <div><mat-checkbox [(ngModel)]="settings.txShow.datePending" (ngModelChange)="save()">Date Pending</mat-checkbox></div>
-                <div><mat-checkbox [(ngModel)]="settings.txShow.account" (ngModelChange)="save()">Account Name</mat-checkbox></div>
-                <div><mat-checkbox [(ngModel)]="settings.txShow.tax" (ngModelChange)="save()">Tax</mat-checkbox></div>
-                <div><mat-checkbox [(ngModel)]="settings.txShow.merchant" (ngModelChange)="save()">Merchant</mat-checkbox></div>
-                <div><mat-checkbox [(ngModel)]="settings.txShow.transactionType" (ngModelChange)="save()">Transaction Type</mat-checkbox></div>
-                <div><mat-checkbox [(ngModel)]="settings.txShow.tags" (ngModelChange)="save()">Budgets</mat-checkbox></div>
-            </div>
-            <question class="md-secondary helper" helper="Checking these will include these columns in transaction list displays"></question>
-        </div>
-        <div class="yaba-item wide">
-            <label>Export all data to a set of CSV files in ZIP format: </label>
-            <button (click)="export2zip()" class="md-secondary">[Export]</button>
-        </div>
-        <div class="yaba-item wide">
-            <label>Import a previous export: </label>
-            <input type="file" [(ngModel)]="import" accept="*.zip" (change)="importFromZip($event)" class="md-secondary" value="[IMPORT]" />
-        </div>
-        <div class="yaba-item wide">
-            <label>Delete all data: </label>
-            <span class="warning md-secondary">NOTE: This will delete ALL the data!!!</span>
-            <button (click)="deleteAll()" class="md-secondary">DELETE</button><br />
-        </div>
+                    (matChipInputTokenEnd)="add('transferTags', $event)"/>
+        </mat-chip-grid>
+    </mat-form-field>
+    <hr />
+
+    <div class="row wide">
+        <label for="hideTags">What is your hide tag?: </label>
+        <question class="helper" helper="These transactions will be hidden from view and removed from calculations."></question>
     </div>
+    <mat-form-field class="wide">
+        <mat-chip-grid #hiddenChips aria-label="Enter hidden tags">
+@for ( tag of settings.hideTags; track tag ) {
+            <mat-chip-row
+                (removed)="remove('hideTags', $event)"
+                (edited)="edit('hideTags', tag, $event)"
+                [editable]="true"
+                [aria-description]="'press enter to edit tag'">
+                <span>{{ tag }}</span>
+                <button matChipRemove [attr.aria-label]="'remove tag'">
+                    <mat-icon>cancel</mat-icon>
+                </button>
+            </mat-chip-row>
+}
+            <input #hiddenInput id="hideTags" placeholder="New tag..."
+                [matChipInputFor]="hiddenChips"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                [matChipInputAddOnBlur]="addOnBlur"
+                (matChipInputTokenEnd)="add('hideTags', $event)"/>
+        </mat-chip-grid>
+    </mat-form-field>
+    <hr />
+
+    <div class="row wide">
+        <label for="additionalFields">What additional Fields do you want to see on transaction lists? </label>
+        <question class="helper" helper="Checking these will include these columns in transaction list displays"></question>
+    </div>
+    <div id="additionalFields" class="column " layout="column">
+        <div><mat-checkbox [(ngModel)]="settings.txShow.id" (ngModelChange)="save()">Transaction ID</mat-checkbox></div>
+        <div><mat-checkbox [(ngModel)]="settings.txShow.datePending" (ngModelChange)="save()">Date Pending</mat-checkbox></div>
+        <div><mat-checkbox [(ngModel)]="settings.txShow.account" (ngModelChange)="save()">Account Name</mat-checkbox></div>
+        <div><mat-checkbox [(ngModel)]="settings.txShow.tax" (ngModelChange)="save()">Tax</mat-checkbox></div>
+        <div><mat-checkbox [(ngModel)]="settings.txShow.merchant" (ngModelChange)="save()">Merchant</mat-checkbox></div>
+        <div><mat-checkbox [(ngModel)]="settings.txShow.transactionType" (ngModelChange)="save()">Transaction Type</mat-checkbox></div>
+        <div><mat-checkbox [(ngModel)]="settings.txShow.tags" (ngModelChange)="save()">Budgets</mat-checkbox></div>
+    </div>
+    <hr />
+
+    <label for="exportCSV">Export all data to a set of CSV files in ZIP format: </label>
+    <button id="exportCSV" (click)="export2zip()" class="">[Export]</button>
+    <hr />
+
+    <label for="importCSV">Import a previous export: </label>
+    <input id="importCSV" type="file" [(ngModel)]="import" accept="*.zip" (change)="importFromZip($event)" class="" value="[IMPORT]" />
+    <hr />
+
+    <label for="deleteAll">Delete all data: </label>
+    <span class="warning ">NOTE: This will delete ALL the data!!!</span>
+    <button id="deleteAll" (click)="deleteAll()" class="">DELETE</button><br />
 </div>
-<br clear="all" />

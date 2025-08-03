@@ -300,6 +300,7 @@ form input[type="button"] {
 .row {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .column {
@@ -412,5 +413,4 @@ errors p {
   background-color: var(--background);
   box-sizing: border-box;
   margin: 1rem;
-  flex-wrap: wrap;
 }

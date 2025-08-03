@@ -1,0 +1,114 @@
+:host {
+    border: 0.25rem solid var(--border);
+    border-radius: 0.5rem;
+    box-shadow: 1rem 1rem var(--shadow);
+    background-color: var(--background);
+    width: 95%;
+    margin: 1rem auto;
+    display: flex;
+    flex-direction: column;
+    max-height: 95vh;
+    overflow-y: scroll;
+}
+
+.settings-section {
+    margin: 1rem 2rem;
+}
+
+.warning {
+    background-color: red;
+    color: yellow;
+    font-size: 20px;
+    border-radius: 0.5rem;
+    padding: 0.3rem;
+}
+
+label {
+    display: block;
+    margin: 1rem auto 0.2rem 0;
+}
+
+/* Angular Material Chips styling */
+mat-form-field {
+    margin-bottom: 1rem;
+}
+
+mat-chip-grid {
+    min-height: 48px;
+}
+
+mat-chip-row {
+    margin: 2px;
+    box-shadow: none !important;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background-color: #f5f5f5 !important;
+    color: rgba(0, 0, 0, 0.87) !important;
+    font-weight: 500;
+    border-radius: 16px;
+    padding: 4px 12px;
+    transition: all 0.2s ease;
+}
+
+mat-chip-row:hover {
+    background-color: #e0e0e0 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure proper spacing for the chip input */
+mat-form-field .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+
+/* Style the chip remove button */
+button[matChipRemove] {
+    margin-left: 4px;
+    color: rgba(0, 0, 0, 0.54);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button[matChipRemove]:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.87);
+}
+
+/* Ensure the mat-icon inside the remove button is properly sized */
+button[matChipRemove] mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+/* Remove any inherited shadows from parent elements */
+mat-chip-grid {
+    box-shadow: none !important;
+}
+
+mat-form-field {
+    box-shadow: none !important;
+}
+
+/* Ensure the input field has clean styling */
+mat-form-field .mat-mdc-text-field-wrapper {
+    box-shadow: none !important;
+    background-color: transparent;
+}
+
+/* Remove any Material Design default shadows that might be causing issues */
+.mat-mdc-form-field-focus-overlay {
+    display: none !important;
+}

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef } from '@angular/core';
 import { MatChipInputEvent, MatChipEvent, MatChipEditedEvent } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Settings } from 'app/lib/settings';
@@ -32,6 +32,12 @@ export class SettingsComponent {
     settings = new Settings();
     import?: File;
 
+    // ViewChild references for input elements
+    @ViewChild('incomeInput') incomeInput!: ElementRef<HTMLInputElement>;
+    @ViewChild('expenseInput') expenseInput!: ElementRef<HTMLInputElement>;
+    @ViewChild('transferInput') transferInput!: ElementRef<HTMLInputElement>;
+    @ViewChild('hiddenInput') hiddenInput!: ElementRef<HTMLInputElement>;
+
     protected institutionsService = inject(InstitutionsService);
     protected accountsService = inject(AccountsService);
 
@@ -53,22 +59,36 @@ export class SettingsComponent {
         // Add a new tags to respective list
         if (!$event.value) { console.warn('ignoring empty tag'); return; }
         console.log('add: ', tagKey, $event);
+        
+        let inputElement: ElementRef<HTMLInputElement> | undefined;
+        
         switch (tagKey) {
             case 'incomeTags':
                 this.settings.incomeTags.push($event.value);
+                inputElement = this.incomeInput;
                 break;
             case 'expenseTags':
                 this.settings.expenseTags.push($event.value);
+                inputElement = this.expenseInput;
                 break;
             case 'transferTags':
                 this.settings.transferTags.push($event.value);
+                inputElement = this.transferInput;
                 break;
             case 'hideTags':
                 this.settings.hideTags.push($event.value);
+                inputElement = this.hiddenInput;
                 break;
             default:
                 console.error('Unknown tagSet:', tagKey);
+                return;
         }
+        
+        // Clear the input after adding the chip
+        if (inputElement && inputElement.nativeElement) {
+            inputElement.nativeElement.value = '';
+        }
+        
         this.save();
     }
 
@@ -106,18 +126,35 @@ export class SettingsComponent {
      */
     remove(tagKey: TagType, $event: MatChipEvent) {
         console.log('remove: ', tagKey, $event);
+        const chipValue = $event.chip.value;
+        if (!chipValue) {
+            console.warn('No chip value found for removal');
+            return;
+        }
         switch (tagKey) {
             case 'incomeTags':
-                this.settings.incomeTags.splice(this.settings.incomeTags.indexOf($event.chip.value), 1);
+                const incomeIndex = this.settings.incomeTags.indexOf(chipValue);
+                if (incomeIndex > -1) {
+                    this.settings.incomeTags.splice(incomeIndex, 1);
+                }
                 break;
             case 'expenseTags':
-                this.settings.expenseTags.splice(this.settings.expenseTags.indexOf($event.chip.value), 1);
+                const expenseIndex = this.settings.expenseTags.indexOf(chipValue);
+                if (expenseIndex > -1) {
+                    this.settings.expenseTags.splice(expenseIndex, 1);
+                }
                 break;
             case 'transferTags':
-                this.settings.transferTags.splice(this.settings.transferTags.indexOf($event.chip.value), 1);
+                const transferIndex = this.settings.transferTags.indexOf(chipValue);
+                if (transferIndex > -1) {
+                    this.settings.transferTags.splice(transferIndex, 1);
+                }
                 break;
             case 'hideTags':
-                this.settings.hideTags.splice(this.settings.hideTags.indexOf($event.chip.value), 1);
+                const hideIndex = this.settings.hideTags.indexOf(chipValue);
+                if (hideIndex > -1) {
+                    this.settings.hideTags.splice(hideIndex, 1);
+                }
                 break;
             default:
                 console.error('Unknown tagSet:', tagKey);
