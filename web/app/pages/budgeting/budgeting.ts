@@ -24,7 +24,6 @@ export class BudgetingComponent implements OnInit, OnDestroy {
         accounts: [],
     });
     budgets: Budgets = [];
-    errors: string[] = [];
     #cachedUpdates?: Subscription;
 
     protected accountsService = inject(AccountsService);

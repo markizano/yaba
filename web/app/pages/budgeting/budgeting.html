@@ -1,7 +1,10 @@
-
-<h1>Budgeting</h1>
-<p>Budgeting helps ensure we stay on track for spending.</p>
-<div layout="row">
+<div class="titlebar">
+    <div class="column">
+        <h1>Budgeting</h1>
+        <p>Budgeting helps ensure we stay on track for spending.</p>
+    </div>
+</div>
+<div class="row">
     <yaba-transaction-list
         [(filters)]="filters"
         (budgets)="localBudgets($event)"
@@ -11,4 +14,3 @@
     ></yaba-transaction-list>
     <yaba-budgets-table [budgets]="budgets" />
 </div>
-<errors [errors]="errors"></errors>
