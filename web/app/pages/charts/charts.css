@@ -1,8 +1,14 @@
 :host {
-    display: block;
-    width: 1024px;
-    height: 768px;
-    border: 1px solid var(--border);
+    border: 0.25rem solid var(--border);
+    border-radius: 0.5rem;
+    box-shadow: 1rem 1rem var(--shadow);
+    background-color: var(--background);
+    width: 95%;
+    margin: 1rem auto;
+    display: flex;
+    flex-direction: column;
+    max-height: 95vh;
+    overflow-y: scroll;
 }
 
 google-chart {

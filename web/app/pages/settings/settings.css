@@ -11,10 +11,6 @@
     overflow-y: scroll;
 }
 
-.settings-section {
-    margin: 1rem 2rem;
-}
-
 .warning {
     background-color: red;
     color: yellow;

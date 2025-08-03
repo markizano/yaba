@@ -4,7 +4,7 @@
         <p>Where you control the app behaviours and preferences.</p>
     </div>
 </div>
-<div class="column settings-section">
+<div class="column box-content">
     <label for="txnDelta">How many months do you want in a transaction view by default?</label>
     <ng-select id="txnDelta" [(ngModel)]="settings.txnDelta" (change)="save()" [clearable]="false" class="">
         <ng-option [value]="2592000000">30 days</ng-option>

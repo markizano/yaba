@@ -412,8 +412,8 @@ errors p {
   margin-bottom: 2rem;
 }
 
-.add-container {
-  margin: 0.5rem;
+.box-content {
+  padding: 1rem;
 }
 
 .titlebar h2 {

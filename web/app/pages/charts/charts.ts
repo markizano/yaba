@@ -8,7 +8,7 @@ import { TransactionFilter } from 'app/lib/types';
     standalone: false,
 })
 export class ChartsComponent {
-    @Input() filter: TransactionFilter = <TransactionFilter>{};
+    filter: TransactionFilter = <TransactionFilter>{};
 
     constructor() {
         console.log('new ChartsComponent()');
