@@ -10,10 +10,14 @@ import { TxnFieldComponent } from 'app/tables/transactions/txn-field/txn-field';
 /**
  * A row in a table that represents a transaction.
  * This component is a container for a list of <txn-field> components.
+ * If the actions column is to be rendered:
+ * - If the table is editable, render the actions to save/cancel.
+ * - If the table is read-only, render the actions to select, edit or delete a txn.
+ * Optionally show columns based on $txShow.
+ * Allow the CRUD actions to passthru from cell to row.
  */
 @Component({
     selector: '.yaba-txn-row',
-    standalone: true,
     imports: [
         ControlsModule,
         TxnFieldComponent,

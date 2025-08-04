@@ -9,7 +9,6 @@ import {
     Output,
     inject
 } from '@angular/core';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
@@ -53,69 +52,116 @@ import { UntagTransactionComponent } from 'app/tables/transactions/txn-tags/txn-
 ],
 })
 export class TransactionsListComponent implements OnInit, OnDestroy {
-    addOnBlur = true;
-    readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
+    /**
+     * Event emitter of the budgets found for the transactions found in this scope
+     * as defined by the filter.
+     * This is a data output.
+     */
     @Output() budgets = new EventEmitter<Budgets>();
 
+    /**
+     * Which Account should we be viewing?
+     * This is a data input.
+     */
     @Input() accountId?: string;
 
     /**
      * Show the filter controls at the top of the table
+     * This is a behaviour input.
      */
     @Input() showFilters = true;
 
     /**
      * The filters to apply to the transactions.
+     * This is a bidriectional data structure that defines which transactions are
+     * visible in the view.
      */
     @Input() filters = EMPTY_TRANSACTION_FILTER;
     @Output() filtersChange = new EventEmitter<TransactionFilter>();
 
     /**
      * Show the pagination controls at the bottom of the table.
+     * This is a behaviour input.
      */
     @Input() showPaginate = true;
 
     /**
      * Truncate the description to 30 characters for neater display (since I can't figure out the css)
+     * This is a behaviour input.
      */
     @Input() truncate = false;
 
     /**
      * Show the transaction headers (date, description, etc.)
+     * This is a behaviour input.
      */
     txShow: TransactionShowHeaders = Settings.fromLocalStorage().txShow;
 
     /**
      * Allow the user to edit the transactions in place.
+     * This is a behaviour input.
      */
     @Input() editable = false;
 
+    /**
+     * Internal transaction collection buffer to hold the transactions we would render
+     * on the page.
+     */
     txns = new Transactions();
+
+    /**
+     * Internal page tracker.
+     * Data structure that represents the page, size and how many items to render.
+     */
     page: PageEvent = { pageIndex: 0, pageSize: 10, length: 0 };
+
+    /**
+     * Data structure to tell us which header and direction to sort the transactions.
+     */
     sort: TxnSortHeader = {column: 'datePosted', asc: true};
+
+    /**
+     * Internal buffer to hold the list of selected transactions.
+     * Only applicable when [editable=true].
+     */
     selected = new Transactions();
+
+    /**
+     * Private subscription to when account changes outside of this component.
+     */
     #acctChg?: Subscription;
 
+    /**
+     * Injected accounts service to have access to the accounts and subsequent
+     * transaction data.
+     */
     protected accountsService = inject(AccountsService);
-    protected chgDet = inject(ChangeDetectorRef);
+
 
     constructor() {
         console.log('new TransactionsListComponent()');
     }
 
+    /**
+     * Upon instantiation, subscribe to account changes.
+     */
     ngOnInit() {
         console.log('TransactionsListComponent().ngOnInit()');
         this.accountsChange();
         this.#acctChg = this.accountsService.subscribe(() => this.accountsChange());
     }
 
+    /**
+     * Upon destruction, clean up subscriptions.
+     */
     ngOnDestroy() {
         this.#acctChg?.unsubscribe();
     }
 
     /**
      * Generate the list of rows to display on the current page based on page count.
+     * Used to create a fixed number of rows based on the paginator settings.
      */
     genRows(): number[] {
         return Array.from(Array(Math.min(this.txns.length, this.page.pageSize)).keys()).map(x => x + (this.page.pageIndex * this.page.pageSize));
@@ -123,6 +169,8 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
 
     /**
      * Anytime the accounts are updated, trigger a re-render of the transactions.
+     * Navigate back to page 0.
+     * Update the transactions under the updated account details.
      */
     accountsChange() {
         console.log('TransactionListComponent().accountsChange()', { filters: this.filters });
@@ -141,7 +189,7 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Just used for debugging.
+     * @DEBUG only
      * Render the filters for us to see in the dashboard.
      */
     filtration(filters: TransactionFilter): string {

@@ -1,10 +1,13 @@
 :host {
     display: flex;
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    flex-flow: column;
+    width: 100%;
+    border: 0.1rem solid var(--border);
+    border-radius: 0.5rem;
     vertical-align: top;
     margin: 30px auto 15px auto;
     position: relative;
+    box-sizing: border-box;
 }
 
 :host:before {
