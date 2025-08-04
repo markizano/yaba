@@ -4,24 +4,26 @@
         <p>Here is where you come to prospect on future purchases and when you want to make them.</p>
     </div>
 </div>
-<div class="column box-content">
+<div class="row box-content">
+    <div class="column wide">
+        <h2 (click)="showIncome = !showIncome">Income Transactions (<span>{{ incomeTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2><br clear="all" />
+        <div [class]='{"ng-hide": showIncome}' class="slide-down">
+            <yaba-transaction-list
+                [showFilters]="false"
+            ></yaba-transaction-list>
+            <yaba-txn-stats [transactions]="incomeTxns"></yaba-txn-stats>
+        </div>
+        <h2 (click)="showExpense = !showExpense">Expense Transactions (<span>{{ expenseTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2><br clear="all" />
+        <div [class]='{"ng-hide": showExpense}' class="slide-down">
+            <yaba-transaction-list
+                [showFilters]="false"
+            ></yaba-transaction-list>
+            <yaba-txn-stats [transactions]="expenseTxns"></yaba-txn-stats>
+        </div>
+        <h2>Available After Expenses ({{ leftovers.sum()|currency }})</h2><br clear="all" />
+        <yaba-txn-stats [transactions]="leftovers"></yaba-txn-stats>
+        <h2>Projected Balances ({{ projections.sum()|currency }})</h2><br clear="all" />
+        <yaba-txn-stats [transactions]="projections"></yaba-txn-stats>
+    </div>
     <yaba-wishlist [(wishlist)]="prospect"></yaba-wishlist>
-    <h2 (click)="showIncome = !showIncome">Income Transactions (<span>{{ incomeTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2><br clear="all" />
-    <div [class]='{"ng-hide": showIncome}' class="slide-down">
-        <yaba-transaction-list
-            [showFilters]="false"
-        ></yaba-transaction-list>
-        <yaba-txn-stats [transactions]="incomeTxns"></yaba-txn-stats>
-    </div>
-    <h2 (click)="showExpense = !showExpense">Expense Transactions (<span>{{ expenseTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2><br clear="all" />
-    <div [class]='{"ng-hide": showExpense}' class="slide-down">
-        <yaba-transaction-list
-            [showFilters]="false"
-        ></yaba-transaction-list>
-        <yaba-txn-stats [transactions]="expenseTxns"></yaba-txn-stats>
-    </div>
-    <h2>Available After Expenses ({{ leftovers.sum()|currency }})</h2><br clear="all" />
-    <yaba-txn-stats [transactions]="leftovers"></yaba-txn-stats>
-    <h2>Projected Balances ({{ projections.sum()|currency }})</h2><br clear="all" />
-    <yaba-txn-stats [transactions]="projections"></yaba-txn-stats>
 </div>

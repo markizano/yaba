@@ -19,12 +19,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 
 import { icons } from 'app/controls/icons';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
     imports: [
         CommonModule,
         NgSelectModule,
         FormsModule,
+        MatIconModule,
         icons,
     ],
     exports: [
@@ -32,6 +34,7 @@ import { icons } from 'app/controls/icons';
         FormsModule,
         ReactiveFormsModule,
         NgSelectModule,
+        MatIconModule,
         ...icons,
     ],
 })

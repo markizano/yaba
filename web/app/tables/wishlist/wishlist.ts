@@ -1,5 +1,4 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 import { ControlsModule } from 'app/controls/controls.module';
 import { Transaction, Transactions } from 'app/lib/transactions';
 
@@ -13,7 +12,6 @@ import { Transaction, Transactions } from 'app/lib/transactions';
     styleUrls: ['./wishlist.css'],
     imports: [
         ControlsModule,
-        MatIconModule,
     ],
 })
 export class WishlistComponent {
