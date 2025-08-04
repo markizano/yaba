@@ -1,5 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { TransactionFilter } from 'app/lib/types';
+import { Transactions } from 'app/lib/transactions';
+import { AccountsService } from 'app/services/accounts.service';
+import { Accounts } from 'app/lib/accounts';
 
 @Component({
     selector: 'yaba-charts',
@@ -7,31 +11,56 @@ import { TransactionFilter } from 'app/lib/types';
     styleUrls: ['./charts.css'],
     standalone: false,
 })
-export class ChartsComponent {
+export class ChartsComponent implements OnInit, OnDestroy {
     filter: TransactionFilter = <TransactionFilter>{};
 
-    constructor() {
+    // Properties from AngularJS translation
+    accounts: Accounts = new Accounts();
+    transactions: Transactions = new Transactions();
+    selectedAccounts: any;
+    fromDate: Date = new Date();
+    toDate: Date = new Date();
+    description: string = '';
+    txnTags: string[] = [];
+    myBudgets: any;
+    chart: any;
+
+    #acct?: Subscription;
+
+    constructor(private accountsService: AccountsService) {
         console.log('new ChartsComponent()');
     }
-}
-/*
-    function charts($scope, accounts, Settings, gCharts) {
-        $scope.accounts = accounts;
-        $scope.transactions = new Yaba.models.Transactions();
 
-        $scope.rebalance = () => {
-            $scope.transactions.clear();
-            $scope.transactions.push(...accounts.getTransactions(
-                $scope.selectedAccounts,
-                $scope.fromDate,
-                $scope.toDate,
-                $scope.description,
-                $scope.txnTags,
-                -1
-            ));
+    ngOnInit(): void {
+        console.info('Charts controller');
+        // Subscribe to accounts service
+        const update = (accounts: Accounts) => {
+            this.accounts = accounts;
+            this.filter.accounts = accounts;
+            this.rebalance();
         };
-        $scope.rebalance();
+        update(this.accountsService.get());
+        this.#acct = this.accountsService.subscribe(update);
     }
-    charts.$inject = ['$scope', 'accounts', 'Settings', 'gCharts'];
-    Yaba.app.controller('charts', Ctrl.charts = charts);
-*/
+
+    ngOnDestroy(): void {
+        this.#acct?.unsubscribe();
+    }
+
+    rebalance(): void {
+        this.transactions.clear();
+
+        // Create TransactionFilter object with the current filter values
+        const searchFilter: TransactionFilter = {
+            fromDate: this.fromDate,
+            toDate: this.toDate,
+            description: this.description,
+            accounts: this.selectedAccounts,
+            tags: this.txnTags,
+            sort: { column: 'datePosted', asc: false },
+            page: { pageIndex: 0, pageSize: -1, length: 0 }
+        };
+
+        this.transactions.push(...this.accounts.getTransactions(searchFilter));
+    }
+}
