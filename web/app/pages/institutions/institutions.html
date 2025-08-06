@@ -8,7 +8,7 @@
             Your institutions and their CSV associations are listed below.
         </p>
     </div>
-    <div class="box-content helper" helper="Add a new institution.">
+    <div class="helper" helper="Add a new institution.">
         <mat-icon
         (click)="add()"
         class="right big add-icon"
@@ -17,7 +17,7 @@
     </mat-icon>
     </div>
 </div>
-<div class="row wrap">
+<div class="row wrap box-content">
 @for( institution of institutions; let i = $index; track institution.id ) {
     <div class="column data-card-container">
         <div class="titlebar">
