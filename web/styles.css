@@ -417,6 +417,11 @@ errors p {
 
 .box-content {
   padding: 1rem;
+  width: 100%;
+  max-height: 81vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .titlebar h2 {

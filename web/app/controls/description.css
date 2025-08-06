@@ -1,7 +1,45 @@
 :host {
-    display: inline-block;
-    min-width: 250px;
-    height: 40px;
-    margin: 10px auto;
-    padding: 5px;
+    display: flex;
+    flex-flow: column;
+    min-width: 15rem;
+    margin: 1rem auto;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.description {
+    padding: 1.5rem 0.5rem 0.5rem 0.5rem;
+    box-sizing: border-box;
+}
+
+.description input {
+    font-size: 1.3rem;
+    width: 100%;
+}
+
+.description, .regexp {
+    position: relative;
+}
+
+.description::before {
+    content: "Search Transaction Text: ";
+    position: absolute;
+    top: 0;
+    left: 1rme;
+}
+
+.regexp {
+    width: 15rem;
+    margin: 0.5rem auto;
+}
+
+.regexp input {
+    transform: scale(1.2);
+}
+
+.regexp::after {
+    content: "Use Regular Expressions?";
+    position: absolute;
+    bottom: 0;
+    right: 0;
 }

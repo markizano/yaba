@@ -1,22 +1,23 @@
 :host {
     display: flex;
-    flex-flow: column;
+    flex-flow: row;
+    justify-content: space-evenly;
     width: 100%;
+    box-sizing: border-box;
     border: 0.1rem solid var(--border);
     border-radius: 0.5rem;
-    vertical-align: top;
-    margin: 30px auto 15px auto;
+    vertical-align: middle;
+    margin: 2.4rem auto 2rem auto;
     position: relative;
-    box-sizing: border-box;
 }
 
 :host:before {
     content: "Filters: ";
+    position: absolute;
+    top: -25px;
+    left: 25px;
     color: var(--text);
     font-family: sans-serif, monospace;
     font-weight: bold;
     font-size: 150%;
-    position: absolute;
-    top: -25px;
-    left: 25px;
 }

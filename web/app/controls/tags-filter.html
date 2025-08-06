@@ -1,15 +1,16 @@
-<div class="yaba-tags-filter">
-    <label for="tags">Budgets: <br /></label>
-    <ng-select
-        [items]="tags"
-        bindLabel="tag"
-        bindValue="tag"
-        [multiple]="true"
-        [closeOnSelect]="false"
-        [searchable]="true"
-        [clearable]="true"
-        [hideSelected]="true"
-        (change)="tagsChange.next($event)"
-        placeholder="Select budgets"
-    ></ng-select>
+<div class="helper" helper="Select one or more budgets to filter against.">
+    <div class="tags">
+        <ng-select
+            [items]="tags"
+            bindLabel="tag"
+            bindValue="tag"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [searchable]="true"
+            [clearable]="true"
+            [hideSelected]="true"
+            (change)="tagsChange.next($event)"
+            placeholder="Select budgets"
+        ></ng-select>
+    </div>
 </div>

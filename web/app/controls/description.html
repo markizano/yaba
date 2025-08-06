@@ -1,5 +1,19 @@
-<div class="description-filter-wrapper">
-    Search Transaction Text (Description/Merchant): <input type="text" [(ngModel)]="description" (ngModelChange)="descriptionChanged.emit($event)" placeholder="Search Description" /><br />
-    <input type="checkbox" name="useRegExp" [(ngModel)]="useRegexp" placeholder="Use Regular Expressions?" (ngModelChange)="useRegexpChanged.emit($event)" title="Use Regular Expressions?" />
-      Use Regular Expressions?
+<div class="helper" helper="Search transaction text such as description or merchant fields">
+  <div class="description">
+    <input
+      type="text"
+      [(ngModel)]="description"
+      (ngModelChange)="descriptionChanged.emit($event)"
+      placeholder="Search Description..."  />
+    </div>
+</div>
+<div class="helper" helper="Check this box to use Regular Expressions instead of &quot;contains&quot; text matching.">
+  <div class="regexp">
+    <input
+      type="checkbox"
+      id="useRegExp"
+      name="useRegExp"
+      [(ngModel)]="useRegexp"
+      (ngModelChange)="useRegexpChanged.emit($event)" />
+  </div>
 </div>

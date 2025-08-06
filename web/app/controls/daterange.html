@@ -1,23 +1,17 @@
-<div class="date-range-wrapper">
-    <div class="from-date-wrapper date-input-wrapper">
-        <input
-          type="date"
-          [ngModel]="fromDate | date:'yyyy-MM-dd'"
-          (ngModelChange)="fromDateChange.emit($event)"
-          placeholder="From Date"
-          class="from-date date-input"
-          name="fromDate"
-        />
-    </div>
-    &nbsp;
-    <div class="to-date-wrapper date-input-wrapper">
-        <input
-            type="date"
-            [ngModel]="toDate | date:'yyyy-MM-dd'"
-            (ngModelChange)="toDateChange.emit($event)"
-            placeholder="To Date"
-            class="to-date date-input"
-            name="toDate"
-        />
-    </div>
+<div class="date-input-wrapper">
+    <input
+        type="date"
+        [ngModel]="fromDate | date:'yyyy-MM-dd'"
+        (ngModelChange)="fromDateChange.emit($event)"
+        name="fromDate"
+    />
+</div>
+&nbsp;
+<div class="date-input-wrapper">
+    <input
+        type="date"
+        [ngModel]="toDate | date:'yyyy-MM-dd'"
+        (ngModelChange)="toDateChange.emit($event)"
+        name="toDate"
+    />
 </div>

@@ -1,13 +1,25 @@
 :host {
-    margin: 10px auto;
-    display: inline-block;
-    min-width: 200px;
-    min-height: 120px;
-    vertical-align: top;
+    margin: 1rem auto;
+    display: block;
+    min-width: 13rem;
+    padding: 1.2rem 1rem 1rem 1rem;
+    box-sizing: border-box;
+}
+
+.tags {
+    position: relative;
+    padding: 1.5rem 0.5rem 0.5rem 0.5rem;
+    box-sizing: border-box;
+}
+
+.tags:before {
+    content: "Budgets: ";
+    position: absolute;
+    color: var(--text);
+    top: 0;
+    left: 1rem;
 }
 
 :host ng-select {
-    min-width: 100px;
-    width:99%;
-    min-height: 100px;
+    width: 100%;
 }

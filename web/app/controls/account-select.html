@@ -1,16 +1,16 @@
-<div class="account-filter-wrapper">
-    Account: <br />
-    <ng-select
-        [items]="selectable"
-        bindLabel="label"
-        bindValue="value"
-        [multiple]="true"
-        [closeOnSelect]="false"
-        [searchable]="false"
-        [clearable]="true"
-        [hideSelected]="false"
-        [placeholder]="'Select accounts'"
-        (change)="changed($event)"
-        class="account-filter-list"
-    ></ng-select>
+<div class="helper" helper="Select one or more accounts to filter the display.">
+    <div class="account-filter">
+        <ng-select
+            [items]="selectable"
+            bindLabel="label"
+            bindValue="value"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [searchable]="false"
+            [clearable]="true"
+            [hideSelected]="false"
+            [placeholder]="'Select accounts'"
+            (change)="changed($event)"
+        ></ng-select>
+    </div>
 </div>

@@ -71,7 +71,7 @@ input[type="text"]:focus, input[type=number]:focus, input[type="file"]:focus, se
     box-shadow: var(--light-shadow) 7px 7px;
 } */
 
-footer { margin: 5px; }
+/* footer { margin: 5px; }
 
 button {
     display: block;
@@ -112,71 +112,12 @@ pre {
     font-size: 14px;
     word-wrap: break-word;
     background-color: white;
-}
+} */
 
 /**!!!** Yaba Top-Level Pages **!!!**/
 
 /** General Controls & Icons **/
-actions {
-    width: fit-content;
-    display: inline-block;
-    margin: 10px 10px 5px auto;
-}
 
-.controller {
-    border: 5px solid var(--border);
-    border-radius: 1.2rem;
-    box-shadow: var(--shadow) 15px 15px;
-    background-color: var(--background);
-    width: 95%;
-    padding: 1rem;
-    margin: 10px auto;
-}
-
-
-/** Transaction Tables **/
-
-
-
-.date-range-wrapper {
-    min-width: 250px;
-    display: flex;
-    flex-flow: row;
-}
-.date-input-wrapper {
-    display: flex;
-    position: relative;
-}
-
-.date-input {
-    font-size: 1.2rem;
-    position: relative;
-    display: block;
-    margin: 0 auto;
-    padding: 1.2rem;
-}
-.from-date:before {
-    content: "From Date: ";
-    position: absolute;
-    font-size: 16px;
-    top: 0px;
-    left: 0px;
-}
-.to-date:before {
-    content: "To Date: ";
-    position: absolute;
-    font-size: 16px;
-    top: 0px;
-    left: 0px;
-}
-
-.description-filter-wrapper {
-    font-size: 110%;
-    input[type=text] {
-        width: 95%;
-        margin: 5px
-    }
-}
 
 .actively-editing {
     background-color: var(--txn-edit) !important;
