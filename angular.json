@@ -26,7 +26,6 @@
             ],
             "styles": [
               "node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
-              "web/assets/css/reset.css",
               "web/assets/css/main.css",
               "web/styles.css"
             ],
