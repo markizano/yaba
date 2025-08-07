@@ -1,9 +1,6 @@
 import { debounceTime, Subject, Subscription } from "rxjs";
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
 
-import { NgSelectModule } from "@ng-select/ng-select";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 
 import { Tags } from "app/lib/types";
 
@@ -13,11 +10,11 @@ import { Tags } from "app/lib/types";
  */
 @Component({
     selector: 'yaba-budgets, yaba-tags',
-    templateUrl: './tags-filter.html',
-    styleUrls: ['./tags-filter.css'],
-    imports: [ CommonModule, FormsModule, NgSelectModule ],
+    standalone: false,
+    templateUrl: './tags-selector.html',
+    styleUrls: ['./tags-selector.css'],
 })
-export class TagsFilterComponent implements OnInit, OnDestroy {
+export class TagsSelectorComponent implements OnInit, OnDestroy {
     @Input() tags = <Tags>[];
     tagsChange = new Subject<Tags>();
     #tagSub?: Subscription;

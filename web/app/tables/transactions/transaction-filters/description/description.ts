@@ -1,7 +1,7 @@
-import { Component, Output, EventEmitter } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Description, DescriptionChange } from 'app/lib/types';
 import { Subscription, debounceTime } from 'rxjs';
+
+import { Component, Output, EventEmitter } from '@angular/core';
+import { Description, DescriptionChange } from 'app/lib/types';
 
 /**
  * Description component does not require any input since it is just a textbox to receive input from the user.
@@ -10,11 +10,9 @@ import { Subscription, debounceTime } from 'rxjs';
  */
 @Component({
     selector: 'yaba-description',
+    standalone: false,
     templateUrl: './description.html',
     styleUrls: ['./description.css'],
-    imports: [
-        FormsModule
-    ]
 })
 export class DescriptionFilterComponent {
     description: Description = '';

@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
+
 import {
-    ChangeDetectorRef,
     Component,
     EventEmitter,
     Input,
@@ -22,7 +22,7 @@ import { YabaAnimations } from 'app/lib/animations';
 import { AccountsService } from 'app/services/accounts.service';
 import { ControlsModule } from 'app/controls/controls.module';
 
-import { TransactionFilterComponent } from 'app/tables/transactions/txn-filter/txn-filter';
+import { TransactionFilterModule } from 'app/tables/transactions/transaction-filters/transaction-filter.module';
 import { TxnRowComponent } from 'app/tables/transactions/txn-row/txn-row';
 import { TagTransactionsComponent } from 'app/tables/transactions/txn-tags/txn-tag';
 import { UntagTransactionComponent } from 'app/tables/transactions/txn-tags/txn-untag';
@@ -41,15 +41,15 @@ import { UntagTransactionComponent } from 'app/tables/transactions/txn-tags/txn-
         YabaAnimations.fadeSlideDown()
     ],
     imports: [
-    MatChipsModule,
-    MatIconModule,
-    MatPaginatorModule,
-    ControlsModule,
-    TransactionFilterComponent,
-    TxnRowComponent,
-    TagTransactionsComponent,
-    UntagTransactionComponent,
-],
+        MatChipsModule,
+        MatIconModule,
+        MatPaginatorModule,
+        ControlsModule,
+        TransactionFilterModule,
+        TxnRowComponent,
+        TagTransactionsComponent,
+        UntagTransactionComponent,
+    ],
 })
 export class TransactionsListComponent implements OnInit, OnDestroy {
 

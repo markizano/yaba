@@ -1,11 +1,10 @@
+import { Subscription } from 'rxjs';
+
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { DateRange, DescriptionChange, TransactionFilter, Tags } from 'app/lib/types';
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { Accounts } from 'app/lib/accounts';
-import { TagsFilterComponent } from 'app/controls/tags-filter';
-import { ControlsModule } from 'app/controls/controls.module';
-import { Subscription } from 'rxjs';
 
 /**
  * This is a glue component that combines the various filters into a single component
@@ -23,12 +22,9 @@ import { Subscription } from 'rxjs';
  */
 @Component({
     selector: 'yaba-transaction-filters',
-    templateUrl: './txn-filter.html',
-    styleUrls: ['./txn-filter.css'],
-    imports: [
-        ControlsModule,
-        TagsFilterComponent,
-    ],
+    standalone: false,
+    templateUrl: './transaction-filter.html',
+    styleUrls: ['./transaction-filter.css'],
 })
 export class TransactionFilterComponent implements OnInit, OnDestroy {
     @Input()  filter = EMPTY_TRANSACTION_FILTER;

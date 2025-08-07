@@ -13,7 +13,7 @@ import { Transaction, Transactions } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 import { AccountsService } from 'app/services/accounts.service';
 import { TransactionsModule } from 'app/transactions/transactions.module';
-import { AccountsModule } from "../accounts/accounts.module";
+import { InstitutionSelectComponent } from 'app/forms/account/institution-select/institution-select';
 
 
 @Component({
@@ -23,7 +23,7 @@ import { AccountsModule } from "../accounts/accounts.module";
     imports: [
     ControlsModule,
     TransactionsModule,
-    AccountsModule
+    InstitutionSelectComponent,
 ],
 })
 export class DevelopComponent {

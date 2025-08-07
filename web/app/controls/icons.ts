@@ -1,5 +1,4 @@
-
-import { Component, Directive, ElementRef, EventEmitter, HostListener, Injectable, Input, Output } from '@angular/core';
+import { Component, Directive, ElementRef, EventEmitter, HostListener, inject, Injectable, Input, Output } from '@angular/core';
 
 /**
  * Most of these directives are here just to make Angular stop complaining about them because I don't want to use NG_CUSTOM_SCHEMA in all my templates.
@@ -28,18 +27,12 @@ export abstract class IconBaseInjectable {
 export class DebugDirective { }
 
 @Directive({
-  selector: 'question',
-})
-export class QuestionDirective { }
-
-@Directive({
     selector: 'upload, .upload',
 })
 export class UploadDirective extends IconBaseInjectable {
     @Output() upload = new EventEmitter<File[]>();
-    constructor(protected elemRef: ElementRef) {
-        super();
-    }
+    protected elemRef = inject(ElementRef);
+
     /**
      * On Click, fabricate an input file element and trigger a click event on it.
      * When the file is selected, trigger the upload event.
@@ -64,19 +57,10 @@ export class ErrorsDisplayComponent {
 }
 
 import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
-import { InstitutionSelectComponent } from 'app/controls/institution-select';
-import { DateRangeFilterComponent } from 'app/controls/daterange';
-import { DescriptionFilterComponent } from 'app/controls/description';
-import { AccountsSelectComponent } from 'app/controls/account-select';
 
 export const icons = [
     DebugDirective,
-    QuestionDirective,
     UploadDirective,
     ErrorsDisplayComponent,
     YabaDropFileDirective,
-    DateRangeFilterComponent,
-    AccountsSelectComponent,
-    DescriptionFilterComponent,
-    InstitutionSelectComponent,
 ];

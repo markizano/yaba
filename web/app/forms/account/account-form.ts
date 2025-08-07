@@ -1,3 +1,5 @@
+import { Subscription } from 'rxjs';
+
 import { Component, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -6,7 +8,7 @@ import { Institutions } from 'app/lib/institutions';
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
 import { InstitutionsService } from 'app/services/institutions.service';
-import { Subscription } from 'rxjs';
+import { InstitutionSelectComponent } from 'app/forms/account/institution-select/institution-select';
 
 @Component({
     selector: 'yaba-account-form',
@@ -15,6 +17,7 @@ import { Subscription } from 'rxjs';
     imports: [
         ControlsModule,
         MatIconModule,
+        InstitutionSelectComponent,
     ],
     animations: [
         YabaAnimations.fadeSlideDown(),

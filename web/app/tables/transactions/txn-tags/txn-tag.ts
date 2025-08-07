@@ -1,5 +1,4 @@
 import { Component, EventEmitter, HostListener, Output } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
@@ -11,7 +10,6 @@ import { YabaAnimations } from 'app/lib/animations';
     animations: [ YabaAnimations.fadeSlideDown() ],
     imports: [
         ControlsModule,
-        MatIconModule,
     ]
 })
 export class TagTransactionsComponent {

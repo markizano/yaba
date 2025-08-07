@@ -1,9 +1,11 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { TransactionFilter } from 'app/lib/types';
-import { Transactions } from 'app/lib/transactions';
+
+import { Component, OnInit, OnDestroy } from '@angular/core';
+
 import { AccountsService } from 'app/services/accounts.service';
 import { Accounts } from 'app/lib/accounts';
+import { TransactionFilter } from 'app/lib/types';
+import { Transactions } from 'app/lib/transactions';
 
 @Component({
     selector: 'yaba-charts',

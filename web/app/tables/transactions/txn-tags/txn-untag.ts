@@ -1,10 +1,9 @@
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 
 import { Tags } from 'app/lib/types';
 import { YabaAnimations } from 'app/lib/animations';
 import { Transactions } from 'app/lib/transactions';
-import { TagsFilterComponent } from 'app/controls/tags-filter';
+import { TransactionFilterModule } from 'app/tables/transactions/transaction-filters/transaction-filter.module';
 import { ControlsModule } from 'app/controls/controls.module';
 
 @Component({
@@ -14,8 +13,7 @@ import { ControlsModule } from 'app/controls/controls.module';
     animations: [ YabaAnimations.fadeSlideDown() ],
     imports: [
         ControlsModule,
-        TagsFilterComponent,
-        MatIconModule,
+        TransactionFilterModule,
     ]
 })
 export class UntagTransactionComponent {

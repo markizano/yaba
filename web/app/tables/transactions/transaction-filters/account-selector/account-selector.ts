@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Output } from "@angular/core";
-import { NgSelectComponent } from "@ng-select/ng-select";
 import { Subscription } from "rxjs";
 
 import { NgSelectable } from "app/lib/types";
@@ -16,13 +15,11 @@ import { AccountsService } from "app/services/accounts.service";
  */
 @Component({
     selector: 'yaba-accounts',
-    templateUrl: './account-select.html',
-    styleUrls: ['./account-select.css'],
-    imports: [
-        NgSelectComponent
-    ]
+    standalone: false,
+    templateUrl: './account-selector.html',
+    styleUrls: ['./account-selector.css'],
 })
-export class AccountsSelectComponent {
+export class AccountSelectorComponent {
     accounts = new Accounts();
     selectable: NgSelectable<Account>[] = [];
     @Output() selectedAccounts = new EventEmitter<Accounts>();
