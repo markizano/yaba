@@ -76,15 +76,6 @@ export class TxnFieldComponent implements OnInit, OnDestroy, AfterViewInit {
     this.field = this.ref.nativeElement.getAttribute('field');
   }
 
-  getTransactionTypes(): NgSelectable<TransactionType>[] {
-    return [
-      { value: TransactionType.Credit, label: 'Credit' },
-      { value: TransactionType.Debit, label: 'Debit' },
-      { value: TransactionType.Transfer, label: 'Transfer' },
-      { value: TransactionType.Payment, label: 'Payment' },
-    ];
-  }
-
   add($event: MatChipInputEvent) {
     this.txn.addTag($event.value);
     this.txnChange.emit(this.txn);

@@ -58,18 +58,14 @@
     @case ( 'accountId' ) {
       <yaba-account-selector
         [(ngModel)]="txn.accountId"
-        class="txn-edit-field required"
+        required
+        class="txn-edit-field"
       ></yaba-account-selector>
     }
     @case ( 'transactionType' ) {
-      <ng-select
-        [items]="getTransactionTypes()"
-        bindLabel="label"
-        bindValue="value"
-        [clearable]="false"
-        placeholder="Select transaction type"
+      <yaba-transaction-type
         [(ngModel)]="txn.transactionType"
-      ></ng-select>
+      ></yaba-transaction-type>
     }
     @case ( 'tags' ) {
       <mat-chip-grid #tags aria-label="Enter income tags">

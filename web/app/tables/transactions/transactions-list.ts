@@ -60,11 +60,8 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
 
   /**
    * The filters to apply to the transactions.
-   * This is a bidriectional data structure that defines which transactions are
-   * visible in the view.
    */
-  @Input() filters = EMPTY_TRANSACTION_FILTER;
-  @Output() filtersChange = new EventEmitter<TransactionFilter>();
+  filters = EMPTY_TRANSACTION_FILTER;
 
   /**
    * Injected accounts service to have access to the accounts and subsequent
