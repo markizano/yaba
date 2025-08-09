@@ -8,6 +8,7 @@
     "prestart": "npm run build",
     "start": "electron-forge start",
     "build": "tsc && ng build",
+    "postbuild": "mpv --really-quiet /usr/share/sounds/freedesktop/stereo/dialog-information.oga",
     "package": "npm run build && electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
