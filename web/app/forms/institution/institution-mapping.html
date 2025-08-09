@@ -1,27 +1,27 @@
 <mat-icon class="right delete-icon" (click)="_remove()" tabindex="{{ (index * 4) + 7 }}" fontIcon="delete"></mat-icon>
 <div class="column">
-    <label [for]="`fromField-${index}`">From {{ isField() ? 'Field': 'Value' }}: </label>
-    <input type="text" [id]="`fromField-${index}`" name="fromField" [(ngModel)]="mapping.fromField" tabindex="{{ (index * 4) + 4 }}" />
-    <label [for]="`toField-${index}`">To Field: </label>
-    <ng-select
-            [id]="`toField-${index}`"
-            name="toField"
-            [items]="fields"
-            bindLabel="label"
-            bindValue="value"
-            placeholder="Select Field: "
-            [(ngModel)]="mapping.toField"
-            (change)="onToField($event)"
-            tabindex="{{ (index * 4) + 5 }}"
-        ></ng-select>
-    <label [for]="`mapType-${index}`">Mapping Type: </label>
-    <ng-select
-        [id]="`mapType-${index}`"
-        name="mapType"
-        placeholder="Select Mapping Type: "
-        [(ngModel)]="mapping.mapType"
-        tabindex="{{ (index * 4) + 6 }}">
-        <ng-option value="dynamic">Dynamic</ng-option>
-        <ng-option value="static">Static</ng-option>
-    </ng-select>
+  <label [for]="`fromField-${index}`">From {{ isField() ? 'Field': 'Value' }}: </label>
+  <input type="text" [id]="`fromField-${index}`" name="fromField" [(ngModel)]="mapping.fromField" tabindex="{{ (index * 4) + 4 }}" />
+  <label [for]="`toField-${index}`">To Field: </label>
+  <ng-select
+      [id]="`toField-${index}`"
+      name="toField"
+      [items]="fields"
+      bindLabel="label"
+      bindValue="value"
+      placeholder="Select Field: "
+      [(ngModel)]="mapping.toField"
+      (change)="onToField($event)"
+      tabindex="{{ (index * 4) + 5 }}"
+    ></ng-select>
+  <label [for]="`mapType-${index}`">Mapping Type: </label>
+  <ng-select
+    [id]="`mapType-${index}`"
+    name="mapType"
+    placeholder="Select Mapping Type: "
+    [(ngModel)]="mapping.mapType"
+    tabindex="{{ (index * 4) + 6 }}">
+    <ng-option value="dynamic">Dynamic</ng-option>
+    <ng-option value="static">Static</ng-option>
+  </ng-select>
 </div>

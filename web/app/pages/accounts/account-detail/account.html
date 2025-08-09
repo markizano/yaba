@@ -6,59 +6,59 @@
 }
   <div class="actions">
 @if ( editing ) {
-    <div class="helper" [attr.helper]="`Save changes to &quot;${account.name}&quot;`">
-      <mat-icon
-        (click)="save()"
-        class="save-icon"
-        fontIcon="check"
-      ></mat-icon>
-    </div>
-    <div class="helper" [attr.helper]="`Cancel changes to &quot;${account.name}&quot;`">
-      <mat-icon
-        (click)="cancel()"
-        class="close-icon"
-        fontIcon="close"
-      ></mat-icon>
-    </div>
+  <div class="helper" [attr.helper]="`Save changes to &quot;${account.name}&quot;`">
+    <mat-icon
+    (click)="save()"
+    class="save-icon"
+    fontIcon="check"
+    ></mat-icon>
+  </div>
+  <div class="helper" [attr.helper]="`Cancel changes to &quot;${account.name}&quot;`">
+    <mat-icon
+    (click)="cancel()"
+    class="close-icon"
+    fontIcon="close"
+    ></mat-icon>
+  </div>
 } @else {
-    <div class="helper" [attr.helper]="`Upload transactions for &quot;${account.name}&quot;`">
-      <mat-icon
-        class="upload upload-icon"
-        fontIcon="upload"
-      >
-      </mat-icon>
-    </div>
-    <div class="helper" [attr.helper]="`Edit this account &quot;${account.name}&quot;`">
-      <mat-icon
-        (click)="editing = true"
-        class="edit-icon"
-        fontIcon="edit"
-      >
-      </mat-icon>
-    </div>
-    <div class="helper" [attr.helper]="`Delete this account &quot;${account.name}&quot;`">
-      <mat-icon
-        (click)="remove()"
-        class="delete-icon"
-        fontIcon="delete"
-      >
-      </mat-icon>
-    </div>
+  <div class="helper" [attr.helper]="`Upload transactions for &quot;${account.name}&quot;`">
+    <mat-icon
+    class="upload upload-icon"
+    fontIcon="upload"
+    >
+    </mat-icon>
+  </div>
+  <div class="helper" [attr.helper]="`Edit this account &quot;${account.name}&quot;`">
+    <mat-icon
+    (click)="editing = true"
+    class="edit-icon"
+    fontIcon="edit"
+    >
+    </mat-icon>
+  </div>
+  <div class="helper" [attr.helper]="`Delete this account &quot;${account.name}&quot;`">
+    <mat-icon
+    (click)="remove()"
+    class="delete-icon"
+    fontIcon="delete"
+    >
+    </mat-icon>
+  </div>
 }
-    <div class="helper" [attr.helper]="`Cancel and return to accounts`">
-      <mat-icon routerLink="/accounts" class="cancel-icon" fontIcon="cancel"></mat-icon>
-    </div>
+  <div class="helper" [attr.helper]="`Cancel and return to accounts`">
+    <mat-icon routerLink="/accounts" class="cancel-icon" fontIcon="cancel"></mat-icon>
+  </div>
   </div>
 </div>
 <div class="dropfile" [class.column]="editing" [class.row]="!editing" (fileDrop)="parseCSVFiles($event)" [preventBodyDrop]="true">
 @if ( editing ) {
   <label for="accountType">Account Type: </label>
   <yaba-account-type
-    id="accountType"
-    name="accountType"
-    required
-    [(ngModel)]="account.accountType"
-    [tabIndex]="2"
+  id="accountType"
+  name="accountType"
+  required
+  [(ngModel)]="account.accountType"
+  [tabIndex]="2"
   ></yaba-account-type>
   <label for="description">Description: </label>
   <input type="text" id="description" name="description" maxlength="255" [(ngModel)]="account.description" tabindex="3" />

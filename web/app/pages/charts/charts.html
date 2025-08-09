@@ -1,18 +1,18 @@
 <div class="titlebar">
-    <div class="column">
-        <h1>Charts</h1>
-        <p>Charts help us visualize our data to observe trends over time.</p>
-    </div>
+  <div class="column">
+    <h1>Charts</h1>
+    <p>Charts help us visualize our data to observe trends over time.</p>
+  </div>
 </div>
 <div class="column box-content">
-    <yaba-transaction-filters
-        [filter]="filter"
-    ></yaba-transaction-filters>
-    <br clear="all" />
-    <debug>
-        Transactions: <span ng-bind="transactions.length"></span>
-        Selected Budgets: <span ng-bind="txnTags"></span><br />
-        Calculated budgets: <span ng-bind="myBudgets"></span>
-    </debug>
-    <google-chart google-chart id="budgets" chart="chart"></google-chart>
+  <yaba-transaction-filters
+    [filter]="filter"
+  ></yaba-transaction-filters>
+  <br clear="all" />
+  <debug>
+    Transactions: <span ng-bind="transactions.length"></span>
+    Selected Budgets: <span ng-bind="txnTags"></span><br />
+    Calculated budgets: <span ng-bind="myBudgets"></span>
+  </debug>
+  <google-chart google-chart id="budgets" chart="chart"></google-chart>
 </div>

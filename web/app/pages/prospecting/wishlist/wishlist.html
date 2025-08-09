@@ -1,45 +1,45 @@
 <div class="titlebar">
-    <div class="column">
-        <h2>Wishlist Items</h2>
-        <p>Enter items into this form for things you want to buy to see how they impact your finances. This also works for upcoming expenses.</p>
-    </div>
+  <div class="column">
+    <h2>Wishlist Items</h2>
+    <p>Enter items into this form for things you want to buy to see how they impact your finances. This also works for upcoming expenses.</p>
+  </div>
 </div>
 <div class="box-content row">
-    <table class="data item-list">
-        <thead>
-            <th>Desired Purchase Date</th>
-            <th>Amount</th>
-            <th>Description</th>
-            <th>Actions</th>
-        </thead>
-        <tbody>
+  <table class="data item-list">
+    <thead>
+      <th>Desired Purchase Date</th>
+      <th>Amount</th>
+      <th>Description</th>
+      <th>Actions</th>
+    </thead>
+    <tbody>
 @for ( txn of wishlist; track txn.id; let index = $index ) {
-            <tr class="slide-down">
-                <td> {{ txn.datePosted | date:'yyyy-MM-dd' }}&nbsp;</td>
-                <td> {{ txn.amount | currency }}&nbsp;</td>
-                <td> {{ txn.description }}&nbsp;</td>
-                <td>
-                    <mat-icon (click)="edit(index)" class="small edit-icon">edit</mat-icon>&nbsp;
-                    <mat-icon (click)="remove(txn.id)" class="small delete-icon">delete</mat-icon>
-                </td>
-            </tr>
+      <tr class="slide-down">
+        <td> {{ txn.datePosted | date:'yyyy-MM-dd' }}&nbsp;</td>
+        <td> {{ txn.amount | currency }}&nbsp;</td>
+        <td> {{ txn.description }}&nbsp;</td>
+        <td>
+          <mat-icon (click)="edit(index)" class="small edit-icon">edit</mat-icon>&nbsp;
+          <mat-icon (click)="remove(txn.id)" class="small delete-icon">delete</mat-icon>
+        </td>
+      </tr>
 }
-        </tbody>
-    </table>
-    <form class="column">
-        <label for="description">I want to buy ...</label>
-        <input type="text" id="description" name="description" placeholder="(Product) e.g. PlayStation" [(ngModel)]="item.description" />
-        <label for="amount">which costs $</label>
-        <input type="number" id="amount" name="amount" placeholder="0.00" [(ngModel)]="item.amount" />
-        <label for="date"> &nbsp; by &nbsp;</label>
-        <input type="date" id="date" name="date" [(ngModel)]="item.datePosted" />
-        <div class="row">
+    </tbody>
+  </table>
+  <form class="column">
+    <label for="description">I want to buy ...</label>
+    <input type="text" id="description" name="description" placeholder="(Product) e.g. PlayStation" [(ngModel)]="item.description" />
+    <label for="amount">which costs $</label>
+    <input type="number" id="amount" name="amount" placeholder="0.00" [(ngModel)]="item.amount" />
+    <label for="date"> &nbsp; by &nbsp;</label>
+    <input type="date" id="date" name="date" [(ngModel)]="item.datePosted" />
+    <div class="row">
 @if (editing) {
-            <mat-icon (click)="save();" fontIcon="check" class="check_circle-icon"></mat-icon>
-            <mat-icon (click)="cancel();" fontIcon="cancel" class="cancel-icon"></mat-icon>
+      <mat-icon (click)="save();" fontIcon="check" class="check_circle-icon"></mat-icon>
+      <mat-icon (click)="cancel();" fontIcon="cancel" class="cancel-icon"></mat-icon>
 } @else {
-            <mat-icon (click)="add();" fontIcon="add" class="add-icon">add</mat-icon>
+      <mat-icon (click)="add();" fontIcon="add" class="add-icon">add</mat-icon>
 }
-        </div>
-    </form>
+    </div>
+  </form>
 </div>

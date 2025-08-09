@@ -1,19 +1,19 @@
 <div class="helper" [attr.helper]="`Select one ${multiple? 'or more accounts': 'account'} to filter the display.`">
-    <div class="account-filter">
-        <ng-select
-            [items]="accounts"
-            bindLabel="name"
-            bindValue="id"
-            [ngModel]="value"
-            [ariaRequired]="required"
-            [multiple]="multiple"
-            [closeOnSelect]="false"
-            [searchable]="false"
-            [clearable]="true"
-            [hideSelected]="false"
-            [disabled]="disabled"
-            [placeholder]="'Select accounts'"
-            (change)="changed($event)"
-        ></ng-select>
-    </div>
+  <div class="account-filter">
+    <ng-select
+      [items]="accounts"
+      bindLabel="name"
+      bindValue="id"
+      [ngModel]="value"
+      [ariaRequired]="required"
+      [multiple]="multiple"
+      [closeOnSelect]="false"
+      [searchable]="false"
+      [clearable]="true"
+      [hideSelected]="false"
+      [disabled]="disabled"
+      [placeholder]="'Select accounts'"
+      (change)="changed($event)"
+    ></ng-select>
+  </div>
 </div>

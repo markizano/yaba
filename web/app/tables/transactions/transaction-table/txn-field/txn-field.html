@@ -1,127 +1,127 @@
 @if ( editing ) {
   @switch ( field ) {
-    @case ( 'id' ) {
-      <!-- ID is only ever read-only. Never for edits. -->
-      <span class="truncate"> {{ txn.id }} </span>
-    }
-    @case ( 'datePending' ) {
-      <input
-        type="date"
-        name="datePending"
-        [ngModel]="txn.datePending | date:'yyyy-MM-dd'"
-        (ngModelChange)="dateChange('datePending', $event)"
-        class="txn-edit-field"
-      />
-    }
-    @case ( 'datePosted' ) {
-      <input
-        type="date"
-        name="datePosted"
-        [ngModel]="txn.datePosted | date:'yyyy-MM-dd'"
-        (ngModelChange)="dateChange('datePosted', $event)"
-        class="txn-edit-field"
-      />
-    }
-    @case ( 'amount' ) {
-      <input
-        type="number"
-        step="0.01"
-        name="amount"
-        [(ngModel)]="txn.amount"
-        class="txn-edit-field"
-      />
-    }
-    @case ( 'tax' ) {
-      <input
-        type="number"
-        step="0.01"
-        name="tax"
-        [(ngModel)]="txn.tax"
-        class="txn-edit-field"
-      />
-    }
-    @case ( 'description' ) {
-      <input
-        type="text"
-        name="description"
-        [(ngModel)]="txn.description"
-        class="txn-edit-field"
-      />
-    }
-    @case ( 'merchant' ) {
-      <input
-        type="text"
-        name="merchant"
-        [(ngModel)]="txn.merchant"
-        class="txn-edit-field"
-      />
-    }
-    @case ( 'accountId' ) {
-      <yaba-account-selector
-        [(ngModel)]="txn.accountId"
-        required
-        class="txn-edit-field"
-      ></yaba-account-selector>
-    }
-    @case ( 'transactionType' ) {
-      <yaba-transaction-type
-        [(ngModel)]="txn.transactionType"
-      ></yaba-transaction-type>
-    }
-    @case ( 'tags' ) {
-      <mat-chip-grid #tags aria-label="Enter income tags">
+  @case ( 'id' ) {
+    <!-- ID is only ever read-only. Never for edits. -->
+    <span class="truncate"> {{ txn.id }} </span>
+  }
+  @case ( 'datePending' ) {
+    <input
+    type="date"
+    name="datePending"
+    [ngModel]="txn.datePending | date:'yyyy-MM-dd'"
+    (ngModelChange)="dateChange('datePending', $event)"
+    class="txn-edit-field"
+    />
+  }
+  @case ( 'datePosted' ) {
+    <input
+    type="date"
+    name="datePosted"
+    [ngModel]="txn.datePosted | date:'yyyy-MM-dd'"
+    (ngModelChange)="dateChange('datePosted', $event)"
+    class="txn-edit-field"
+    />
+  }
+  @case ( 'amount' ) {
+    <input
+    type="number"
+    step="0.01"
+    name="amount"
+    [(ngModel)]="txn.amount"
+    class="txn-edit-field"
+    />
+  }
+  @case ( 'tax' ) {
+    <input
+    type="number"
+    step="0.01"
+    name="tax"
+    [(ngModel)]="txn.tax"
+    class="txn-edit-field"
+    />
+  }
+  @case ( 'description' ) {
+    <input
+    type="text"
+    name="description"
+    [(ngModel)]="txn.description"
+    class="txn-edit-field"
+    />
+  }
+  @case ( 'merchant' ) {
+    <input
+    type="text"
+    name="merchant"
+    [(ngModel)]="txn.merchant"
+    class="txn-edit-field"
+    />
+  }
+  @case ( 'accountId' ) {
+    <yaba-account-selector
+    [(ngModel)]="txn.accountId"
+    required
+    class="txn-edit-field"
+    ></yaba-account-selector>
+  }
+  @case ( 'transactionType' ) {
+    <yaba-transaction-type
+    [(ngModel)]="txn.transactionType"
+    ></yaba-transaction-type>
+  }
+  @case ( 'tags' ) {
+    <mat-chip-grid #tags aria-label="Enter income tags">
 @for( tag of txn.tags; track tag ) {
-        <mat-chip-row
-          (removed)="remove($event)"
-          (edited)="edit(tag, $event)"
-          [editable]="true"
-          [aria-description]="'press enter to edit tag'">
-        <span>{{ tag }}</span>
-        <button matChipRemove [attr.aria-label]="'remove tag'">
-          <mat-icon>cancel</mat-icon>
-        </button>
-        </mat-chip-row>
+    <mat-chip-row
+      (removed)="remove($event)"
+      (edited)="edit(tag, $event)"
+      [editable]="true"
+      [aria-description]="'press enter to edit tag'">
+    <span>{{ tag }}</span>
+    <button matChipRemove [attr.aria-label]="'remove tag'">
+      <mat-icon>cancel</mat-icon>
+    </button>
+    </mat-chip-row>
 }
-        <input placeholder="New tag..."
-          [matChipInputFor]="tags"
-          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-          [matChipInputAddOnBlur]="false"
-          (matChipInputTokenEnd)="add($event)"
-        />
-      </mat-chip-grid>
-    }
+    <input placeholder="New tag..."
+      [matChipInputFor]="tags"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+      [matChipInputAddOnBlur]="false"
+      (matChipInputTokenEnd)="add($event)"
+    />
+    </mat-chip-grid>
+  }
   }
 } @else {
   @switch ( field ) {
-    @case ( 'id' ) {
-      <span class="field" name="id"> {{ txn.id }} </span>
-    }
-    @case ( 'datePending' ) {
-      <span class="field" name="date"> {{ txn.datePending | date:'yyyy-MM-dd' }} </span>
-    }
-    @case ( 'datePosted' ) {
-      <span class="field" name="date"> {{ txn.datePosted | date:'yyyy-MM-dd' }} </span>
-    }
-    @case ( 'amount' ) {
-      <span class="field number-field" name="amount" [class.negative]="txn.amount < 0">{{ txn.amount | currency }} {{ txn.currency }}</span>
-    }
-    @case ( 'tax' ) {
-      <span class="field number-field" name="tax" [class.negative]="txn.tax < 0">{{ txn.tax | currency }} {{ txn.currency }}</span>
-    }
-    @case ( 'description' ) {
-      <div class="field" name="description" [class.truncate]="truncate" [style.max-width]="truncate ? '15rem': ''"> {{ truncate ? (txn.description.slice(0, 30) + (txn.description.length > 30 ? '...' : '')): txn.description }} </div>
-    }
-    @case ( 'merchant' ) {
-      <div class="field" name="merchant" [class.truncate]="truncate"> {{ txn.merchant }} </div>
-    }
-    @case ( 'accountId' ) {
-      <div class="field" name="account-name" [class.truncate]="truncate"> {{ accounts.id2name[txn.accountId] || '{!unknown account id!}' }} </div>
-    }
-    @case ( 'transactionType' ) {
-      <span class="field" name="txn-type"> {{ txn.transactionType }} </span>
-    }
-    @case ( 'tags' ) {
-      <div class="field" name="tags" [class.truncate]="truncate"> {{ txn.tags.join(', ') }} </div>
-    }
+  @case ( 'id' ) {
+    <span class="field" name="id"> {{ txn.id }} </span>
+  }
+  @case ( 'datePending' ) {
+    <span class="field" name="date"> {{ txn.datePending | date:'yyyy-MM-dd' }} </span>
+  }
+  @case ( 'datePosted' ) {
+    <span class="field" name="date"> {{ txn.datePosted | date:'yyyy-MM-dd' }} </span>
+  }
+  @case ( 'amount' ) {
+    <span class="field number-field" name="amount" [class.negative]="txn.amount < 0">{{ txn.amount | currency }} {{ txn.currency }}</span>
+  }
+  @case ( 'tax' ) {
+    <span class="field number-field" name="tax" [class.negative]="txn.tax < 0">{{ txn.tax | currency }} {{ txn.currency }}</span>
+  }
+  @case ( 'description' ) {
+    <div class="field" name="description" [class.truncate]="truncate" [style.max-width]="truncate ? '15rem': ''"> {{ truncate ? (txn.description.slice(0, 30) + (txn.description.length > 30 ? '...' : '')): txn.description }} </div>
+  }
+  @case ( 'merchant' ) {
+    <div class="field" name="merchant" [class.truncate]="truncate"> {{ txn.merchant }} </div>
+  }
+  @case ( 'accountId' ) {
+    <div class="field" name="account-name" [class.truncate]="truncate"> {{ accounts.id2name[txn.accountId] || '{!unknown account id!}' }} </div>
+  }
+  @case ( 'transactionType' ) {
+    <span class="field" name="txn-type"> {{ txn.transactionType }} </span>
+  }
+  @case ( 'tags' ) {
+    <div class="field" name="tags" [class.truncate]="truncate"> {{ txn.tags.join(', ') }} </div>
+  }
   }
 }

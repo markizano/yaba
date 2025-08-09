@@ -1,17 +1,17 @@
 <div class="date-input-wrapper">
-    <input
-        type="date"
-        [ngModel]="fromDate | date:'yyyy-MM-dd'"
-        (ngModelChange)="fromDateChange.emit($event)"
-        name="fromDate"
-    />
+  <input
+    type="date"
+    [ngModel]="fromDate | date:'yyyy-MM-dd'"
+    (ngModelChange)="fromDateChange.emit($event)"
+    name="fromDate"
+  />
 </div>
 &nbsp;
 <div class="date-input-wrapper">
-    <input
-        type="date"
-        [ngModel]="toDate | date:'yyyy-MM-dd'"
-        (ngModelChange)="toDateChange.emit($event)"
-        name="toDate"
-    />
+  <input
+    type="date"
+    [ngModel]="toDate | date:'yyyy-MM-dd'"
+    (ngModelChange)="toDateChange.emit($event)"
+    name="toDate"
+  />
 </div>

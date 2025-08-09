@@ -1,15 +1,15 @@
 <div class="helper" [attr.helper]="`Select one ${multiple? 'or more institutions': 'institution'} to filter the display.`">
   <ng-select [items]="institutions"
-      name="institution"
-      bindLabel="name"
-      bindValue="id"
-      [ariaRequired]="required"
-      [multiple]="multiple"
-      [clearable]="true"
-      [closeOnSelect]="true"
-      [disabled]="disabled"
-      [ngModel]="value"
-      placeholder="Select Institution: "
-      (change)="changed($event)"
-    ></ng-select>
+    name="institution"
+    bindLabel="name"
+    bindValue="id"
+    [ariaRequired]="required"
+    [multiple]="multiple"
+    [clearable]="true"
+    [closeOnSelect]="true"
+    [disabled]="disabled"
+    [ngModel]="value"
+    placeholder="Select Institution: "
+    (change)="changed($event)"
+  ></ng-select>
 </div>

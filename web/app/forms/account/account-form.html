@@ -1,31 +1,31 @@
 <div class="titlebar">
-    <h1>{{ account.name || "New" }} Account:</h1>
-    <mat-icon (click)="doCancelForm()" fontIcon="cancel" class="big cancel-icon"></mat-icon>
+  <h1>{{ account.name || "New" }} Account:</h1>
+  <mat-icon (click)="doCancelForm()" fontIcon="cancel" class="big cancel-icon"></mat-icon>
 </div>
 <form (ngSubmit)="saveChanges()">
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="name" maxlength="64" [(ngModel)]="account.name" tabindex="1" />
-    <label for="description">Description: </label>
-    <input type="text" id="description" name="description" maxlength="255" [(ngModel)]="account.description" tabindex="2" />
-    <label for="institution">Institution: </label>
-    <yaba-institution-select
-        id="institution"
-        name="institution"
-        required
-        [(ngModel)]="account.institutionId"
-        [tabIndex]="3"
-    ></yaba-institution-select>
-    <label for="accountType">Account Type: </label>
-    <yaba-account-type
-      id="accountType"
-      name="accountType"
-      required
-      [(ngModel)]="account.accountType"
-      [tabIndex]="4"
-    ></yaba-account-type>
-    <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
-    <div class="submission">
-        <input type="button" name="cancel" value="Cancel" (click)="doCancelForm()"  tabindex="9" class="cancel" />
-        <input type="button" name="save" value="Save Account" (click)="saveChanges()"  tabindex="10" class="save" />
-    </div>
+  <label for="name">Name:</label>
+  <input type="text" id="name" name="name" maxlength="64" [(ngModel)]="account.name" tabindex="1" />
+  <label for="description">Description: </label>
+  <input type="text" id="description" name="description" maxlength="255" [(ngModel)]="account.description" tabindex="2" />
+  <label for="institution">Institution: </label>
+  <yaba-institution-select
+    id="institution"
+    name="institution"
+    required
+    [(ngModel)]="account.institutionId"
+    [tabIndex]="3"
+  ></yaba-institution-select>
+  <label for="accountType">Account Type: </label>
+  <yaba-account-type
+    id="accountType"
+    name="accountType"
+    required
+    [(ngModel)]="account.accountType"
+    [tabIndex]="4"
+  ></yaba-account-type>
+  <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
+  <div class="submission">
+    <input type="button" name="cancel" value="Cancel" (click)="doCancelForm()"  tabindex="9" class="cancel" />
+    <input type="button" name="save" value="Save Account" (click)="saveChanges()"  tabindex="10" class="save" />
+  </div>
 </form>

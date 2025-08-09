@@ -1,107 +1,107 @@
 <div class="controller">
-    <div class="transaction-testing">
-        <h1>DEBUGGING!</h1><br />
-        <div>
-            <label>Filters: <input type="checkbox" name="showFilters" #showFilters checked /></label> |
-            <label>Editable: <input type="checkbox" name="editable" #editable checked /></label> |
-            <label>Paginate: <input type="checkbox" name="showPaginate" #showPaginate checked /> </label> |
-            <label>Header: <input type="checkbox" name="showHeader" #showHeader checked /> </label> |
-            <br />
-            <!-- <p>
-                Fields:
-                ID: <input type="checkbox" name="txShow_id" [(ngModel)]="txShow.id" /> |
-                Date: <input type="checkbox" name="txShow_date" [(ngModel)]="txShow.datePending" /> |
-                Account: <input type="checkbox" name="txShow_account" [(ngModel)]="txShow.account" /> |
-                Merchant: <input type="checkbox" name="txShow_merchant" [(ngModel)]="txShow.merchant" /> |
-                Type: <input type="checkbox" name="txShow_type" [(ngModel)]="txShow.transactionType" /> |
-            </p> -->
-            <textarea></textarea>
-        </div>
-        <yaba-transaction-list
-          class="paginated filtered editable"
-        ></yaba-transaction-list>
+  <div class="transaction-testing">
+    <h1>DEBUGGING!</h1><br />
+    <div>
+      <label>Filters: <input type="checkbox" name="showFilters" #showFilters checked /></label> |
+      <label>Editable: <input type="checkbox" name="editable" #editable checked /></label> |
+      <label>Paginate: <input type="checkbox" name="showPaginate" #showPaginate checked /> </label> |
+      <label>Header: <input type="checkbox" name="showHeader" #showHeader checked /> </label> |
+      <br />
+      <!-- <p>
+        Fields:
+        ID: <input type="checkbox" name="txShow_id" [(ngModel)]="txShow.id" /> |
+        Date: <input type="checkbox" name="txShow_date" [(ngModel)]="txShow.datePending" /> |
+        Account: <input type="checkbox" name="txShow_account" [(ngModel)]="txShow.account" /> |
+        Merchant: <input type="checkbox" name="txShow_merchant" [(ngModel)]="txShow.merchant" /> |
+        Type: <input type="checkbox" name="txShow_type" [(ngModel)]="txShow.transactionType" /> |
+      </p> -->
+      <textarea></textarea>
     </div>
-    <div class="transaction-generator">
-        <h1 class="md-toolbar-tools">Generate Mock Informations</h1>
-        <form id="institution">
-            <input type="button" (click)="genInstitution()" value="Generate an Institution" />
+    <yaba-transaction-list
+      class="paginated filtered editable"
+    ></yaba-transaction-list>
+  </div>
+  <div class="transaction-generator">
+    <h1 class="md-toolbar-tools">Generate Mock Informations</h1>
+    <form id="institution">
+      <input type="button" (click)="genInstitution()" value="Generate an Institution" />
 @if ( institution ) {
-            <div id="institution">
-                <ul>
-                    <li>ID: <span>{{ institution.id }}</span></li>
-                    <li>Name: <span>{{ institution.name }}</span></li>
-                    <li>Description: <span> {{ institution.description }} </span></li>
-                    <li>Mappings: <br />
-    @for ( mapping of institution.mappings; track mapping ) {
-                        <ul>
-                            <li>From Field: <span> {{ mapping.fromField }} </span></li>
-                            <li>To {{ mapping.mapType === 'dynamic'? 'Field': 'Value' }}: <span> {{ mapping.toField }} </span></li>
-                            <li>Map Type: <span> {{ mapping.mapType }} </span></li>
-                        </ul>
-    }
-                    </li>
-                </ul>
-            </div>
+      <div id="institution">
+        <ul>
+          <li>ID: <span>{{ institution.id }}</span></li>
+          <li>Name: <span>{{ institution.name }}</span></li>
+          <li>Description: <span> {{ institution.description }} </span></li>
+          <li>Mappings: <br />
+  @for ( mapping of institution.mappings; track mapping ) {
+            <ul>
+              <li>From Field: <span> {{ mapping.fromField }} </span></li>
+              <li>To {{ mapping.mapType === 'dynamic'? 'Field': 'Value' }}: <span> {{ mapping.toField }} </span></li>
+              <li>Map Type: <span> {{ mapping.mapType }} </span></li>
+            </ul>
+  }
+          </li>
+        </ul>
+      </div>
 }
-        </form>
+    </form>
 
-        <form id="account">
-            <input type="button" (click)="genAccount()" value="Generate an Account" />
-            Bound to institution: <yaba-institution-select (selected)="bindInstitution($event.toString())"></yaba-institution-select> <br />
+    <form id="account">
+      <input type="button" (click)="genAccount()" value="Generate an Account" />
+      Bound to institution: <yaba-institution-select (selected)="bindInstitution($event.toString())"></yaba-institution-select> <br />
 @if ( account ) {
-            <div>
-                <ul>
-                    <li>ID: <span> {{ account.id }} </span></li>
-                    <li>Institution ID: <span> {{ account.institutionId }} </span></li>
-                    <li>Name: <span> {{ account.name }} </span></li>
-                    <li>Description: <span> {{ account.description }} </span></li>
-                    <li>Type: <span> {{ account.accountType }} </span></li>
-                </ul>
-            </div>
+      <div>
+        <ul>
+          <li>ID: <span> {{ account.id }} </span></li>
+          <li>Institution ID: <span> {{ account.institutionId }} </span></li>
+          <li>Name: <span> {{ account.name }} </span></li>
+          <li>Description: <span> {{ account.description }} </span></li>
+          <li>Type: <span> {{ account.accountType }} </span></li>
+        </ul>
+      </div>
 }
-        </form>
+    </form>
 
-        <form id="transaction">
-            <input type="button" (click)="genTransaction()" value="Generate a Transaction" /><br />
-            Bound to account:
-            <ng-select [items]="accountsService.get()" (change)="bindAccount($event)" [multiple]="false" [clearable]="true"></ng-select><br />
+    <form id="transaction">
+      <input type="button" (click)="genTransaction()" value="Generate a Transaction" /><br />
+      Bound to account:
+      <ng-select [items]="accountsService.get()" (change)="bindAccount($event)" [multiple]="false" [clearable]="true"></ng-select><br />
 @if ( transaction ) {
-            <div id="transaction">
-                <ul>
-                    <li>ID: <span> {{ transaction.id }} </span></li>
-                    <li>Account ID: <span> {{ transaction.accountId }} </span></li>
-                    <li>
-                        Pending: <span> {{ transaction.datePending.toISOShortDate() }} </span>;
-                        Posted: <span> {{ transaction.datePosted.toISOShortDate() }} </span>
-                    </li>
-                    <li>Description: <span> {{ transaction.description }} </span></li>
-                    <li>Type: <span> {{ transaction.transactionType }} </span></li>
-                    <li>Amount: <span> {{ transaction.amount | currency }} ({{ transaction.currency }}) </span></li>
-                    <li>Tax: <span> {{ transaction.tax | currency }} </span></li>
-                    <li>Merchant: <span> {{ transaction.merchant }} </span></li>
-                    <li>Tags: <span> {{ transaction.tags.join(", ") }} </span></li>
-                </ul>
-            </div>
+      <div id="transaction">
+        <ul>
+          <li>ID: <span> {{ transaction.id }} </span></li>
+          <li>Account ID: <span> {{ transaction.accountId }} </span></li>
+          <li>
+            Pending: <span> {{ transaction.datePending.toISOShortDate() }} </span>;
+            Posted: <span> {{ transaction.datePosted.toISOShortDate() }} </span>
+          </li>
+          <li>Description: <span> {{ transaction.description }} </span></li>
+          <li>Type: <span> {{ transaction.transactionType }} </span></li>
+          <li>Amount: <span> {{ transaction.amount | currency }} ({{ transaction.currency }}) </span></li>
+          <li>Tax: <span> {{ transaction.tax | currency }} </span></li>
+          <li>Merchant: <span> {{ transaction.merchant }} </span></li>
+          <li>Tags: <span> {{ transaction.tags.join(", ") }} </span></li>
+        </ul>
+      </div>
 }
-            <br />
-            Generate <input type="number" #txnCount style="width: 50px" /> transactions of account type
-            <select #acctType>
-                <option value="checking" selected>Checking Account</option>
-                <option value="savings">Savings Account</option>
-                <option value="credit">Credit Card</option>
-            </select>:
-            <input type="submit" (click)="produceCSV(txnCount.valueAsNumber, acctType.value)" value="Go!" />
-            <br />
+      <br />
+      Generate <input type="number" #txnCount style="width: 50px" /> transactions of account type
+      <select #acctType>
+        <option value="checking" selected>Checking Account</option>
+        <option value="savings">Savings Account</option>
+        <option value="credit">Credit Card</option>
+      </select>:
+      <input type="submit" (click)="produceCSV(txnCount.valueAsNumber, acctType.value)" value="Go!" />
+      <br />
 @if ( csvFile ){
-            <div>
-                <pre class="csv-content"> {{csvFile}} </pre><br />
-                <input type="button" (click)="downloadCSV()" value="Download this as CSV" />
-            </div>
+      <div>
+        <pre class="csv-content"> {{csvFile}} </pre><br />
+        <input type="button" (click)="downloadCSV()" value="Download this as CSV" />
+      </div>
 }
-        </form>
-        <!-- <form>
-            <input type="button" (click)="testStorageLimit()" value="Test Browser Limits (Stroage)" />
-            <p>{{ txnLength }}</p>
-        </form> -->
-    </div>
+    </form>
+    <!-- <form>
+      <input type="button" (click)="testStorageLimit()" value="Test Browser Limits (Stroage)" />
+      <p>{{ txnLength }}</p>
+    </form> -->
+  </div>
 </div>

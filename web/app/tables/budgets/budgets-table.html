@@ -1,19 +1,19 @@
 <div>
-    <table id="budget-list" class="data">
-        <thead>
-            <th>Budget</th>
-            <th>Spending</th>
-        </thead>
-        <tbody>
+  <table id="budget-list" class="data">
+    <thead>
+      <th>Budget</th>
+      <th>Spending</th>
+    </thead>
+    <tbody>
 @for(b of getBudgets(); track b) {
-            <tr>
-                <td>{{ b.tag }}</td>
-                <td>{{ b.amount | currency }}</td>
-            </tr>
+      <tr>
+        <td>{{ b.tag }}</td>
+        <td>{{ b.amount | currency }}</td>
+      </tr>
 }
-        </tbody>
-    </table>
+    </tbody>
+  </table>
 </div>
 <div class="debug">
-    budgets: {{budgets.length}}
+  budgets: {{budgets.length}}
 </div>
