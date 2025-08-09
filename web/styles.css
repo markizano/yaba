@@ -336,7 +336,7 @@ form input[type="button"] {
   transform: scale(2);
 }
 
-.md-truncate {
+.truncate {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -447,4 +447,24 @@ errors p {
   background-color: var(--background);
   box-sizing: border-box;
   margin: 1rem;
+}
+
+.editing {
+  background-color: var(--txn-edit) !important;
+  border: 1px solid var(--active-border);
+  border-radius: 0.3rem;
+  height: 50px;
+  transition: all 400ms ease-in-out;
+
+  input, .ng-select-container {
+      height: 20px !important;
+      box-shadow: none;
+      font-size: 16px;
+      margin: auto;
+      vertical-align: middle;
+  }
+}
+
+.drop-zone-active {
+  border: 5px #11F dotted !important;
 }
