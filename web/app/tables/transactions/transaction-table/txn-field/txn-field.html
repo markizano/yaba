@@ -108,7 +108,7 @@
       <span class="field number-field" name="tax" [class.negative]="txn.tax < 0">{{ txn.tax | currency }} {{ txn.currency }}</span>
     }
     @case ( 'description' ) {
-      <div class="field" name="description" [class.truncate]="truncate"> {{ truncate ? txn.description.slice(0, 30): txn.description }}{{ truncate && txn.description.length > 30 ? '...' : '' }} </div>
+      <div class="field" name="description" [class.truncate]="truncate" [style.max-width]="truncate ? '15rem': ''"> {{ truncate ? (txn.description.slice(0, 30) + (txn.description.length > 30 ? '...' : '')): txn.description }} </div>
     }
     @case ( 'merchant' ) {
       <span class="field" name="merchant" [class.truncate]="truncate"> {{ txn.merchant }} </span>

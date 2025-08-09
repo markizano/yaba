@@ -2,6 +2,7 @@ import { Subscription } from 'rxjs';
 
 import {
     AfterViewInit,
+    ChangeDetectorRef,
     Component,
     ElementRef,
     EventEmitter,
@@ -15,7 +16,6 @@ import {
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { Budgets, TransactionFilter } from 'app/lib/types';
 import { Transactions, Transaction } from 'app/lib/transactions';
-import { YabaAnimations } from 'app/lib/animations';
 
 import { AccountsService } from 'app/services/accounts.service';
 import { ControlsModule } from 'app/controls/controls.module';
@@ -33,9 +33,6 @@ import { BulkActionModule } from './bulk-select-edit/bulk-action.module';
     selector: 'yaba-transaction-list',
     templateUrl: './transactions-list.html',
     styleUrls: ['./transactions-list.css'],
-    animations: [
-        YabaAnimations.fadeSlideDown()
-    ],
     imports: [
         ControlsModule,
         BulkActionModule,
@@ -61,7 +58,7 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
   /**
    * The filters to apply to the transactions.
    */
-  filters = EMPTY_TRANSACTION_FILTER;
+  filters = Object.assign(EMPTY_TRANSACTION_FILTER, 'accounts', []);
 
   /**
    * Injected accounts service to have access to the accounts and subsequent
@@ -73,6 +70,11 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
    * Reference to this element for html-class tracking.
    */
   ref: ElementRef = inject(ElementRef);
+
+  /**
+   * Detect changes after updating properties from the DOM configuration.
+   */
+  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   /**
    * Allow the user to edit the transactions in place.
@@ -135,6 +137,12 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
     this.editable = this.ref.nativeElement.classList.contains('editable');
     this.truncate = this.ref.nativeElement.classList.contains('truncate');
     this.showFilters = this.ref.nativeElement.classList.contains('filtered');
+    if ( !this.showFilters ) {
+      // Set date to 2000 if no filters are present to ensure all transactions are loaded
+      // in the sample display case.
+      this.filters.fromDate = new Date('2000-01-01T00:00:00Z');
+    }
+    this.chDet.detectChanges();
   }
 
   /**

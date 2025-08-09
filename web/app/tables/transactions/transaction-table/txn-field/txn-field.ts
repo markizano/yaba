@@ -1,10 +1,9 @@
 import { Subscription } from 'rxjs';
 
-import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipEvent, MatChipInputEvent } from '@angular/material/chips';
 
-import { NgSelectable, TransactionType } from 'app/lib/types';
 import { Transaction } from 'app/lib/transactions';
 import { Accounts } from 'app/lib/accounts';
 import { AccountsService } from 'app/services/accounts.service';
@@ -31,6 +30,11 @@ export class TxnFieldComponent implements OnInit, OnDestroy, AfterViewInit {
    * Host element reference for detecting which classes are associated for behaviour identification.
    */
   ref: ElementRef = inject(ElementRef);
+
+  /**
+   * Detect changes after we change properties.
+   */
+  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   /**
    * TWo-way binding of the transaction field we're associating.
@@ -72,8 +76,9 @@ export class TxnFieldComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.editing = this.ref.nativeElement.classList.contains('editing');
-    this.truncate = this.ref.nativeElement.classList.contains('truncate');
+    this.truncate = this.ref.nativeElement.hasAttribute('truncate');
     this.field = this.ref.nativeElement.getAttribute('field');
+    this.chDet.detectChanges();
   }
 
   add($event: MatChipInputEvent) {

@@ -1,0 +1,8 @@
+<div class="debug">
+  Filters: {{ filtration(filters) }}<br />
+  Txns: {{ account.transactions.length }}<br />
+</div>
+<yaba-transaction-table
+  truncate
+  [txns]="account.transactions.sample()"
+></yaba-transaction-table>

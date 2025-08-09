@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -31,6 +32,11 @@ import { TransactionShowHeaders } from 'app/lib/types';
 export class TxnRowComponent implements AfterViewInit {
   ref: ElementRef = inject(ElementRef);
 
+  /**
+   * Detect changes after we change properties.
+   */
+  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
+
   @Input() txn = new Transaction();
   @Output() txnChange = new EventEmitter<Transaction>();
   // Backup transaction if we decide to cancel the edit.
@@ -44,7 +50,7 @@ export class TxnRowComponent implements AfterViewInit {
   @Output() selectChange: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   /**
-   *
+   * Notification events about dropping this transaction row or budgets changing.
    */
   @Output() dropRow: EventEmitter<void> = new EventEmitter<void>();
   @Output() budgetsChange: EventEmitter<void> = new EventEmitter<void>();
@@ -56,8 +62,10 @@ export class TxnRowComponent implements AfterViewInit {
   txShow: TransactionShowHeaders = Settings.fromLocalStorage().txShow;
 
   ngAfterViewInit(): void {
+    console.log('TxnRowComponent().afterInit()', this.ref);
     this.editable = this.ref.nativeElement.classList.contains('editable');
-    this.truncate = this.ref.nativeElement.classList.contains('truncate');
+    this.truncate = this.ref.nativeElement.hasAttribute('truncate');
+    this.chDet.detectChanges();
   }
 
   save(txn: Transaction): void {

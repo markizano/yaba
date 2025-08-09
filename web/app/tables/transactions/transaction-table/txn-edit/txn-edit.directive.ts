@@ -24,8 +24,7 @@ export class TxnEditDirective {
   /**
    * Two-way binding of the acitvely "editing" state.
    */
-  @Input() editing: boolean = false;
-  @Output() editingChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  editing: boolean = false;
 
   /**
    * Absolutely cancels the form.
@@ -46,18 +45,15 @@ export class TxnEditDirective {
   onClick() {
       // this.txnEdit = true;
       this.editing = true;
-      this.editingChange.emit(this.editing);
   }
 
   @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       this.editing = false;
-      this.editingChange.emit(this.editing);
       this.cancelChanges.emit();
     } else if (event.key === 'Enter' && event.ctrlKey) {
       this.editing = false;
-      this.editingChange.emit(this.editing);
       this.confirmChanges.emit();
     }
   }

@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, Output } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 
+import { YabaAnimations } from 'app/lib/animations';
 import { Settings } from 'app/lib/settings';
 import { Transaction, Transactions } from 'app/lib/transactions';
 import { TransactionShowHeaders, TxnSortHeader } from 'app/lib/types';
@@ -9,7 +10,8 @@ import { TransactionShowHeaders, TxnSortHeader } from 'app/lib/types';
   selector: 'yaba-transaction-table',
   standalone: false,
   templateUrl: './transaction-table.html',
-  styleUrl: './transaction-table.css'
+  styleUrl: './transaction-table.css',
+  animations: [ YabaAnimations.fadeSlideDown() ],
 })
 export class TransactionTableComponent implements AfterViewInit {
 
@@ -18,6 +20,11 @@ export class TransactionTableComponent implements AfterViewInit {
    * for interactive behaviour controls.
    */
   ref: ElementRef = inject(ElementRef);
+
+  /**
+   * Detect changes after we change properties.
+   */
+  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   /**
    * Internal transaction collection buffer to hold the transactions we would render
@@ -48,9 +55,8 @@ export class TransactionTableComponent implements AfterViewInit {
 
   /**
    * Determins if the paginator is rendered.
-   * Include a class=paginate in order to render the paginator.
    * This is a behaviour input of sorts.
-   * Add class="paginate" to show the paginator.
+   * Add attribute "paginate" to show the paginator.
    */
   showPaginate: boolean = false;
 
@@ -80,8 +86,9 @@ export class TransactionTableComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.editable = this.ref.nativeElement.classList.contains('editable');
-    this.truncate = this.ref.nativeElement.classList.contains('truncate');
-    this.showPaginate = this.ref.nativeElement.classList.contains('paginate');
+    this.truncate = this.ref.nativeElement.hasAttribute('truncate');
+    this.showPaginate = this.ref.nativeElement.hasAttribute('paginate');
+    this.chDet.detectChanges();
   }
 
   /**

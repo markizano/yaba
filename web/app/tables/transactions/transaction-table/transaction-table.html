@@ -1,5 +1,5 @@
 @if ( txns.length > 0) {
-  <table>
+  <table class="data">
     <thead>
       <tr><!-- @TODO: Use fontIcon=sort to indicate sortable headers -->
     @if ( editable )                 { <th>Actions</th> }
@@ -23,7 +23,7 @@
         (dropRow)="deleteTxn(txns[rowId])"
         (selectChange)="selectionHandler($event, txns[rowId])"
         (budgetsChange)="budgetsChange.emit()"
-        [class.truncate]="truncate"
+        [attr.truncate]="truncate"
         [class.editable]="editable"
       ></tr>
   }

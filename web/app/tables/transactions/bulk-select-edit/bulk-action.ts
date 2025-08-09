@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { YabaAnimations } from 'app/lib/animations';
 import { Transactions } from 'app/lib/transactions';
 import { Tags } from 'app/lib/types';
 
@@ -9,7 +8,6 @@ import { Tags } from 'app/lib/types';
   standalone: false,
   templateUrl: './bulk-action.html',
   styleUrls: ['./bulk-action.css'],
-  animations: [ YabaAnimations.fadeSlideDown() ],
 })
 export class BulkAction {
 
