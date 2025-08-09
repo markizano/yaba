@@ -1,0 +1,15 @@
+<div>
+  <ng-select
+    id="accountType"
+    name="accountType"
+    [items]="accountTypes"
+    bindLabel="label"
+    bindValue="value"
+    [multiple]="multiple"
+    [required]="required"
+    placeholder="Select Account Type: "
+    [ngModel]="value"
+    (change)="changed($event)"
+    [tabIndex]="tabIndex"
+  ></ng-select>
+</div>

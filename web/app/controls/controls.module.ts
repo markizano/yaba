@@ -23,11 +23,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { AccountSelectorComponent } from 'app/controls/account-selector/account-selector';
 import { InstitutionSelectorComponent } from 'app/controls/institution-selector/institution-selector';
+import { AccountTypesComponent } from 'app/controls/account-type/account-type';
+import { TransactionTypeComponent } from 'app/controls/transaction-type/transaction-type';
 
 @NgModule({
   declarations: [
     InstitutionSelectorComponent,
     AccountSelectorComponent,
+    AccountTypesComponent,
+    TransactionTypeComponent,
   ],
   imports: [
     CommonModule,
@@ -46,6 +50,8 @@ import { InstitutionSelectorComponent } from 'app/controls/institution-selector/
     MatChipsModule,
     InstitutionSelectorComponent,
     AccountSelectorComponent,
+    AccountTypesComponent,
+    TransactionTypeComponent,
     ...icons,
   ],
 })

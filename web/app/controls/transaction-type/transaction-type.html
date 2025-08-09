@@ -1,0 +1,15 @@
+<div>
+  <ng-select
+    [items]="transactionTypes"
+    bindLabel="label"
+    bindValue="value"
+    [clearable]="false"
+    [multiple]="multiple"
+    [required]="required"
+    placeholder="Select transaction type"
+    [ngModel]="value"
+    (change)="changed($event)"
+    [tabIndex]="tabIndex"
+  ></ng-select>
+
+</div>
