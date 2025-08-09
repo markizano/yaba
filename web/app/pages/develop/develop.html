@@ -8,7 +8,7 @@
             <label>Header: <input type="checkbox" name="showHeader" #showHeader checked /> </label> |
             <br />
             <!-- <p>
-                Fields: 
+                Fields:
                 ID: <input type="checkbox" name="txShow_id" [(ngModel)]="txShow.id" /> |
                 Date: <input type="checkbox" name="txShow_date" [(ngModel)]="txShow.datePending" /> |
                 Account: <input type="checkbox" name="txShow_account" [(ngModel)]="txShow.account" /> |
@@ -18,10 +18,7 @@
             <textarea></textarea>
         </div>
         <yaba-transaction-list
-            [filters]="filters"
-            [showFilters]="showFilters.checked"
-            [showPaginate]="showPaginate.checked"
-            [editable]="editable.checked"
+          class="paginated filtered editable"
         ></yaba-transaction-list>
     </div>
     <div class="transaction-generator">
@@ -66,7 +63,8 @@
 
         <form id="transaction">
             <input type="button" (click)="genTransaction()" value="Generate a Transaction" /><br />
-            Bound to account: <ng-select [items]="accountsService.get()" (change)="bindAccount($event)" [multiple]="false" [clearable]="true"></ng-select><br />
+            Bound to account:
+            <ng-select [items]="accountsService.get()" (change)="bindAccount($event)" [multiple]="false" [clearable]="true"></ng-select><br />
 @if ( transaction ) {
             <div id="transaction">
                 <ul>

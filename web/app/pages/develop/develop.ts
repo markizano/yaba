@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, inject } from '@angular/core';
+import { Component, DOCUMENT, inject, OnDestroy, OnInit } from '@angular/core';
 
 import { Subscription } from 'rxjs';
 import * as saveAs from 'file-saver';
@@ -13,35 +13,34 @@ import { Transaction, Transactions } from 'app/lib/transactions';
 import { ControlsModule } from 'app/controls/controls.module';
 import { AccountsService } from 'app/services/accounts.service';
 import { TransactionsModule } from 'app/transactions/transactions.module';
-import { InstitutionSelectComponent } from 'app/forms/account/institution-select/institution-select';
 
 
 @Component({
-    selector: 'yaba-develop',
-    templateUrl: './develop.html',
-    styleUrls: ['./develop.css'],
-    imports: [
+  selector: 'yaba-develop',
+  templateUrl: './develop.html',
+  styleUrls: ['./develop.css'],
+  imports: [
     ControlsModule,
     TransactionsModule,
-    InstitutionSelectComponent,
-],
+  ],
 })
-export class DevelopComponent {
+export class DevelopComponent implements OnInit, OnDestroy {
     transactions = new Transactions();
     filters = Object.assign(EMPTY_TRANSACTION_FILTER, {
         fromDate: NULLDATE,
         accounts: [],
     });
-    #cachedUpdate?: Subscription;
+    #accts?: Subscription;
 
     // SeedList and CSV file generation testing
     seedlist = new SeedList();
     institution?: Institution;
     account?: Account;
+    accounts: Accounts = new Accounts();
     transaction?: Transaction;
     csvFile = '';
-    protected accountsService = inject(AccountsService);
-    protected document = inject(DOCUMENT);
+    accountsService = inject(AccountsService);
+    document = inject(DOCUMENT);
 
     constructor() {
         // **DEBUGGING**
@@ -57,15 +56,16 @@ export class DevelopComponent {
     ngOnInit() {
         console.log('DevelopComponent ngOnInit()');
         const update = (accounts: Accounts) => {
-            this.transactions.clear();
-            this.transactions = Transactions.fromList(accounts.map(a => a.transactions).flat()).sorted();
+          this.accounts = accounts;
+          this.transactions.clear();
+          this.transactions = Transactions.fromList(accounts.map(a => a.transactions).flat()).sorted();
         }
         update(this.accountsService.get());
-        this.#cachedUpdate = this.accountsService.subscribe((accounts: Accounts) => update(accounts));
+        this.#accts = this.accountsService.subscribe((accounts: Accounts) => update(accounts));
     }
 
     ngOnDestroy() {
-        this.#cachedUpdate?.unsubscribe();
+        this.#accts?.unsubscribe();
     }
 
     log(data: unknown) {
