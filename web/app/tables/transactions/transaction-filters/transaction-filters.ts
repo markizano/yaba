@@ -23,46 +23,50 @@ import { Accounts } from 'app/lib/accounts';
 @Component({
     selector: 'yaba-transaction-filters',
     standalone: false,
-    templateUrl: './transaction-filter.html',
-    styleUrls: ['./transaction-filter.css'],
+    templateUrl: './transaction-filters.html',
+    styleUrls: ['./transaction-filters.css'],
 })
-export class TransactionFilterComponent implements OnInit, OnDestroy {
-    @Input()  filter = EMPTY_TRANSACTION_FILTER;
-    @Output() filterChange = new EventEmitter<TransactionFilter>();
-    filterByAccount: boolean = this.filter.accounts !== undefined;
-    tags: Tags = [];
-    #subChg?: Subscription;
+export class TransactionFiltersComponent implements OnInit, OnDestroy {
 
-    ngOnInit() {
-        this.#subChg = this.filterChange.subscribe((filter: TransactionFilter) => {
-            this.filterByAccount = filter.accounts !== undefined;
-        });
-        console.log('TransactionFilterComponent().ngOnInit()');
-    }
+  @Input()  filter = EMPTY_TRANSACTION_FILTER;
+  @Output() filterChange = new EventEmitter<TransactionFilter>();
 
-    ngOnDestroy() {
-        this.#subChg?.unsubscribe();
-    }
+  filterByAccount: boolean = this.filter.accounts !== undefined;
 
-    daterange($event: DateRange) {
-        this.filter.fromDate = new Date($event.fromDate);
-        this.filter.toDate = new Date($event.toDate);
-        this.filterChange.emit(this.filter);
-    }
+  tags: Tags = [];
 
-    accounts($event: Accounts): void {
-        this.filter.accounts = $event;
-        this.filterChange.emit(this.filter);
-    }
+  #subChg?: Subscription;
 
-    selectedTags($event: Tags): void {
-        this.filter.tags = $event;
-        this.filterChange.emit(this.filter);
-    }
+  ngOnInit() {
+    this.#subChg = this.filterChange.subscribe((filter: TransactionFilter) => {
+      this.filterByAccount = filter.accounts !== undefined;
+    });
+    console.log('TransactionFilterComponent().ngOnInit()');
+  }
 
-    description($event: DescriptionChange) {
-        this.filter.description = $event.useRegexp ? new RegExp($event.description) : $event.description;
-        console.debug('description', this.filter.description);
-        this.filterChange.emit(this.filter);
-    }
+  ngOnDestroy() {
+    this.#subChg?.unsubscribe();
+  }
+
+  daterange($event: DateRange) {
+    this.filter.fromDate = new Date($event.fromDate);
+    this.filter.toDate = new Date($event.toDate);
+    this.filterChange.emit(this.filter);
+  }
+
+  accounts($event: Accounts): void {
+    this.filter.accounts = $event;
+    this.filterChange.emit(this.filter);
+  }
+
+  selectedTags($event: Tags): void {
+    this.filter.tags = $event;
+    this.filterChange.emit(this.filter);
+  }
+
+  description($event: DescriptionChange) {
+    this.filter.description = $event.useRegexp ? new RegExp($event.description) : $event.description;
+    console.debug('description', this.filter.description);
+    this.filterChange.emit(this.filter);
+  }
 }
