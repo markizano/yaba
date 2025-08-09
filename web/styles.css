@@ -128,19 +128,19 @@ $theme: mat.define-theme((
   font-size: 2rem;
 }
 
-.close-icon, .cancel-icon, .delete-icon {
+.close-icon, .cancel-icon, .delete-icon, .untag-icon {
   color: var(--tertiary-dark);
 }
 
-.close-icon:hover, .cancel-icon:hover, .delete-icon:hover {
+.close-icon:hover, .cancel-icon:hover, .delete-icon:hover, .untag-icon:hover {
   color: var(--tertiary-normal);
 }
 
-.add-icon {
+.add-icon, .tag-icon {
   color: var(--secondary-dark);
 }
 
-.add-icon:hover {
+.add-icon:hover, .tag-icon:hover {
   color: var(--secondary-normal);
 }
 
@@ -231,6 +231,7 @@ table.data {
   border-radius: 0.3rem;
   overflow-y: auto;
 }
+
 table.data th {
   font-weight: bold;
   text-align: left;
@@ -241,19 +242,22 @@ table.data th {
   background-color: var(--txn-list-header);
   color: var(--text);
 }
+
 table.data thead {
   position: sticky;
   top: 0px;
 }
+
 table.data td {
   padding: 2px 5px 2px 5px;
-  overflow: visible;
   vertical-align: middle;
   transition: all 400ms ease-in-out;
 }
+
 table.data tr:nth-child(odd) {
   background-color: var(--txn-odd);
 }
+
 table.data tr:nth-child(even) {
   background-color: var(--txn-even);
 }
@@ -340,6 +344,7 @@ form input[type="button"] {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 10rem;
 }
 
 .helper:hover:after {
