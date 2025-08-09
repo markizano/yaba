@@ -110,7 +110,7 @@
   },
   "schematics": {
     "@schematics/angular:component": {
-      "type": "component"
+      "type": ""
     },
     "@schematics/angular:directive": {
       "type": "directive"
