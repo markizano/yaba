@@ -3,18 +3,13 @@ import { Component, EventEmitter, HostListener, Input, Output } from '@angular/c
 import { Tags } from 'app/lib/types';
 import { YabaAnimations } from 'app/lib/animations';
 import { Transactions } from 'app/lib/transactions';
-import { TransactionFilterModule } from 'app/tables/transactions/transaction-filters/transaction-filter.module';
-import { ControlsModule } from 'app/controls/controls.module';
 
 @Component({
     selector: 'yaba-untag-txns',
     templateUrl: './txn-untag.html',
     styleUrls: ['./txn-untag.css'],
+    standalone: false,
     animations: [ YabaAnimations.fadeSlideDown() ],
-    imports: [
-        ControlsModule,
-        TransactionFilterModule,
-    ]
 })
 export class UntagTransactionComponent {
     @Input() transactions = new Transactions();

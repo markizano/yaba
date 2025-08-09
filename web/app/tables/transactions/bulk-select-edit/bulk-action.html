@@ -1,0 +1,19 @@
+<h3>Selected Transactions ( {{selectedTxns.length}} )</h3>
+<div class="helper" [attr.helper]="`Add a tag to ${selectedTxns.length} transactions.`">
+  <yaba-tag-txns
+    (tags)="tagTxns($event)"
+    (cancel)="cancelSelected()"
+  ></yaba-tag-txns>
+</div>
+@if ( selectedTxns.haveTags().length > 0 ) {
+<div class="helper" [attr.helper]="`Untag selected ${selectedTxns.length} transactions`">
+  <yaba-untag-txns
+    [transactions]="selectedTxns"
+    (untag)="untagTxns($event)"
+    (cancel)="cancelSelected()"
+  ></yaba-untag-txns>
+</div>
+}
+<div class="helper" [attr.helper]="`Delete all ${selectedTxns.length} transactions.`">
+  <mat-icon (click)="deleteSelected()" class="delete-icon"fontIcon="delete"></mat-icon>
+</div>

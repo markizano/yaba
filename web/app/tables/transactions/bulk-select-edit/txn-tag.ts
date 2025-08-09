@@ -1,16 +1,13 @@
 import { Component, EventEmitter, HostListener, Output } from '@angular/core';
 
-import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
 
 @Component({
     selector: 'yaba-tag-txns',
     templateUrl: './txn-tag.html',
     styleUrls: ['./txn-tag.css'],
+    standalone: false,
     animations: [ YabaAnimations.fadeSlideDown() ],
-    imports: [
-        ControlsModule,
-    ]
 })
 export class TagTransactionsComponent {
     @Output() tags = new EventEmitter<string>();
