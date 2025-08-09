@@ -187,6 +187,13 @@ export class Accounts extends Array<Account> implements YabaPlural<Account> {
         });
     }
 
+    static receiveParsedTransactions(account: Account, txns: Transactions): void {
+      console.log('parseCSVFiles() txns: ', account, txns);
+      account.transactions.add(...txns);
+      account.transactions.sorted();
+    };
+
+
     /**
      * Override to Array.push().
      * @param  {...Account} items New Account(s) to add to this collection.
