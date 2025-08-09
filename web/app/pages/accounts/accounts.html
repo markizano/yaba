@@ -19,7 +19,7 @@
 <div class="column dropfile data-card-container" (fileDrop)="parseCSVFiles(account, $event)" [preventBodyDrop]="true" [id]="account.id">
     <div class="titlebar">
         <div>
-            <h2 class="title md-truncate"><a [routerLink]="['/accounts', account.id]">{{account.name}}</a></h2>
+            <h2 class="title truncate"><a [routerLink]="['/accounts', account.id]">{{account.name}}</a></h2>
             <div class="account-balance">{{ account.balance() | currency }}</div>
         </div>
         <div class="actions">
@@ -60,10 +60,7 @@
     <yaba-transaction-list
         [accountId]="account.id"
         [filters]="filters"
-        [showFilters]="false"
-        [showPaginate]="false"
-        [truncate]="true"
-        [editable]="false"
+        class="truncate"
     ></yaba-transaction-list>
 </div>
 }
