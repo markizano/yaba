@@ -137,7 +137,9 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
     this.editable = this.ref.nativeElement.classList.contains('editable');
     this.truncate = this.ref.nativeElement.classList.contains('truncate');
     this.showFilters = this.ref.nativeElement.classList.contains('filtered');
-    if ( !this.showFilters ) {
+    if ( this.showFilters ) {
+      this.filters.accounts = [];
+    } else {
       // Set date to 2000 if no filters are present to ensure all transactions are loaded
       // in the sample display case.
       this.filters.fromDate = new Date('2000-01-01T00:00:00Z');

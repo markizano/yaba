@@ -27,8 +27,8 @@ export class DateRangeFilterComponent {
     }
 
     ngOnInit() {
-        this.#fromDateSub = this.fromDateChange.pipe(debounceTime(2000)).subscribe(() => this.dateChanged());
-        this.#toDateSub = this.toDateChange.pipe(debounceTime(2000)).subscribe(() => this.dateChanged());
+        this.#fromDateSub = this.fromDateChange.pipe(debounceTime(385)).subscribe(() => this.dateChanged());
+        this.#toDateSub = this.toDateChange.pipe(debounceTime(385)).subscribe(() => this.dateChanged());
     }
 
     ngOnDestroy() {

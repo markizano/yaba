@@ -1,0 +1,6 @@
+:host {
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}

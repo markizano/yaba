@@ -1,6 +1,7 @@
 @if ( editing ) {
   @switch ( field ) {
     @case ( 'id' ) {
+      <!-- ID is only ever read-only. Never for edits. -->
       <span class="truncate"> {{ txn.id }} </span>
     }
     @case ( 'datePending' ) {
@@ -111,16 +112,16 @@
       <div class="field" name="description" [class.truncate]="truncate" [style.max-width]="truncate ? '15rem': ''"> {{ truncate ? (txn.description.slice(0, 30) + (txn.description.length > 30 ? '...' : '')): txn.description }} </div>
     }
     @case ( 'merchant' ) {
-      <span class="field" name="merchant" [class.truncate]="truncate"> {{ txn.merchant }} </span>
+      <div class="field" name="merchant" [class.truncate]="truncate"> {{ txn.merchant }} </div>
     }
     @case ( 'accountId' ) {
-      <span class="field" name="account-name" [class.truncate]="truncate"> {{ accounts.id2name[txn.accountId] || '{!unknown account id!}' }} </span>
+      <div class="field" name="account-name" [class.truncate]="truncate"> {{ accounts.id2name[txn.accountId] || '{!unknown account id!}' }} </div>
     }
     @case ( 'transactionType' ) {
       <span class="field" name="txn-type"> {{ txn.transactionType }} </span>
     }
     @case ( 'tags' ) {
-      <span class="field" name="tags"> {{ txn.tags.join(', ') }} </span>
+      <div class="field" name="tags" [class.truncate]="truncate"> {{ txn.tags.join(', ') }} </div>
     }
   }
 }

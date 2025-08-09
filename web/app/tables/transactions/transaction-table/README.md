@@ -1,4 +1,4 @@
-<!-- markdownlint-disable -->
+
 # Transaction Table
 
 This is the transaction table component.
@@ -10,6 +10,7 @@ However, those are strictly input and output events and data points and do not c
 with the global singleton services.
 
 I have to stop the scope here as this does not contain any of:
+
 - The transaction filter components.
 - Bulk edits
 - Budgeting

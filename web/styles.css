@@ -224,12 +224,20 @@ p {
 
 table.data {
   border: 1px solid var(--border);
-  max-height: 500px;
-  margin: 5px;
+  max-height: 35rem;
+  width: 100%;
+  box-sizing: border-box;
   table-layout: fixed;
-  border-collapse: collapse;
-  border-radius: 0.3rem;
+  border-radius: 0.5rem 0.5rem 0 0;
   overflow-y: auto;
+}
+
+table.data th:first {
+  border-radius: 0.5rem 0 0 0;
+}
+
+table.data th:last-of-type {
+  border-radius: 0 0.5rem 0 0;
 }
 
 table.data th {
@@ -451,7 +459,8 @@ errors p {
   box-shadow: 0.5rem 0.3rem var(--shadow);
   background-color: var(--background);
   box-sizing: border-box;
-  margin: 1rem;
+  margin: 0.5rem;
+  max-width: 50rem;;
 }
 
 .editing {

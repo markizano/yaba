@@ -62,7 +62,6 @@ export class TxnRowComponent implements AfterViewInit {
   txShow: TransactionShowHeaders = Settings.fromLocalStorage().txShow;
 
   ngAfterViewInit(): void {
-    console.log('TxnRowComponent().afterInit()', this.ref);
     this.editable = this.ref.nativeElement.classList.contains('editable');
     this.truncate = this.ref.nativeElement.hasAttribute('truncate');
     this.chDet.detectChanges();
