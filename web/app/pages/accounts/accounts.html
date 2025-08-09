@@ -59,7 +59,6 @@
     </div>
     <yaba-transaction-list
         [accountId]="account.id"
-        [filters]="filters"
         class="truncate"
     ></yaba-transaction-list>
 </div>
@@ -67,8 +66,9 @@
 </div>
 <errors [errors]="errors"></errors>
 <yaba-account-form
-    [account]="account"
-    (cancel)="cancel()"
-    (save)="save($event)"
-    [ngClass]="{ 'ng-hide': !formVisible }"
-    class="suave"></yaba-account-form>
+  [account]="account"
+  (cancelAccount)="cancel()"
+  (saveAccount)="save($event)"
+  [class.ng-hide]="!formVisible"
+  class="suave"
+></yaba-account-form>

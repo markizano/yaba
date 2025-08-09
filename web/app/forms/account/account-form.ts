@@ -1,14 +1,12 @@
 import { Subscription } from 'rxjs';
 
 import { Component, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 
 import { Account } from 'app/lib/accounts';
 import { Institutions } from 'app/lib/institutions';
 import { ControlsModule } from 'app/controls/controls.module';
 import { YabaAnimations } from 'app/lib/animations';
 import { InstitutionsService } from 'app/services/institutions.service';
-import { InstitutionSelectComponent } from 'app/forms/account/institution-select/institution-select';
 
 @Component({
     selector: 'yaba-account-form',
@@ -16,8 +14,6 @@ import { InstitutionSelectComponent } from 'app/forms/account/institution-select
     styleUrls: ['./account-form.css'],
     imports: [
         ControlsModule,
-        MatIconModule,
-        InstitutionSelectComponent,
     ],
     animations: [
         YabaAnimations.fadeSlideDown(),
@@ -27,18 +23,17 @@ export class AccountFormComponent {
     @Input() account = new Account();
     @Output() accountChange = new EventEmitter<Account>();
 
-    @Output() save = new EventEmitter<Account>();
-    @Output() cancel = new EventEmitter<void>();
+    @Output() saveAccount = new EventEmitter<Account>();
+    @Output() cancelAccount = new EventEmitter<void>();
 
     institutions = new Institutions();
-    accountTypes = Account.Types();
 
     // User feedback.
     errors: string[] = [];
 
     #cachedUpdates?: Subscription;
 
-    protected institutionsService = inject(InstitutionsService);
+    institutionsService = inject(InstitutionsService);
 
     ngOnInit(): void {
         console.log('AccountFormComponent().ngOnInit()');
@@ -104,12 +99,12 @@ export class AccountFormComponent {
         }
         console.log('AccountFormComponent.save()', this.account);
         this.accountChange.emit(this.account);
-        this.save.emit(this.account);
+        this.saveAccount.emit(this.account);
         this.reset();
     }
 
     doCancelForm(): void {
-        this.cancel.emit();
+        this.cancelAccount.emit();
         this.reset();
     }
 

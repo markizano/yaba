@@ -11,22 +11,18 @@
     <yaba-institution-select
         id="institution"
         name="institution"
-        (selected)="pickInstitution($event.id)"
-        [required]="true"
+        required
         [(ngModel)]="account.institutionId"
-        tabindex="3"
+        [tabIndex]="3"
     ></yaba-institution-select>
     <label for="accountType">Account Type: </label>
-    <ng-select
-        id="accountType"
-        name="accountType"
-        [items]="accountTypes"
-        bindLabel="label"
-        bindValue="value"
-        placeholder="Select Account Type: "
-        [(ngModel)]="account.accountType"
-        tabindex="4"
-    ></ng-select>
+    <yaba-account-type
+      id="accountType"
+      name="accountType"
+      required
+      [(ngModel)]="account.accountType"
+      [tabIndex]="4"
+    ></yaba-account-type>
     <div class="errors">@for(error of errors; track error) {<p>{{ error }}</p>}</div>
     <div class="submission">
         <input type="button" name="cancel" value="Cancel" (click)="doCancelForm()"  tabindex="9" class="cancel" />
