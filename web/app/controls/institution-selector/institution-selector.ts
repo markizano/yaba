@@ -1,7 +1,5 @@
-import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, forwardRef, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { NgSelectComponent } from "@ng-select/ng-select";
+import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Institution, Institutions } from "app/lib/institutions";
 import { InstitutionsService } from "app/services/institutions.service";
 import { Subscription } from "rxjs";
@@ -10,58 +8,75 @@ import { Subscription } from "rxjs";
  * NgSelect front for selecting institution(s).
  */
 @Component({
-    selector: 'yaba-institution-select',
-    templateUrl: './institution-select.html',
-    imports: [
-        CommonModule,
-        FormsModule,
-        NgSelectComponent,
-    ],
-    providers: [{ // Enables the use of [(ngModel)] to be passed to this component. (Binds to institutionId)
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => InstitutionSelectComponent),
-        multi: true
-    }]
+  selector: 'yaba-institution-select',
+  templateUrl: './institution-selector.html',
+  standalone: false,
+  providers: [{ // Enables the use of [(ngModel)] to be passed to this component. (Binds to institutionId)
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => InstitutionSelectorComponent),
+    multi: true
+  }]
 })
-export class InstitutionSelectComponent implements OnInit, OnDestroy, ControlValueAccessor {
-    @Input() required = false;
-    @Output() selected = new EventEmitter<Institution>();
-    @Input() institutionId: string = '';
+export class InstitutionSelectorComponent implements OnInit, OnDestroy, ControlValueAccessor, AfterViewInit {
+  @Input() value: string = '';
 
-    onChange = (_: string) => {};
-    onTouched = () => {};
-    disabled = false;
+  // ControlValueAccessor implementation
+  // Outputs a string=institutionId
+  onChange = (_: string) => {};
+  onTouched = () => {};
+  disabled: boolean = false;
 
-    institutions = new Institutions();
-    #sub?: Subscription;
+  multiple: boolean = false;
+  required: boolean = false;
 
-    protected institutionsService = inject(InstitutionsService);
+  institutions: Institutions = new Institutions();
+  #sub?: Subscription;
 
-    ngOnInit() {
-        const update = (institutions: Institutions) => {
-            this.institutions = institutions;
-        }
-        update(this.institutionsService.get());
-        this.#sub = this.institutionsService.subscribe(update);
-    }
+  institutionsService: InstitutionsService = inject(InstitutionsService);
+  ref: ElementRef = inject(ElementRef);
 
-    ngOnDestroy() {
-        this.#sub?.unsubscribe();
-    }
+  ngOnInit() {
+      const update = (institutions: Institutions) => {
+          this.institutions = institutions;
+      }
+      update(this.institutionsService.get());
+      this.#sub = this.institutionsService.subscribe(update);
+  }
 
-    writeValue(value: string): void {
-        this.institutionId = value;
-    }
+  ngOnDestroy() {
+      this.#sub?.unsubscribe();
+  }
 
-    registerOnChange(fn: any): void {
-        this.onChange = fn;
-    }
+  ngAfterViewInit(): void {
+    this.multiple = this.ref.nativeElement.classList.contains('multiple');
+    this.required = this.ref.nativeElement.hasAttribute('required')
+  }
 
-    registerOnTouched(fn: any): void {
-        this.onTouched = fn;
-    }
+  /* BEGIN: [(ngModel)] handler methods */
+  writeValue(value: string): void {
+      this.value = value;
+  }
 
-    setDisabledState(isDisabled: boolean): void {
-        this.disabled = isDisabled;
-    }
+  registerOnChange(fn: any): void {
+      this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+      this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+      this.disabled = isDisabled;
+  }
+  /* END: [(ngModel)] handler methods */
+
+  /**
+   * Handle change events from the ng-select component
+   * @param institution The selected institution
+   */
+  changed(institution: Institution): void {
+      this.value = institution?.id || '';
+      this.onChange(this.value);
+      this.onTouched();
+  }
 }

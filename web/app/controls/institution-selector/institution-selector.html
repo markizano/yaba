@@ -1,14 +1,15 @@
-<div class="yaba-institution-select">
+<div class="helper" [attr.helper]="`Select one ${multiple? 'or more institutions': 'institution'} to filter the display.`">
   <ng-select [items]="institutions"
       name="institution"
       bindLabel="name"
       bindValue="id"
       [ariaRequired]="required"
-      [multiple]="false"
+      [multiple]="multiple"
       [clearable]="true"
       [closeOnSelect]="true"
-      [ngModel]="institutionId"
+      [disabled]="disabled"
+      [ngModel]="value"
       placeholder="Select Institution: "
-      (change)="selected.emit($event)"
-      ></ng-select>
+      (change)="changed($event)"
+    ></ng-select>
 </div>

@@ -24,7 +24,7 @@ export class YabaDropFileDirective {
     // as an JS array of `File` objects.
     @Output() fileDrop = new EventEmitter<File[]>();
 
-    // Disable dropping on the body of the document. 
+    // Disable dropping on the body of the document.
     // This prevents the browser from loading the dropped files
     // using it's default behaviour if the user misses the drop zone.
     // Set this input to false if you want the browser default behaviour.

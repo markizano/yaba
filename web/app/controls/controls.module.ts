@@ -7,9 +7,9 @@
  * - ReactiveFormsModule
  * - BrowserAnimationsModule
  * - NgSelectModule
- * 
+ *
  * and all the other custom Yaba compnents that help manage user input via tools and icons.
- * 
+ *
  * All the pipes, directives and custom components that go into perceiving user input are wired through this module.
  */
 
@@ -20,22 +20,33 @@ import { NgSelectModule } from '@ng-select/ng-select';
 
 import { icons } from 'app/controls/icons';
 import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { AccountSelectorComponent } from 'app/controls/account-selector/account-selector';
+import { InstitutionSelectorComponent } from 'app/controls/institution-selector/institution-selector';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        NgSelectModule,
-        FormsModule,
-        MatIconModule,
-        icons,
-    ],
-    exports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NgSelectModule,
-        MatIconModule,
-        ...icons,
-    ],
+  declarations: [
+    InstitutionSelectorComponent,
+    AccountSelectorComponent,
+  ],
+  imports: [
+    CommonModule,
+    NgSelectModule,
+    FormsModule,
+    MatIconModule,
+    MatChipsModule,
+    icons,
+  ],
+  exports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgSelectModule,
+    MatIconModule,
+    MatChipsModule,
+    InstitutionSelectorComponent,
+    AccountSelectorComponent,
+    ...icons,
+  ],
 })
 export class ControlsModule { }
