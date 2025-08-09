@@ -19,7 +19,7 @@ export class YabaAnimations {
                 style({ opacity: 1, height: '*', visibility: 'visible'}),
                 animate(YabaAnimations.ANIMATE_MS, style({ opacity: 0, height: 0, visibility: 'hidden'}))
             ]),
-          ]);  
+          ]);
     }
 
     static fade() {
