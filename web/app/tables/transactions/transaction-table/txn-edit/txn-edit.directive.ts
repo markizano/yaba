@@ -1,32 +1,64 @@
 import { Directive, EventEmitter, HostBinding, HostListener, Input, Output} from '@angular/core';
 
+/**
+ * Definition of "editable":
+ *   This field is editable.
+ *   A [click] event will add the "editing" class so other handlers of that html-class
+ *   can perform the functions they need to put it in editing mode, render inputs as
+ *   needed and allow user interaction with the element(s).
+ *   An [Esc] keypress is a "cancel" event which indicates the changes should be
+ *   reversed and the "editing" class to be removed.
+ *   An [Ctrl+Enter] keypress is an "OK" event which indicates a commit of the changes,
+ *   a removal of the "editing" class.
+ *
+ * Definition of "editing":
+ *   Indicates this field is actively under edits. Input fields are rendered and
+ *   user interaction is possible.
+ */
 @Directive({
     selector: '.editable',
     standalone: true,
 })
 export class TxnEditDirective {
 
-    @Input() txnEdit: boolean;
-    @Output() txnEditChange: EventEmitter<boolean> = new EventEmitter<boolean>();
+  /**
+   * Two-way binding of the acitvely "editing" state.
+   */
+  @Input() editing: boolean = false;
+  @Output() editingChange: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    constructor() {
-        this.txnEdit = false;
-    }
+  /**
+   * Absolutely cancels the form.
+   */
+  @Output() cancelChanges: EventEmitter<void> = new EventEmitter<void>();
 
-    @HostBinding('class.active-editing')
-    get isEditing() {
-        return this.txnEdit;
-    }
+  /**
+   * Confirms the changes.
+   */
+  @Output() confirmChanges: EventEmitter<void> = new EventEmitter<void>();
 
-    @HostListener('click', ['$event'])
-    onClick() {
-        // this.txnEdit = true;
-        this.txnEditChange.emit(this.txnEdit);
-    }
+  @HostBinding('class.editing')
+  get isEditing() {
+    return this.editing;
+  }
 
-    @HostListener('blur', ['$event'])
-    onBlur() {
-        this.txnEdit = false;
-        this.txnEditChange.emit(this.txnEdit);
+  @HostListener('click', ['$event'])
+  onClick() {
+      // this.txnEdit = true;
+      this.editing = true;
+      this.editingChange.emit(this.editing);
+  }
+
+  @HostListener('keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.editing = false;
+      this.editingChange.emit(this.editing);
+      this.cancelChanges.emit();
+    } else if (event.key === 'Enter' && event.ctrlKey) {
+      this.editing = false;
+      this.editingChange.emit(this.editing);
+      this.confirmChanges.emit();
     }
+  }
 }

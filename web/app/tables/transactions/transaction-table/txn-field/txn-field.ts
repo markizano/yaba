@@ -1,15 +1,12 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
-import { NgSelectModule } from '@ng-select/ng-select';
-
 import { Subscription } from 'rxjs';
 
-import { Id2NameHashMap, NgSelectable, TransactionType } from 'app/lib/types';
-import { ControlsModule } from 'app/controls/controls.module';
-import { Accounts } from 'app/lib/accounts';
+import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatChipEvent, MatChipInputEvent } from '@angular/material/chips';
+
+import { NgSelectable, TransactionType } from 'app/lib/types';
 import { Transaction } from 'app/lib/transactions';
+import { Accounts } from 'app/lib/accounts';
 import { AccountsService } from 'app/services/accounts.service';
 
 /**
@@ -18,70 +15,98 @@ import { AccountsService } from 'app/services/accounts.service';
  * <txn-field> is synonymous with <td> in a table with ✨features✨ to help us render the correct data type and handle editing seamlessly.
  */
 @Component({
-    selector: '.yaba-txn-field',
-    imports: [
-        ControlsModule,
-        NgSelectModule,
-        MatChipsModule,
-        MatIconModule,
-    ],
-    templateUrl: './txn-field.html',
-    styleUrls: ['./txn-field.css'],
+  selector: '.yaba-txn-field',
+  standalone: false,
+  templateUrl: './txn-field.html',
+  styleUrls: ['./txn-field.css'],
 })
-export class TxnFieldComponent implements OnInit, OnDestroy {
-    readonly separatorKeysCodes = [ENTER, COMMA] as const;
-    @Input() editing = false;
-    @Input() txn = new Transaction();
-    @Output() txnChange = new EventEmitter<Transaction>();
-    @Output() budgets = new EventEmitter<void>();
-    @Input() field: keyof Transaction = 'id';
-    @Input() truncate = false;
+export class TxnFieldComponent implements OnInit, OnDestroy, AfterViewInit {
+  /**
+   * ReadOnly constants for key codes.
+   * Used in the HTML template for `matChipInputSeparatorKeyCodes`.
+   */
+  readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
-    accounts = new Accounts();
-    accountId2name: Id2NameHashMap = {};
-    #cachedUpdates?: Subscription;
+  /**
+   * Host element reference for detecting which classes are associated for behaviour identification.
+   */
+  ref: ElementRef = inject(ElementRef);
 
-    constructor(protected accountsService: AccountsService) { }
+  /**
+   * TWo-way binding of the transaction field we're associating.
+   */
+  @Input() txn = new Transaction();
+  @Output() txnChange = new EventEmitter<Transaction>();
 
-    ngOnInit() {
-        this.accounts = this.accountsService.get();
-        this.accountId2name = this.accounts.id2name;
-        this.#cachedUpdates = this.accountsService.subscribe((accounts: Accounts) => {
-            this.accounts = accounts;
-            this.accountId2name = accounts.id2name;
-        });
-    }
+  /**
+   * Notification event for when to rebalance the budgets.
+   */
+  @Output() budgetsChange = new EventEmitter<void>();
 
-    ngOnDestroy() {
-        this.#cachedUpdates?.unsubscribe();
-    }
+  /**
+   * The name of the field to which we are bound.
+   */
+  field: keyof Transaction = 'id';
 
-    getTransactionTypes(): NgSelectable<TransactionType>[] {
-        return [
-            { value: TransactionType.Credit, label: 'Credit' },
-            { value: TransactionType.Debit, label: 'Debit' },
-            { value: TransactionType.Transfer, label: 'Transfer' },
-            { value: TransactionType.Payment, label: 'Payment' },
-        ];
-    }
+  /**
+   * Class-based behaviour trackers.
+   */
+  truncate: boolean = false;
+  editing: boolean = false;
 
-    add($event: MatChipInputEvent) {
-        this.txn.addTag($event.value);
-        this.txnChange.emit(this.txn);
-        $event.chipInput.clear();
-        this.budgets.emit();
-    }
+  accounts: Accounts = new Accounts();
+  accountsService: AccountsService = inject(AccountsService);
+  #acct?: Subscription;
 
-    remove($event: MatChipEvent) {
-        this.txn.removeTag($event.chip.value);
-        this.txnChange.emit(this.txn);
-        this.budgets.emit();
-    }
+  ngOnInit(): void {
+    const update = (accounts: Accounts) => {
+      this.accounts = accounts;
+    };
+    update(this.accountsService.get());
+    this.#acct = this.accountsService.subscribe(update);
+  }
 
-    edit(prevVal: string, $event: MatChipEvent) {
-        this.txn.removeTag(prevVal);
-        this.txn.addTag($event.chip.value);
-        this.txnChange.emit(this.txn);
-        this.budgets.emit();
-    }
+  ngOnDestroy(): void {
+    this.#acct?.unsubscribe();
+  }
+
+  ngAfterViewInit(): void {
+    this.editing = this.ref.nativeElement.classList.contains('editing');
+    this.truncate = this.ref.nativeElement.classList.contains('truncate');
+    this.field = this.ref.nativeElement.getAttribute('field');
+  }
+
+  getTransactionTypes(): NgSelectable<TransactionType>[] {
+    return [
+      { value: TransactionType.Credit, label: 'Credit' },
+      { value: TransactionType.Debit, label: 'Debit' },
+      { value: TransactionType.Transfer, label: 'Transfer' },
+      { value: TransactionType.Payment, label: 'Payment' },
+    ];
+  }
+
+  add($event: MatChipInputEvent) {
+    this.txn.addTag($event.value);
+    this.txnChange.emit(this.txn);
+    $event.chipInput.clear();
+    this.budgetsChange.emit();
+  }
+
+  remove($event: MatChipEvent) {
+    this.txn.removeTag($event.chip.value);
+    this.txnChange.emit(this.txn);
+    this.budgetsChange.emit();
+  }
+
+  edit(prevVal: string, $event: MatChipEvent) {
+    this.txn.removeTag(prevVal);
+    this.txn.addTag($event.chip.value);
+    this.txnChange.emit(this.txn);
+    this.budgetsChange.emit();
+  }
+
+  dateChange(txnField: 'datePending' | 'datePosted', $event: Date): void {
+    this.txn[txnField] = $event;
+    this.txnChange.emit(this.txn);
+  }
 }

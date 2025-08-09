@@ -1,11 +1,17 @@
-import { Component, EventEmitter, HostBinding, HostListener, Input, Output, inject } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
-import { ControlsModule } from 'app/controls/controls.module';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostBinding,
+  Input,
+  Output,
+  inject,
+} from '@angular/core';
 import { Settings } from 'app/lib/settings';
 
 import { Transaction } from 'app/lib/transactions';
 import { TransactionShowHeaders } from 'app/lib/types';
-import { TxnFieldComponent } from 'app/tables/transactions/txn-field/txn-field';
 
 /**
  * A row in a table that represents a transaction.
@@ -18,65 +24,65 @@ import { TxnFieldComponent } from 'app/tables/transactions/txn-field/txn-field';
  */
 @Component({
     selector: '.yaba-txn-row',
-    imports: [
-        ControlsModule,
-        TxnFieldComponent,
-        MatIconModule,
-    ],
     templateUrl: './txn-row.html',
     styleUrls: ['./txn-row.css'],
+    standalone: false,
 })
-export class TxnRowComponent {
-    @Input() txn = new Transaction();
-    @Output() txnChange = new EventEmitter<Transaction>();
-    // Backup transaction if we decide to cancel the edit.
-    #bTxn = new Transaction();
+export class TxnRowComponent implements AfterViewInit {
+  ref: ElementRef = inject(ElementRef);
 
-    @Output() drop = new EventEmitter<Transaction>();
-    @Output() selected = new EventEmitter<boolean>();
-    @Output() budgets = new EventEmitter<void>();
+  @Input() txn = new Transaction();
+  @Output() txnChange = new EventEmitter<Transaction>();
+  // Backup transaction if we decide to cancel the edit.
+  #bTxn = new Transaction();
 
-    @Input() editable = false;
-    @Input() truncate = false;
-    @Input() select = false;
+  /**
+   * This is just a boolean indicator this row has been selected.
+   * The parent is responsible for tracking which was picked.
+   */
+  @Input() select: boolean = false;
+  @Output() selectChange: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    @HostBinding('class.actively-editing') editing = false;
+  /**
+   *
+   */
+  @Output() dropRow: EventEmitter<void> = new EventEmitter<void>();
+  @Output() budgetsChange: EventEmitter<void> = new EventEmitter<void>();
 
-    txShow: TransactionShowHeaders = Settings.fromLocalStorage().txShow;
+  @HostBinding('class.editing') editing = false;
+  editable: boolean = false;
+  truncate: boolean = false;
 
-    @HostListener('keydown', ['$event'])
-    onKeybinding(event: KeyboardEvent) {
-        if ( this.editable && this.editing ) {
-            if ( event.ctrlKey && event.key === 'Enter') {
-                this.save(this.txn);
-            } else if (event.key === 'Escape') {
-                this.cancel();
-            }
-        }
-    }
+  txShow: TransactionShowHeaders = Settings.fromLocalStorage().txShow;
 
-    save(txn: Transaction) {
-        this.editing = false;
-        this.txnChange.emit(txn);
-    }
+  ngAfterViewInit(): void {
+    this.editable = this.ref.nativeElement.classList.contains('editable');
+    this.truncate = this.ref.nativeElement.classList.contains('truncate');
+  }
 
-    cancel() {
-        console.log('cancel-edit-txn');
-        this.editing = false;
-        this.txn = this.#bTxn;
-    }
+  save(txn: Transaction): void {
+      this.editing = false;
+      this.txnChange.emit(txn);
+      this.budgetsChange.emit();
+  }
 
-    edit() {
-        // create a backup transaction with a different JS reference.
-        this.#bTxn = Transaction.fromObject(this.txn);
-        this.editing = true;
-    }
+  cancel(): void {
+      console.log('cancel-edit-txn');
+      this.editing = false;
+      this.txn = this.#bTxn;
+  }
 
-    dropTxn() {
-        this.drop.emit(this.txn);
-    }
+  edit(): void {
+      // create a backup transaction, but don't copy by reference.
+      this.#bTxn = Transaction.fromObject(this.txn);
+      this.editing = true;
+  }
 
-    selectTxn(selected: boolean) {
-        this.selected.emit(selected);
-    }
+  dropTxn(): void {
+      this.dropRow.emit();
+  }
+
+  selectTxn(selected: boolean): void {
+      this.selectChange.emit(selected);
+  }
 }

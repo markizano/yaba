@@ -1,0 +1,40 @@
+@if ( txns.length > 0) {
+  <table>
+    <thead>
+      <tr><!-- @TODO: Use fontIcon=sort to indicate sortable headers -->
+    @if ( editable )                 { <th>Actions</th> }
+    @if ( txShow.id )                { <th>Transaction ID</th> }
+    @if ( txShow.datePending )       { <th (click)="sortBy('datePending');" class="helper" [attr.helper]="`Sort by date pending.`">Date Pending</th> }
+    <!-- Always show post date -->     <th (click)="sortBy('datePosted');" class="helper" [attr.helper]="`Sort by date posted.`">Date Posted</th>
+    @if ( txShow.account )           { <th (click)="sortBy('accountId');" class="helper" [attr.helper]="`Sort by account.`">Account</th> }
+    <!-- Always show desc. -->         <th (click)="sortBy('description');" class="helper" [attr.helper]="`Sort by description.`">Description</th>
+    <!-- Always show amount -->        <th (click)="sortBy('amount');" class="helper" [attr.helper]="`Sort by amount.`">Amount</th>
+    @if ( txShow.tax )               { <th>Tax</th> }
+    @if ( txShow.merchant )          { <th (click)="sortBy('merchant');" class="helper" [attr.helper]="`Sort by merchant.`">Merchant</th> }
+    @if ( txShow.transactionType )   { <th>Transaction Type</th> }
+    @if ( txShow.tags )              { <th>Budgets</th> }
+      </tr>
+    </thead>
+    <tbody>
+  @for(rowId of genRows(); track rowId) {
+      <tr class="yaba-txn-row" @fade-slide-down
+        [select]="selectedTxns.has(txns[rowId])"
+        [(txn)]="txns[rowId]"
+        (dropRow)="deleteTxn(txns[rowId])"
+        (selectChange)="selectionHandler($event, txns[rowId])"
+        (budgetsChange)="budgetsChange.emit()"
+        [class.truncate]="truncate"
+        [class.editable]="editable"
+      ></tr>
+  }
+    </tbody>
+  </table>
+}
+@if ( showPaginate && txns.length > page.pageSize ) {
+  <mat-paginator
+    (page)="turnPage($event)"
+    [length]="txns.length"
+    [pageSize]="page.pageSize"
+    [pageSizeOptions]="[10, 25, 50, 100]"
+  ></mat-paginator>
+}

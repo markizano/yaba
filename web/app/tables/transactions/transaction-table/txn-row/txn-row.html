@@ -1,22 +1,22 @@
 @if ( editable ) {
     <td class="actions-cell">
         @if ( editing ) {
-            <mat-icon (click)="save(txn)" class="small check_circle-icon">yes</mat-icon>
-            <mat-icon (click)="cancel()" class="small cancel-icon">no</mat-icon>
+            <mat-icon (click)="save(txn)" class="small check_circle-icon" fontIcon="check_circle"></mat-icon>
+            <mat-icon (click)="cancel()" class="small cancel-icon" fontIcon="cancel"></mat-icon>
         } @else {
             <input type="checkbox" name="select_txn_{{ txn.id }}" #txnSelected [checked]="select" (change)="selectTxn(txnSelected.checked)" class="small" />
-            <mat-icon (click)="edit()" class="small edit-icon">edit</mat-icon>
-            <mat-icon (click)="dropTxn()" class="small delete-icon">delete</mat-icon>
+            <mat-icon (click)="edit()" class="small edit-icon" fontIcon="edit"></mat-icon>
+            <mat-icon (click)="dropTxn()" class="small delete-icon" fontIcon="delete"></mat-icon>
         }
     </td>
 }
-@if ( txShow.id ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'id'" [truncate]="truncate" ></td> }
-@if ( txShow.datePending ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'datePending'" [truncate]="truncate" ></td> }
-<td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'datePosted'" [truncate]="truncate" ></td>
-@if ( txShow.account ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'accountId'" [truncate]="truncate" ></td> }
-<td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'description'" [truncate]="truncate" ></td>
-<td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'amount'" [truncate]="truncate" ></td>
-@if ( txShow.tax ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'tax'" [truncate]="truncate" ></td> }
-@if ( txShow.merchant ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'merchant'" [truncate]="truncate" ></td> }
-@if ( txShow.transactionType ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'transactionType'" [truncate]="truncate" ></td> }
-@if ( txShow.tags ) { <td class="yaba-txn-field" [(txn)]="txn" [editing]="editing" [field]="'tags'" [truncate]="truncate" (budgets)="budgets.emit()" ></td> }
+@if ( txShow.id ) { <td field="id" class="yaba-txn-field" [(txn)]="txn" [class.editing]="editing" [class.truncate]="truncate" ></td> }
+@if ( txShow.datePending ) { <td field="datePending" class="yaba-txn-field" [(txn)]="txn" [class.editing]="editing" [class.truncate]="truncate" ></td> }
+<td field="datePosted" class="yaba-txn-field" [(txn)]="txn" [class.editing]="editing" [class.truncate]="truncate" ></td>
+@if ( txShow.account ) { <td field="accountId" class="yaba-txn-field" [(txn)]="txn" [class.editing]="editing" [class.truncate]="truncate" ></td> }
+<td field="description" class="yaba-txn-field" [(txn)]="txn" [class.editing]="editing" [class.truncate]="truncate" ></td>
+<td field="amount" class="yaba-txn-field" [(txn)]="txn" [class.editing]="editing" [class.truncate]="truncate" ></td>
+@if ( txShow.tax ) { <td field="tax" class="yaba-txn-field" [(txn)]="txn" [class.editing]="editing" [class.truncate]="truncate" ></td> }
+@if ( txShow.merchant ) { <td field="merchant" class="yaba-txn-field" [(txn)]="txn" [class.editing]="editing" [class.truncate]="truncate" ></td> }
+@if ( txShow.transactionType ) { <td field="transactionType" class="yaba-txn-field" [(txn)]="txn" [class.editing]="editing" [class.truncate]="truncate" ></td> }
+@if ( txShow.tags ) { <td field="tags" class="yaba-txn-field" [(txn)]="txn" [class.editing]="editing" [class.truncate]="truncate" (budgetsChange)="budgetsChange.emit()" ></td> }
