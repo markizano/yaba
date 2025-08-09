@@ -7,7 +7,7 @@ import { CURRENCY_RE, NULLDATE } from 'app/lib/constants';
 import { TransactionDeltas, CurrencyType } from 'app/lib/structures';
 import { IAccount, Account, Accounts } from 'app/lib/accounts';
 import { InstitutionMappings, MapTypes, Institution } from 'app/lib/institutions';
-import { Budgets, IBudget, Id2NameHashMap, Tags, TransactionFilter, TransactionType, YabaPlural } from 'app/lib/types';
+import { Budgets, IBudget, Id2NameHashMap, NgSelectable, Tags, TransactionFilter, TransactionType, YabaPlural } from 'app/lib/types';
 import { Observable, forkJoin, mergeAll, of } from 'rxjs';
 
 /**
@@ -81,6 +81,15 @@ export class Transaction extends aTransaction implements ITransaction {
      */
     static fromObject(data: ITransaction): Transaction {
         return new Transaction().update(data);
+    }
+
+    static Types(): NgSelectable<TransactionType>[] {
+      return [
+        { value: TransactionType.Credit, label: 'Credit' },
+        { value: TransactionType.Debit, label: 'Debit' },
+        { value: TransactionType.Transfer, label: 'Transfer' },
+        { value: TransactionType.Payment, label: 'Payment' },
+      ];
     }
 
     /**
@@ -211,7 +220,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
 
     /**
      * Override of the push() function to ensure that each item added to the array is of type `Transaction`.
-     * @param  {...Transaction} items 
+     * @param  {...Transaction} items
      * @returns Number of items in the current set/array.
      */
     add(...items: ITransaction[]|Transaction[]|Transactions): Transactions {
@@ -668,9 +677,9 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
 
     /**
      * Like the TSA, search the transaction for what we are looking.
-     * @param search 
-     * @param txn 
-     * @returns 
+     * @param search
+     * @param txn
+     * @returns
      */
     searchTransaction(search: TransactionFilter, txn: Transaction): boolean {
         const tests = {
@@ -719,10 +728,10 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * This method takes and combines the filter functions above to give us a robust method that will filter on
      * an "ANY" basis for the criteria described. In this way, we only iterate the transactions once and filter out
      * exactly what we need instead of iterating the transactions multiple times in a series of filters.
-     * 
+     *
      * Unless otherwise specified, use `undefined` to disable any of the filters.
      * The DateRange filter requires both $fromDate and $toDate to be defined.
-     * 
+     *
      * @param fromDate No transactions older than this date.
      * @param toDate No transactions newer than this date.
      * @param description Transactions matching this string.
