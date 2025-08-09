@@ -19,211 +19,208 @@ type TagType = 'incomeTags' | 'expenseTags' | 'transferTags' | 'hideTags';
  * @FutureFeature Themes: Ability to change the color scheme of the application based on a few pre-defined themes.
  */
 @Component({
-    selector: 'yaba-settings',
-    templateUrl: './settings.html',
-    styleUrls: ['./settings.css'],
-    standalone: false,
+  selector: 'yaba-settings',
+  templateUrl: './settings.html',
+  styleUrls: ['./settings.css'],
+  standalone: false,
 })
 export class SettingsComponent {
-    title = 'Settings';
-    addOnBlur = true;
-    readonly separatorKeysCodes = [ENTER, COMMA] as const;
+  title = 'Settings';
+  addOnBlur = true;
+  readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
-    settings = new Settings();
-    import?: File;
+  settings = new Settings();
+  import?: File;
 
-    // ViewChild references for input elements
-    @ViewChild('incomeInput') incomeInput!: ElementRef<HTMLInputElement>;
-    @ViewChild('expenseInput') expenseInput!: ElementRef<HTMLInputElement>;
-    @ViewChild('transferInput') transferInput!: ElementRef<HTMLInputElement>;
-    @ViewChild('hiddenInput') hiddenInput!: ElementRef<HTMLInputElement>;
+  // ViewChild references for input elements
+  @ViewChild('incomeInput') incomeInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('expenseInput') expenseInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('transferInput') transferInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('hiddenInput') hiddenInput!: ElementRef<HTMLInputElement>;
 
-    protected institutionsService = inject(InstitutionsService);
-    protected accountsService = inject(AccountsService);
+  institutionsService = inject(InstitutionsService);
+  accountsService = inject(AccountsService);
 
-    ngOnInit() {
-        // Load settings from local storage
-        const settingsStr = localStorage.getItem('settings');
-        if ( settingsStr ) {
-            console.log('Loading settings from local storage');
-            this.settings = Settings.fromString(settingsStr);
-        }
+  ngOnInit() {
+    // Load settings from local storage
+    const settingsStr = localStorage.getItem('settings');
+    if ( settingsStr ) {
+      console.log('Loading settings from local storage');
+      this.settings = Settings.fromString(settingsStr);
     }
-    /**
-     * Add a new tag to the respective list.
-     * @param tagKey 
-     * @param tagValue 
-     * @param $event 
-     */
-    add(tagKey: TagType, $event: MatChipInputEvent) {
-        // Add a new tags to respective list
-        if (!$event.value) { console.warn('ignoring empty tag'); return; }
-        console.log('add: ', tagKey, $event);
-        
-        let inputElement: ElementRef<HTMLInputElement> | undefined;
-        
-        switch (tagKey) {
-            case 'incomeTags':
-                this.settings.incomeTags.push($event.value);
-                inputElement = this.incomeInput;
-                break;
-            case 'expenseTags':
-                this.settings.expenseTags.push($event.value);
-                inputElement = this.expenseInput;
-                break;
-            case 'transferTags':
-                this.settings.transferTags.push($event.value);
-                inputElement = this.transferInput;
-                break;
-            case 'hideTags':
-                this.settings.hideTags.push($event.value);
-                inputElement = this.hiddenInput;
-                break;
-            default:
-                console.error('Unknown tagSet:', tagKey);
-                return;
-        }
-        
-        // Clear the input after adding the chip
-        if (inputElement && inputElement.nativeElement) {
-            inputElement.nativeElement.value = '';
-        }
-        
-        this.save();
+  }
+  /**
+   * Add a new tag to the respective list.
+   */
+  add(tagKey: TagType, $event: MatChipInputEvent) {
+    // Add a new tags to respective list
+    if (!$event.value) { console.warn('ignoring empty tag'); return; }
+    console.log('add: ', tagKey, $event);
+
+    let inputElement: ElementRef<HTMLInputElement> | undefined;
+
+    switch (tagKey) {
+      case 'incomeTags':
+        this.settings.incomeTags.push($event.value);
+        inputElement = this.incomeInput;
+        break;
+      case 'expenseTags':
+        this.settings.expenseTags.push($event.value);
+        inputElement = this.expenseInput;
+        break;
+      case 'transferTags':
+        this.settings.transferTags.push($event.value);
+        inputElement = this.transferInput;
+        break;
+      case 'hideTags':
+        this.settings.hideTags.push($event.value);
+        inputElement = this.hiddenInput;
+        break;
+      default:
+        console.error('Unknown tagSet:', tagKey);
+        return;
     }
 
-    /**
-     * Edit the tag in the list by replacing the value.
-     * @param tagKey 
-     * @param tagValue 
-     * @param $event 
-     */
-    edit(tagKey: TagType, tagValue: string, $event: MatChipEditedEvent) {
-        console.log('edit: ', tagKey, tagValue, $event);
-        switch (tagKey) {
-            case 'incomeTags':
-                this.settings.incomeTags[this.settings.incomeTags.indexOf(tagValue)] = $event.value;
-                break;
-            case 'expenseTags':
-                this.settings.expenseTags[this.settings.expenseTags.indexOf(tagValue)] = $event.value;
-                break;
-            case 'transferTags':
-                this.settings.transferTags[this.settings.transferTags.indexOf(tagValue)] = $event.value;
-                break;
-            case 'hideTags':
-                this.settings.hideTags[this.settings.hideTags.indexOf(tagValue)] = $event.value;
-                break;
-            default:
-                console.error('Unknown tagSet:', tagKey);
-        }
-        this.save();
+    // Clear the input after adding the chip
+    if (inputElement && inputElement.nativeElement) {
+      inputElement.nativeElement.value = '';
     }
 
-    /**
-     * Remove the tag from the list.
-     * @param tagKey 
-     * @param $event.value 
-     */
-    remove(tagKey: TagType, $event: MatChipEvent) {
-        console.log('remove: ', tagKey, $event);
-        const chipValue = $event.chip.value;
-        if (!chipValue) {
-            console.warn('No chip value found for removal');
-            return;
-        }
-        switch (tagKey) {
-            case 'incomeTags':
-                const incomeIndex = this.settings.incomeTags.indexOf(chipValue);
-                if (incomeIndex > -1) {
-                    this.settings.incomeTags.splice(incomeIndex, 1);
-                }
-                break;
-            case 'expenseTags':
-                const expenseIndex = this.settings.expenseTags.indexOf(chipValue);
-                if (expenseIndex > -1) {
-                    this.settings.expenseTags.splice(expenseIndex, 1);
-                }
-                break;
-            case 'transferTags':
-                const transferIndex = this.settings.transferTags.indexOf(chipValue);
-                if (transferIndex > -1) {
-                    this.settings.transferTags.splice(transferIndex, 1);
-                }
-                break;
-            case 'hideTags':
-                const hideIndex = this.settings.hideTags.indexOf(chipValue);
-                if (hideIndex > -1) {
-                    this.settings.hideTags.splice(hideIndex, 1);
-                }
-                break;
-            default:
-                console.error('Unknown tagSet:', tagKey);
-        }
-        this.save();
-    }
+    this.save();
+  }
 
-    /**
-     * Save the settings to local storage.
-     */
-    save() {
-        // Save settings to local storage
-        console.log('Saving settings to local storage', this.settings);
-        localStorage.setItem('settings', this.settings.toString());
+  /**
+   * Edit the tag in the list by replacing the value.
+   * @param tagKey
+   * @param tagValue
+   * @param $event
+   */
+  edit(tagKey: TagType, tagValue: string, $event: MatChipEditedEvent) {
+    console.log('edit: ', tagKey, tagValue, $event);
+    switch (tagKey) {
+      case 'incomeTags':
+        this.settings.incomeTags[this.settings.incomeTags.indexOf(tagValue)] = $event.value;
+        break;
+      case 'expenseTags':
+        this.settings.expenseTags[this.settings.expenseTags.indexOf(tagValue)] = $event.value;
+        break;
+      case 'transferTags':
+        this.settings.transferTags[this.settings.transferTags.indexOf(tagValue)] = $event.value;
+        break;
+      case 'hideTags':
+        this.settings.hideTags[this.settings.hideTags.indexOf(tagValue)] = $event.value;
+        break;
+      default:
+        console.error('Unknown tagSet:', tagKey);
     }
+    this.save();
+  }
 
-    /**
-     * Export settings and contents of all data to zip file.
-     */
-    export2zip() {
+  /**
+   * Remove the tag from the list.
+   * @param tagKey
+   * @param $event.value
+   */
+  remove(tagKey: TagType, $event: MatChipEvent) {
+    console.log('remove: ', tagKey, $event);
+    const chipValue = $event.chip.value;
+    if (!chipValue) {
+      console.warn('No chip value found for removal');
+      return;
+    }
+    switch (tagKey) {
+      case 'incomeTags':
+        const incomeIndex = this.settings.incomeTags.indexOf(chipValue);
+        if (incomeIndex > -1) {
+          this.settings.incomeTags.splice(incomeIndex, 1);
+        }
+        break;
+      case 'expenseTags':
+        const expenseIndex = this.settings.expenseTags.indexOf(chipValue);
+        if (expenseIndex > -1) {
+          this.settings.expenseTags.splice(expenseIndex, 1);
+        }
+        break;
+      case 'transferTags':
+        const transferIndex = this.settings.transferTags.indexOf(chipValue);
+        if (transferIndex > -1) {
+          this.settings.transferTags.splice(transferIndex, 1);
+        }
+        break;
+      case 'hideTags':
+        const hideIndex = this.settings.hideTags.indexOf(chipValue);
+        if (hideIndex > -1) {
+          this.settings.hideTags.splice(hideIndex, 1);
+        }
+        break;
+      default:
+        console.error('Unknown tagSet:', tagKey);
+    }
+    this.save();
+  }
+
+  /**
+   * Save the settings to local storage.
+   */
+  save() {
+    // Save settings to local storage
+    console.log('Saving settings to local storage', this.settings);
+    localStorage.setItem('settings', this.settings.toString());
+  }
+
+  /**
+   * Export settings and contents of all data to zip file.
+   */
+  export2zip() {
+    const jzip = new JSZip();
+    this.institutionsService.get().toCSV(jzip);
+    this.accountsService.get().toCSV(jzip);
+    jzip.file('settings.json', this.settings.toString());
+    jzip.generateAsync({ type: 'blob' }).then((content) => {
+      saveAs(content, `yaba-export-${new Date().toISOShortDate()}.zip`);
+    });
+  }
+
+  /**
+   * Imports settings from zip file.
+   */
+  importFromZip($event: Event) {
+    const $element = $event.target as HTMLInputElement;
+    const file = $element.files?.item(0);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (e: ProgressEvent) => {
+        console.log('importFromZip().e: ', e);
         const jzip = new JSZip();
-        this.institutionsService.get().toCSV(jzip);
-        this.accountsService.get().toCSV(jzip);
-        jzip.file('settings.json', this.settings.toString());
-        jzip.generateAsync({ type: 'blob' }).then((content) => {
-            saveAs(content, `yaba-export-${new Date().toISOShortDate()}.zip`);
-        });
+
+        const zip = await jzip.loadAsync(<string>reader.result);
+        const settings: string = await zip.file('settings.json')?.async('string') ?? '{}';
+        console.log('Imported settings:', settings);
+        this.settings = Settings.fromString(settings);
+        localStorage.setItem('settings', settings);
+
+        const institutions = await new Institutions().fromZIP(zip);
+        console.log('Imported institutions:', institutions);
+        this.institutionsService.save(institutions);
+
+        const accounts = await new Accounts().fromZIP(zip);
+        console.log('Imported accounts:', accounts);
+        this.accountsService.save(accounts);
+
+        // @TODO: Notice to the end-user this was completed successfully.
+        // Something like this.messagingService.send(priority=,msg=) / localStorage.setItem('message', 'The message...') maybe?
+        $element.value = ''; // Clear the file input for the next upload.
+
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      console.log('No file selected');
     }
+  }
 
-    /**
-     * Imports settings from zip file.
-     */
-    importFromZip($event: Event) {
-        const $element = $event.target as HTMLInputElement;
-        const file = $element.files?.item(0);
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = async (e: ProgressEvent) => {
-                console.log('importFromZip().e: ', e);
-                const jzip = new JSZip();
-
-                const zip = await jzip.loadAsync(<string>reader.result);
-                const settings: string = await zip.file('settings.json')?.async('string') ?? '{}';
-                console.log('Imported settings:', settings);
-                this.settings = Settings.fromString(settings);
-                localStorage.setItem('settings', settings);
-
-                const institutions = await new Institutions().fromZIP(zip);
-                console.log('Imported institutions:', institutions);
-                this.institutionsService.save(institutions);
-
-                const accounts = await new Accounts().fromZIP(zip);
-                console.log('Imported accounts:', accounts);
-                this.accountsService.save(accounts);
-
-                // @TODO: Notice to the end-user this was completed successfully.
-                // Something like this.messagingService.send(priority=,msg=) / localStorage.setItem('message', 'The message...') maybe?
-                $element.value = ''; // Clear the file input for the next upload.
-
-            };
-            reader.readAsArrayBuffer(file);
-        } else {
-            console.log('No file selected');
-        }
-    }
-
-    deleteAll() {
-        // Delete all the data!
-    }
+  deleteAll() {
+    // Delete all the data!
+  }
 }
 
 

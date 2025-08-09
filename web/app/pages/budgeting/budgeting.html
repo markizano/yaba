@@ -6,11 +6,8 @@
 </div>
 <div class="row box-content">
     <yaba-transaction-list
-        [(filters)]="filters"
-        (budgets)="localBudgets($event)"
-        [showFilters]="true"
-        [showPaginate]="true"
-        [editable]="true"
+      class="filtered paginated editable"
+      (budgetsChange)="localBudgets($event)"
     ></yaba-transaction-list>
     <yaba-budgets-table [budgets]="budgets" />
 </div>

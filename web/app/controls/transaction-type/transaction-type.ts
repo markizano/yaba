@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, forwardRef, inject, Input } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, forwardRef, inject, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Transaction } from 'app/lib/transactions';
 
@@ -20,6 +20,7 @@ export class TransactionTypeComponent implements ControlValueAccessor, AfterView
   @Input() value: keyof TransactionType | null = null;
 
   ref: ElementRef = inject(ElementRef);
+  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   // ControlValueAccessor implementation
   // Outputs a string=transactionType
@@ -35,8 +36,9 @@ export class TransactionTypeComponent implements ControlValueAccessor, AfterView
 
   ngAfterViewInit(): void {
     this.multiple = this.ref.nativeElement.classList.contains('multiple');
-    this.required = this.ref.nativeElement.hasAttribute('required')
+    this.required = this.ref.nativeElement.hasAttribute('required');
     this.tabIndex = this.ref.nativeElement.getAttribute('tabindex');
+    this.chDet.detectChanges();
   }
 
   /* BEGIN: [(ngModel)] handler methods */

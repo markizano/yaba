@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, inject, Input, Output } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, inject, Input, Output } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Subscription } from "rxjs";
 
@@ -25,6 +25,7 @@ import { AccountsService } from "app/services/accounts.service";
     }]
 })
 export class AccountSelectorComponent implements ControlValueAccessor, AfterViewInit {
+  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
   @Input() value: Account[] = [];
   @Output() selectedAccounts = new EventEmitter<Accounts>();
   #accts?: Subscription;
@@ -57,7 +58,8 @@ export class AccountSelectorComponent implements ControlValueAccessor, AfterView
 
   ngAfterViewInit(): void {
     this.multiple = this.ref.nativeElement.classList.contains('multiple');
-    this.required = this.ref.nativeElement.hasAttribute('required')
+    this.required = this.ref.nativeElement.hasAttribute('required');
+    this.chDet.detectChanges();
   }
 
   /* BEGIN: [(ngModel)] handler methods */

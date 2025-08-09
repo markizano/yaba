@@ -67,6 +67,6 @@
     [institution]="institution"
     (saveForm)="save($event)"
     (cancelForm)="cancel()"
-    [ngClass]="{ 'ng-hide': !formVisible }"
+    [class.ng-hide]="!formVisible"
     class="suave"
 ></yaba-institution-form>

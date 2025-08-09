@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Institution, Institutions } from "app/lib/institutions";
 import { InstitutionsService } from "app/services/institutions.service";
@@ -18,6 +18,7 @@ import { Subscription } from "rxjs";
   }]
 })
 export class InstitutionSelectorComponent implements OnInit, OnDestroy, ControlValueAccessor, AfterViewInit {
+  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
   @Input() value: string = '';
 
   // ControlValueAccessor implementation
@@ -49,7 +50,8 @@ export class InstitutionSelectorComponent implements OnInit, OnDestroy, ControlV
 
   ngAfterViewInit(): void {
     this.multiple = this.ref.nativeElement.classList.contains('multiple');
-    this.required = this.ref.nativeElement.hasAttribute('required')
+    this.required = this.ref.nativeElement.hasAttribute('required');
+    this.chDet.detectChanges();
   }
 
   /* BEGIN: [(ngModel)] handler methods */

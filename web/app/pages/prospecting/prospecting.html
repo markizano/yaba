@@ -9,14 +9,12 @@
         <h2 (click)="showIncome = !showIncome">Income Transactions (<span>{{ incomeTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2><br clear="all" />
         <div [class]='{"ng-hide": showIncome}' class="slide-down">
             <yaba-transaction-list
-                [showFilters]="false"
             ></yaba-transaction-list>
             <yaba-txn-stats [transactions]="incomeTxns"></yaba-txn-stats>
         </div>
         <h2 (click)="showExpense = !showExpense">Expense Transactions (<span>{{ expenseTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2><br clear="all" />
         <div [class]='{"ng-hide": showExpense}' class="slide-down">
             <yaba-transaction-list
-                [showFilters]="false"
             ></yaba-transaction-list>
             <yaba-txn-stats [transactions]="expenseTxns"></yaba-txn-stats>
         </div>

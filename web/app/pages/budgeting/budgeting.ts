@@ -19,14 +19,10 @@ import { Subscription } from 'rxjs';
 })
 export class BudgetingComponent implements OnInit, OnDestroy {
     txns = new Transactions();
-    filters = Object.assign(EMPTY_TRANSACTION_FILTER, {
-        description: '',
-        accounts: [],
-    });
     budgets: Budgets = [];
-    #cachedUpdates?: Subscription;
+    #accts?: Subscription;
 
-    protected accountsService = inject(AccountsService);
+    accountsService = inject(AccountsService);
 
     ngOnInit() {
         const update = (accounts: Accounts) => {
@@ -35,11 +31,11 @@ export class BudgetingComponent implements OnInit, OnDestroy {
             console.log('BudgetingComponent ngOnInit()', this.txns, this.budgets);
         };
         update(this.accountsService.get());
-        this.#cachedUpdates = this.accountsService.subscribe(update);
+        this.#accts = this.accountsService.subscribe(update);
     }
 
     ngOnDestroy() {
-        this.#cachedUpdates?.unsubscribe();
+        this.#accts?.unsubscribe();
     }
 
     localBudgets($event: Budgets) {
