@@ -36,6 +36,7 @@ export class ProspectingComponent implements OnInit, OnDestroy {
 
     #acct?: Subscription;
 
+
     ngOnInit(): void {
         console.info('Prospect controller');
 
