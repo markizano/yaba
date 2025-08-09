@@ -76,7 +76,7 @@ export enum TransactionType {
     Debit = 'debit',
     Transfer = 'transfer',
     Payment = 'payment',
-}
+};
 
 /**
  * Budget interface to define a budget.
