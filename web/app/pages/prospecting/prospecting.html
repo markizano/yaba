@@ -5,7 +5,7 @@
     </div>
 </div>
 <div class="row box-content">
-    <div class="column wide">
+    <div class="column wide prospect-txns">
         <h2 (click)="showIncome = !showIncome">Income Transactions (<span>{{ incomeTxns.sum()|currency }}</span>) &amp; Monthly Totals</h2><br clear="all" />
         <div [class]='{"ng-hide": showIncome}' class="slide-down">
             <yaba-transaction-list

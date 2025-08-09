@@ -1,5 +1,4 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ControlsModule } from 'app/controls/controls.module';
 import { Transaction, Transactions } from 'app/lib/transactions';
 
 /**
@@ -10,9 +9,7 @@ import { Transaction, Transactions } from 'app/lib/transactions';
     selector: 'yaba-wishlist',
     templateUrl: './wishlist.html',
     styleUrls: ['./wishlist.css'],
-    imports: [
-        ControlsModule,
-    ],
+    standalone: false,
 })
 export class WishlistComponent {
     @Input() wishlist: Transactions = new Transactions();

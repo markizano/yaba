@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 
 import { Settings } from 'app/lib/settings';
 import { Transactions } from 'app/lib/transactions';
@@ -14,6 +14,7 @@ import { Accounts } from 'app/lib/accounts';
     standalone: false,
 })
 export class ProspectingComponent implements OnInit, OnDestroy {
+    accountsService: AccountsService = inject(AccountsService);
     prospect: Transactions = new Transactions();
     settings: Settings = Settings.fromLocalStorage();
     showIncome: boolean = true;
@@ -34,10 +35,6 @@ export class ProspectingComponent implements OnInit, OnDestroy {
     projectionItems: [string, any][] = [];
 
     #acct?: Subscription;
-
-    constructor(private accountsService: AccountsService) {
-        console.info('ProspectingComponent');
-    }
 
     ngOnInit(): void {
         console.info('Prospect controller');

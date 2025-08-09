@@ -1,0 +1,25 @@
+<table class="data">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Sum</th>
+            <th>Average</th>
+        </tr>
+    </thead>
+    <tbody>
+@for ( txn of transactions; track txn ) {
+        <tr>
+            <td><span>{{ txn }}</span></td>
+            <td><span [class.negative]="txn.amount < 0"> {{ txn.amount | currency }} </span></td>
+            <td><span [class.negative]="txn.amount < 0"> {{ txn.amount | currency }} </span></td>
+        </tr>
+}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td><b>Totals</b></td>
+            <td><span [class.negative]="transactions.sum() < 0"> {{ transactions.sum()|currency }} </span></td>
+            <td><span [class.negative]="transactions.average() < 0"> {{ transactions.average()|currency }} </span></td>
+        </tr>
+    </tfoot>
+</table>

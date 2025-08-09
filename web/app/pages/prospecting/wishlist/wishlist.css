@@ -6,5 +6,5 @@
     box-shadow: 0.5rem 0.5rem 0.5rem var(--shadow);
     overflow-y: auto;
     margin-left: auto;
-    min-width: 50rem;
+    min-width: 35rem;
 }

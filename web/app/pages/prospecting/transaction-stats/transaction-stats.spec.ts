@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TxnStatsComponent } from './txn-stats';
+import { TransactionStatsComponent } from './txn-stats';
 
 describe('TxnStatsComponent', () => {
-  let component: TxnStatsComponent;
-  let fixture: ComponentFixture<TxnStatsComponent>;
+  let component: TransactionStatsComponent;
+  let fixture: ComponentFixture<TransactionStatsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TxnStatsComponent]
+      imports: [TransactionStatsComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TxnStatsComponent);
+    fixture = TestBed.createComponent(TransactionStatsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

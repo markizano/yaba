@@ -1,15 +1,12 @@
 import { Component, Input } from '@angular/core';
-import { ControlsModule } from 'app/controls/controls.module';
 import { Transactions } from 'app/lib/transactions';
 
 @Component({
   selector: 'yaba-txn-stats',
-  imports: [
-    ControlsModule
-  ],
-  templateUrl: './txn-stats.html',
-  styleUrls: ['./txn-stats.css']
+  templateUrl: './transaction-stats.html',
+  styleUrls: ['./transaction-stats.css'],
+  standalone: false,
 })
-export class TxnStatsComponent {
+export class TransactionStatsComponent {
     @Input() transactions: Transactions = new Transactions();
 }
