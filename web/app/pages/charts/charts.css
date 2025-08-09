@@ -16,3 +16,21 @@ google-chart {
     min-height: 600px;
     border: 1px solid var(--border);
 }
+
+.no-data-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    border: 1px solid var(--border);
+    background-color: var(--background-light, #f9f9f9);
+    border-radius: 0.25rem;
+    margin: 1rem 0;
+}
+
+.no-data-message p {
+    text-align: center;
+    color: var(--text-muted, #666);
+    font-style: italic;
+    margin: 0;
+}

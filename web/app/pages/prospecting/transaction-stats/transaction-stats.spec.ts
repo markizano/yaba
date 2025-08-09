@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TransactionStatsComponent } from './txn-stats';
+import { TransactionStatsComponent } from './transaction-stats';
 
 describe('TxnStatsComponent', () => {
   let component: TransactionStatsComponent;

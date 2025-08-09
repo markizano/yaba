@@ -5,14 +5,22 @@
   </div>
 </div>
 <div class="column box-content">
-  <yaba-transaction-filters
-    [filter]="filter"
-  ></yaba-transaction-filters>
-  <br clear="all" />
+  <yaba-transaction-filters [(filter)]="filter" (filterChange)="onFilterChange($event)"></yaba-transaction-filters>
   <debug>
-    Transactions: <span ng-bind="transactions.length"></span>
-    Selected Budgets: <span ng-bind="txnTags"></span><br />
-    Calculated budgets: <span ng-bind="myBudgets"></span>
+    Transactions: <span>{{ transactions.length }}</span>
+    Selected Budgets: <span>{{ txnTags | json }}</span><br />
+    Calculated budgets: <span>{{ myBudgets | json }}</span>
   </debug>
-  <google-chart google-chart id="budgets" chart="chart"></google-chart>
+  @if (chartData.length > 0) {
+    <google-chart
+      [type]="chartType"
+      [data]="chartData"
+      [options]="chartOptions"
+      id="budgets">
+    </google-chart>
+  } @else {
+    <div class="no-data-message">
+      <p>No chart data available. Please select tags from the filters above to view budget spending trends.</p>
+    </div>
+  }
 </div>
