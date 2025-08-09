@@ -1,57 +1,22 @@
-<div class="transaction-list-wrapper">
-    <div class="debug">
-        Filters: {{ filtration(filters) }}<br />
-        Txns: {{ txns.length }}<br />
-    </div>
-@if ( showFilters ){ <yaba-transaction-filters [(filter)]="filters" (filterChange)="filtersChange.emit($event)"></yaba-transaction-filters> }
-@if ( selected.length > 0 ) {
-    <!-- @TODO: Convert this to a <bulk-action /> component -->
-    <div class="selected-transactions" @fade-slide-down>
-        <h3>Selected Transactions ( {{selected.length}} )</h3>
-        <yaba-tag-txns (tags)="tagTxns($event)" (cancel)="cancelSelected()" title="Add a tag to {{ selected.length }} transactions."></yaba-tag-txns>
-        @if ( selected.haveTags().length > 0 ) { <yaba-untag-txns [transactions]="selected" (untag)="untagTxns($event)" (cancel)="cancelSelected()" title="Untag selected {{ selected.length }} transactions"></yaba-untag-txns> }
-        <mat-icon (click)="deleteSelected()" [attr.helper]="`Delete all ${selected.length} transactions.`" class="helper delete-icon">delete</mat-icon>
-    </div>
-}
-@if ( txns.length > 0) {
-    <table class="data item-list" [ngClass]="editable ? 'editable': ''">
-        <thead>
-            <tr>
-        @if ( editable )                 { <th>Actions</th> }
-        @if ( txShow.id )                { <th>Transaction ID</th> }
-        @if ( txShow.datePending )       { <th (click)="sortBy('datePending');" class="helper" [attr.helper]="`Sort by date pending.`">Date Pending</th> }
-        <!-- Always show post date -->     <th (click)="sortBy('datePosted');" class="helper" [attr.helper]="`Sort by date posted.`">Date Posted</th>
-        @if ( txShow.account )           { <th (click)="sortBy('accountId');" class="helper" [attr.helper]="`Sort by account.`">Account</th> }
-        <!-- Always show desc. -->         <th (click)="sortBy('description');" class="helper" [attr.helper]="`Sort by description.`">Description</th>
-        <!-- Always show amount -->        <th (click)="sortBy('amount');" class="helper" [attr.helper]="`Sort by amount.`">Amount</th>
-        @if ( txShow.tax )              { <th>Tax</th> }
-        @if ( txShow.merchant )         { <th (click)="sortBy('merchant');" class="helper" [attr.helper]="`Sort by merchant.`">Merchant</th> }
-        @if ( txShow.transactionType )  { <th>Transaction Type</th> }
-        @if ( txShow.tags )             { <th>Budgets</th> }
-            </tr>
-        </thead>
-        <tbody>
-    @for(row of genRows(); track row) {
-        <tr class="yaba-txn-row" @fade-slide-down
-            [select]="selected.has(txns[row])"
-            [txn]="txns[row]"
-            (txnChange)="editTxn($event)"
-            [truncate]="truncate"
-            [editable]="editable"
-            (drop)="deleteTxn(txns[row])"
-            (selected)="selectionHandler($event, txns[row])"
-            (budgets)="budgets.emit( txns.getBudgets() )"
-        ></tr>
-    }
-        </tbody>
-    </table>
-}
-@if ( showPaginate && txns.length > 10 ) {
-    <mat-paginator
-        (page)="turnPage($event)"
-        [length]="txns.length"
-        [pageSize]="10"
-        [pageSizeOptions]="[10, 25, 50, 100]"
-    ></mat-paginator>
-}
+<div class="debug">
+    Filters: {{ filtration(filters) }}<br />
+    Txns: {{ txns.length }}<br />
 </div>
+@if ( showFilters ){ <yaba-transaction-filters [(filter)]="filters"></yaba-transaction-filters> }
+@if ( selectedTxns.length > 0 ) {
+<!-- @TODO: Convert this to a <bulk-action /> component -->
+<yaba-bulk-action
+  [(selectedTxns)]="selectedTxns"
+  (tagTransactions)="tagTxns($event)"
+  (deleteTxn)="deleteSelected()"
+  (cancelSelection)="cancelSelected()"
+  (untagTransactions)="untagTxns($event)"
+></yaba-bulk-action>
+}
+<yaba-transaction-table
+    class="paginate editable"
+    [class.truncate]="truncate"
+    [(txns)]="txns"
+    [(selectedTxns)]="selectedTxns"
+    (budgetsChange)="budgetsChange.emit(txns.getBudgets())"
+></yaba-transaction-table>
