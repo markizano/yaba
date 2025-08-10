@@ -30,7 +30,6 @@ export class SettingsComponent {
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
   settings = new Settings();
-  import?: File;
 
   // ViewChild references for input elements
   @ViewChild('incomeInput') incomeInput!: ElementRef<HTMLInputElement>;
@@ -47,8 +46,11 @@ export class SettingsComponent {
     if ( settingsStr ) {
       console.log('Loading settings from local storage');
       this.settings = Settings.fromString(settingsStr);
+    } else {
+      console.log('No settings to load?');
     }
   }
+
   /**
    * Add a new tag to the respective list.
    */

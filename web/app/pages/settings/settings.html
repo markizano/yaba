@@ -6,7 +6,7 @@
 </div>
 <div class="column box-content">
   <label for="txnDelta">How many months do you want in a transaction view by default?</label>
-  <ng-select id="txnDelta" [(ngModel)]="settings.txnDelta" (change)="save()" [clearable]="false" class="">
+  <ng-select id="txnDelta" name="txnDelta" [(ngModel)]="settings.txnDelta" (change)="save()" [clearable]="false">
     <ng-option [value]="2592000000">30 days</ng-option>
     <ng-option [value]="5184000000">60 days</ng-option>
     <ng-option [value]="7776000000">90 days</ng-option>
@@ -36,7 +36,7 @@
       </button>
       </mat-chip-row>
 }
-      <input #incomeInput id="incomeTags" placeholder="New tag..."
+      <input #incomeInput id="incomeTags" name="incomeTags" placeholder="New tag..."
         [matChipInputFor]="incomeChips"
         [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
         [matChipInputAddOnBlur]="addOnBlur"
@@ -65,7 +65,7 @@
         </button>
       </mat-chip-row>
 }
-      <input #expenseInput id="expenseTags" placeholder="New tag..."
+      <input #expenseInput id="expenseTags" name="expenseTags" placeholder="New tag..."
         [matChipInputFor]="expenseChips"
         [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
         [matChipInputAddOnBlur]="addOnBlur"
@@ -94,7 +94,7 @@
         </button>
         </mat-chip-row>
 }
-      <input #transferInput id="transferTags" placeholder="New tag..."
+      <input #transferInput id="transferTags" name="transferTags" placeholder="New tag..."
           [matChipInputFor]="transferChips"
           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
           [matChipInputAddOnBlur]="addOnBlur"
@@ -123,7 +123,7 @@
         </button>
       </mat-chip-row>
 }
-      <input #hiddenInput id="hideTags" placeholder="New tag..."
+      <input #hiddenInput id="hideTags" name="hideTags" placeholder="New tag..."
         [matChipInputFor]="hiddenChips"
         [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
         [matChipInputAddOnBlur]="addOnBlur"
@@ -138,7 +138,7 @@
       <mat-icon fontIcon="question_mark"></mat-icon>
     </div>
   </div>
-  <div id="additionalFields" class="column " layout="column">
+  <div id="additionalFields" name="additionalFields" class="column " layout="column">
     <div><mat-checkbox [(ngModel)]="settings.txShow.id" (ngModelChange)="save()">Transaction ID</mat-checkbox></div>
     <div><mat-checkbox [(ngModel)]="settings.txShow.datePending" (ngModelChange)="save()">Date Pending</mat-checkbox></div>
     <div><mat-checkbox [(ngModel)]="settings.txShow.account" (ngModelChange)="save()">Account Name</mat-checkbox></div>
@@ -150,14 +150,14 @@
   <hr />
 
   <label for="exportCSV">Export all data to a set of CSV files in ZIP format: </label>
-  <button id="exportCSV" (click)="export2zip()" class="">[Export]</button>
+  <button id="exportCSV" name="exportCSV" (click)="export2zip()" class="">[Export]</button>
   <hr />
 
   <label for="importCSV">Import a previous export: </label>
-  <input id="importCSV" type="file" [(ngModel)]="import" accept="*.zip" (change)="importFromZip($event)" class="" value="[IMPORT]" />
+  <input id="importCSV" name="importCSV" type="file" accept="*.zip" (change)="importFromZip($event)" />
   <hr />
 
   <label for="deleteAll">Delete all data: </label>
   <span class="warning ">NOTE: This will delete ALL the data!!!</span>
-  <button id="deleteAll" (click)="deleteAll()" class="">DELETE</button><br />
+  <button id="deleteAll" name="deleteAll" (click)="deleteAll()" class="">DELETE</button><br />
 </div>
