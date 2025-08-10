@@ -77,7 +77,7 @@ export class TransactionSampleComponent implements OnInit, OnDestroy {
       toDate: filters.toDate,
       description: filters.description,
       accounts: filters.accounts?.map(x => ({id: x.id, name: x.name})),
-      tags: filters.tags,
+      tags: filters.tags?.toArray(),
       // sort: this.sort,
       page: filters.page,
     });

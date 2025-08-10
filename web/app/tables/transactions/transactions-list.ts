@@ -190,7 +190,7 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
           toDate: filters.toDate,
           description: filters.description,
           accounts: accountsMapping,
-          tags: filters.tags,
+          tags: filters.tags?.toArray(),
           // sort: this.sort,
           page: filters.page,
       });

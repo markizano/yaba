@@ -1,9 +1,12 @@
+import { Observable, of, retry, Observer, Subscription } from 'rxjs';
+
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { EventEmitter, HostListener, inject, Injectable } from "@angular/core";
-import { Observable, of, retry, Observer, Subscription } from 'rxjs';
-import { Yabables } from 'app/lib/types';
+
+import { Tags, Yabables } from 'app/lib/types';
 import { CACHE_EXPIRY_SECONDS } from 'app/lib/constants';
 import { Settings } from "app/lib/settings";
+import { Transaction } from "app/lib/transactions";
 
 /**
  * This helped a lot in caching: https://borstch.com/blog/development/angulars-httpclient-caching-techniques
@@ -107,7 +110,15 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
   save(items: Yabadaba): Observable<Yabadaba> {
     // The act of setItem() will trigger the storage event in other tabs.
     this.next(items);
-    localStorage.setItem(this.name, JSON.stringify(items));
+    const convertTags = (key: string, value: any) => {
+      if ( key == 'tags' ) {
+        if ( value instanceof Set || value instanceof Tags ) {
+          return (<Tags>value).join(Transaction.DELIMITER);
+        }
+      }
+      return value;
+    }
+    localStorage.setItem(this.name, JSON.stringify(items, convertTags));
     this.cacheExpiry = false;
     console.debug('BaseHttpService.save(): ', this.name, this.cache);
     return this.http.post<Yabadaba>(this.endpoint, this.cache, {headers: this.headers});

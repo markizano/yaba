@@ -69,6 +69,7 @@ export class Transaction extends aTransaction implements ITransaction {
     merchant = '';
     tags = new Tags();
 
+    static DELIMITER = '|' as const;
     /**
      * @factory Create a new Transaction instance from a string.
      */
@@ -106,7 +107,7 @@ export class Transaction extends aTransaction implements ITransaction {
         data.tax                && (this.tax = typeof data.tax == 'string'? parseFloat(data.tax): <number>data.tax);
         data.currency           && (this.currency = <CurrencyType>data.currency);
         data.merchant           && (this.merchant = data.merchant);
-        data.tags               && (this.tags = typeof data.tags === 'string'? new Tags((<string>data.tags).split('|')): new Tags(data.tags));
+        data.tags               && (this.tags = typeof data.tags === 'string'? new Tags((<string>data.tags).split(Transaction.DELIMITER)): new Tags(data.tags));
         if ( data.datePending && data.datePending != NULLDATE ) this.datePending = new Date(data.datePending);
         if ( data.datePosted  && data.datePosted  != NULLDATE ) this.datePosted  = new Date(data.datePosted);
         return this;
@@ -465,7 +466,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @returns TRUE|FALSE for `this.filter()` use on if this tag exists on this transaction or not.
      */
     filterTag(txn: Transaction, tag: string|undefined): boolean {
-        return txn.tags.includes(tag || '');
+        return txn.tags.includes(tag ?? '');
     }
 
     /**
@@ -475,7 +476,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @returns TRUE|FALSE for `this.filter()` use on if this tag exists on this transaction or not.
      */
     filterTags(txn: Transaction, tags: Tags|string[]|undefined): boolean {
-        return txn.tags.some((tag) => tags === undefined? true: tags.includes(tag || ''));
+        return txn.tags.some((tag) => tags === undefined? false: tags.includes(tag ?? ''));
     }
 
     /**
@@ -536,7 +537,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @returns {Transactions} The list of matching transactions.
      */
     byTag(tag: string): Transactions {
-        return this.search((txn: Transaction) => this.filterTag(txn, tag || ''));
+        return this.search((txn: Transaction) => this.filterTag(txn, tag ?? ''));
     }
 
     /**
@@ -545,7 +546,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @returns {Transactions} The list of matching transactions.
      */
     byTags(tags: Tags): Transactions {
-        return this.search((txn: Transaction) => this.filterTags(txn, tags || []));
+        return this.search((txn: Transaction) => this.filterTags(txn, tags));
     }
 
     /**
