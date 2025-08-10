@@ -1,5 +1,4 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 
 import { BaseHttpService } from 'app/services/basehttp.service';
 import { Transactions } from 'app/lib/transactions';
@@ -10,13 +9,11 @@ import { Transactions } from 'app/lib/transactions';
 export class TransactionsService extends BaseHttpService<Transactions> {
     readonly name = 'transactions';
     readonly endpoint = '/api/transactions';
-    protected cache: Transactions;
-    protected cacheSubject: EventEmitter<Transactions>;
+    protected cache: Transactions = new Transactions();
+    protected cacheSubject: EventEmitter<Transactions> = new EventEmitter<Transactions>();
 
-    constructor(http: HttpClient) {
-        super(http);
-        this.cache = new Transactions();
-        this.cacheSubject = new EventEmitter<Transactions>()
+    constructor() {
+        super();
         console.log('new TransactionsService()');
         this.load();
     }
