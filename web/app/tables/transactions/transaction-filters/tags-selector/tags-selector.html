@@ -2,7 +2,8 @@
   <div class="tags">
     <ng-select
       [items]="availableTags.toArray()"
-      [multiple]="true"
+      [multiple]="multiple"
+      [ariaRequired]="required"
       [closeOnSelect]="false"
       [searchable]="true"
       [clearable]="true"
