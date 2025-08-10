@@ -2,6 +2,7 @@ import { Subscription } from 'rxjs';
 
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 
+import { Tags } from 'app/lib/types';
 import { Settings } from 'app/lib/settings';
 import { Transactions } from 'app/lib/transactions';
 import { AccountsService } from 'app/services/accounts.service';
@@ -25,10 +26,10 @@ export class ProspectingComponent implements OnInit, OnDestroy {
     projections: any = { sum: () => 0.0 };
 
     // Additional properties from AngularJS translation
-    incomeTags: string[] = [];
-    expenseTags: string[] = [];
-    transferTags: string[] = [];
-    hideTags: string[] = [];
+    incomeTags: Tags = new Tags();
+    expenseTags: Tags = new Tags();
+    transferTags: Tags = new Tags();
+    hideTags: Tags = new Tags();
     income: [string, any][] = [];
     expense: [string, any][] = [];
     leftoverItems: [string, any][] = [];
@@ -59,7 +60,7 @@ export class ProspectingComponent implements OnInit, OnDestroy {
     }
 
     private loadTransactions(accounts: any): void {
-        const handyGetByTag = (tags: string[]) => accounts.getTransactions(
+        const handyGetByTag = (tags: Tags) => accounts.getTransactions(
             undefined,
             new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000), // 365 days ago
             new Date(),

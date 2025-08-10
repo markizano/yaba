@@ -296,8 +296,9 @@ export class Accounts extends Array<Account> implements YabaPlural<Account> {
      * @returns {Array<String>} The list of tags from the transactions in this list.
      */
     getTags(): Tags {
-        const txnWithTags = this.map((acct: Account) => acct.transactions.getTags()).flat().sort();
-        return Array.from(new Set( txnWithTags )) as Tags;
+      const txnWithTags = new Tags();
+      this.map((acct: Account) => txnWithTags.merge(acct.transactions.getTags()));
+      return txnWithTags;
     }
 
     /**

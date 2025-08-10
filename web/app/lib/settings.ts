@@ -16,10 +16,10 @@ export interface UserPreferences {
  * Object to store settings and interfaces with the localStorage in order to accomplish this.
  */
 export class Settings implements UserPreferences {
-    incomeTags: Tags = [];
-    expenseTags: Tags = [];
-    transferTags: Tags = [];
-    hideTags: Tags = [];
+    incomeTags: Tags = new Tags();
+    expenseTags: Tags = new Tags();
+    transferTags: Tags = new Tags();
+    hideTags: Tags = new Tags();
     txShow: TransactionShowHeaders = <TransactionShowHeaders>{};
     payCycle: PayCycle = PayCycle.Weekly;
     txnDelta: TransactionDeltas = TransactionDeltas.days30;

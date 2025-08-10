@@ -1,3 +1,4 @@
+import { Subscription, Observer } from 'rxjs';
 import { Injectable, EventEmitter } from '@angular/core';
 
 import { Accounts } from 'app/lib/accounts';
@@ -8,104 +9,81 @@ import { Tags } from 'app/lib/types';
  * Provides a centralized way to access and subscribe to tag updates.
  */
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class BudgetsService {
-    private cache: Tags = [];
-    private cacheSubject = new EventEmitter<Tags>();
+  protected cache: Tags = new Tags();
+  protected cacheSubject = new EventEmitter<Tags>();
 
-    constructor() {
-        console.log('new BudgetsService()');
+  constructor() {
+    console.log('new BudgetsService()');
+  }
+
+  /**
+   * Subscribe to tag updates
+   * @param subscription {Partial<Observer<Tags>> | ((value: Tags) => void)} Subscription to the cache.
+   * @returns {Subscription} The subscription object.
+   */
+  subscribe(subscription: Partial<Observer<Tags>> | ((value: Tags) => void)): Subscription {
+    return this.cacheSubject.subscribe(subscription);
+  }
+
+  /**
+   * Update the cached tags and notify subscribers
+   */
+  next(value: Tags): void {
+    this.cache = new Tags(value); //Array.from(new Set(value)) as Tags;
+    this.cacheSubject.emit(this.cache);
+    console.log('BudgetsService: Tags updated', this.cache);
+  }
+
+  /**
+   * Refresh tags from all accounts
+   * This is an expensive operation that should be called when:
+   * - CSV files are uploaded/dropped
+   * - Transactions are bulk edited
+   * - Account data is refreshed
+   */
+  refreshFromAccounts(accounts: Accounts): void {
+    console.log('BudgetsService: Refreshing tags from accounts');
+    this.next(accounts.getTags());
+  }
+
+  /**
+   * Get a clone of the current cached tags.
+   * Useful if you want to operate on the list, but not impact the cache.
+   */
+  get(): Tags {
+    return this.cache;
+  }
+
+  /**
+   * Add new tags (useful when new transactions are added)
+   */
+  addTags(newTags: Tags): void {
+    let count = this.cache.size;
+    this.cache.merge(newTags);
+    if (count !== this.cache.size) {
+      this.next(this.cache);
     }
+  }
 
-    /**
-     * Subscribe to tag updates
-     */
-    subscribe(callback: (tags: Tags) => void): void {
-        this.cacheSubject.subscribe(callback);
+  /**
+   * Remove tags (useful when transactions are deleted or untagged)
+   */
+  removeTags(tagsToRemove: Tags): void {
+    let count = this.cache.size;
+    this.cache.strip(tagsToRemove);
+    if (count !== this.cache.size) {
+      this.next(this.cache);
     }
+  }
 
-    /**
-     * Update the cached tags and notify subscribers
-     */
-    next(value: Tags): void {
-        this.cache = [...value];
-        this.cacheSubject.emit(this.cache);
-        console.log('BudgetsService: Tags updated', this.cache);
-    }
-
-    /**
-     * Refresh tags from all accounts
-     * This is an expensive operation that should be called when:
-     * - CSV files are uploaded/dropped
-     * - Transactions are bulk edited
-     * - Account data is refreshed
-     */
-    refreshFromAccounts(accounts: Accounts): void {
-        console.log('BudgetsService: Refreshing tags from accounts');
-        const allTags = accounts.getTags();
-        this.next(allTags);
-    }
-
-    /**
-     * Get the current cached tags
-     */
-    getTags(): Tags {
-        return [...this.cache];
-    }
-
-    /**
-     * Add new tags (useful when new transactions are added)
-     */
-    addTags(newTags: Tags): void {
-        const currentTags = new Set(this.cache);
-        let hasChanges = false;
-
-        newTags.forEach(tag => {
-            if (!currentTags.has(tag)) {
-                currentTags.add(tag);
-                hasChanges = true;
-            }
-        });
-
-        if (hasChanges) {
-            const updatedTags = Array.from(currentTags).sort();
-            this.next(updatedTags);
-        }
-    }
-
-    /**
-     * Remove tags (useful when transactions are deleted or untagged)
-     */
-    removeTags(tagsToRemove: Tags): void {
-        const currentTags = new Set(this.cache);
-        let hasChanges = false;
-
-        tagsToRemove.forEach(tag => {
-            if (currentTags.has(tag)) {
-                currentTags.delete(tag);
-                hasChanges = true;
-            }
-        });
-
-        if (hasChanges) {
-            const updatedTags = Array.from(currentTags).sort();
-            this.next(updatedTags);
-        }
-    }
-
-    /**
-     * Check if a tag exists
-     */
-    hasTag(tag: string): boolean {
-        return this.cache.includes(tag);
-    }
-
-    /**
-     * Get tags that match a pattern (useful for search/filtering)
-     */
-    getTagsMatching(pattern: string): Tags {
-        const regex = new RegExp(pattern, 'i');
-        return this.cache.filter(tag => regex.test(tag));
-    }
+  /**
+   * Get tags that match a pattern (useful for search/filtering)
+   */
+  getTagsMatching(pattern: string|RegExp): Tags {
+    let search = typeof pattern === 'string'? new RegExp(pattern, 'i'): pattern;
+    return new Tags(this.cache.toArray().filter(tag => search.test(tag)));
+  }
 }

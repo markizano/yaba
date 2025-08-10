@@ -57,11 +57,6 @@ export class TransactionFiltersComponent implements OnInit, OnDestroy {
     this.filterChange.emit(this.filter);
   }
 
-  selectedTags($event: Tags): void {
-    this.filter.tags = $event;
-    this.filterChange.emit(this.filter);
-  }
-
   description($event: DescriptionChange) {
     this.filter.description = $event.useRegexp ? new RegExp($event.description) : $event.description;
     console.debug('description', this.filter.description);

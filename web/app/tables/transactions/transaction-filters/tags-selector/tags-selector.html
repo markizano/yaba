@@ -1,13 +1,13 @@
 <div class="helper" helper="Select one or more budgets to filter against.">
   <div class="tags">
     <ng-select
-      [items]="availableTags"
+      [items]="availableTags.toArray()"
       [multiple]="true"
       [closeOnSelect]="false"
       [searchable]="true"
       [clearable]="true"
       [hideSelected]="true"
-      (change)="tagsChange.next($event)"
+      (change)="onTagsChange($event)"
       placeholder="Select budgets"
     ></ng-select>
   </div>

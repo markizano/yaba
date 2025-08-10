@@ -67,7 +67,7 @@ export class Transaction extends aTransaction implements ITransaction {
     tax = 0.0;
     currency = CurrencyType.USD;
     merchant = '';
-    tags = <Tags>[];
+    tags = new Tags();
 
     /**
      * @factory Create a new Transaction instance from a string.
@@ -106,7 +106,7 @@ export class Transaction extends aTransaction implements ITransaction {
         data.tax                && (this.tax = typeof data.tax == 'string'? parseFloat(data.tax): <number>data.tax);
         data.currency           && (this.currency = <CurrencyType>data.currency);
         data.merchant           && (this.merchant = data.merchant);
-        data.tags               && (this.tags = typeof data.tags === 'string'? <Tags>(<string>data.tags).split('|'): <Tags>data.tags);
+        data.tags               && (this.tags = typeof data.tags === 'string'? new Tags((<string>data.tags).split('|')): new Tags(data.tags));
         if ( data.datePending && data.datePending != NULLDATE ) this.datePending = new Date(data.datePending);
         if ( data.datePosted  && data.datePosted  != NULLDATE ) this.datePosted  = new Date(data.datePosted);
         return this;
@@ -118,7 +118,7 @@ export class Transaction extends aTransaction implements ITransaction {
      * @returns {boolean} whether we have this tag or not.
      */
     hasTag(tag: string): boolean {
-        return this.tags.includes(tag);
+        return this.tags.has(tag);
     }
 
     /**
@@ -139,7 +139,7 @@ export class Transaction extends aTransaction implements ITransaction {
      * @returns {Transaction}
      */
     addTag(tag: string): Transaction {
-        this.tags.push(tag);
+        this.tags.add(tag);
         return this;
     }
 
@@ -150,7 +150,7 @@ export class Transaction extends aTransaction implements ITransaction {
      */
     removeTag(tag: string): Transaction {
         if ( this.hasTag(tag) ) {
-            this.tags = this.tags.filter(t => t.toLowerCase() != tag.toLowerCase());
+            this.tags.delete(tag);
         }
         return this;
     }
@@ -330,7 +330,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
                 transaction.tax,
                 transaction.currency,
                 transaction.merchant,
-                transaction.tags.join("|")
+                transaction.tags.toArray().join("|")
             ].join('","') + '"');
             return txnZip;
         }, ['"id","accountId","description","datePending","datePosted"' +
@@ -354,9 +354,10 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * Get the list of tags we have for this transaction collection.
      * @returns {Array<String>} List of *unique* tags associated with this collection of transactions.
      */
-    getTags(): string[] {
-        const tagCollection: string[] = this.map(txn => txn.tags).flat().sort();
-        return Array.from<string>( new Set(tagCollection) );
+    getTags(): Tags {
+        const tagCollection: Tags = new Tags();
+        this.map(txn => tagCollection.merge(txn.tags));
+        return tagCollection;
     }
 
     /**
@@ -473,7 +474,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {Array<String>|undefined} tags The tags to match against.
      * @returns TRUE|FALSE for `this.filter()` use on if this tag exists on this transaction or not.
      */
-    filterTags(txn: Transaction, tags: string[]|undefined): boolean {
+    filterTags(txn: Transaction, tags: Tags|string[]|undefined): boolean {
         return txn.tags.some((tag) => tags === undefined? true: tags.includes(tag || ''));
     }
 
@@ -543,7 +544,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * @param {Array} tags Filter the list of transactions by a set of tags.
      * @returns {Transactions} The list of matching transactions.
      */
-    byTags(tags: string[]): Transactions {
+    byTags(tags: Tags): Transactions {
         return this.search((txn: Transaction) => this.filterTags(txn, tags || []));
     }
 
@@ -580,9 +581,9 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
             case 1:
                 return (txn => {
                     if ( txn.tags.length ) {
-                        return txn.tags.map(tag => ({tag, amount: txn.amount}));
+                        return <Budgets>txn.tags.map(tag => ({tag, amount: txn.amount}));
                     }
-                    return [];
+                    return <Budgets>[];
                 })(this[0])
             default:
                 // eslint-disable-next-line no-case-declarations
@@ -823,7 +824,7 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
                                     cannonical.merchant = value.toString();
                                     break;
                                 case 'tags':
-                                    cannonical.tags = <Tags>value.toString().split('|');
+                                    cannonical.tags = new Tags(value.toString().split('|'));
                                     break;
                             }
                             // console.log('Dynamic Mapping', cannonical, mapping.toField, value, transaction);
@@ -1098,7 +1099,7 @@ class TransactionGroup {
                 tx.amount = 0.0;
                 tx.description = 'TransactionGroup auto-record. Normalized 0-amount entry.';
                 tx.merchant = this.constructor.name;
-                tx.tags = ['hidden'];
+                tx.tags = new Tags(['hidden']);
                 this.append(tx);
             }
         }
@@ -1121,7 +1122,7 @@ class TransactionGroup {
                 tx.amount = 0.0;
                 tx.description = 'TransactionGroup auto-record. txnGroup.oldest() was newer than ${this}.';
                 tx.merchant = this.constructor.name;
-                tx.tags = ['hidden'];
+                tx.tags = new Tags(['hidden']);
                 that.append(tx);
             }
             if ( that.oldest() < this.oldest() ) {
@@ -1129,7 +1130,7 @@ class TransactionGroup {
                 tx.amount = 0.0;
                 tx.description = 'TransactionGroup auto-record. txnGroup.oldest() was newer than ${this}.';
                 tx.merchant = this.constructor.name;
-                tx.tags = ['hidden'];
+                tx.tags = new Tags(['hidden']);
                 this.append(tx);
             }
         }
@@ -1140,7 +1141,7 @@ class TransactionGroup {
                 tx.amount = 0.0;
                 tx.description = 'TransactionGroup auto-record. txnGroup.newest() was newer than ${this}.';
                 tx.merchant = this.constructor.name;
-                tx.tags = ['hidden'];
+                tx.tags = new Tags(['hidden']);
                 that.append(tx);
             }
             if ( that.newest() < this.newest() ) {
@@ -1148,7 +1149,7 @@ class TransactionGroup {
                 tx.amount = 0.0;
                 tx.description = 'TransactionGroup auto-record. txnGroup.newest() was newer than ${this}.';
                 tx.merchant = this.constructor.name;
-                tx.tags = ['hidden'];
+                tx.tags = new Tags(['hidden']);
                 this.append(tx);
             }
         }
@@ -1177,7 +1178,7 @@ class TransactionGroup {
                 amount,
                 description: 'TransactionGroup auto-record. Placeholder summary of calculated transaction deltas.',
                 merchant: that.constructor.name,
-                tags: ['auto']
+                tags: new Tags(['auto'])
             });
             // console.log(txn); //@DEBUG
             result.append(txn);
@@ -1300,7 +1301,7 @@ class TransactionGroup {
             txn.datePosted = startDate;
             txn.amount = avgBalance;
             txn.merchant = this.constructor.name;
-            txn.tags = ['auto', 'future'];
+            txn.tags = new Tags(['auto', 'future']);
             txn.description = 'TransactionGroup auto-record. Future wishlist item.';
             if ( Object.hasOwn(wishlist, txn.YYYYMM()) ) {
                 const yymm = <Transaction[]>(<PropertyDescriptor>Object.getOwnPropertyDescriptor(wishlist, txn.YYYYMM())).value;

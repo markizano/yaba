@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
-import { Budgets, TransactionFilter } from 'app/lib/types';
+import { Budgets, TransactionFilter, Tags } from 'app/lib/types';
 import { Transactions, Transaction } from 'app/lib/transactions';
 import { Account } from 'app/lib/accounts';
 
@@ -222,7 +222,7 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
   /**
    * Untag the selected transactions with the given tag.
    */
-  untagTxns(tags: string[]): void {
+  untagTxns(tags: Tags): void {
       console.log('untag-txns', tags);
       tags.forEach(tag => this.selectedTxns.removeTag(tag));
       this.selectedTxns = new Transactions();

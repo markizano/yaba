@@ -73,10 +73,115 @@ export enum TransactionType {
 };
 
 /**
- * Special string array that represents a list of tags.
- * If we later want to expand on this, we can use this stub.
+ * So this has evolved into a fixed Set.
+ *
  */
-export type Tags = string[];
+// export type Tags = string[];
+export class Tags extends Set<string> {
+  static from(tags: string[]): Tags {
+    return new Tags(tags.sort());
+  }
+
+  override toString(sep: string = '|'): string {
+    return this.toArray().join(sep);
+  }
+
+  toArray(): string[] {
+    return Array.from(this);
+  }
+
+  clone(): Tags {
+    return new Tags(this);
+  }
+
+  /**
+   * Take another instance of Tags and attempt to mesh them together.
+   * @param {Tags} tags Another instance of Tags to merge.
+   * @return {Tags} A unique list of tags among the two.
+   */
+  merge(tags: Tags): void {
+    const current = this.clone();
+    tags.toArray().forEach(tag => {
+      if ( !current.has(tag) ) {
+        current.add(tag);
+      }
+    });
+    this.clear();
+    current.toArray().sort().forEach(tag => this.add(tag))
+  }
+
+  /**
+   * Take another instance of Tags and attempt to strip members.
+   * @param {Tags} tags Another instance of Tags to strip.
+   * @return {Tags} A unique list of tags with the members stripped.
+   */
+  strip(tags: Tags): void {
+    const current = this.clone();
+    tags.toArray().forEach(tag => {
+      if ( current.has(tag) ) {
+        current.delete(tag);
+      }
+    });
+    this.clear();
+    current.toArray().sort().forEach(tag => this.add(tag))
+  }
+
+  // The following functions are array wrapper methods.
+  // They were added as a result of changing the data type from Array to Set.
+
+  /**
+   * Get the lenght/size of the Set.
+   */
+  get length(): number {
+    return this.size;
+  }
+
+  /**
+   * Alias for Set.has().
+   */
+  includes(tag: string): boolean {
+    return this.has(tag);
+  }
+
+  /**
+   * Alias for Set.add(), but maintains sort.
+   */
+  push(tag: string): void {
+    if (!this.has(tag)) {
+      const sorted = [...this, tag].sort();
+      this.clear();
+      sorted.forEach(t => this.add(t));
+    }
+  }
+
+  /**
+   * Alias for Array.filter()
+   */
+  filter(predicate: (value: string, index: number, tags: string[]) => string[]): Tags {
+    return new Tags(this.toArray().filter(predicate, this));
+  }
+
+  /**
+   * Alias for Array.some()
+   */
+  some(predicate: (value: string, index: number, tags: string[]) => boolean): boolean {
+    return this.toArray().some(predicate, this)
+  }
+
+  /**
+   * Alias for Array.map()
+   */
+  map(callbackFn: (value: string, index: number, tags: string[]) => unknown): unknown[] {
+    return this.toArray().map(callbackFn, this);
+  }
+
+  /**
+   * Alias for Array.join()
+   */
+  join(del?: string): string {
+    return this.toArray().join(del);
+  }
+}
 
 /**
  * Budget interface to define a budget.

@@ -99,16 +99,28 @@ export class SettingsComponent {
     console.log('edit: ', tagKey, tagValue, $event);
     switch (tagKey) {
       case 'incomeTags':
-        this.settings.incomeTags[this.settings.incomeTags.indexOf(tagValue)] = $event.value;
+        this.settings.incomeTags.delete(tagValue);
+        if ($event.value) {
+          this.settings.incomeTags.push($event.value);
+        }
         break;
       case 'expenseTags':
-        this.settings.expenseTags[this.settings.expenseTags.indexOf(tagValue)] = $event.value;
+        this.settings.expenseTags.delete(tagValue);
+        if ($event.value) {
+          this.settings.expenseTags.push($event.value);
+        }
         break;
       case 'transferTags':
-        this.settings.transferTags[this.settings.transferTags.indexOf(tagValue)] = $event.value;
+        this.settings.transferTags.delete(tagValue);
+        if ($event.value) {
+          this.settings.transferTags.push($event.value);
+        }
         break;
       case 'hideTags':
-        this.settings.hideTags[this.settings.hideTags.indexOf(tagValue)] = $event.value;
+        this.settings.hideTags.delete(tagValue);
+        if ($event.value) {
+          this.settings.hideTags.push($event.value);
+        }
         break;
       default:
         console.error('Unknown tagSet:', tagKey);
@@ -130,28 +142,16 @@ export class SettingsComponent {
     }
     switch (tagKey) {
       case 'incomeTags':
-        const incomeIndex = this.settings.incomeTags.indexOf(chipValue);
-        if (incomeIndex > -1) {
-          this.settings.incomeTags.splice(incomeIndex, 1);
-        }
+        this.settings.incomeTags.delete(chipValue);
         break;
       case 'expenseTags':
-        const expenseIndex = this.settings.expenseTags.indexOf(chipValue);
-        if (expenseIndex > -1) {
-          this.settings.expenseTags.splice(expenseIndex, 1);
-        }
+        this.settings.expenseTags.delete(chipValue);
         break;
       case 'transferTags':
-        const transferIndex = this.settings.transferTags.indexOf(chipValue);
-        if (transferIndex > -1) {
-          this.settings.transferTags.splice(transferIndex, 1);
-        }
+        this.settings.transferTags.delete(chipValue);
         break;
       case 'hideTags':
-        const hideIndex = this.settings.hideTags.indexOf(chipValue);
-        if (hideIndex > -1) {
-          this.settings.hideTags.splice(hideIndex, 1);
-        }
+        this.settings.hideTags.delete(chipValue);
         break;
       default:
         console.error('Unknown tagSet:', tagKey);

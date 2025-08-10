@@ -5,7 +5,7 @@ import { ChartType, Row } from 'angular-google-charts';
 
 import { AccountsService } from 'app/services/accounts.service';
 import { Accounts } from 'app/lib/accounts';
-import { TransactionFilter, Budgets } from 'app/lib/types';
+import { TransactionFilter, Budgets, Tags } from 'app/lib/types';
 import { Transactions, Transaction } from 'app/lib/transactions';
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 
@@ -38,7 +38,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
     budgets: Budgets = [];
 
     // Debug properties (keeping for compatibility with template)
-    txnTags: string[] = [];
+    txnTags: Tags = new Tags();
     myBudgets: any;
     chart: any;
 
@@ -92,7 +92,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
         this.transactions.push(...this.accounts.getTransactions(searchFilter));
 
         // Update debug properties for template compatibility
-        this.txnTags = this.filter.tags || [];
+        this.txnTags = this.filter.tags || new Tags();
 
         // Generate chart data
         this.generateChartData();

@@ -1,7 +1,7 @@
 /* eslint @typescript-eslint/no-explicit-any: 0 */
 import { v4 } from 'uuid';
 
-import { TransactionType } from 'app/lib/types';
+import { TransactionType, Tags } from 'app/lib/types';
 import { CurrencyType } from 'app/lib/structures';
 import { Account, AccountTypes } from 'app/lib/accounts';
 import { Transaction, Transactions } from 'app/lib/transactions';
@@ -151,7 +151,7 @@ export class SeedList {
                             tax: amount * 0.09,
                             currency: CurrencyType.USD,
                             merchant: merchant,
-                            tags: [],
+                            tags: new Tags(),
                         });
                     }
                     case 'payment': {
@@ -170,7 +170,7 @@ export class SeedList {
                             tax: 0.0,
                             currency: CurrencyType.USD,
                             merchant: billCollector,
-                            tags: [],
+                            tags: new Tags(),
                         });
                     }
                 }
@@ -188,7 +188,7 @@ export class SeedList {
                     tax: 0,
                     currency: CurrencyType.USD,
                     merchant: payroll,
-                    tags: [],
+                    tags: new Tags(),
                 });
             }
             case TransactionType.Payment: {
@@ -204,7 +204,7 @@ export class SeedList {
                     tax: 0,
                     currency: CurrencyType.USD,
                     merchant: merchant,
-                    tags: [],
+                    tags: new Tags(),
                 });
             }
             case TransactionType.Transfer: {
@@ -220,7 +220,7 @@ export class SeedList {
                     tax: 0,
                     currency: CurrencyType.USD,
                     merchant: investment,
-                    tags: [],
+                    tags: new Tags(),
                 });
             }
         }

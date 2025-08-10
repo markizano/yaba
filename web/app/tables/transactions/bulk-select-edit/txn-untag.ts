@@ -16,7 +16,7 @@ export class UntagTransactionComponent {
     @Output() untag = new EventEmitter<Tags>();
     @Output() cancel = new EventEmitter<void>();
     listening = false;
-    tags = <Tags>[];
+    tags = new Tags();
 
     @HostListener('click', ['$event'])
     onClick($event: MouseEvent) {
