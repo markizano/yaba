@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TransactionTypeComponent } from './transaction-type';
+import { ControlsModule } from 'app/controls/controls.module';
 
 describe('TransactionType', () => {
   let component: TransactionTypeComponent;
@@ -8,7 +9,7 @@ describe('TransactionType', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TransactionTypeComponent]
+      imports: [ControlsModule]
     })
     .compileComponents();
 

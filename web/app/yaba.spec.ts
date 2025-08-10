@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
+
 import { YabaComponent } from 'app/yaba';
 
 describe('YabaComponent', () => {
   beforeEach(() => TestBed.configureTestingModule({
-    imports: [RouterTestingModule],
-    declarations: [YabaComponent]
+    imports: [YabaComponent],
+    providers: [provideRouter([])]
   }));
 
   it('should create the app', () => {
@@ -14,10 +15,10 @@ describe('YabaComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', () => {
+  it('should render menu component', () => {
     const fixture = TestBed.createComponent(YabaComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('yaba app is running!');
+    expect(compiled.querySelector('yaba-menu')).toBeTruthy();
   });
 });

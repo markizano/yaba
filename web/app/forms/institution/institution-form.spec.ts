@@ -8,7 +8,7 @@ describe('InstitutionFormComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [InstitutionFormComponent]
+      imports: [InstitutionFormComponent]
     });
     fixture = TestBed.createComponent(InstitutionFormComponent);
     component = fixture.componentInstance;

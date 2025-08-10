@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 import { ChartsComponent } from './charts';
+import { ChartsModule } from './charts.module';
 
 describe('ChartsComponent', () => {
   let component: ChartsComponent;
@@ -8,7 +10,8 @@ describe('ChartsComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ChartsComponent]
+      imports: [ChartsModule],
+      providers: [provideHttpClient()]
     });
     fixture = TestBed.createComponent(ChartsComponent);
     component = fixture.componentInstance;

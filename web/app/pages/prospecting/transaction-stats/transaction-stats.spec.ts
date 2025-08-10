@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 import { TransactionStatsComponent } from './transaction-stats';
+import { ProspectingModule } from 'app/pages/prospecting/prospecting.module';
 
 describe('TxnStatsComponent', () => {
   let component: TransactionStatsComponent;
@@ -8,7 +10,8 @@ describe('TxnStatsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TransactionStatsComponent]
+      imports: [ProspectingModule],
+      providers: [provideHttpClient()]
     })
     .compileComponents();
 

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 import { WishlistComponent } from './wishlist';
+import { ProspectingModule } from 'app/pages/prospecting/prospecting.module';
 
 describe('WishlistComponent', () => {
   let component: WishlistComponent;
@@ -8,7 +10,8 @@ describe('WishlistComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [WishlistComponent]
+      imports: [ProspectingModule],
+      providers: [provideHttpClient()]
     })
     .compileComponents();
 

@@ -60,14 +60,17 @@ export class ProspectingComponent implements OnInit, OnDestroy {
     }
 
     private loadTransactions(accounts: any): void {
-        const handyGetByTag = (tags: Tags) => accounts.getTransactions(
-            undefined,
-            new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000), // 365 days ago
-            new Date(),
-            undefined,
-            tags,
-            -1
-        );
+        const handyGetByTag = (tags: Tags) => {
+            const filter = {
+                fromDate: new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000), // 365 days ago
+                toDate: new Date(),
+                description: '',
+                tags: tags,
+                sort: { column: 'datePosted', asc: true },
+                page: { pageIndex: 0, pageSize: -1, length: 0 }
+            };
+            return accounts.getTransactions(filter);
+        };
 
         this.incomeTxns = handyGetByTag(this.settings.incomeTags);
         let income = this.incomeTxns.monthly();
