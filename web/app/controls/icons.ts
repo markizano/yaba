@@ -56,7 +56,7 @@ export class ErrorsDisplayComponent {
     @Input() errors: string[] = [];
 }
 
-import { YabaDropFileDirective } from 'app/controls/dropfile.directive';
+import { YabaDropFileDirective } from 'app/controls/dropfile/dropfile.directive';
 
 export const icons = [
     DebugDirective,
