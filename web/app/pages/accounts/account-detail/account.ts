@@ -111,6 +111,9 @@ export class AccountDetailComponent implements OnInit, OnDestroy {
       }
       const txns = await Accounts.parseCSVFiles(this.account, $event, institution, this.errors);
       Accounts.receiveParsedTransactions(this.account, txns);
+      // Somehow this.account is not byReference, but byValue.
+      // Need to search and update the original reference.
+      this.accounts.byId(this.account.id)?.update(this.account);
       this.accountsService.save(this.accounts);
 
     } catch (e) {
