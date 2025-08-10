@@ -13,149 +13,149 @@ import { ControlsModule } from 'app/controls/controls.module';
 import { InstitutionMappingComponent } from 'app/forms/institution/institution-mapping';
 
 @Component({
-    selector: 'yaba-institution-form',
-    templateUrl: './institution-form.html',
-    styleUrls: ['./institution-form.css'],
-    animations: [
-        YabaAnimations.fadeSlideDown()
-    ],
-    standalone: true,
-    imports: [
-        ControlsModule,
-        InstitutionMappingComponent,
-        MatIconModule,
-    ],
+  selector: 'yaba-institution-form',
+  templateUrl: './institution-form.html',
+  styleUrls: ['./institution-form.css'],
+  animations: [
+    YabaAnimations.fadeSlideDown()
+  ],
+  standalone: true,
+  imports: [
+    ControlsModule,
+    InstitutionMappingComponent,
+    MatIconModule,
+  ],
 })
 export class InstitutionFormComponent implements OnInit {
-    @Input() institution = new Institution();
-    @Output() institutionChange = new EventEmitter<Institution>();
+  @Input() institution = new Institution();
+  @Output() institutionChange = new EventEmitter<Institution>();
 
-    @Output() saveForm = new EventEmitter<Institution>();
-    @Output() cancelForm = new EventEmitter<void>();
+  @Output() saveForm = new EventEmitter<Institution>();
+  @Output() cancelForm = new EventEmitter<void>();
 
-    errors: string[] = []; // List of array messages to render to end-user.
-    fields: NgSelectable<keyof ITransaction>[] = [];
-    protected $element = inject(ElementRef);
+  errors: string[] = []; // List of array messages to render to end-user.
+  fields: NgSelectable<keyof ITransaction>[] = [];
+  protected $element = inject(ElementRef);
 
-    // Disable dropping on the body of the document.
-    // This prevents the browser from loading the dropped files
-    // using it's default behaviour if the user misses the drop zone.
-    // Set this input to false if you want the browser default behaviour.
-    preventBodyDrop = true;
+  // Disable dropping on the body of the document.
+  // This prevents the browser from loading the dropped files
+  // using it's default behaviour if the user misses the drop zone.
+  // Set this input to false if you want the browser default behaviour.
+  preventBodyDrop = true;
 
-    ngOnInit() {
-        this.getTransactionFields();
-        this.addMapping();
+  ngOnInit() {
+    this.getTransactionFields();
+    this.addMapping();
+  }
+
+  /**
+   * Validates the form to ensure we have a named institution with a reasonable description.
+   * @returns boolean
+   */
+  validate(): boolean {
+    this.errors = [];
+    if ( ! this.institution ) {
+      this.errors.push('Institution is not set? This is a bug, please report it to the developers at support@markizano.net');
+      return false;
     }
-
-    /**
-     * Validates the form to ensure we have a named institution with a reasonable description.
-     * @returns boolean
-     */
-    validate(): boolean {
-        this.errors = [];
-        if ( ! this.institution ) {
-            this.errors.push('Institution is not set? This is a bug, please report it to the developers at support@markizano.net');
-            return false;
-        }
-        if ( ! this.institution.name ) {
-            this.errors.push('Name is required.');
-        }
-        if ( this.institution.name.length > 255 ) {
-            this.errors.push('Name must be less than 255 characters.');
-        }
-        if ( this.institution.description.length > 255 ) {
-            this.errors.push('Description must be less than 255 characters.');
-        }
-        return this.errors.length === 0;
+    if ( ! this.institution.name ) {
+      this.errors.push('Name is required.');
     }
-
-    /**
-     * Checks to see if ESC was pressed in this key event.
-     * If so, we cancel and close the form.
-     */
-    @HostListener('document:keydown', ['$event'])
-    escKey($event: KeyboardEvent): void {
-        if ( $event.key === 'Escape' ) {
-            this.doCancelForm();
-        }
-        // If Ctrl+Enter is pressed, submit the form.
-        if ( $event.ctrlKey && $event.key === 'Enter' ) {
-            this.saveChanges();
-        }
+    if ( this.institution.name.length > 255 ) {
+      this.errors.push('Name must be less than 255 characters.');
     }
-
-    /**
-     * Get the list of transaction field types from the enum into a list of pairs for the name:value.
-     */
-    getTransactionFields(): NgSelectable<keyof Transaction>[] {
-        this.fields = Object.keys(new Transaction())
-            .filter((x) => typeof x === 'string' && !this.institution.mappings.hasToField(x as keyof ITransaction))
-            .map((key: string) => ({ label: key, value: key as keyof ITransaction }));
-        return this.fields;
+    if ( this.institution.description.length > 255 ) {
+      this.errors.push('Description must be less than 255 characters.');
     }
+    return this.errors.length === 0;
+  }
 
-    /**
-     * Handles the click event to save the institution to the database.
-     * Performs additional validation and checks to make sure all fields are entered accordingly.
-     * Renders errors for the user until validation passes, then send the information to the database.
-     */
-    saveChanges(): void {
-        if ( ! this.validate() ) return;
-        this.institutionChange.emit(this.institution);
-        this.saveForm.emit(this.institution);
-        this.reset();
+  /**
+   * Checks to see if ESC was pressed in this key event.
+   * If so, we cancel and close the form.
+   */
+  @HostListener('document:keydown', ['$event'])
+  keyPressEvent($event: KeyboardEvent): void {
+    if ( $event.key === 'Escape' ) {
+      this.doCancelForm();
     }
+    // If Ctrl+Enter is pressed, submit the form.
+    if ( $event.ctrlKey && $event.key === 'Enter' ) {
+      this.saveChanges();
+    }
+  }
 
-    /**
-     * Add a mapping to the list of mappings.
-     * Trigger target events to notify the parent component of the changes.
-     */
-    addMapping(): void {
-        if ( this.fields.length > 0 ) {
-            this.institution.addMapping('', undefined, MapTypes.dynamic);
-            this.institutionChange.emit(this.institution);
-        } else {
-            console.log('No more institution fields permitted.');
-        }
-        this.getTransactionFields();
-    }
+  /**
+   * Get the list of transaction field types from the enum into a list of pairs for the name:value.
+   */
+  getTransactionFields(): NgSelectable<keyof Transaction>[] {
+    this.fields = Object.keys(new Transaction())
+      .filter((x) => typeof x === 'string' && !this.institution.mappings.hasToField(x as keyof ITransaction))
+      .map((key: string) => ({ label: key, value: key as keyof ITransaction }));
+    return this.fields;
+  }
 
-    /**
-     * Remove a mapping from the list of mappings.
-     */
-    removeMapping(i: number): void {
-        if ( i < 0 || i >= this.institution.mappings.length ) {
-            throw new Error(`InstitutionFormComponent().removeMapping(): Invalid index ${i} for the list of mappings.`);
-        }
-        const removed = this.institution.mappings.splice(i, 1);
-        this.institutionChange.emit(this.institution);
-        this.getTransactionFields();
-        console.log(`InstitutionFormComponent().removeMapping(): Removed mapping ${removed} from the list of mappings.`);
-    }
+  /**
+   * Handles the click event to save the institution to the database.
+   * Performs additional validation and checks to make sure all fields are entered accordingly.
+   * Renders errors for the user until validation passes, then send the information to the database.
+   */
+  saveChanges(): void {
+    if ( ! this.validate() ) return;
+    this.institutionChange.emit(this.institution);
+    this.saveForm.emit(this.institution);
+    this.reset();
+  }
 
-    /**
-     * Reset the form to its initial state behind the scenes.
-     */
-    reset(): void {
-        this.institution = new Institution();
-        this.errors = [];
+  /**
+   * Add a mapping to the list of mappings.
+   * Trigger target events to notify the parent component of the changes.
+   */
+  addMapping(): void {
+    if ( this.fields.length > 0 ) {
+      this.institution.addMapping('', undefined, MapTypes.dynamic);
+      this.institutionChange.emit(this.institution);
+    } else {
+      console.log('No more institution fields permitted.');
     }
+    this.getTransactionFields();
+  }
 
-    /**
-     * Cancel the form and close it.
-     */
-    doCancelForm(): void {
-        this.cancelForm.emit();
-        this.reset();
+  /**
+   * Remove a mapping from the list of mappings.
+   */
+  removeMapping(i: number): void {
+    if ( i < 0 || i >= this.institution.mappings.length ) {
+      throw new Error(`InstitutionFormComponent().removeMapping(): Invalid index ${i} for the list of mappings.`);
     }
+    const removed = this.institution.mappings.splice(i, 1);
+    this.institutionChange.emit(this.institution);
+    this.getTransactionFields();
+    console.log(`InstitutionFormComponent().removeMapping(): Removed mapping ${removed} from the list of mappings.`);
+  }
 
-    // User dropped a file on the form.
-    parseCSVFiles($event: File[]): void {
-        Institutions.csvHandler($event).then((csvHeaders: string[]) => {
-            this.institution.mappings = InstitutionMappings.fromList(csvHeaders.map((m) => InstitutionMapping.fromObject({ fromField: m, mapType: MapTypes.dynamic })));
-            this.institutionChange.emit(this.institution);
-        });
-    }
+  /**
+   * Reset the form to its initial state behind the scenes.
+   */
+  reset(): void {
+    this.institution = new Institution();
+    this.errors = [];
+  }
+
+  /**
+   * Cancel the form and close it.
+   */
+  doCancelForm(): void {
+    this.cancelForm.emit();
+    this.reset();
+  }
+
+  // User dropped a file on the form.
+  parseCSVFiles($event: File[]): void {
+    Institutions.csvHandler($event).then((csvHeaders: string[]) => {
+      this.institution.mappings = InstitutionMappings.fromList(csvHeaders.map((m) => InstitutionMapping.fromObject({ fromField: m, mapType: MapTypes.dynamic })));
+      this.institutionChange.emit(this.institution);
+    });
+  }
 
 }
