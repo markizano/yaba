@@ -43,14 +43,9 @@ export class UntagTransactionComponent {
     }
 
     cancelForm() {
-        // console.log('UntagTransactionComponent.cancel()');
+        // console.log('UntagTransactionComponent().cancel()');
         this.listening = false;
         this.cancel.emit();
-    }
-
-    budget($event: Tags) {
-        // console.log('UntagTransactionComponent().budget(): ', $event);
-        this.tags = $event;
     }
 }
 

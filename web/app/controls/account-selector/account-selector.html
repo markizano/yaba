@@ -4,6 +4,7 @@
       [items]="accounts"
       bindLabel="name"
       bindValue="id"
+      [compareWith]="accounts.match"
       [ngModel]="value"
       [ariaRequired]="required"
       [multiple]="multiple"

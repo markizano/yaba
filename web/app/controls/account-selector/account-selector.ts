@@ -57,7 +57,7 @@ export class AccountSelectorComponent implements ControlValueAccessor, AfterView
   }
 
   ngAfterViewInit(): void {
-    this.multiple = this.ref.nativeElement.classList.contains('multiple');
+    this.multiple = this.ref.nativeElement.hasAttribute('multiple');
     this.required = this.ref.nativeElement.hasAttribute('required');
     this.chDet.detectChanges();
   }

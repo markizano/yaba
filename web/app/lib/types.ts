@@ -19,12 +19,6 @@ export type YabaPlural<T> = Array<T> & {
 };
 
 /**
- * Special string array that represents a list of tags.
- * If we later want to expand on this, we can use this stub.
- */
-export type Tags = string[];
-
-/**
  * NgSelectable Struct for rendering select contents.
  */
 export type NgSelectable<T> = { label: string, value: T };
@@ -77,6 +71,12 @@ export enum TransactionType {
     Transfer = 'transfer',
     Payment = 'payment',
 };
+
+/**
+ * Special string array that represents a list of tags.
+ * If we later want to expand on this, we can use this stub.
+ */
+export type Tags = string[];
 
 /**
  * Budget interface to define a budget.

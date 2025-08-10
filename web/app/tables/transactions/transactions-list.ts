@@ -16,6 +16,7 @@ import {
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 import { Budgets, TransactionFilter } from 'app/lib/types';
 import { Transactions, Transaction } from 'app/lib/transactions';
+import { Account } from 'app/lib/accounts';
 
 import { AccountsService } from 'app/services/accounts.service';
 import { ControlsModule } from 'app/controls/controls.module';
@@ -172,11 +173,23 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
    * Render the filters for us to see in the dashboard.
    */
   filtration(filters: TransactionFilter): string {
+      // Handle accounts mapping - can be single Account or Accounts array
+      let accountsMapping: {id: string, name: string}[] = [];
+      if (filters.accounts) {
+          if (Array.isArray(filters.accounts)) {
+              accountsMapping = filters.accounts.map(x => ({id: x.id, name: x.name}));
+          } else {
+              // Single account case - cast to Account to access properties
+              const singleAccount = filters.accounts as Account;
+              accountsMapping = [{id: singleAccount.id, name: singleAccount.name}];
+          }
+      }
+
       return JSON.stringify({
           fromDate: filters.fromDate,
           toDate: filters.toDate,
           description: filters.description,
-          accounts: filters.accounts?.map(x => ({id: x.id, name: x.name})),
+          accounts: accountsMapping,
           tags: filters.tags,
           // sort: this.sort,
           page: filters.page,

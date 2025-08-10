@@ -33,8 +33,6 @@ export class TransactionFiltersComponent implements OnInit, OnDestroy {
 
   filterByAccount: boolean = this.filter.accounts !== undefined;
 
-  tags: Tags = [];
-
   #subChg?: Subscription;
 
   ngOnInit() {

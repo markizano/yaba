@@ -257,6 +257,13 @@ export class Accounts extends Array<Account> implements YabaPlural<Account> {
     }
 
     /**
+     * Compare method (mainly used with ng-select) to check if 2 instances of accounts are the same.
+     */
+    match(a: Account, b: Account): boolean {
+      return a.id == b.id;
+    }
+
+    /**
      * Gimmie this account by ID.
      * Since the ID is unique, this will only ever return 1 element.
      * @param {String} ID The account.id we want to find.
