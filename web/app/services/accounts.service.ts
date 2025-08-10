@@ -1,5 +1,4 @@
 import { EventEmitter, Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 
 import { BaseHttpService } from 'app/services/basehttp.service';
 import { Accounts } from 'app/lib/accounts';
@@ -11,16 +10,14 @@ import { BudgetsService } from 'app/services/budgets.service';
 export class AccountsService extends BaseHttpService<Accounts> {
   readonly name = 'accounts';
   readonly endpoint = '/api/accounts';
-  protected cache: Accounts;
-  protected cacheSubject: EventEmitter<Accounts>;
+  protected cache: Accounts = new Accounts();
+  protected cacheSubject: EventEmitter<Accounts> = new EventEmitter<Accounts>();
 
   // Inject BudgetsService to keep budgets in sync
-  private budgetsService = inject(BudgetsService);
+  protected budgetsService = inject(BudgetsService);
 
-  constructor(http: HttpClient) {
-    super(http);
-    this.cache = new Accounts();
-    this.cacheSubject = new EventEmitter<Accounts>();
+  constructor() {
+    super();
     this.load().subscribe((value: Accounts) => this.next(value));
     console.log('new AccountsService()');
   }

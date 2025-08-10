@@ -1,7 +1,7 @@
 <div class="helper" helper="Select one or more budgets to filter against.">
-  <div class="tags">
+  <div class="tags-filter">
     <ng-select
-      [items]="availableTags.toArray()"
+      [items]="tags"
       [multiple]="multiple"
       [ariaRequired]="required"
       [closeOnSelect]="false"

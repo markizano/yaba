@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 
-import { Component, OnInit, OnDestroy, forwardRef, inject, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, forwardRef, inject, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { Tags } from 'app/lib/types';
@@ -20,16 +20,20 @@ import { BudgetsService } from 'app/services/budgets.service';
   ]
 })
 export class TagsSelectorComponent implements OnInit, OnDestroy, AfterViewInit, ControlValueAccessor {
-  availableTags: Tags = new Tags();
+  // The one place we use this as an array because of ng-select.
+  // ng-select expects an array bound to [items]
+  tags: string[] = [];
   selectedTags: Tags = new Tags();
 
   ref: ElementRef = inject(ElementRef);
+  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   budgetsService = inject(BudgetsService);
   #bud?: Subscription;
 
   multiple: boolean = false;
   required: boolean = false;
+  disabled: boolean = false;
 
   // ControlValueAccessor implementation
   onChange = (value: Tags) => {};
@@ -37,20 +41,21 @@ export class TagsSelectorComponent implements OnInit, OnDestroy, AfterViewInit, 
 
   ngOnInit(): void {
     // Subscribe to budget updates using the subscribe method
-    this.#bud = this.budgetsService.subscribe((tags: Tags) => {
-      this.availableTags = tags;
-    });
+    const update = (tags: Tags) => {
+      this.tags = tags.toArray();
+    };
+    update(this.budgetsService.get());
+    this.#bud = this.budgetsService.subscribe(update);
   }
 
   ngOnDestroy(): void {
-    if (this.#bud) {
-      this.#bud.unsubscribe();
-    }
+    this.#bud?.unsubscribe();
   }
 
   ngAfterViewInit(): void {
     this.multiple = this.ref.nativeElement.hasAttribute('multiple');
     this.required = this.ref.nativeElement.hasAttribute('required');
+    this.chDet.detectChanges();
   }
 
   // ControlValueAccessor methods
@@ -67,12 +72,13 @@ export class TagsSelectorComponent implements OnInit, OnDestroy, AfterViewInit, 
   }
 
   setDisabledState(isDisabled: boolean): void {
-    // Handle disabled state if needed
+    this.disabled = isDisabled;
   }
 
-  onTagsChange(tags: Tags): void {
-    this.selectedTags = tags;
-    this.onChange(tags);
+  onTagsChange(tags: string[]): void {
+    console.log('TagsSelectorComponent.onTagsChange()', tags);
+    this.selectedTags = new Tags(tags);
+    this.onChange(this.selectedTags);
     this.onTouched();
   }
 }

@@ -102,7 +102,7 @@ export class Tags extends Set<string> {
   merge(tags: Tags): void {
     const current = this.clone();
     tags.toArray().forEach(tag => {
-      if ( !current.has(tag) ) {
+      if ( !current.has(tag) && tag ) {
         current.add(tag);
       }
     });

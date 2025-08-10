@@ -37,7 +37,6 @@ export interface Storable {
 
 /**
  * @class {SessionMetadata} The metadata for a session.
- * 
  */
 export class SessionMetadata {
     id: string;
@@ -54,7 +53,6 @@ export class SessionMetadata {
 
     toString(): string {
         return JSON.stringify({id: this.id, ipAddress: this.ipAddress, username: this.username, serverId: this.serverId});
-    
     }
 
     static fromString(str: string): SessionMetadata {
@@ -144,7 +142,7 @@ export class SessionData {
  * - localStorage
  * - sessionStorage
  * - server-api (very crude framework)
- * 
+ *
  * Enables the getting and setting of data for a given session.
  */
 @Injectable({
@@ -206,7 +204,7 @@ export class SessionManagementService extends EventEmitter {
     setItem(name: string, value: unknown): void {
         this.#data[name] = value;
         this.emit('changed', {action: StorageAction.SET, key: name, value: value});
-    }    
+    }
 
     removeItem(name: string): void {
         delete this.#data[name];

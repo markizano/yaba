@@ -56,34 +56,4 @@ export class BudgetsService {
   get(): Tags {
     return this.cache;
   }
-
-  /**
-   * Add new tags (useful when new transactions are added)
-   */
-  addTags(newTags: Tags): void {
-    let count = this.cache.size;
-    this.cache.merge(newTags);
-    if (count !== this.cache.size) {
-      this.next(this.cache);
-    }
-  }
-
-  /**
-   * Remove tags (useful when transactions are deleted or untagged)
-   */
-  removeTags(tagsToRemove: Tags): void {
-    let count = this.cache.size;
-    this.cache.strip(tagsToRemove);
-    if (count !== this.cache.size) {
-      this.next(this.cache);
-    }
-  }
-
-  /**
-   * Get tags that match a pattern (useful for search/filtering)
-   */
-  getTagsMatching(pattern: string|RegExp): Tags {
-    let search = typeof pattern === 'string'? new RegExp(pattern, 'i'): pattern;
-    return new Tags(this.cache.toArray().filter(tag => search.test(tag)));
-  }
 }

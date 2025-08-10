@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { EventEmitter, HostListener, Injectable } from "@angular/core";
+import { EventEmitter, HostListener, inject, Injectable } from "@angular/core";
 import { Observable, of, retry, Observer, Subscription } from 'rxjs';
 import { Yabables } from 'app/lib/types';
 import { CACHE_EXPIRY_SECONDS } from 'app/lib/constants';
@@ -10,6 +10,7 @@ import { Settings } from "app/lib/settings";
  */
 @Injectable()
 export abstract class BaseHttpService<Yabadaba extends Yabables> {
+  http: HttpClient = inject(HttpClient);
   headers: HttpHeaders = new HttpHeaders({'Content-Type': 'application/json'});
   cacheExpiry = true;
   useServer = Settings.fromLocalStorage().useServer ?? false;
@@ -38,8 +39,6 @@ export abstract class BaseHttpService<Yabadaba extends Yabables> {
    * Fetch the next value from the server and add it to the cache.
    */
   abstract next (value: Yabadaba): void;
-
-  constructor(protected http: HttpClient) { }
 
   isExpired(): boolean {
     return this.cacheExpiry;

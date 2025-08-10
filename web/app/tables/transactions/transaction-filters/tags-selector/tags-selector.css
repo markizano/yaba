@@ -6,13 +6,13 @@
     box-sizing: border-box;
 }
 
-.tags {
+.tags-filter {
     position: relative;
     padding: 1.5rem 0.5rem 0.5rem 0.5rem;
     box-sizing: border-box;
 }
 
-.tags:before {
+.tags-filter:before {
     content: "Budgets: ";
     position: absolute;
     color: var(--text);

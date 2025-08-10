@@ -352,11 +352,11 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
 
     /**
      * Get the list of tags we have for this transaction collection.
-     * @returns {Array<String>} List of *unique* tags associated with this collection of transactions.
+     * @returns {Tags} List of *unique* tags associated with this collection of transactions.
      */
     getTags(): Tags {
         const tagCollection: Tags = new Tags();
-        this.map(txn => tagCollection.merge(txn.tags));
+        this.map(txn => txn.tags.size && tagCollection.merge(txn.tags));
         return tagCollection;
     }
 
