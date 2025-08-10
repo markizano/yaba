@@ -2,10 +2,8 @@ import { debounceTime, Subject, Subscription } from "rxjs";
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, forwardRef, inject } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import { Tags, Budgets } from "app/lib/types";
-import { AccountsService } from "app/services/accounts.service";
-import { Accounts } from "app/lib/accounts";
-import { Transactions } from "app/lib/transactions";
+import { Tags } from "app/lib/types";
+import { BudgetsService } from "app/services/budgets.service";
 
 /**
  * I needed a way to take a list of budgets and filter them by the end-user's selection.
@@ -29,42 +27,26 @@ export class TagsSelectorComponent implements OnInit, OnDestroy, ControlValueAcc
     disabled: boolean = false;
 
     // Service injection
-    accountsService = inject(AccountsService);
+    budgetsService = inject(BudgetsService);
 
     // Local data
     availableTags: Tags = [];
-    #accts?: Subscription;
     #tagSub?: Subscription;
 
     tagsChange = new Subject<Tags>();
-    @Output() selected = new EventEmitter<Tags>();
 
     ngOnInit() {
-        // Subscribe to accounts service to get transactions and extract budgets
-        const update = (accounts: Accounts) => {
-            // Get all transactions from all accounts
-            const allTransactions = accounts.map(a => a.transactions).flat();
-            const transactions = Transactions.fromList(allTransactions);
-
-            // Extract unique tags from budgets
-            const budgets = transactions.getBudgets();
-            this.availableTags = [...new Set(budgets.map(b => b.tag))].sort();
-
+        // Subscribe to budgets service to get available tags
+        this.budgetsService.subscribe((tags: Tags) => {
+            this.availableTags = tags;
             console.log('TagsSelectorComponent: Available tags updated', this.availableTags);
-        };
-
-        // Initialize with current data
-        update(this.accountsService.get());
-
-        // Subscribe to future updates
-        this.#accts = this.accountsService.subscribe(update);
+        });
 
         // Subscribe to tag changes with debouncing
         this.#tagSub = this.tagsChange.pipe(debounceTime(500)).subscribe(($event) => this.changed($event));
     }
 
     ngOnDestroy() {
-        this.#accts?.unsubscribe();
         this.#tagSub?.unsubscribe();
     }
 
@@ -72,7 +54,6 @@ export class TagsSelectorComponent implements OnInit, OnDestroy, ControlValueAcc
         console.log('TagsSelectorComponent: Tags changed', $event);
         this.onChange($event);
         this.onTouched();
-        this.selected.emit($event);
     }
 
     // ControlValueAccessor implementation

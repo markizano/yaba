@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import * as JSZip from 'jszip';
 import * as Papa from 'papaparse';
 import { ITransaction, Transactions } from 'app/lib/transactions';
-import { Id2NameHashMap, NgSelectable, TransactionFilter, YabaPlural } from 'app/lib/types';
+import { Id2NameHashMap, NgSelectable, Tags, TransactionFilter, YabaPlural } from 'app/lib/types';
 import { Institution } from './institutions';
 
 /**
@@ -295,9 +295,9 @@ export class Accounts extends Array<Account> implements YabaPlural<Account> {
      * Gets the unique set of tags from the transactions of this account.
      * @returns {Array<String>} The list of tags from the transactions in this list.
      */
-    getTags(): string[] {
+    getTags(): Tags {
         const txnWithTags = this.map((acct: Account) => acct.transactions.getTags()).flat().sort();
-        return Array.from(new Set( txnWithTags ));
+        return Array.from(new Set( txnWithTags )) as Tags;
     }
 
     /**
