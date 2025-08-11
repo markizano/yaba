@@ -368,6 +368,9 @@ export class Accounts extends Array<Account> implements YabaPlural<Account> {
         if ( selectedAccounts === undefined ) {
             return true;
         }
+        if ( selectedAccounts instanceof Array && selectedAccounts.length == 0 ) {
+          return true;
+        }
         const accountId = account instanceof Account? account.id: account;
         if ( selectedAccounts instanceof Array ) {
             return selectedAccounts.some(selectedAccount =>
