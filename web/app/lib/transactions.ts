@@ -750,11 +750,11 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
             result = result.sortBy(search.sort.column, search.sort.asc);
         }
 
-        if ( search.page ) {
-            const offset = search.page.pageIndex * search.page.pageSize,
-              end = offset + search.page.pageSize;
-            result = Transactions.fromList(result.slice(offset, end));
-        }
+        // if ( search.page ) {
+        //     const offset = search.page.pageIndex * search.page.pageSize,
+        //       end = offset + search.page.pageSize;
+        //     result = Transactions.fromList(result.slice(offset, end));
+        // }
 
         if ( search.limit ) {
             result = result.sample(search.limit);
