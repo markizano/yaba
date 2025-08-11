@@ -62,34 +62,35 @@ export class TxnRowComponent implements AfterViewInit {
   txShow: TransactionShowHeaders = Settings.fromLocalStorage().txShow;
 
   ngAfterViewInit(): void {
-    this.editable = this.ref.nativeElement.classList.contains('editable');
+    this.editable = this.ref.nativeElement.hasAttribute('editable');
     this.truncate = this.ref.nativeElement.hasAttribute('truncate');
     this.chDet.detectChanges();
   }
 
   save(txn: Transaction): void {
-      this.editing = false;
-      this.txnChange.emit(txn);
-      this.budgetsChange.emit();
+    this.editing = false;
+    this.txnChange.emit(txn);
+    this.budgetsChange.emit();
   }
 
   cancel(): void {
-      console.log('cancel-edit-txn');
-      this.editing = false;
-      this.txn = this.#bTxn;
+    console.log('cancel-edit-txn');
+    this.editing = false;
+    this.txn = this.#bTxn;
   }
 
   edit(): void {
-      // create a backup transaction, but don't copy by reference.
-      this.#bTxn = Transaction.fromObject(this.txn);
-      this.editing = true;
+    console.log('TxnRowComponent.edit()');
+    // create a backup transaction, but don't copy by reference.
+    this.#bTxn = Transaction.fromObject(this.txn);
+    this.editing = true;
   }
 
   dropTxn(): void {
-      this.dropRow.emit();
+    this.dropRow.emit();
   }
 
   selectTxn(selected: boolean): void {
-      this.selectChange.emit(selected);
+    this.selectChange.emit(selected);
   }
 }

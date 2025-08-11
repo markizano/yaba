@@ -24,7 +24,7 @@
     (selectChange)="selectionHandler($event, txns[rowId])"
     (budgetsChange)="budgetsChange.emit()"
     [attr.truncate]="truncate"
-    [class.editable]="editable"
+    [attr.editable]="editable"
     ></tr>
   }
   </tbody>

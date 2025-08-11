@@ -85,7 +85,9 @@ export class TransactionTableComponent implements AfterViewInit {
   @Output() selectedTxnsChange: EventEmitter<Transactions> = new EventEmitter<Transactions>();
 
   ngAfterViewInit(): void {
-    this.editable = this.ref.nativeElement.classList.contains('editable');
+    // editable is available at the attribute level not the class level because it passes the
+    // class to the components that need to listen for the click event.
+    this.editable = this.ref.nativeElement.hasAttribute('editable');
     this.truncate = this.ref.nativeElement.hasAttribute('truncate');
     this.showPaginate = this.ref.nativeElement.hasAttribute('paginate');
     this.chDet.detectChanges();

@@ -123,8 +123,8 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
    */
   ngOnInit() {
       console.log('TransactionsListComponent().ngOnInit()');
-      this.accountsChange();
-      this.#acctChg = this.accountsService.subscribe(() => this.accountsChange());
+      this.refreshTransactions();
+      this.#acctChg = this.accountsService.subscribe(() => this.refreshTransactions());
   }
 
   /**
@@ -153,7 +153,7 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
    * Navigate back to page 0.
    * Update the transactions under the updated account details.
    */
-  accountsChange() {
+  refreshTransactions() {
       console.log('TransactionListComponent().accountsChange()', { filters: this.filters });
       if ( this.accountId ) {
           const account = this.accountsService.get().byId(this.accountId);
@@ -163,7 +163,7 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
               throw new Error(`Account ${this.accountId} not found.`);
           }
       } else {
-          this.txns = Transactions.fromList(this.accountsService.get().map(a => a.transactions.getTransactions(this.filters)).flat()).sorted();
+          this.txns = this.accountsService.get().getTransactions(this.filters).sorted();
       }
       this.budgetsChange.emit( this.txns.getBudgets() );
   }

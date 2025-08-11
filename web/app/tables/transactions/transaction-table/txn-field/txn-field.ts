@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostBinding, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipEvent, MatChipInputEvent } from '@angular/material/chips';
 
@@ -53,11 +53,22 @@ export class TxnFieldComponent implements OnInit, OnDestroy, AfterViewInit {
   field: keyof Transaction = 'id';
 
   /**
-   * Class-based behaviour trackers.
+   * Are we in the middle of editing this?
+   */
+  @HostBinding('class.editing')
+  get isEditing(): boolean {
+    return this.editing;
+  }
+  @Input() editing: boolean = false;
+
+  /**
+   * Whether to truncate the text with ellipsis.
    */
   truncate: boolean = false;
-  editing: boolean = false;
 
+  /**
+   * Internal account storage.
+   */
   accounts: Accounts = new Accounts();
   accountsService: AccountsService = inject(AccountsService);
   #acct?: Subscription;
@@ -75,7 +86,7 @@ export class TxnFieldComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.editing = this.ref.nativeElement.classList.contains('editing');
+    // this.editing = this.ref.nativeElement.classList.contains('editing');
     this.truncate = this.ref.nativeElement.hasAttribute('truncate');
     this.field = this.ref.nativeElement.getAttribute('field');
     this.chDet.detectChanges();
