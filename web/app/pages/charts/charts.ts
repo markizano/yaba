@@ -23,6 +23,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
   // Chart configuration
   chartType: ChartType = ChartType.LineChart;
   chartData: Row[] = [];
+  chartColumns: any[] = [];
   chartOptions: any = {
     title: 'Daily Budget Spending',
     hAxis: { title: 'Date' },
@@ -168,6 +169,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
    */
   private formatDataForGoogleCharts(dailyData: any[]): Row[] {
     if (!dailyData.length) {
+      this.chartColumns = [];
       return [];
     }
 
@@ -183,15 +185,18 @@ export class ChartsComponent implements OnInit, OnDestroy {
 
     const tagArray = Array.from(allTags).sort();
 
-    // Create header row
-    const header = ['Date', ...tagArray];
+    // Set up column definitions for Google Charts
+    this.chartColumns = [
+      { type: 'date', label: 'Date' },
+      ...tagArray.map(tag => ({ type: 'number', label: tag }))
+    ];
 
-    // Create data rows
+    // Create data rows (without header row)
     const rows = dailyData.map(day => [
       new Date(day.date),
       ...tagArray.map(tag => day[tag] || 0)
     ]);
 
-    return [header, ...rows];
+    return rows;
   }
 }
