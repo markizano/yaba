@@ -26,13 +26,12 @@ import { AccountsService } from "app/services/accounts.service";
 })
 export class AccountSelectorComponent implements ControlValueAccessor, AfterViewInit {
   chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
-  @Input() value: Account[] = [];
-  @Output() selectedAccounts = new EventEmitter<Accounts>();
+  @Input() value: Accounts = new Accounts();
   #accts?: Subscription;
 
   // ControlValueAccessor implementation
   // Outputs a string=accountId
-  onChange = (_: Account[]) => {};
+  onChange = (_: Accounts) => {};
   onTouched = () => {};
   disabled: boolean = false;
 
@@ -63,8 +62,8 @@ export class AccountSelectorComponent implements ControlValueAccessor, AfterView
   }
 
   /* BEGIN: [(ngModel)] handler methods */
-  writeValue(value: Account[]): void {
-      this.value = value || [];
+  writeValue(value: Accounts): void {
+      this.value = value;
   }
 
   registerOnChange(fn: any): void {
@@ -85,10 +84,9 @@ export class AccountSelectorComponent implements ControlValueAccessor, AfterView
    * underlying bound account list to maintain the list box in the DOM/UI.
    * @param accounts {IAccount} Accounts selected by end-user
    */
-  changed(accounts: Account[]) {
-    this.value = accounts || [];
+  changed(accounts: Accounts) {
+    this.value = accounts;
     this.onChange(this.value);
     this.onTouched();
-    this.selectedAccounts.emit(new Accounts(...accounts));
   }
 }
