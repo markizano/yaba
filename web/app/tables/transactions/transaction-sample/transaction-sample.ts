@@ -1,9 +1,7 @@
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Account, Accounts } from 'app/lib/accounts';
-import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 
-import { TransactionFilter } from 'app/lib/types';
 import { AccountsService } from 'app/services/accounts.service';
 
 /**
@@ -15,9 +13,9 @@ import { AccountsService } from 'app/services/accounts.service';
  */
 @Component({
   selector: 'yaba-transaction-sample',
-  standalone: false,
   templateUrl: './transaction-sample.html',
   styleUrl: './transaction-sample.css',
+  standalone: false,
 })
 export class TransactionSampleComponent implements OnInit, OnDestroy {
 
@@ -26,14 +24,6 @@ export class TransactionSampleComponent implements OnInit, OnDestroy {
   account: Account = new Account();
 
   #acct?: Subscription;
-
-  /**
-   * The filters to apply to the transactions.
-   */
-  filters: TransactionFilter = Object.assign({}, EMPTY_TRANSACTION_FILTER, {
-    fromDate: new Date('2000-01-01T00:00:00Z'),
-    accounts: [],
-  });
 
   ngOnInit(): void {
     // Subscribe to account service updates
@@ -59,28 +49,6 @@ export class TransactionSampleComponent implements OnInit, OnDestroy {
     const foundAccount = accounts.byId(this.accountId);
     if (foundAccount) {
       this.account = foundAccount;
-      // Update filters to include the updated account
-      this.filters = Object.assign({}, EMPTY_TRANSACTION_FILTER, {
-        fromDate: new Date('2000-01-01T00:00:00Z'),
-        accounts: [this.account],
-      });
     }
   }
-
-  /**
-   * @DEBUG only
-   * Render the filters for us to see in the dashboard.
-   */
-  filtration(filters: TransactionFilter): string {
-    return JSON.stringify({
-      fromDate: filters.fromDate,
-      toDate: filters.toDate,
-      description: filters.description,
-      accounts: filters.accounts?.map(x => ({id: x.id, name: x.name})),
-      tags: filters.tags?.toArray(),
-      // sort: this.sort,
-      page: filters.page,
-    });
-  }
-
 }

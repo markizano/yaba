@@ -4,3 +4,6 @@
   background-color: #c4c4c4;
   box-sizing: border-box;
 }
+.field {
+  display: block;
+}

@@ -1,20 +1,15 @@
 import { Subscription } from 'rxjs';
 
 import {
-    AfterViewInit,
-    ChangeDetectorRef,
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnDestroy,
-    OnInit,
-    Output,
-    inject
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  inject
 } from '@angular/core';
 
 import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
-import { Budgets, TransactionFilter, Tags } from 'app/lib/types';
+import { TransactionFilter, Tags } from 'app/lib/types';
 import { Transactions, Transaction } from 'app/lib/transactions';
 import { Account } from 'app/lib/accounts';
 
@@ -31,24 +26,23 @@ import { BulkActionModule } from './bulk-select-edit/bulk-action.module';
  * <yaba-transaction-list [accountId]="account.id" [filters]="filters" [showFilters]="true" [showPaginate]="true" [editable]="true" [showTags]="true"></yaba-transaction-list>
  */
 @Component({
-    selector: 'yaba-transaction-list',
-    templateUrl: './transactions-list.html',
-    styleUrls: ['./transactions-list.css'],
-    imports: [
-        ControlsModule,
-        BulkActionModule,
-        TransactionTableModule,
-        TransactionFiltersModule,
-    ],
+  selector: 'yaba-transaction-list',
+  templateUrl: './transactions-list.html',
+  styleUrls: ['./transactions-list.css'],
+  imports: [
+    ControlsModule,
+    BulkActionModule,
+    TransactionTableModule,
+    TransactionFiltersModule,
+  ],
 })
-export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewInit {
+export class TransactionsListComponent implements OnInit, OnDestroy {
 
   /**
-   * Event emitter of the budgets found for the transactions found in this scope
-   * as defined by the filter.
-   * This is a data output.
+   * Injected accounts service to have access to the accounts and subsequent
+   * transaction data.
    */
-  @Output() budgetsChange = new EventEmitter<Budgets>();
+  accountsService = inject(AccountsService);
 
   /**
    * Which Account should we be viewing?
@@ -59,43 +53,7 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
   /**
    * The filters to apply to the transactions.
    */
-  filters = Object.assign(EMPTY_TRANSACTION_FILTER, 'accounts', []);
-
-  /**
-   * Injected accounts service to have access to the accounts and subsequent
-   * transaction data.
-   */
-  accountsService = inject(AccountsService);
-
-  /**
-   * Reference to this element for html-class tracking.
-   */
-  ref: ElementRef = inject(ElementRef);
-
-  /**
-   * Detect changes after updating properties from the DOM configuration.
-   */
-  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
-
-  /**
-   * Allow the user to edit the transactions in place.
-   * This is a behaviour input.
-   */
-  editable: boolean = false;
-
-  /**
-   * Truncate the description to 30 characters for neater display (since I can't figure out the css)
-   * This is a behaviour input.
-   * Add class="truncate" to truncate description and merchant fields.
-   */
-  truncate: boolean = false;
-
-  /**
-   * Determins if the transaction filters component is rendered.
-   * Include a class=filtered in order to render the transaction filters.
-   * This is a behaviour input of sorts.
-   */
-  showFilters: boolean = false;
+  filters: TransactionFilter = EMPTY_TRANSACTION_FILTER;
 
   /**
    * Internal transaction collection buffer to hold the transactions we would render
@@ -114,38 +72,21 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
    */
   #acctChg?: Subscription;
 
-  constructor() {
-      console.log('new TransactionsListComponent()');
-  }
-
   /**
    * Upon instantiation, subscribe to account changes.
    */
   ngOnInit() {
-      console.log('TransactionsListComponent().ngOnInit()');
-      this.refreshTransactions();
-      this.#acctChg = this.accountsService.subscribe(() => this.refreshTransactions());
+    console.log('TransactionsListComponent().ngOnInit()');
+    this.refreshTransactions();
+    this.#acctChg = this.accountsService.subscribe(() => this.refreshTransactions());
   }
 
   /**
    * Upon destruction, clean up subscriptions.
    */
   ngOnDestroy() {
-      this.#acctChg?.unsubscribe();
-  }
-
-  ngAfterViewInit(): void {
-    this.editable = this.ref.nativeElement.classList.contains('editable');
-    this.truncate = this.ref.nativeElement.classList.contains('truncate');
-    this.showFilters = this.ref.nativeElement.classList.contains('filtered');
-    if ( this.showFilters ) {
-      this.filters.accounts = [];
-    } else {
-      // Set date to 2000 if no filters are present to ensure all transactions are loaded
-      // in the sample display case.
-      this.filters.fromDate = new Date('2000-01-01T00:00:00Z');
-    }
-    this.chDet.detectChanges();
+    this.#acctChg?.unsubscribe();
+    this.filters = EMPTY_TRANSACTION_FILTER;
   }
 
   /**
@@ -154,18 +95,19 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
    * Update the transactions under the updated account details.
    */
   refreshTransactions() {
-      console.log('TransactionListComponent().accountsChange()', { filters: this.filters });
-      if ( this.accountId ) {
-          const account = this.accountsService.get().byId(this.accountId);
-          if ( account ) {
-              this.txns = account.transactions.getTransactions(this.filters);
-          } else {
-              throw new Error(`Account ${this.accountId} not found.`);
-          }
+    console.log('TransactionListComponent().accountsChange()', { filters: this.filters });
+    if ( this.accountId ) {
+      delete this.filters.accounts;
+      const account = this.accountsService.get().byId(this.accountId);
+      if ( account ) {
+        this.txns = account.transactions.getTransactions(this.filters);
       } else {
-          this.txns = this.accountsService.get().getTransactions(this.filters).sorted();
+        throw new Error(`Account ${this.accountId} not found.`);
       }
-      this.budgetsChange.emit( this.txns.getBudgets() );
+    } else {
+      this.filters.accounts = [];
+      this.txns = this.accountsService.get().getTransactions(this.filters).sorted();
+    }
   }
 
   /**
@@ -173,27 +115,27 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
    * Render the filters for us to see in the dashboard.
    */
   filtration(filters: TransactionFilter): string {
-      // Handle accounts mapping - can be single Account or Accounts array
-      let accountsMapping: {id: string, name: string}[] = [];
-      if (filters.accounts) {
-          if (Array.isArray(filters.accounts)) {
-              accountsMapping = filters.accounts.map(x => ({id: x.id, name: x.name}));
-          } else {
-              // Single account case - cast to Account to access properties
-              const singleAccount = filters.accounts as Account;
-              accountsMapping = [{id: singleAccount.id, name: singleAccount.name}];
-          }
+    // Handle accounts mapping - can be single Account or Accounts array
+    let accountsMapping: {id: string, name: string}[] = [];
+    if (filters.accounts) {
+      if (Array.isArray(filters.accounts)) {
+        accountsMapping = filters.accounts.map(x => ({id: x.id, name: x.name}));
+      } else {
+        // Single account case - cast to Account to access properties
+        const singleAccount = filters.accounts as Account;
+        accountsMapping = [{id: singleAccount.id, name: singleAccount.name}];
       }
+    }
 
-      return JSON.stringify({
-          fromDate: filters.fromDate,
-          toDate: filters.toDate,
-          description: filters.description,
-          accounts: accountsMapping,
-          tags: filters.tags?.toArray(),
-          // sort: this.sort,
-          page: filters.page,
-      });
+    return JSON.stringify({
+      fromDate: filters.fromDate,
+      toDate: filters.toDate,
+      description: filters.description,
+      accounts: accountsMapping,
+      tags: filters.tags?.toArray(),
+      // sort: this.sort,
+      page: filters.page,
+    });
   }
 
   /**
@@ -202,73 +144,65 @@ export class TransactionsListComponent implements OnInit, OnDestroy, AfterViewIn
    * If unchecked, remove from the list.
    */
   selectionHandler(checked: boolean, txn: Transaction): void {
-      console.log(`TransactionListComponent().select(${checked})`, txn);
-      if ( checked ) {
-          this.selectedTxns.add(txn);
-      } else {
-          this.selectedTxns.remove(txn);
-      }
+    console.log(`TransactionListComponent().select(${checked})`, txn);
+    if ( checked ) {
+      this.selectedTxns.add(txn);
+    } else {
+      this.selectedTxns.remove(txn);
+    }
   }
 
   /**
    * Tag the selected transactions with the given tag.
    */
   tagTxns(tag: string): void {
-      this.selectedTxns.setTag(tag);
-      this.selectedTxns = new Transactions();
-      this.budgetsChange.emit( this.txns.getBudgets() );
+    this.selectedTxns.setTag(tag);
+    this.selectedTxns = new Transactions();
   }
 
   /**
    * Untag the selected transactions with the given tag.
    */
   untagTxns(tags: Tags): void {
-      console.log('untag-txns', tags);
-      tags.forEach(tag => this.selectedTxns.removeTag(tag));
-      this.selectedTxns = new Transactions();
-      this.budgetsChange.emit( this.txns.getBudgets() );
+    console.log('untag-txns', tags);
+    tags.forEach(tag => this.selectedTxns.removeTag(tag));
+    this.selectedTxns = new Transactions();
   }
 
   /**
    * Delete the given transaction.
    */
   deleteTxn(txn: Transaction): void {
-      if ( this.editable ) {
-          console.log('delete-txn', txn);
-          this.txns.remove(txn);
-          this.accountsService.get().byId(txn.accountId)?.transactions.remove(txn);
-          this.accountsService.save(this.accountsService.get());
-          this.budgetsChange.emit( this.txns.getBudgets() );
-      }
+  console.log('delete-txn', txn);
+  this.txns.remove(txn);
+  this.accountsService.get().byId(txn.accountId)?.transactions.remove(txn);
+  this.accountsService.save(this.accountsService.get());
   }
 
   /**
    * Deletes all selected transactions.
    */
   deleteSelected(): void {
-      if ( this.editable ) {
-          console.log('delete-selected', this.selectedTxns);
-          this.selectedTxns.forEach((txn: Transaction) => {
-              try{ this.deleteTxn(txn); } catch(e) { console.error(e); }
-          });
-          this.selectedTxns = new Transactions();
-      }
+  console.log('delete-selected', this.selectedTxns);
+  this.selectedTxns.forEach((txn: Transaction) => {
+    try{ this.deleteTxn(txn); } catch(e) { console.error(e); }
+  });
+  this.selectedTxns = new Transactions();
   }
 
   /**
    * Edit the given transaction.
    */
   editTxn(txn: Transaction): void {
-      console.log('TransactionListComponent().editTxn()', txn);
-      this.accountsService.get().byId(txn.accountId)?.transactions.byId(txn.id)?.update(txn)
-      this.accountsService.save(this.accountsService.get());
-      this.budgetsChange.emit( this.txns.getBudgets() );
+    console.log('TransactionListComponent().editTxn()', txn);
+    this.accountsService.get().byId(txn.accountId)?.transactions.byId(txn.id)?.update(txn)
+    this.accountsService.save(this.accountsService.get());
   }
 
   /**
    * Cancels current selection response event.
    */
   cancelSelected(): void {
-      this.selectedTxns = new Transactions();
+    this.selectedTxns = new Transactions();
   }
 }

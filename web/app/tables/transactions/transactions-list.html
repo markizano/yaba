@@ -2,7 +2,7 @@
   Filters: {{ filtration(filters) }}<br />
   Txns: {{ txns.length }}<br />
 </div>
-@if ( showFilters ){ <yaba-transaction-filters [(filter)]="filters" (filterChange)="refreshTransactions()"></yaba-transaction-filters> }
+<yaba-transaction-filters [(filter)]="filters" (filterChange)="refreshTransactions()"></yaba-transaction-filters>
 @if ( selectedTxns.length > 0 ) {
 <!-- @TODO: Convert this to a <bulk-action /> component -->
 <yaba-bulk-action
@@ -14,9 +14,10 @@
 ></yaba-bulk-action>
 }
 <yaba-transaction-table
-  paginate
-  editable
-  [attr.truncate]="truncate"
+  [paginate]="true"
+  [editable]="true"
+  [truncate]="true"
   [(txns)]="txns"
+  (txnChange)="editTxn($event)"
   [(selectedTxns)]="selectedTxns"
 ></yaba-transaction-table>

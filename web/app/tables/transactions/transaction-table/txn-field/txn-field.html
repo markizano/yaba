@@ -57,11 +57,8 @@
       />
     }
     @case ( 'accountId' ) {
-      <yaba-account-selector
-      [(ngModel)]="txn.accountId"
-      required
-      class="txn-edit-field"
-      ></yaba-account-selector>
+      <!-- Account is only ever read-only. Never for edit! -->
+      <div class="field" name="account-name" [class.truncate]="truncate"> {{ accounts.id2name[txn.accountId] || '{!unknown account id!}' }} </div>
     }
     @case ( 'transactionType' ) {
       <yaba-transaction-type

@@ -1,13 +1,9 @@
 import {
-  AfterViewInit,
-  ChangeDetectorRef,
   Component,
-  ElementRef,
   EventEmitter,
   HostBinding,
   Input,
   Output,
-  inject,
 } from '@angular/core';
 import { Settings } from 'app/lib/settings';
 
@@ -29,13 +25,7 @@ import { TransactionShowHeaders } from 'app/lib/types';
     styleUrls: ['./txn-row.css'],
     standalone: false,
 })
-export class TxnRowComponent implements AfterViewInit {
-  ref: ElementRef = inject(ElementRef);
-
-  /**
-   * Detect changes after we change properties.
-   */
-  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
+export class TxnRowComponent {
 
   @Input() txn = new Transaction();
   @Output() txnChange = new EventEmitter<Transaction>();
@@ -53,24 +43,28 @@ export class TxnRowComponent implements AfterViewInit {
    * Notification events about dropping this transaction row or budgets changing.
    */
   @Output() dropRow: EventEmitter<void> = new EventEmitter<void>();
-  @Output() budgetsChange: EventEmitter<void> = new EventEmitter<void>();
+
+  /**
+   * Allow the user to edit the transactions in place.
+   * This is a behaviour input.
+   * Add class="editable" to make this table editable.
+   */
+  @Input() editable: boolean = false;
+
+  /**
+   * Truncate the description to 30 characters for neater display (since I can't figure out the css)
+   * This is a behaviour input.
+   * Add class="truncate" to truncate description and merchant fields.
+   */
+  @Input() truncate: boolean = false;
 
   @HostBinding('class.editing') editing = false;
-  editable: boolean = false;
-  truncate: boolean = false;
 
   txShow: TransactionShowHeaders = Settings.fromLocalStorage().txShow;
-
-  ngAfterViewInit(): void {
-    this.editable = this.ref.nativeElement.hasAttribute('editable');
-    this.truncate = this.ref.nativeElement.hasAttribute('truncate');
-    this.chDet.detectChanges();
-  }
 
   save(txn: Transaction): void {
     this.editing = false;
     this.txnChange.emit(txn);
-    this.budgetsChange.emit();
   }
 
   cancel(): void {

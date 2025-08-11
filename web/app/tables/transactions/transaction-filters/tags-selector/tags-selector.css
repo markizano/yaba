@@ -4,6 +4,7 @@
     min-width: 13rem;
     padding: 1.2rem 1rem 1rem 1rem;
     box-sizing: border-box;
+    width: 100%;
 }
 
 .tags-filter {

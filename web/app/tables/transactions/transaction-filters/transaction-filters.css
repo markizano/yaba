@@ -21,3 +21,19 @@
     font-weight: bold;
     font-size: 150%;
 }
+
+.account-filter {
+  position: relative;
+  padding: 1.5rem 0.5rem 0.5rem 0.5rem;
+  box-sizing: border-box;
+}
+
+.account-filter:before {
+  content: "Account: ";
+  position: absolute;
+  color: var(--text);
+  top: 0;
+  left: 1rem;
+}
+
+

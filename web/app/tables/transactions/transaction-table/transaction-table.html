@@ -20,17 +20,19 @@
     <tr class="yaba-txn-row" @fade-slide-down
     [select]="selectedTxns.has(txns[rowId])"
     [(txn)]="txns[rowId]"
+    (txnChange)="rowChange($event)"
     (dropRow)="deleteTxn(txns[rowId])"
     (selectChange)="selectionHandler($event, txns[rowId])"
     (budgetsChange)="budgetsChange.emit()"
-    [attr.truncate]="truncate"
-    [attr.editable]="editable"
+    [truncate]="truncate"
+    [editable]="editable"
+    [truncate]="truncate"
     ></tr>
   }
   </tbody>
   </table>
 }
-@if ( showPaginate && txns.length > page.pageSize ) {
+@if ( paginate && txns.length > page.pageSize ) {
   <mat-paginator
   (page)="turnPage($event)"
   [length]="txns.length"

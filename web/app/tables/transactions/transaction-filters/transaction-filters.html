@@ -1,4 +1,8 @@
 <yaba-daterange (changed)="daterange($event)" [(fromDate)]="filter.fromDate" [(toDate)]="filter.toDate"></yaba-daterange>
-@if ( filterByAccount ) {<yaba-account-selector [(ngModel)]="filter.accounts" (ngModelChange)="filterChange.emit(filter)" multiple></yaba-account-selector>}
+@if ( filterByAccount ) {
+  <div class="account-filter">
+    <yaba-account-selector [(ngModel)]="filter.accounts" (ngModelChange)="filterChange.emit(filter)" multiple></yaba-account-selector>
+  </div>
+}
 <yaba-description (changed)="description($event)"></yaba-description>
 <yaba-tags [(ngModel)]="filter.tags" (ngModelChange)="filterChange.emit(filter)" multiple></yaba-tags>

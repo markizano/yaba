@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 
 import { YabaAnimations } from 'app/lib/animations';
@@ -13,25 +13,19 @@ import { TransactionShowHeaders, TxnSortHeader } from 'app/lib/types';
   styleUrl: './transaction-table.css',
   animations: [ YabaAnimations.fadeSlideDown() ],
 })
-export class TransactionTableComponent implements AfterViewInit {
-
-  /**
-   * Host element reference so we can tell what html-class's are attached to it
-   * for interactive behaviour controls.
-   */
-  ref: ElementRef = inject(ElementRef);
-
-  /**
-   * Detect changes after we change properties.
-   */
-  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
-
+export class TransactionTableComponent {
   /**
    * Internal transaction collection buffer to hold the transactions we would render
    * on the page.
    */
   @Input() txns = new Transactions();
   @Output() txnsChange = new EventEmitter<Transactions>();
+
+  /**
+   * When a single transaction/row is updated.
+   * Makes it easier to track which one updated without having to iterate over the list.
+   */
+  @Output() txnChange = new EventEmitter<Transaction>();
 
   /**
    * Event emitter of the budgets. Just a flag to notify to rebalance the budgets.
@@ -44,21 +38,21 @@ export class TransactionTableComponent implements AfterViewInit {
    * This is a behaviour input.
    * Add class="editable" to make this table editable.
    */
-  editable: boolean = false;
+  @Input() editable: boolean = false;
 
   /**
    * Truncate the description to 30 characters for neater display (since I can't figure out the css)
    * This is a behaviour input.
    * Add class="truncate" to truncate description and merchant fields.
    */
-  truncate: boolean = false;
+  @Input() truncate: boolean = false;
 
   /**
    * Determins if the paginator is rendered.
    * This is a behaviour input of sorts.
    * Add attribute "paginate" to show the paginator.
    */
-  showPaginate: boolean = false;
+  @Input() paginate: boolean = false;
 
   /**
    * Internal page tracker.
@@ -83,15 +77,6 @@ export class TransactionTableComponent implements AfterViewInit {
    */
   @Input() selectedTxns = new Transactions();
   @Output() selectedTxnsChange: EventEmitter<Transactions> = new EventEmitter<Transactions>();
-
-  ngAfterViewInit(): void {
-    // editable is available at the attribute level not the class level because it passes the
-    // class to the components that need to listen for the click event.
-    this.editable = this.ref.nativeElement.hasAttribute('editable');
-    this.truncate = this.ref.nativeElement.hasAttribute('truncate');
-    this.showPaginate = this.ref.nativeElement.hasAttribute('paginate');
-    this.chDet.detectChanges();
-  }
 
   /**
    * Generate the list of rows to display on the current page based on page count.
@@ -142,6 +127,15 @@ export class TransactionTableComponent implements AfterViewInit {
       this.selectedTxns.remove(txn);
     }
     this.selectedTxnsChange.emit(this.selectedTxns);
+  }
+
+  /**
+   * Handles when a transaction is changed in the row.
+   */
+  rowChange(txn: Transaction): void {
+    this.txns.byId(txn.id)!.update(txn);
+    this.txnsChange.emit(this.txns);
+    this.txnChange.emit(txn);
   }
 
   /**

@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostBinding, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipEvent, MatChipInputEvent } from '@angular/material/chips';
 
@@ -19,22 +19,12 @@ import { AccountsService } from 'app/services/accounts.service';
   templateUrl: './txn-field.html',
   styleUrls: ['./txn-field.css'],
 })
-export class TxnFieldComponent implements OnInit, OnDestroy, AfterViewInit {
+export class TxnFieldComponent implements OnInit, OnDestroy {
   /**
    * ReadOnly constants for key codes.
    * Used in the HTML template for `matChipInputSeparatorKeyCodes`.
    */
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
-
-  /**
-   * Host element reference for detecting which classes are associated for behaviour identification.
-   */
-  ref: ElementRef = inject(ElementRef);
-
-  /**
-   * Detect changes after we change properties.
-   */
-  chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   /**
    * TWo-way binding of the transaction field we're associating.
@@ -50,7 +40,7 @@ export class TxnFieldComponent implements OnInit, OnDestroy, AfterViewInit {
   /**
    * The name of the field to which we are bound.
    */
-  field: keyof Transaction = 'id';
+  @Input() field: keyof Transaction = 'id';
 
   /**
    * Are we in the middle of editing this?
@@ -64,7 +54,7 @@ export class TxnFieldComponent implements OnInit, OnDestroy, AfterViewInit {
   /**
    * Whether to truncate the text with ellipsis.
    */
-  truncate: boolean = false;
+  @Input() truncate: boolean = false;
 
   /**
    * Internal account storage.
@@ -83,13 +73,6 @@ export class TxnFieldComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.#acct?.unsubscribe();
-  }
-
-  ngAfterViewInit(): void {
-    // this.editing = this.ref.nativeElement.classList.contains('editing');
-    this.truncate = this.ref.nativeElement.hasAttribute('truncate');
-    this.field = this.ref.nativeElement.getAttribute('field');
-    this.chDet.detectChanges();
   }
 
   add($event: MatChipInputEvent) {

@@ -5,6 +5,7 @@
     margin: 1rem auto;
     padding: 1rem;
     box-sizing: border-box;
+    width: 100%;
 }
 
 .description {
