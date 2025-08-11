@@ -1,8 +1,8 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, inject, Input, Output } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, forwardRef, inject, Input } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Subscription } from "rxjs";
 
-import { Account, Accounts } from "app/lib/accounts";
+import { Accounts } from "app/lib/accounts";
 import { AccountsService } from "app/services/accounts.service";
 
 /**
@@ -15,9 +15,9 @@ import { AccountsService } from "app/services/accounts.service";
  */
 @Component({
     selector: 'yaba-account-selector',
-    standalone: false,
     templateUrl: './account-selector.html',
     styleUrls: ['./account-selector.css'],
+    standalone: false,
     providers: [{ // Enables the use of [(ngModel)] to be passed to this component.
         provide: NG_VALUE_ACCESSOR,
         useExisting: forwardRef(() => AccountSelectorComponent),
@@ -25,23 +25,50 @@ import { AccountsService } from "app/services/accounts.service";
     }]
 })
 export class AccountSelectorComponent implements ControlValueAccessor, AfterViewInit {
+  /**
+   * HTML element reference to detect attributes and classList.
+   */
+  ref: ElementRef = inject(ElementRef);
+
+  /**
+   * Inform Angular that we have changed stuff here so it can run its detection again.
+   */
   chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
+
+  /**
+   * Access to the accounts to list.
+   */
+  accountsService: AccountsService = inject(AccountsService);
+
+  /**
+   * [(ngModel)] value to return.
+   */
   @Input() value: Accounts = new Accounts();
-  #accts?: Subscription;
+
+  /**
+   * Placeholder for the accounts we've retrieved.
+   */
+  accounts = new Accounts();
 
   // ControlValueAccessor implementation
-  // Outputs a string=accountId
   onChange = (_: Accounts) => {};
   onTouched = () => {};
   disabled: boolean = false;
 
+  /**
+   * Attribute detector for enable multiple accounts to be selected.
+   */
   multiple: boolean = false;
+
+  /**
+   * Attribute detector for this field being required in forms.
+   */
   required: boolean = false;
 
-  accounts = new Accounts();
-  accountsService: AccountsService = inject(AccountsService);
-  ref: ElementRef = inject(ElementRef);
-
+  /**
+   * Private subscription to account changes.
+   */
+  #accts?: Subscription;
 
   ngOnInit() {
     const update = (accounts: Accounts) => {

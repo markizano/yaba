@@ -16,20 +16,41 @@ import { NgSelectable, TransactionType } from 'app/lib/types';
   }],
 })
 export class TransactionTypeComponent implements ControlValueAccessor, AfterViewInit {
-
-  @Input() value: keyof TransactionType | null = null;
-
+  /**
+   * HTML element reference to detect attributes and classList.
+   */
   ref: ElementRef = inject(ElementRef);
+
+  /**
+   * Inform Angular that we have changed stuff here so it can run its detection again.
+   */
   chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
+
+  @Input() value: TransactionType = TransactionType.UNKNOWN;
 
   // ControlValueAccessor implementation
   // Outputs a string=transactionType
-  onChange = (_: keyof TransactionType | null) => {};
+  onChange = (_: TransactionType) => {};
   onTouched = () => {};
+
+  /**
+   * Controls disable state.
+   */
   disabled: boolean = false;
 
+  /**
+   * Attribute detector for enable multiple accounts to be selected.
+   */
   multiple: boolean = false;
+
+  /**
+   * Attribute detector for this field being required in forms.
+   */
   required: boolean = false;
+
+  /**
+   * Allows form flow control with which tab index this field is.
+   */
   tabIndex: number|null = null;
 
   transactionTypes: NgSelectable<TransactionType>[] = Transaction.Types();
@@ -42,8 +63,8 @@ export class TransactionTypeComponent implements ControlValueAccessor, AfterView
   }
 
   /* BEGIN: [(ngModel)] handler methods */
-  writeValue(value: keyof TransactionType): void {
-      this.value = value;
+  writeValue(value: TransactionType): void {
+      this.value = value || TransactionType.UNKNOWN;
   }
 
   registerOnChange(fn: any): void {
@@ -63,8 +84,8 @@ export class TransactionTypeComponent implements ControlValueAccessor, AfterView
    * Handle change events from ng-select and bridge to ControlValueAccessor
    * @param value Selected transaction type value
    */
-  changed(value: keyof TransactionType | null) {
-    this.value = value;
+  changed(value: NgSelectable<TransactionType>) {
+    this.value = value.value;
     this.onChange(this.value);
     this.onTouched();
   }

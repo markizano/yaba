@@ -1,11 +1,10 @@
 <div>
   <ng-select
   [items]="transactionTypes"
-  bindLabel="label"
-  bindValue="value"
   [clearable]="false"
   [multiple]="multiple"
   [required]="required"
+  [disabled]="disabled"
   placeholder="Select transaction type"
   [ngModel]="value"
   (change)="changed($event)"

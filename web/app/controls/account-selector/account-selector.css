@@ -4,20 +4,7 @@
     margin: 10px auto;
     padding: 1.2rem 1rem 1rem 1rem;
     box-sizing: border-box;
-}
-
-.account-filter {
-    position: relative;
-    padding: 1.5rem 0.5rem 0.5rem 0.5rem;
-    box-sizing: border-box;
-}
-
-.account-filter:before {
-    content: "Account: ";
-    position: absolute;
-    color: var(--text);
-    top: 0;
-    left: 1rem;
+    width: 100%;
 }
 
 :host ng-select {
