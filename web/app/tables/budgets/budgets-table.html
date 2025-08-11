@@ -5,7 +5,7 @@
       <th>Spending</th>
     </thead>
     <tbody>
-@for(b of getBudgets(); track b) {
+@for(b of budgets; track b.tag) {
       <tr>
         <td>{{ b.tag }}</td>
         <td>{{ b.amount | currency }}</td>

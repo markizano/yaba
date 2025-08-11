@@ -186,8 +186,38 @@ export class Tags extends Set<string> {
 /**
  * Budget interface to define a budget.
  */
-export type IBudget = { tag: string, amount: number };
-export type Budgets = IBudget[];
+// export type IBudget = { tag: string, amount: number };
+// export type Budgets = IBudget[];
+export interface IBudget {
+  tag: string;
+  amount: number;
+}
+export class Budget implements IBudget {
+  tag: string = '';
+  amount: number = 0.0;
+
+  constructor(tag: Budget);
+  constructor(tag: string, amount: number);
+  constructor(tag: Budget | string, amount?: number) {
+    if (tag instanceof Budget) {
+      this.tag = tag.tag;
+      this.amount = tag.amount;
+    } else {
+      this.tag = tag;
+      this.amount = amount || 0.0;
+    }
+  }
+}
+export class Budgets extends Array<Budget> {
+  override sort(compareFn?: (a: Budget, b: Budget) => number) {
+    super.sort(compareFn || ((a: Budget, b: Budget): number => a.tag.toLowerCase() > b.tag.toLowerCase()? 1: -1));
+    return this;
+  }
+
+  sum(): number {
+    return this.reduce((a, b) => a + b.amount, 0.0);
+  }
+}
 
 /**
  * Transaction Sorting descriptor.

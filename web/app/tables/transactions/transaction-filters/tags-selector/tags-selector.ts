@@ -4,7 +4,7 @@ import { Component, OnInit, OnDestroy, forwardRef, inject, ElementRef, AfterView
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { Tags } from 'app/lib/types';
-import { BudgetsService } from 'app/services/budgets.service';
+import { TagsService } from 'app/services/tags.service';
 
 @Component({
   selector: 'yaba-tags',
@@ -28,7 +28,7 @@ export class TagsSelectorComponent implements OnInit, OnDestroy, AfterViewInit, 
   ref: ElementRef = inject(ElementRef);
   chDet: ChangeDetectorRef = inject(ChangeDetectorRef);
 
-  budgetsService = inject(BudgetsService);
+  tagsService = inject(TagsService);
   #bud?: Subscription;
 
   multiple: boolean = false;
@@ -44,8 +44,8 @@ export class TagsSelectorComponent implements OnInit, OnDestroy, AfterViewInit, 
     const update = (tags: Tags) => {
       this.tags = tags.toArray();
     };
-    update(this.budgetsService.get());
-    this.#bud = this.budgetsService.subscribe(update);
+    update(this.tagsService.get());
+    this.#bud = this.tagsService.subscribe(update);
   }
 
   ngOnDestroy(): void {

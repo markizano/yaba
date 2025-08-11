@@ -7,7 +7,7 @@ import { CURRENCY_RE, NULLDATE } from 'app/lib/constants';
 import { TransactionDeltas, CurrencyType } from 'app/lib/structures';
 import { IAccount, Account, Accounts } from 'app/lib/accounts';
 import { InstitutionMappings, MapTypes, Institution } from 'app/lib/institutions';
-import { Budgets, IBudget, Id2NameHashMap, NgSelectable, Tags, TransactionFilter, TransactionType, YabaPlural } from 'app/lib/types';
+import { Budget, Budgets, IBudget, Id2NameHashMap, NgSelectable, Tags, TransactionFilter, TransactionType, YabaPlural } from 'app/lib/types';
 import { Observable, forkJoin, mergeAll, of } from 'rxjs';
 
 /**
@@ -557,44 +557,26 @@ export class Transactions extends Array<Transaction> implements YabaPlural<Trans
      * and result as a single {"Groceries": $amount} object in the resulting Array().
      */
     getBudgets(): Budgets {
-        // Map each transaction to a {tag, amount} object.
-        const tag2amount = (t: Transaction) => t.tags.map(tag => ({tag, amount: t.amount}) );
-        // Sort by tag near the end of this operation.
-        const sortByTags = (a: IBudget, b: IBudget) => a.tag.toLowerCase() > b.tag.toLowerCase()? 1: -1;
-        // Reducer method for filtering out duplicates into a unique
-        // list of budgets with the amounts aggregated.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const sumTags = (budgets: any, txn: any): IBudget[] => {
-            txn.forEach((cv: IBudget) => {
-                const a = budgets.filter((x: IBudget) => x.tag == cv.tag);
-                if ( a.length ) {
-                    a[0].amount += cv.amount;
-                } else {
-                    budgets.push(cv);
-                }
-            });
-            return budgets;
-        };
-        // Run this rube-goldberg and haphazardly return the result.
-        switch ( this.length ) {
-            case 0:
-                return <Budgets>[];
-            case 1:
-                return (txn => {
-                    if ( txn.tags.length ) {
-                        return <Budgets>txn.tags.map(tag => ({tag, amount: txn.amount}));
-                    }
-                    return <Budgets>[];
-                })(this[0])
-            default:
-                // eslint-disable-next-line no-case-declarations
-                const txnsWithTags = this.haveTags();
-                // eslint-disable-next-line no-case-declarations
-                const tags2Amounts = txnsWithTags.map(tag2amount);
-                // eslint-disable-next-line no-case-declarations
-                const reduceBudgets: IBudget[] = <IBudget[]>Array.prototype.reduce.apply(tags2Amounts, [sumTags, []]);
-                return reduceBudgets.sort(sortByTags);
+        if (this.length === 0) {
+            return new Budgets();
         }
+
+        // Create a Map to aggregate amounts by tag
+        const tagAmounts = new Map<string, number>();
+
+        // Process each transaction and aggregate amounts by tag
+        this.haveTags().forEach(transaction => {
+            transaction.tags.forEach(tag => {
+                tagAmounts.set(tag, (tagAmounts.get(tag) || 0) + transaction.amount);
+            });
+        });
+
+        // Convert Map to Budgets array and sort alphabetically
+        const budgets = Array.from(tagAmounts.entries())
+            .map(([tag, amount]) => new Budget(tag, amount))
+            .sort((a, b) => a.tag.toLowerCase().localeCompare(b.tag.toLowerCase()));
+
+        return budgets as Budgets;
     }
 
     /** ###  REDUCER FUNCTIONS  ###

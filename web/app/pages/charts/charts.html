@@ -5,7 +5,7 @@
   </div>
 </div>
 <div class="column box-content">
-  <yaba-transaction-filters [(filter)]="filter" (filterChange)="onFilterChange($event)"></yaba-transaction-filters>
+  <yaba-transaction-filters [(filters)]="filters" (filtersChange)="onFilterChange($event)"></yaba-transaction-filters>
   <debug>
     Transactions: <span>{{ transactions.length }}</span>
     Selected Budgets: <span>{{ txnTags | json }}</span><br />

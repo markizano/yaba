@@ -1,7 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { ControlsModule } from 'app/controls/controls.module';
 import { Budgets } from 'app/lib/types';
+import { BudgetsService } from 'app/services/budgets.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'yaba-budgets-table',
@@ -11,25 +13,32 @@ import { Budgets } from 'app/lib/types';
     ControlsModule,
   ],
 })
-export class YabaTableBudgetsComponent {
-  @Input() budgets: Budgets;
+export class YabaTableBudgetsComponent implements OnInit, OnDestroy {
+  /**
+   * Budgets Service keeps communications with the budget table.
+   */
+  budgetsService: BudgetsService = inject(BudgetsService);
 
-  constructor() {
-    this.budgets = [];
+  /**
+   * Local storage for budgets.
+   */
+  budgets: Budgets = new Budgets();
+
+  /**
+   * Private subscription to keep up to date.
+   */
+  #bud?: Subscription;
+
+  ngOnInit(): void {
+    const update = (budgets: Budgets) => {
+      budgets.sort();
+      this.budgets = budgets;
+    };
+    update(this.budgetsService.get());
+    this.#bud = this.budgetsService.subscribe(update);
   }
 
-  getBudgets(): Budgets {
-    const budgets = this.budgets.concat() // shallow copy to avoid modifying the original array.
-      .filter(a => !!a.tag); // Filter out empty budgets.
-    budgets.sort((a, b) => {
-      if (a.tag < b.tag) {
-        return -1;
-      }
-      if (a.tag > b.tag) {
-        return 1;
-      }
-      return 0;
-    });
-    return budgets;
+  ngOnDestroy(): void {
+    this.#bud?.unsubscribe();
   }
 }

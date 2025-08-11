@@ -1,8 +1,6 @@
 :host {
-  width: 35rem;
+  display: block;
   height: auto;
-  position: absolute;
-  z-index: 1;
   border: 0.2rem solid var(--border);
   background-color: white;
   border-radius: 0.5rem 0.5rem 0 0;

@@ -18,7 +18,7 @@ import { EMPTY_TRANSACTION_FILTER } from 'app/lib/constants';
 export class ChartsComponent implements OnInit, OnDestroy {
   accountsService: AccountsService = inject(AccountsService);
 
-  filter: TransactionFilter = EMPTY_TRANSACTION_FILTER;
+  filters: TransactionFilter = {...EMPTY_TRANSACTION_FILTER};
 
   // Chart configuration
   chartType: ChartType = ChartType.LineChart;
@@ -38,7 +38,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
   // Core data
   accounts: Accounts = new Accounts();
   transactions: Transactions = new Transactions();
-  budgets: Budgets = [];
+  budgets: Budgets = new Budgets();
 
   // Debug properties (keeping for compatibility with template)
   txnTags: Tags = new Tags();
@@ -53,10 +53,11 @@ export class ChartsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.info('Charts controller');
+    this.filters = {...EMPTY_TRANSACTION_FILTER};
     // Subscribe to accounts service
     const update = (accounts: Accounts) => {
       this.accounts = accounts;
-      this.filter.accounts = accounts;
+      this.filters.accounts = accounts;
       this.loadTransactions();
     };
     update(this.accountsService.get());
@@ -71,7 +72,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
    * Handler for when transaction filters change
    */
   onFilterChange(filter: TransactionFilter): void {
-    this.filter = { ...filter };
+    this.filters = { ...filter };
     this.loadTransactions();
   }
 
@@ -87,7 +88,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
 
     // Use the filter object directly for transaction retrieval
     const searchFilter: TransactionFilter = {
-      ...this.filter,
+      ...this.filters,
       sort: { column: 'datePosted', asc: true }, // Sort ascending for chronological chart
       page: { pageIndex: 0, pageSize: -1, length: 0 } // Get all transactions
     };
@@ -95,7 +96,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
     this.transactions.push(...this.accounts.getTransactions(searchFilter));
 
     // Update debug properties for template compatibility
-    this.txnTags = this.filter.tags || new Tags();
+    this.txnTags = this.filters.tags || new Tags();
 
     // Generate chart data
     this.generateChartData();
@@ -105,14 +106,14 @@ export class ChartsComponent implements OnInit, OnDestroy {
    * Group transactions by day and budget tags to create chart data
    */
   generateChartData(): void {
-    if (!this.transactions.length || !this.filter.tags?.length) {
+    if (!this.transactions.length || !this.filters.tags?.length) {
       this.chartData = [];
       this.myBudgets = []; // For debug display
       return;
     }
 
     // Filter transactions to only those with selected tags
-    const filteredTransactions = this.transactions.byTags(this.filter.tags);
+    const filteredTransactions = this.transactions.byTags(this.filters.tags);
 
     // Group transactions by date and tag
     const dailyBudgetData = this.groupTransactionsByDayAndBudget(filteredTransactions);
@@ -141,7 +142,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
 
       // Add transaction amount to each of its tags for this date
       txn.tags.forEach(tag => {
-        if (this.filter.tags?.includes(tag)) {
+        if (this.filters.tags?.includes(tag)) {
           allTags.add(tag);
           if (!dailyData[dateKey][tag]) {
             dailyData[dateKey][tag] = 0;

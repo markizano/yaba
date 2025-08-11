@@ -14,6 +14,8 @@ import { Transactions, Transaction } from 'app/lib/transactions';
 import { Account } from 'app/lib/accounts';
 
 import { AccountsService } from 'app/services/accounts.service';
+import { TagsService } from 'app/services/tags.service';
+import { BudgetsService } from 'app/services/budgets.service';
 import { ControlsModule } from 'app/controls/controls.module';
 
 import { TransactionTableModule } from 'app/tables/transactions/transaction-table/transaction-table.module';
@@ -45,6 +47,15 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
   accountsService = inject(AccountsService);
 
   /**
+   * Injected tags service to manage tag operations and budget updates.
+   */
+  tagsService = inject(TagsService);
+
+  /**
+   * Budgets Service keeps communications with the budget table.
+   */
+  budgetsService: BudgetsService = inject(BudgetsService);
+  /**
    * Which Account should we be viewing?
    * This is a data input.
    */
@@ -52,8 +63,9 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
 
   /**
    * The filters to apply to the transactions.
+   * Don't assign by reference to avoid overwriting the default.
    */
-  filters: TransactionFilter = EMPTY_TRANSACTION_FILTER;
+  filters: TransactionFilter = {...EMPTY_TRANSACTION_FILTER};
 
   /**
    * Internal transaction collection buffer to hold the transactions we would render
@@ -76,7 +88,11 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
    * Upon instantiation, subscribe to account changes.
    */
   ngOnInit() {
-    console.log('TransactionsListComponent().ngOnInit()');
+    this.filters = {...EMPTY_TRANSACTION_FILTER};
+    if ( !this.accountId ) {
+      this.filters.accounts = this.accountsService.get();
+    }
+    console.log('TransactionsListComponent().ngOnInit()', this.filters);
     this.refreshTransactions();
     this.#acctChg = this.accountsService.subscribe(() => this.refreshTransactions());
   }
@@ -86,7 +102,6 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy() {
     this.#acctChg?.unsubscribe();
-    this.filters = EMPTY_TRANSACTION_FILTER;
   }
 
   /**
@@ -95,7 +110,7 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
    * Update the transactions under the updated account details.
    */
   refreshTransactions() {
-    console.log('TransactionListComponent().accountsChange()', { filters: this.filters });
+    console.log('TransactionListComponent().refreshTransactions()', { filters: this.filters });
     if ( this.accountId ) {
       delete this.filters.accounts;
       const account = this.accountsService.get().byId(this.accountId);
@@ -105,9 +120,11 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
         throw new Error(`Account ${this.accountId} not found.`);
       }
     } else {
-      this.filters.accounts = [];
+      // this.filters.accounts = [];
       this.txns = this.accountsService.get().getTransactions(this.filters).sorted();
     }
+    this.tagsService.refreshFromAccounts(this.accountsService.get());
+    this.budgetsService.next(this.txns.getBudgets());
   }
 
   /**
@@ -156,8 +173,14 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
    * Tag the selected transactions with the given tag.
    */
   tagTxns(tag: string): void {
-    this.selectedTxns.setTag(tag);
+    this.selectedTxns.forEach(txn => {
+      txn.addTag(tag);
+      this.txns.byId(txn.id)?.update(txn);
+      this.accountsService.get().byId(txn.accountId)?.transactions.byId(txn.id)?.update(txn);
+    });
+    this.accountsService.save(this.accountsService.get());
     this.selectedTxns = new Transactions();
+    this.refreshTransactions();
   }
 
   /**
@@ -165,29 +188,45 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
    */
   untagTxns(tags: Tags): void {
     console.log('untag-txns', tags);
-    tags.forEach(tag => this.selectedTxns.removeTag(tag));
+    tags.forEach(tag => {
+      this.selectedTxns.forEach(txn => {
+        txn.removeTag(tag);
+        this.txns.byId(txn.id)?.update(txn)
+        this.accountsService.get().byId(txn.accountId)?.transactions.byId(txn.id)?.update(txn);
+      });
+    });
+    this.accountsService.save(this.accountsService.get());
     this.selectedTxns = new Transactions();
+    this.refreshTransactions();
   }
 
   /**
    * Delete the given transaction.
    */
   deleteTxn(txn: Transaction): void {
-  console.log('delete-txn', txn);
-  this.txns.remove(txn);
-  this.accountsService.get().byId(txn.accountId)?.transactions.remove(txn);
-  this.accountsService.save(this.accountsService.get());
+    console.log('delete-txn', txn);
+    this.txns.remove(txn);
+    this.accountsService.get().byId(txn.accountId)?.transactions.remove(txn);
+    this.accountsService.save(this.accountsService.get());
+    this.refreshTransactions();
   }
 
   /**
    * Deletes all selected transactions.
    */
   deleteSelected(): void {
-  console.log('delete-selected', this.selectedTxns);
-  this.selectedTxns.forEach((txn: Transaction) => {
-    try{ this.deleteTxn(txn); } catch(e) { console.error(e); }
-  });
-  this.selectedTxns = new Transactions();
+    console.log('delete-selected', this.selectedTxns);
+    this.selectedTxns.forEach((txn: Transaction) => {
+      try{
+        this.txns.remove(txn);
+        // I don't want to call (...transactions.update()) because this component's
+        // transaction list may be a partial slice of the complete account transactions.
+        this.accountsService.get().byId(txn.accountId)?.transactions.remove(txn);
+      } catch(e) { console.error(e); }
+    });
+    this.accountsService.save(this.accountsService.get());
+    this.selectedTxns = new Transactions();
+    this.refreshTransactions();
   }
 
   /**
@@ -197,6 +236,7 @@ export class TransactionsListComponent implements OnInit, OnDestroy {
     console.log('TransactionListComponent().editTxn()', txn);
     this.accountsService.get().byId(txn.accountId)?.transactions.byId(txn.id)?.update(txn)
     this.accountsService.save(this.accountsService.get());
+    this.refreshTransactions();
   }
 
   /**

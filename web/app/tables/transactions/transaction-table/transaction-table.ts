@@ -1,10 +1,12 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 
 import { YabaAnimations } from 'app/lib/animations';
 import { Settings } from 'app/lib/settings';
 import { Transaction, Transactions } from 'app/lib/transactions';
 import { TransactionShowHeaders, TxnSortHeader } from 'app/lib/types';
+import { TagsService } from 'app/services/tags.service';
+import { AccountsService } from 'app/services/accounts.service';
 
 @Component({
   selector: 'yaba-transaction-table',
@@ -14,6 +16,12 @@ import { TransactionShowHeaders, TxnSortHeader } from 'app/lib/types';
   animations: [ YabaAnimations.fadeSlideDown() ],
 })
 export class TransactionTableComponent {
+  /**
+   * Injected services for managing tags and accounts.
+   */
+  protected tagsService = inject(TagsService);
+  protected accountsService = inject(AccountsService);
+
   /**
    * Internal transaction collection buffer to hold the transactions we would render
    * on the page.
@@ -26,12 +34,6 @@ export class TransactionTableComponent {
    * Makes it easier to track which one updated without having to iterate over the list.
    */
   @Output() txnChange = new EventEmitter<Transaction>();
-
-  /**
-   * Event emitter of the budgets. Just a flag to notify to rebalance the budgets.
-   * This is a data output.
-   */
-  @Output() budgetsChange = new EventEmitter<void>();
 
   /**
    * Allow the user to edit the transactions in place.
@@ -131,6 +133,7 @@ export class TransactionTableComponent {
 
   /**
    * Handles when a transaction is changed in the row.
+   * This is just a passthru and not a data handler.
    */
   rowChange(txn: Transaction): void {
     this.txns.byId(txn.id)!.update(txn);
@@ -140,12 +143,11 @@ export class TransactionTableComponent {
 
   /**
    * Delete the given transaction.
+   * This is just a passthru and not a data handler.
    */
   deleteTxn(txn: Transaction): void {
-    if ( this.editable ) {
-      console.log('delete-txn', txn);
-      this.txns.remove(txn);
-      this.txnsChange.emit(this.txns);
-    }
+    console.log('delete-txn', txn);
+    this.txns.remove(txn);
+    this.txnsChange.emit(this.txns);
   }
 }

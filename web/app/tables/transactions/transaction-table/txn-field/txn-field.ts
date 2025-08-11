@@ -1,12 +1,13 @@
 import { Subscription } from 'rxjs';
 
-import { Component, EventEmitter, HostBinding, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, Input, Output, OnInit, OnDestroy, inject } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipEvent, MatChipInputEvent } from '@angular/material/chips';
 
 import { Transaction } from 'app/lib/transactions';
 import { Accounts } from 'app/lib/accounts';
 import { AccountsService } from 'app/services/accounts.service';
+import { TagsService } from 'app/services/tags.service';
 
 /**
  * One field to rule them all.
@@ -33,11 +34,6 @@ export class TxnFieldComponent implements OnInit, OnDestroy {
   @Output() txnChange = new EventEmitter<Transaction>();
 
   /**
-   * Notification event for when to rebalance the budgets.
-   */
-  @Output() budgetsChange = new EventEmitter<void>();
-
-  /**
    * The name of the field to which we are bound.
    */
   @Input() field: keyof Transaction = 'id';
@@ -61,6 +57,7 @@ export class TxnFieldComponent implements OnInit, OnDestroy {
    */
   accounts: Accounts = new Accounts();
   accountsService: AccountsService = inject(AccountsService);
+  tagsService: TagsService = inject(TagsService);
   #acct?: Subscription;
 
   ngOnInit(): void {
@@ -75,26 +72,35 @@ export class TxnFieldComponent implements OnInit, OnDestroy {
     this.#acct?.unsubscribe();
   }
 
+  /**
+   * Add a tag to this transaction we are editing.
+   */
   add($event: MatChipInputEvent) {
     this.txn.addTag($event.value);
     this.txnChange.emit(this.txn);
     $event.chipInput.clear();
-    this.budgetsChange.emit();
   }
 
+  /**
+   * Remove a tag to this transaction we are editing.
+   */
   remove($event: MatChipEvent) {
     this.txn.removeTag($event.chip.value);
     this.txnChange.emit(this.txn);
-    this.budgetsChange.emit();
   }
 
+  /**
+   * Modify a tag to this transaction we are editing.
+   */
   edit(prevVal: string, $event: MatChipEvent) {
     this.txn.removeTag(prevVal);
     this.txn.addTag($event.chip.value);
     this.txnChange.emit(this.txn);
-    this.budgetsChange.emit();
   }
 
+  /**
+   * Change the date to this transaction we are editing.
+   */
   dateChange(txnField: 'datePending' | 'datePosted', $event: Date): void {
     this.txn[txnField] = $event;
     this.txnChange.emit(this.txn);

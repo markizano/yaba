@@ -22,21 +22,22 @@ import { Accounts } from 'app/lib/accounts';
  */
 @Component({
     selector: 'yaba-transaction-filters',
-    standalone: false,
     templateUrl: './transaction-filters.html',
     styleUrls: ['./transaction-filters.css'],
+    standalone: false,
 })
 export class TransactionFiltersComponent implements OnInit, OnDestroy {
 
-  @Input()  filter = EMPTY_TRANSACTION_FILTER;
-  @Output() filterChange = new EventEmitter<TransactionFilter>();
+  @Input()  filters = {...EMPTY_TRANSACTION_FILTER};
+  @Output() filtersChange = new EventEmitter<TransactionFilter>();
 
-  filterByAccount: boolean = this.filter.accounts !== undefined;
+  filterByAccount: boolean = this.filters.accounts !== undefined;
 
   #subChg?: Subscription;
 
   ngOnInit() {
-    this.#subChg = this.filterChange.subscribe((filter: TransactionFilter) => {
+    // this.filters = {...EMPTY_TRANSACTION_FILTER};
+    this.#subChg = this.filtersChange.subscribe((filter: TransactionFilter) => {
       this.filterByAccount = filter.accounts !== undefined;
     });
     console.log('TransactionFilterComponent().ngOnInit()');
@@ -47,19 +48,19 @@ export class TransactionFiltersComponent implements OnInit, OnDestroy {
   }
 
   daterange($event: DateRange) {
-    this.filter.fromDate = new Date($event.fromDate);
-    this.filter.toDate = new Date($event.toDate);
-    this.filterChange.emit(this.filter);
+    this.filters.fromDate = new Date($event.fromDate);
+    this.filters.toDate = new Date($event.toDate);
+    this.filtersChange.emit(this.filters);
   }
 
   accounts($event: Accounts): void {
-    this.filter.accounts = $event;
-    this.filterChange.emit(this.filter);
+    this.filters.accounts = $event;
+    this.filtersChange.emit(this.filters);
   }
 
   description($event: DescriptionChange) {
-    this.filter.description = $event.useRegexp ? new RegExp($event.description) : $event.description;
-    console.debug('description', this.filter.description);
-    this.filterChange.emit(this.filter);
+    this.filters.description = $event.useRegexp ? new RegExp($event.description) : $event.description;
+    console.debug('description', this.filters.description);
+    this.filtersChange.emit(this.filters);
   }
 }
