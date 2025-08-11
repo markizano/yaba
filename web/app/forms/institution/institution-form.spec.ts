@@ -1,11 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DebugElement } from '@angular/core';
-import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { InstitutionFormComponent } from './institution-form';
-import { Institution, InstitutionMapping, MapTypes } from 'app/lib/institutions';
-import { Transaction } from 'app/lib/transactions';
+import { Institution, MapTypes } from 'app/lib/institutions';
 
 describe('InstitutionFormComponent', () => {
   let component: InstitutionFormComponent;
@@ -276,20 +273,20 @@ describe('InstitutionFormComponent', () => {
       );
     });
 
-    it('should parse CSV files and create mappings', async () => {
+    it('should parse CSV files and create mappings', () => {
       spyOn(component.institutionChange, 'emit');
       const mockFiles = [new File(['test'], 'test.csv')] as File[];
 
-      await component.parseCSVFiles(mockFiles);
+      component.parseCSVFiles(mockFiles);
 
       expect(component.institution.mappings.length).toBeGreaterThan(0);
       expect(component.institutionChange.emit).toHaveBeenCalledWith(component.institution);
     });
 
-    it('should create mappings from CSV headers', async () => {
+    it('should create mappings from CSV headers', () => {
       const mockFiles = [new File(['test'], 'test.csv')] as File[];
 
-      await component.parseCSVFiles(mockFiles);
+      component.parseCSVFiles(mockFiles);
 
       const mapping = component.institution.mappings[0];
       expect(mapping.fromField).toBe('Date');
