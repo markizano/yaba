@@ -159,7 +159,7 @@ $theme: mat.define-theme((
 @DEBUG: To enable debugging, set display=block; to disable debugging, set display=none.
 */
 debug, .debug {
-  display: none;
+  display: block;
   max-width: 800px;
   max-height: 300px;
   overflow: auto;
@@ -341,7 +341,7 @@ form input[type="button"] {
 }
 
 .small {
-  transform: scale(0.5);
+  transform: scale(0.8);
 }
 
 .big {
